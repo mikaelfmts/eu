@@ -118,13 +118,26 @@ button:hover {
     background-color: #0056b3;
 }
 
-/* Redes Sociais */
+/* Seção das redes sociais */
 .redes-sociais {
-    position: fixed;
-    bottom: 15px;
-    left: 50%;
-    transform: translateX(-50%);
+    text-align: center;
+    padding: 20px 0;
+    background: rgba(255, 255, 255, 0.9);
+    margin: 20px auto;
+    width: 80%;
+    border-radius: 10px;
+}
+
+.redes-sociais h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+/* Botões das redes sociais */
+.botoes-redes {
     display: flex;
+    justify-content: center;
     gap: 15px;
 }
 
@@ -151,4 +164,3 @@ button:hover {
 .social-btn:hover {
     opacity: 0.8;
 }
-

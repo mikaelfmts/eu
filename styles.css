@@ -1,4 +1,4 @@
-/* Importando a fonte Montserrat do Google Fonts */
+/* Importando a fonte Montserrat */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap');
 
 body {
@@ -6,53 +6,95 @@ body {
     margin: 0;
     padding: 0;
     text-align: center;
-    font-size: 14px; /* Tamanho da fonte menor */
-    background: url('https://i.ibb.co/hFMpzR1T/1f9c10920abea2a2f69f9b7efbcaaf59.gif') no-repeat center center fixed; 
-    background-size: cover; /* Ajusta o tamanho do fundo */
+    font-size: 14px;
+    background: url('https://i.ibb.co/hFMpzR1T/1f9c10920abea2a2f69f9b7efbcaaf59.gif') no-repeat center center fixed;
+    background-size: cover;
 }
 
+/* Estilizando a barra de menu lateral */
+.menu-lateral {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 15px;
+    border-radius: 10px;
+}
+
+.menu-lateral ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-lateral li {
+    margin: 10px 0;
+}
+
+.menu-lateral a {
+    text-decoration: none;
+    color: white;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.menu-lateral a:hover {
+    color: #007bff;
+}
+
+/* Cabeçalho */
 header {
-    background: rgba(51, 51, 51, 0.8); /* Adicionando transparência ao cabeçalho */
+    background: rgba(51, 51, 51, 0.8);
     color: white;
     padding: 20px;
-    font-size: 18px; /* Menor tamanho para o cabeçalho */
+    font-size: 18px;
+    margin-left: 150px; /* Para evitar sobreposição com o menu */
 }
 
+/* Projetos */
 #projetos {
     padding: 20px;
-    background: rgba(255, 255, 255, 0.8); /* Adicionando transparência ao fundo */
-    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.9);
+    margin: 20px auto;
     width: 80%;
+    border-radius: 10px;
 }
 
 .projeto {
     border: 1px solid #ddd;
     margin: 10px;
-    padding: 10px;
-    font-size: 14px; /* Tamanho da fonte menor */
+    padding: 15px;
+    font-size: 14px;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 }
 
+/* Rodapé */
 footer {
-    background: rgba(51, 51, 51, 0.8); /* Adicionando transparência ao rodapé */
+    background: rgba(51, 51, 51, 0.8);
     color: white;
     padding: 10px;
     position: fixed;
     bottom: 0;
     width: 100%;
-    font-size: 12px; /* Tamanho da fonte menor no rodapé */
+    font-size: 12px;
 }
 
+/* Botão */
 button {
     background-color: #007bff;
     color: white;
     border: none;
-    padding: 8px 12px; /* Botão com tamanho menor */
+    padding: 8px 12px;
     margin-top: 10px;
     cursor: pointer;
-    font-size: 14px; /* Tamanho da fonte menor no botão */
+    font-size: 14px;
     border-radius: 5px;
+    transition: 0.3s;
 }
 
 button:hover {
     background-color: #0056b3;
 }
+

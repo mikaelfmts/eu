@@ -117,3 +117,38 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+
+/* Redes Sociais */
+.redes-sociais {
+    position: fixed;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+}
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    color: white;
+    font-size: 24px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+/* Cores de cada rede social */
+.tiktok { background: #000; }
+.reddit { background: #ff4500; }
+.discord { background: #5865F2; }
+.github { background: #333; }
+
+/* Efeito hover */
+.social-btn:hover {
+    opacity: 0.8;
+}
+

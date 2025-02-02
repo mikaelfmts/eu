@@ -7,10 +7,12 @@ body {
     padding: 0;
     text-align: center;
     font-size: 14px; /* Tamanho da fonte menor */
+    background: url('https://i.pinimg.com/originals/1f/9c/10/1f9c10920abea2a2f69f9b7efbcaaf59.gif') no-repeat center center fixed; 
+    background-size: cover; /* Ajusta o tamanho do fundo */
 }
 
 header {
-    background: #333;
+    background: rgba(51, 51, 51, 0.8); /* Adicionando transparência ao cabeçalho */
     color: white;
     padding: 20px;
     font-size: 18px; /* Menor tamanho para o cabeçalho */
@@ -18,6 +20,9 @@ header {
 
 #projetos {
     padding: 20px;
+    background: rgba(255, 255, 255, 0.8); /* Adicionando transparência ao fundo */
+    margin: 0 auto;
+    width: 80%;
 }
 
 .projeto {
@@ -28,7 +33,7 @@ header {
 }
 
 footer {
-    background: #333;
+    background: rgba(51, 51, 51, 0.8); /* Adicionando transparência ao rodapé */
     color: white;
     padding: 10px;
     position: fixed;

@@ -114,6 +114,7 @@ header {
     margin: 20px auto;
     width: 80%;
     border-radius: 10px;
+    margin-bottom: 40px; /* Aumentando o espaço entre as redes sociais e o rodapé */
 }
 
 .redes-sociais h2 {

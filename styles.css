@@ -1,14 +1,19 @@
+/* Importando a fonte Montserrat do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap');
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Montserrat', sans-serif;
     margin: 0;
     padding: 0;
     text-align: center;
+    font-size: 14px; /* Tamanho da fonte menor */
 }
 
 header {
     background: #333;
     color: white;
     padding: 20px;
+    font-size: 18px; /* Menor tamanho para o cabeçalho */
 }
 
 #projetos {
@@ -19,6 +24,7 @@ header {
     border: 1px solid #ddd;
     margin: 10px;
     padding: 10px;
+    font-size: 14px; /* Tamanho da fonte menor */
 }
 
 footer {
@@ -28,20 +34,20 @@ footer {
     position: fixed;
     bottom: 0;
     width: 100%;
+    font-size: 12px; /* Tamanho da fonte menor no rodapé */
 }
 
 button {
     background-color: #007bff;
     color: white;
     border: none;
-    padding: 10px 15px;
+    padding: 8px 12px; /* Botão com tamanho menor */
     margin-top: 10px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px; /* Tamanho da fonte menor no botão */
     border-radius: 5px;
 }
 
 button:hover {
     background-color: #0056b3;
 }
-

@@ -11,35 +11,55 @@ body {
     background-size: cover;
 }
 
-/* Estilizando a barra de menu lateral */
-.menu-lateral {
+/* Ícone do menu (hambúrguer) */
+#menu-icon {
     position: fixed;
     top: 20px;
     left: 20px;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 10px 15px;
-    border-radius: 10px;
+    font-size: 30px;
+    color: white;
+    cursor: pointer;
+    z-index: 1000;
 }
 
-.menu-lateral ul {
+/* Menu Lateral */
+#menu-lateral {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    padding-top: 60px;
+    transition: 0.3s;
+}
+
+#menu-lateral ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.menu-lateral li {
-    margin: 10px 0;
+#menu-lateral li {
+    padding: 15px;
+    text-align: center;
 }
 
-.menu-lateral a {
+#menu-lateral a {
     text-decoration: none;
     color: white;
-    font-size: 14px;
+    font-size: 16px;
+    display: block;
     transition: 0.3s;
 }
 
-.menu-lateral a:hover {
-    color: #007bff;
+#menu-lateral a:hover {
+    background-color: #007bff;
+}
+
+/* Quando o menu estiver aberto */
+.menu-aberto {
+    left: 0 !important;
 }
 
 /* Cabeçalho */
@@ -48,7 +68,7 @@ header {
     color: white;
     padding: 20px;
     font-size: 18px;
-    margin-left: 150px; /* Para evitar sobreposição com o menu */
+    margin-left: 0;
 }
 
 /* Projetos */
@@ -97,4 +117,3 @@ button {
 button:hover {
     background-color: #0056b3;
 }
-

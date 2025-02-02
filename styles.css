@@ -208,3 +208,122 @@ footer {
 .menu-aberto {
     left: 0 !important;
 }
+
+/* Estilos para o currículo */
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+/* Cabeçalho */
+header {
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    padding: 40px 0;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 36px;
+    font-weight: 600;
+}
+
+header p {
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+/* Container de conteúdo */
+.container {
+    width: 80%;
+    margin: 0 auto;
+}
+
+/* Cards para as seções */
+.card {
+    background-color: white;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card h2 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.card p {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Lista de habilidades */
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    font-size: 16px;
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+}
+
+ul li i {
+    margin-right: 10px;
+}
+
+/* Links para redes sociais */
+.social-links {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.social-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    color: white;
+    font-size: 24px;
+    transition: 0.3s;
+}
+
+.social-icon:hover {
+    opacity: 0.8;
+}
+
+/* Cores para as redes sociais */
+.tiktok { background-color: #000; }
+.reddit { background-color: #FF4500; }
+.discord { background-color: #7289DA; }
+.github { background-color: #333; }
+
+/* Rodapé */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+footer p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Fim do estilo para o currículo */

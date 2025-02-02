@@ -327,4 +327,60 @@ footer p {
     font-size: 14px;
 }
 
+/* Estilizando o bonequinho dentro do menu */
+.bonequinho {
+    margin-top: 30px; /* Distância do final do menu */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    color: #fff;
+    opacity: 0; /* Inicia invisível */
+    pointer-events: none; /* Impede interações com o bonequinho */
+    transition: opacity 0.3s ease; /* Animação para suavizar a transição */
+}
+
+/* Animação de dança */
+@keyframes dançar {
+    0% {
+        transform: rotate(0deg); /* Começa sem rotação */
+    }
+    25% {
+        transform: rotate(-15deg); /* Inclina para a esquerda */
+    }
+    50% {
+        transform: rotate(0deg); /* Volta ao normal */
+    }
+    75% {
+        transform: rotate(15deg); /* Inclina para a direita */
+    }
+    100% {
+        transform: rotate(0deg); /* Volta ao normal */
+    }
+}
+
+/* Quando o menu está aberto, aplica animação ao bonequinho */
+.menu-aberto .bonequinho {
+    opacity: 1; /* Torna o bonequinho visível */
+    animation: dançar 2s infinite; /* Animação de dança */
+}
+
+/* Ajustando o estilo do menu */
+#menu-lateral {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    padding-top: 60px;
+    transition: 0.3s;
+}
+
+/* Quando o menu estiver aberto */
+.menu-aberto {
+    left: 0 !important;
+}
+
+
 /* Fim do estilo para o currículo */

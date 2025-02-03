@@ -87,23 +87,56 @@ header {
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
 }
 
-/* Projetos */
+/* Seção de Projetos */
 #projetos {
     padding: 20px;
     background: rgba(255, 255, 255, 0.9);
     margin: 20px auto;
     width: 80%;
     border-radius: 10px;
+    text-align: center;
 }
 
+/* Categoria de Projetos */
+.categoria {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(240, 240, 240, 0.9);
+    border-radius: 8px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Título da Categoria */
+.categoria h3 {
+    font-size: 18px;
+    color: #007bff;
+    border-bottom: 2px solid #007bff;
+    display: inline-block;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+/* Projetos dentro da Categoria */
 .projeto {
     border: 1px solid #ddd;
-    margin: 10px;
+    margin: 10px auto;
     padding: 15px;
     font-size: 14px;
     background: white;
     border-radius: 5px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    width: 90%;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    #projetos {
+        width: 95%;
+    }
+
+    .projeto {
+        width: 100%;
+    }
 }
 
 /* Redes Sociais */

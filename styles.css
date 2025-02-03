@@ -417,3 +417,15 @@ footer p {
 
 
 /* Fim do estilo para o currículo */
+/* Animação de Fade-in para os projetos */
+.projeto {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+/* Quando a seção entra na tela, os elementos aparecem */
+.projetos-visiveis .projeto {
+    opacity: 1;
+    transform: translateY(0);
+}

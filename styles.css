@@ -121,37 +121,35 @@ header {
     z-index: 998;
 }
 
-/* Cores alteradas para tons vermelho-vinho */
 .categoria {
     margin-bottom: 20px;
     padding: 15px;
-    background: rgba(139, 0, 0, 0.9); /* Vermelho escuro */
+    background: rgba(240, 240, 240, 0.9);
     border-radius: 8px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .categoria h3 {
     font-size: 18px;
-    color: #8B0000; /* Vermelho escuro */
-    border-bottom: 2px solid #8B0000;
+    color: #007bff;
+    border-bottom: 2px solid #007bff;
     display: inline-block;
     padding-bottom: 5px;
     margin-bottom: 15px;
 }
 
 .projeto {
-    border: 1px solid #8B0000; /* Borda vermelho escuro */
+    border: 1px solid #ddd;
     margin: 10px auto;
     padding: 15px;
     font-size: 14px;
-    background: #B22222; /* Vermelho tijolo */
+    background: white;
     border-radius: 5px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
     width: 90%;
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-    color: white;
 }
 
 .projeto.visivel {
@@ -163,13 +161,33 @@ header {
     transform: scale(1.02);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     transition: 0.3s;
-    background: #800000; /* Vinho escuro */
 }
 
 .preview-projeto {
     width: 100%;
     border-radius: 5px;
     margin-bottom: 10px;
+}
+
+/* Botões "Ver no GitHub" (agora em tons vermelho-vinho) */
+.projeto button {
+    background: linear-gradient(45deg, #8B0000, #B22222); /* Vermelho escuro para vinho */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    margin-top: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.projeto button:hover {
+    background: linear-gradient(45deg, #600000, #8B0000);
+}
+
+.projeto button:active {
+    transform: scale(0.95);
 }
 
 /* Redes Sociais */
@@ -217,7 +235,7 @@ header {
     opacity: 0.8;
 }
 
-/* Botão */
+/* Botão (fora da seção projetos) */
 button {
     background: linear-gradient(45deg, #007bff, #00ff88);
     color: white;

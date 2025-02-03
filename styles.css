@@ -9,17 +9,8 @@ body {
     font-size: 14px;
     background: url('https://s13.gifyu.com/images/b2KKX.gif') no-repeat center center fixed;
     background-size: cover;
-}
-
-/* Ícone do menu (hambúrguer) */
-#menu-icon {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    font-size: 30px;
-    color: white;
-    cursor: pointer;
-    z-index: 1000;
+    background-attachment: fixed;
+    color: #333;
 }
 
 /* Menu Lateral */
@@ -32,7 +23,7 @@ body {
     background: rgba(0, 0, 0, 0.9);
     padding-top: 60px;
     transition: 0.3s;
-    z-index: 1001; /* Garante que o menu fique acima de tudo */
+    z-index: 1001;
 }
 
 #menu-lateral ul {
@@ -70,7 +61,7 @@ header {
     padding: 20px;
     font-size: 18px;
     margin-left: 0;
-    z-index: 999; /* Garante que o cabeçalho fique abaixo do menu */
+    z-index: 999;
 }
 
 /* Foto do perfil no canto superior direito */
@@ -78,17 +69,46 @@ header {
     position: fixed;
     top: 15px;
     right: 15px;
-    cursor: pointer; /* Indica que é interativo */
-    z-index: 1000; /* Garante que a foto fique acima do menu */
+    cursor: pointer;
+    z-index: 1000;
 }
 
 .foto-perfil img {
-    width: 80px; /* Tamanho da imagem */
+    width: 80px;
     height: 80px;
-    border-radius: 50%; /* Deixa a foto redonda */
+    border-radius: 50%;
     border: 2px solid white;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
 }
+
+/* Seção de Habilidades Técnicas */
+#habilidades {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    margin: 20px auto;
+    width: 80%;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.skill-bar {
+    background: #eee;
+    border-radius: 5px;
+    margin: 10px auto;
+    width: 80%;
+}
+
+.skill {
+    height: 25px;
+    border-radius: 5px;
+    text-align: right;
+    padding-right: 10px;
+    color: white;
+}
+
+.java { width: 80%; background: #007bff; }
+.python { width: 70%; background: #4B8BBE; }
+.javascript { width: 60%; background: #f0db4f; }
 
 /* Seção de Projetos */
 #projetos {
@@ -98,10 +118,9 @@ header {
     width: 80%;
     border-radius: 10px;
     text-align: center;
-    z-index: 998; /* Garante que os projetos fiquem abaixo do menu */
+    z-index: 998;
 }
 
-/* Categoria de Projetos */
 .categoria {
     margin-bottom: 20px;
     padding: 15px;
@@ -110,7 +129,6 @@ header {
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Título da Categoria */
 .categoria h3 {
     font-size: 18px;
     color: #007bff;
@@ -120,7 +138,6 @@ header {
     margin-bottom: 15px;
 }
 
-/* Projetos dentro da Categoria */
 .projeto {
     border: 1px solid #ddd;
     margin: 10px auto;
@@ -130,44 +147,26 @@ header {
     border-radius: 5px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
     width: 90%;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-    #projetos {
-        width: 95%;
-    }
+.projeto.visivel {
+    opacity: 1;
+    transform: translateY(0);
+}
 
-    .projeto {
-        width: 100%;
-    }
+.projeto:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+}
 
-    .foto-perfil img {
-        width: 60px;
-        height: 60px;
-    }
-
-    header h1 {
-        font-size: 18px;
-    }
-
-    .categoria h3 {
-        font-size: 16px;
-    }
-
-    .projeto h4 {
-        font-size: 14px;
-    }
-
-    .projeto p {
-        font-size: 12px;
-    }
-
-    .social-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
-    }
+.preview-projeto {
+    width: 100%;
+    border-radius: 5px;
+    margin-bottom: 10px;
 }
 
 /* Redes Sociais */
@@ -178,7 +177,7 @@ header {
     margin: 20px auto;
     width: 80%;
     border-radius: 10px;
-    margin-bottom: 40px; /* Aumentando o espaço entre as redes sociais e o rodapé */
+    margin-bottom: 40px;
 }
 
 .redes-sociais h2 {
@@ -187,7 +186,6 @@ header {
     color: #333;
 }
 
-/* Botões das redes sociais */
 .botoes-redes {
     display: flex;
     justify-content: center;
@@ -207,30 +205,18 @@ header {
     transition: 0.3s;
 }
 
-/* Cores de cada rede social */
 .tiktok { background: #000; }
 .reddit { background: #ff4500; }
 .discord { background: #5865F2; }
 .github { background: #333; }
 
-/* Efeito hover */
 .social-btn:hover {
     opacity: 0.8;
 }
 
-/* Estilizando o cabeçalho */
-.titulo-principal {
-    font-size: 20px;
-    color: white;
-    background: rgba(51, 51, 51, 0.8);
-    padding: 15px;
-    border-radius: 8px;
-    display: inline-block;
-}
-
 /* Botão */
 button {
-    background-color: #007bff;
+    background: linear-gradient(45deg, #007bff, #00ff88);
     color: white;
     border: none;
     padding: 8px 12px;
@@ -242,7 +228,11 @@ button {
 }
 
 button:hover {
-    background-color: #0056b3;
+    background: linear-gradient(45deg, #0056b3, #00cc77);
+}
+
+button:active {
+    transform: scale(0.95);
 }
 
 /* Rodapé */
@@ -254,158 +244,19 @@ footer {
     bottom: 0;
     width: 100%;
     font-size: 12px;
-    z-index: 997; /* Garante que o rodapé fique abaixo do menu */
-}
-
-/* Estilos para o currículo */
-body {
-    font-family: 'Montserrat', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f9;
-    color: #333;
-}
-
-/* Cabeçalho */
-header {
-    background: rgba(51, 51, 51, 0.8);
-    color: white;
-    padding: 20px;
-    font-size: 18px;
-    margin-left: 0;
-}
-
-header h1 {
-    margin: 0;
-    font-size: 36px;
-    font-weight: 600;
-}
-
-header p {
-    font-size: 18px;
-    margin-top: 10px;
-}
-
-/* Container de conteúdo */
-.container {
-    width: 80%;
-    margin: 0 auto;
-}
-
-/* Cards para as seções */
-.card {
-    background-color: white;
-    padding: 20px;
-    margin: 20px 0;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.card h2 {
-    color: #333;
-    font-size: 24px;
-    margin-bottom: 10px;
-}
-
-.card p {
-    font-size: 16px;
-    line-height: 1.6;
-}
-
-/* Lista de habilidades */
-ul {
-    list-style: none;
-    padding: 0;
-}
-
-ul li {
-    font-size: 16px;
-    margin: 5px 0;
-    display: flex;
-    align-items: center;
-}
-
-ul li i {
-    margin-right: 10px;
-}
-
-/* Links para redes sociais */
-.social-links {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.social-icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    color: white;
-    font-size: 24px;
-    transition: 0.3s;
-}
-
-.social-icon:hover {
-    opacity: 0.8;
-}
-
-/* Cores para as redes sociais */
-.tiktok { background-color: #000; }
-.reddit { background-color: #FF4500; }
-.discord { background-color: #7289DA; }
-.github { background-color: #333; }
-
-/* Rodapé */
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-    position: relative;
-    bottom: 0;
-    width: 100%;
-}
-
-footer p {
-    margin: 0;
-    font-size: 14px;
-}
-
-/* Estilizando o bonequinho dentro do menu */
-.bonequinho {
-    margin-top: 30px; /* Distância do final do menu */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 40px;
-    color: #fff;
-    opacity: 0; /* Inicia invisível */
-    pointer-events: none; /* Impede interações com o bonequinho */
-    transition: opacity 0.3s ease; /* Animação para suavizar a transição */
+    z-index: 997;
 }
 
 /* Animação de dança */
 @keyframes dançar {
-    0% {
-        transform: rotate(0deg); /* Começa sem rotação */
-    }
-    25% {
-        transform: rotate(-15deg); /* Inclina para a esquerda */
-    }
-    50% {
-        transform: rotate(0deg); /* Volta ao normal */
-    }
-    75% {
-        transform: rotate(15deg); /* Inclina para a direita */
-    }
-    100% {
-        transform: rotate(0deg); /* Volta ao normal */
-    }
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-15deg); }
+    50% { transform: rotate(0deg); }
+    75% { transform: rotate(15deg); }
+    100% { transform: rotate(0deg); }
 }
 
-/* Quando o menu está aberto, aplica animação ao bonequinho */
-.menu-aberto .bonequinho
+.menu-aberto .bonequinho {
+    opacity: 1;
+    animation: dançar 2s infinite;
+}

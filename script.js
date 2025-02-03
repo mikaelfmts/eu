@@ -1,22 +1,19 @@
 function toggleMenu() {
     let menu = document.getElementById("menu-lateral");
-
-    if (menu.classList.contains("menu-aberto")) {
-        menu.classList.remove("menu-aberto");
-    } else {
-        menu.classList.add("menu-aberto");
-    }
+    menu.classList.toggle("menu-aberto");
 }
 
 // Função para verificar quando os projetos entram na tela
 document.addEventListener("DOMContentLoaded", function () {
-    const projetos = document.querySelector("#projetos");
-    function verificarVisibilidade() {
-        const posicao = projetos.getBoundingClientRect().top;
-        if (posicao < window.innerHeight - 100) {
-            projetos.classList.add("projetos-visiveis");
-        }
+    const projetos = document.querySelectorAll(".projeto");
+    function verificarScroll() {
+        projetos.forEach(projeto => {
+            const posicao = projeto.getBoundingClientRect().top;
+            if (posicao < window.innerHeight * 0.8) {
+                projeto.classList.add("visivel");
+            }
+        });
     }
-    window.addEventListener("scroll", verificarVisibilidade);
-    verificarVisibilidade();
+    window.addEventListener("scroll", verificarScroll);
+    verificarScroll(); // Verifica ao carregar
 });

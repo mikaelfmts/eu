@@ -29,9 +29,10 @@ body {
     left: -250px;
     width: 250px;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.9);
     padding-top: 60px;
     transition: 0.3s;
+    z-index: 1001; /* Garante que o menu fique acima de tudo */
 }
 
 #menu-lateral ul {
@@ -69,6 +70,7 @@ header {
     padding: 20px;
     font-size: 18px;
     margin-left: 0;
+    z-index: 999; /* Garante que o cabeçalho fique abaixo do menu */
 }
 
 /* Foto do perfil no canto superior direito */
@@ -77,6 +79,7 @@ header {
     top: 15px;
     right: 15px;
     cursor: pointer; /* Indica que é interativo */
+    z-index: 1000; /* Garante que a foto fique acima do menu */
 }
 
 .foto-perfil img {
@@ -95,6 +98,7 @@ header {
     width: 80%;
     border-radius: 10px;
     text-align: center;
+    z-index: 998; /* Garante que os projetos fiquem abaixo do menu */
 }
 
 /* Categoria de Projetos */
@@ -136,6 +140,33 @@ header {
 
     .projeto {
         width: 100%;
+    }
+
+    .foto-perfil img {
+        width: 60px;
+        height: 60px;
+    }
+
+    header h1 {
+        font-size: 18px;
+    }
+
+    .categoria h3 {
+        font-size: 16px;
+    }
+
+    .projeto h4 {
+        font-size: 14px;
+    }
+
+    .projeto p {
+        font-size: 12px;
+    }
+
+    .social-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
     }
 }
 
@@ -223,23 +254,7 @@ footer {
     bottom: 0;
     width: 100%;
     font-size: 12px;
-}
-
-/* Menu Lateral (Novamente) */
-#menu-lateral {
-    position: fixed;
-    top: 0;
-    left: -250px;
-    width: 250px;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    padding-top: 60px;
-    transition: 0.3s;
-}
-
-/* Quando o menu estiver aberto */
-.menu-aberto {
-    left: 0 !important;
+    z-index: 997; /* Garante que o rodapé fique abaixo do menu */
 }
 
 /* Estilos para o currículo */
@@ -393,79 +408,4 @@ footer p {
 }
 
 /* Quando o menu está aberto, aplica animação ao bonequinho */
-.menu-aberto .bonequinho {
-    opacity: 1; /* Torna o bonequinho visível */
-    animation: dançar 2s infinite; /* Animação de dança */
-}
-
-/* Ajustando o estilo do menu */
-#menu-lateral {
-    position: fixed;
-    top: 0;
-    left: -250px;
-    width: 250px;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    padding-top: 60px;
-    transition: 0.3s;
-}
-
-/* Quando o menu estiver aberto */
-.menu-aberto {
-    left: 0 !important;
-}
-
-
-/* Fim do estilo para o currículo */
-/* Animação de Fade-in para os projetos */
-.projeto {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-}
-
-/* Quando a seção entra na tela, os elementos aparecem */
-.projetos-visiveis .projeto {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-#titulo-animado {
-    display: inline-block;
-    border-right: 3px solid white;
-    white-space: nowrap;
-    overflow: hidden;
-    font-size: 22px;
-    animation: typing 4s steps(40, end), blink 0.75s step-end infinite;
-}
-
-@keyframes typing {
-    from { width: 0; }
-    to { width: 100%; }
-}
-
-@keyframes blink {
-    from, to { border-color: transparent; }
-    50% { border-color: white; }
-}
-
-button {
-    background: linear-gradient(45deg, #007bff, #0056b3);
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-body {
-    background: url('https://s13.gifyu.com/images/b2KKX.gif') no-repeat center center fixed;
-    background-size: cover;
-    background-attachment: fixed;
-}
+.menu-aberto .bonequinho

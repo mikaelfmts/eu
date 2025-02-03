@@ -463,3 +463,9 @@ button:hover {
     transform: translateY(-3px);
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
 }
+
+body {
+    background: url('https://s13.gifyu.com/images/b2KKX.gif') no-repeat center center fixed;
+    background-size: cover;
+    background-attachment: fixed;
+}

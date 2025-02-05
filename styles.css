@@ -281,3 +281,67 @@ footer {
     opacity: 1;
     animation: dançar 2s infinite;
 }
+
+/* Chatbot */
+#chatbot {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    font-family: 'Montserrat', sans-serif;
+    color: white;
+    overflow: hidden;
+    z-index: 1001;
+}
+
+#chat-header {
+    background: linear-gradient(45deg, #8B0000, #B22222);
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#chat-body {
+    display: none;
+    padding: 10px;
+}
+
+#chat-messages {
+    max-height: 250px;
+    overflow-y: auto;
+    background: white;
+    color: black;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+#chat-input-area {
+    display: flex;
+    margin-top: 10px;
+}
+
+#chat-input {
+    flex: 1;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+}
+
+#chat-input-area button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#chat-input-area button:hover {
+    background: #0056b3;
+}

@@ -17,3 +17,33 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("scroll", verificarScroll);
     verificarScroll(); // Verifica ao carregar
 });
+// Função para alternar a visibilidade do chat
+function toggleChat() {
+    let chatBody = document.getElementById("chat-body");
+    chatBody.style.display = chatBody.style.display === "block" ? "none" : "block";
+}
+
+// Função para enviar mensagens
+function sendMessage() {
+    let inputField = document.getElementById("chat-input");
+    let message = inputField.value.trim();
+    
+    if (message === "") return;
+
+    // Exibir a mensagem do usuário no chat
+    let chatMessages = document.getElementById("chat-messages");
+    let userMessage = `<div style="text-align: right; color: blue; margin: 5px 0;">Você: ${message}</div>`;
+    chatMessages.innerHTML += userMessage;
+
+    // Responder automaticamente (Simulação de IA)
+    setTimeout(() => {
+        let botMessage = `<div style="text-align: left; color: green; margin: 5px 0;">Bot: Em breve, serei conectado a uma API!</div>`;
+        chatMessages.innerHTML += botMessage;
+    }, 1000);
+
+    // Limpar input
+    inputField.value = "";
+    
+    // Manter o scroll sempre no final
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}

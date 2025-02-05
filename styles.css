@@ -169,9 +169,9 @@ header {
     margin-bottom: 10px;
 }
 
-/* Botões "Ver no GitHub" (agora em tons vermelho-vinho) */
+/* Botões "Ver no GitHub"
 .projeto button {
-    background: linear-gradient(45deg, #8B0000, #B22222); /* Vermelho escuro para vinho */
+    background: linear-gradient(45deg, #0000FF, #87CEFA);
     color: white;
     border: none;
     padding: 8px 12px;

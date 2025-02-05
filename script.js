@@ -37,7 +37,7 @@ function sendMessage() {
 
     // Responder automaticamente (Simulação de IA)
     setTimeout(() => {
-        let botMessage = `<div style="text-align: left; color: green; margin: 5px 0;">Bot: Em breve, serei conectado a uma API!</div>`;
+        let botMessage = `<div style="text-align: left; color: green; margin: 5px 0;">Bot: Em breve, serei conectado a uma API! Fale com o fundador através do email: mikaelmatos.adm@gmail.com</div>`;
         chatMessages.innerHTML += botMessage;
     }, 1000);
 

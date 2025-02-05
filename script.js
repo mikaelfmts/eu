@@ -37,14 +37,11 @@ async function sendMessage() {
 
     try {
         // Fazendo a requisição para a API
-        let response = await fetch("https://api.exemplo.com/chatbot", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer SUA_CHAVE_API" // Caso seja necessário
-            },
-            body: JSON.stringify({ mensagem: message })
-        });
+        let response = await fetch("http://localhost:3000/chatbot", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mensagem: message })
+});
 
         let data = await response.json();
 

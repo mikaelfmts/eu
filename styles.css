@@ -131,8 +131,8 @@ header {
 
 .categoria h3 {
     font-size: 18px;
-    color: #8B0000;
-    border-bottom: 2px solid #8B0000;
+    color: #002c8b;
+    border-bottom: 2px solid #002c8b;
     display: inline-block;
     padding-bottom: 5px;
     margin-bottom: 15px;
@@ -237,7 +237,7 @@ header {
 
 /* Botão (fora da seção projetos) */
 button {
-    background: linear-gradient(45deg, #007bff, #00ff88);
+    background: linear-gradient(45deg, #002c8b, #07008b);
     color: white;
     border: none;
     padding: 8px 12px;
@@ -249,7 +249,7 @@ button {
 }
 
 button:hover {
-    background: linear-gradient(45deg, #0056b3, #00cc77);
+    background: linear-gradient(45deg, #002c8b, #07008b);
 }
 
 button:active {
@@ -286,7 +286,7 @@ button:active {
 }
 
 #chat-header {
-    background: linear-gradient(45deg, #8B0000, #B22222);
+    background: linear-gradient(45deg, #002c8b, #07008b);
     padding: 10px;
     text-align: center;
     cursor: pointer;
@@ -322,7 +322,7 @@ button:active {
 }
 
 #chat-input-area button {
-    background: #007bff;
+    background: #002c8b;
     color: white;
     border: none;
     padding: 5px 10px;

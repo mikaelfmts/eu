@@ -1,5 +1,5 @@
 function toggleMenu() {
-    let menu = document.getElementById("menu-lateral");
+    let menu = document.getElementById("menu-lateral"); 
     menu.classList.toggle("menu-aberto");
 }
 
@@ -17,14 +17,15 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("scroll", verificarScroll);
     verificarScroll(); // Verifica ao carregar
 });
+
 // Função para alternar a visibilidade do chat
 function toggleChat() {
     let chatBody = document.getElementById("chat-body");
     chatBody.style.display = chatBody.style.display === "block" ? "none" : "block";
 }
 
-// Função para enviar mensagens
-function sendMessage() {
+// Função para enviar mensagens para a API do chatbot
+async function sendMessage() {
     let inputField = document.getElementById("chat-input");
     let message = inputField.value.trim();
     
@@ -32,18 +33,28 @@ function sendMessage() {
 
     // Exibir a mensagem do usuário no chat
     let chatMessages = document.getElementById("chat-messages");
-    let userMessage = `<div style="text-align: right; color: blue; margin: 5px 0;">Você: ${message}</div>`;
-    chatMessages.innerHTML += userMessage;
+    chatMessages.innerHTML += `<div style="text-align: right; color: blue; margin: 5px 0;">Você: ${message}</div>`;
 
-    // Responder automaticamente (Simulação de IA)
-    setTimeout(() => {
-        let botMessage = `<div style="text-align: left; color: green; margin: 5px 0;">Bot: Em breve, serei conectado a uma API!</div>`;
-        chatMessages.innerHTML += botMessage;
-    }, 1000);
+    try {
+        // Fazendo a requisição para a API
+        let response = await fetch("https://api.exemplo.com/chatbot", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer SUA_CHAVE_API" // Caso seja necessário
+            },
+            body: JSON.stringify({ mensagem: message })
+        });
+
+        let data = await response.json();
+
+        // Exibir a resposta do chatbot no chat
+        chatMessages.innerHTML += `<div style="text-align: left; color: green; margin: 5px 0;">Bot: ${data.resposta}</div>`;
+    } catch (error) {
+        chatMessages.innerHTML += `<div style="text-align: left; color: red; margin: 5px 0;">Erro ao se conectar à API!</div>`;
+        console.error("Erro:", error);
+    }
 
     // Limpar input
     inputField.value = "";
-    
-    // Manter o scroll sempre no final
     chatMessages.scrollTop = chatMessages.scrollHeight;
-}

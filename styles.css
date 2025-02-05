@@ -1,14 +1,16 @@
-/* Importando a fonte retrô */
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+/* Importando a fonte Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap');
 
 body {
-    font-family: 'Press Start 2P', cursive;
+    font-family: 'Montserrat', sans-serif;
     margin: 0;
     padding: 0;
     text-align: center;
-    font-size: 12px;
-    background: #3b5998; /* Azul retrô */
-    color: #fff;
+    font-size: 14px;
+    background: url('https://i.ibb.co/fdML0BpT/fundo-de-design-de-web-de-padrao-escuro-holografico-gold-494423-68009.jpg') no-repeat center center fixed;
+    background-size: cover;
+    background-attachment: fixed;
+    color: #fff; /* Texto em branco */
 }
 
 /* Menu Lateral */
@@ -18,7 +20,7 @@ body {
     left: -250px;
     width: 250px;
     height: 100%;
-    background: #1e3a8a; /* Azul escuro */
+    background: #1e3a8a; /* Azul escuro retrô */
     padding-top: 60px;
     transition: 0.3s;
     z-index: 1001;
@@ -38,14 +40,14 @@ body {
 
 #menu-lateral a {
     text-decoration: none;
-    color: #fff;
-    font-size: 14px;
+    color: white;
+    font-size: 16px;
     display: block;
     transition: 0.3s;
 }
 
 #menu-lateral a:hover {
-    background-color: #3b82f6; /* Azul mais claro */
+    background-color: #3b82f6; /* Azul claro */
 }
 
 /* Quando o menu estiver aberto */
@@ -58,7 +60,7 @@ header {
     background: #1e3a8a; /* Azul escuro */
     color: white;
     padding: 20px;
-    font-size: 10px;
+    font-size: 12px;
     border-bottom: 3px solid white;
 }
 
@@ -82,7 +84,7 @@ header {
 /* Seção de Habilidades Técnicas */
 #habilidades {
     padding: 20px;
-    background: #ffffff;
+    background: white;
     color: #1e3a8a;
     margin: 20px auto;
     width: 80%;
@@ -113,7 +115,7 @@ header {
 /* Seção de Projetos */
 #projetos {
     padding: 20px;
-    background: #ffffff;
+    background: white;
     color: #1e3a8a;
     margin: 20px auto;
     width: 80%;
@@ -239,15 +241,15 @@ footer {
     border-top: 3px solid white;
 }
 
-/* Chatbot */
+/* Chatbot - Movido um pouco mais para cima no mobile */
 #chatbot {
     position: fixed;
-    bottom: 20px;
+    bottom: 60px; /* Ajustado para não sobrepor o rodapé */
     right: 20px;
     width: 300px;
     background: #1e3a8a;
     border-radius: 10px;
-    font-family: 'Press Start 2P', cursive;
+    font-family: 'Montserrat', sans-serif;
     color: white;
     overflow: hidden;
     border: 3px solid white;

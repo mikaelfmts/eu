@@ -333,3 +333,35 @@ button:active {
 #chat-input-area button:hover {
     background: #0056b3;
 }
+
+/* Estilo para a seção de Certificados */
+.certificados {
+    background: rgba(255, 255, 255, 0.9);
+    margin: 20px auto;
+    padding: 15px;
+    width: 80%;
+    border-radius: 10px;
+    text-align: left;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.certificados h3 {
+    font-size: 18px;
+    color: #002c8b;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #002c8b;
+    padding-bottom: 5px;
+}
+
+.certificados h5 {
+    font-size: 14px;
+    margin: 10px 0;
+    color: #555;
+}
+
+.certificados p {
+    font-size: 14px;
+    color: #333;
+    margin-top: 5px;
+}
+

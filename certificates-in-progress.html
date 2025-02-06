@@ -21,10 +21,9 @@
         <img src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael">
     </div>
 
-    <!-- Menu Lateral Oculto -->
+   <!-- Menu Lateral Oculto -->
     <nav id="menu-lateral" class="menu-fechado">
         <ul>
-            <li><a href="index.html">Home</a></li>
             <li><a href="curriculum.html">Curriculum</a></li>
             <li><a href="projetos.html">All Uploaded Projects</a></li>
             <li><a href="mentors.html">Mentors</a></li>
@@ -48,22 +47,24 @@
         </h1>
     </header>
 
-    <!-- Seção das certificações -->
+    <!-- Seção das Certificações -->
     <section id="certificados">
         <h2>Certificates in progress</h2>
 
-        <!-- Formação Acadêmica -->
+        <!-- Certificação: Formando em Sistemas de Informação -->
         <div class="certificados">
             <h3>Graduating in Information Systems</h3>
             <p>Universidade de Fortaleza</p>
         </div>
 
+        <!-- Certificação: Google IT Support Professional -->
         <div class="certificados">
             <h3>Google IT Support Professional Certificate</h3>
             <h5>A comprehensive training in IT support, including troubleshooting, networking, system administration, and security fundamentals.</h5>
             <p>Google Inc</p>
         </div>
 
+        <!-- Certificação: Google IT Support Professional -->
         <div class="certificados">
             <h3>Google IT Support Professional Certificate</h3>
             <h5>Hands-on experience in Python programming, automation tasks, and solving real-world IT problems using Python scripts.</h5>
@@ -94,11 +95,19 @@
         </div>
     </section>
 
-    <!-- Rodapé -->
-    <footer>
-        <p>© 2025 Mikael de Matos</p>
-        <p>🚀 Make Solutions</p>
-    </footer>
+    <!-- Chatbot -->
+    <div id="chatbot">
+        <div id="chat-header" onclick="toggleChat()">
+            🤖 Talk with my bot!
+        </div>
+        <div id="chat-body">
+            <div id="chat-messages"></div>
+            <div id="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Digite sua mensagem...">
+                <button onclick="sendMessage()">Enviar</button>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

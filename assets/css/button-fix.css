@@ -1,0 +1,239 @@
+/* Correções para os botões de notificação e seletor de idiomas */
+
+/* Reposicionamento e melhoria para botões de controle no topo */
+.top-controls {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 8px 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    max-width: calc(100% - 40px);
+}
+
+/* Botão de tema */
+#theme-toggle {
+    position: relative;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    border-radius: 5px;
+}
+
+/* Botão de notificações */
+.notification-btn {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+}
+
+.notification-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.notification-btn.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Seletor de idiomas aprimorado */
+.language-switcher {
+    position: relative;
+    display: flex;
+    gap: 5px;
+    margin: 0;
+}
+
+.lang-btn {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lang-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.lang-btn.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Ajustes para seletor de cores */
+#color-selector {
+    position: relative;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    font-size: 0.85rem;
+}
+
+#color-selector:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+#color-selector-icon {
+    margin-right: 5px;
+    font-size: 1rem;
+}
+
+/* Cores possíveis para o tema */
+.color-theme-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 10px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    width: 180px;
+    margin-top: 8px;
+    z-index: 1001;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.color-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.color-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.color-preview {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+}
+
+.color-label {
+    color: var(--text-secondary);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .top-controls {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        top: 10px;
+        right: 10px;
+        width: auto;
+        gap: 8px;
+        padding: 8px;
+        max-width: calc(100% - 20px);
+    }
+    
+    .notification-btn, .lang-btn {
+        font-size: 0.75rem;
+        padding: 5px 7px;
+    }
+    
+    .language-switcher {
+        order: 2;
+    }
+    
+    #color-selector {
+        order: 1;
+    }
+    
+    #theme-toggle {
+        order: 3;
+    }
+}
+
+/* Estilos adicionais para evitar sobreposição em telas pequenas */
+@media (max-width: 480px) {
+    .top-controls {
+        padding: 6px;
+        gap: 6px;
+        max-width: calc(100% - 20px);
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+    
+    #color-selector span {
+        display: none; /* Oculta o texto "Cores" em telas muito pequenas */
+    }
+    
+    #color-selector {
+        padding: 6px;
+        min-width: 32px;
+        justify-content: center;
+    }
+    
+    #color-selector-icon {
+        margin-right: 0;
+    }
+    
+    .lang-btn {
+        padding: 6px;
+        font-size: 0.8rem;
+    }
+    
+    .notification-btn, #theme-toggle {
+        min-width: 32px;
+        height: 32px;
+        padding: 6px;
+    }
+    
+    /* Ajusta posição do menu de cores em mobile */
+    .color-theme-options {
+        right: 0;
+        left: auto;
+        width: 160px;
+    }
+}
+
+/* Corrigir possíveis sobreposições */
+#theme-toggle, .notification-btn, .lang-btn, #color-selector {
+    position: relative;
+    flex-shrink: 0;
+}

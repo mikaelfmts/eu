@@ -74,56 +74,6 @@
         <div class="loader"></div>
     </div>
 
-    <!-- Barra de controles simples -->
-    <div class="top-controls">
-        <!-- Botão de tema -->
-        <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
-            <i id="theme-icon" class="fas fa-sun"></i>
-        </button>
-        
-        <!-- Botão de idioma -->
-        <button id="language-btn" class="control-btn">
-            <span>PT</span>
-        </button>
-        
-        <!-- Botão de cores -->
-        <button id="color-btn" class="control-btn">
-            <i class="fas fa-palette"></i>
-        </button>
-        
-        <!-- Menu de cores (inicialmente oculto) -->
-        <div id="color-menu" class="control-dropdown">
-            <div class="color-option" data-color="blue">
-                <span class="color-circle" style="background-color: #0066ff;"></span>
-                <span>Azul</span>
-            </div>
-            <div class="color-option" data-color="green">
-                <span class="color-circle" style="background-color: #00cc66;"></span>
-                <span>Verde</span>
-            </div>
-            <div class="color-option" data-color="purple">
-                <span class="color-circle" style="background-color: #9933cc;"></span>
-                <span>Roxo</span>
-            </div>
-            <div class="color-option" data-color="orange">
-                <span class="color-circle" style="background-color: #ff6600;"></span>
-                <span>Laranja</span>
-            </div>
-        </div>
-            </div>
-        </div>
-
-        <!-- Language Switcher is going to be inserted here by JS -->
-
-        <!-- Notification Button is going to be inserted here by JS -->
-        
-        <!-- Theme Toggle Button -->
-        <button id="theme-toggle" onclick="toggleTheme()" aria-label="Alternar entre tema escuro e claro" title="Alternar tema">
-            <i id="theme-icon" class="fas fa-sun" aria-hidden="true"></i>
-            <span class="sr-only">Alternar tema</span>
-        </button>
-    </div>
-
     <!-- Foto do Usuário (Agora Aciona o Menu) -->
     <div class="foto-perfil" onclick="toggleMenu()" role="button" tabindex="0" aria-label="Abrir menu de navegação">
         <img src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael" class="critical-image" loading="eager">
@@ -137,6 +87,37 @@
             <li><a href="pages/mentors.html" aria-label="Ver mentores"><i class="fas fa-chalkboard-teacher" aria-hidden="true"></i> Mentors</a></li>
             <li><a href="pages/certificates-in-progress.html" aria-label="Ver certificados em progresso"><i class="fas fa-certificate" aria-hidden="true"></i> Certificates in progress</a></li>
         </ul>
+
+        <!-- Controles do site -->
+        <div class="menu-controls">
+            <button id="theme-toggle" class="control-btn" aria-label="Alternar tema">
+                <i id="theme-icon" class="fas fa-sun"></i>
+            </button>
+            <button id="language-btn" class="control-btn" aria-label="Mudar idioma">PT</button>
+            <div class="color-control">
+                <button id="color-btn" class="control-btn" aria-label="Mudar esquema de cores">
+                    <i class="fas fa-palette"></i>
+                </button>
+                <div id="color-menu" class="control-dropdown">
+                    <div class="color-option" data-color="blue">
+                        <span class="color-circle" style="background-color: #0066ff;"></span>
+                        <span>Azul</span>
+                    </div>
+                    <div class="color-option" data-color="green">
+                        <span class="color-circle" style="background-color: #00cc66;"></span>
+                        <span>Verde</span>
+                    </div>
+                    <div class="color-option" data-color="purple">
+                        <span class="color-circle" style="background-color: #9933cc;"></span>
+                        <span>Roxo</span>
+                    </div>
+                    <div class="color-option" data-color="orange">
+                        <span class="color-circle" style="background-color: #ff6600;"></span>
+                        <span>Laranja</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Botão para fechar menu -->
         <button id="close-menu" aria-label="Fechar menu de navegação" class="menu-close-btn">

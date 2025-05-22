@@ -1,0 +1,138 @@
+/* filepath: c:\Users\Usuário\Downloads\eu-main\assets\css\button-fix.css */
+/* Estilos simplificados para controles superiores */
+
+/* Container para botões de controle */
+.top-controls {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 8px;
+    z-index: 1000;
+}
+
+/* Estilo base para todos os botões de controle */
+.top-controls button, 
+.control-btn, 
+#theme-toggle {
+    background: rgba(17, 24, 39, 0.8);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0;
+    transition: transform 0.2s, background-color 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Efeito hover para todos os botões */
+.top-controls button:hover,
+.control-btn:hover,
+#theme-toggle:hover {
+    background: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Botão de idioma */
+#language-btn {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+/* Menu dropdown para cores */
+.control-dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: rgba(17, 24, 39, 0.95);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px;
+    width: 150px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+}
+
+/* Opções de cor */
+.color-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.color-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.color-circle {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: block;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Estilo para botão ativo */
+.control-btn.active,
+#theme-toggle.active {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+    .top-controls {
+        top: 10px;
+        right: 10px;
+        gap: 6px;
+    }
+    
+    .top-controls button,
+    .control-btn,
+    #theme-toggle {
+        width: 36px;
+        height: 36px;
+        font-size: 0.8rem;
+    }
+    
+    .control-dropdown {
+        top: 45px;
+        right: 0;
+        width: 120px;
+    }
+}
+
+/* Ajustes para telas muito pequenas */
+@media (max-width: 480px) {
+    .top-controls {
+        top: 8px;
+        right: 8px;
+        gap: 4px;
+    }
+    
+    .top-controls button,
+    .control-btn,
+    #theme-toggle {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+    
+    #language-btn {
+        font-size: 0.7rem;
+    }
+}

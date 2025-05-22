@@ -593,12 +593,29 @@ body.light-mode {
 
 /* Melhorias nos elementos existentes */
 .projeto, .skill-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    background: var(--background-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    will-change: transform, box-shadow;
 }
 
 .projeto:hover, .skill-card:hover {
-    transform: translateY(-5px) scale(1.02);
+    transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0, 102, 255, 0.2);
+    border-color: var(--primary-color);
+}
+
+/* Prevenir bugs de layout */
+.projeto *, .skill-card * {
+    position: relative;
+    z-index: 1;
 }
 
 section {
@@ -708,5 +725,50 @@ section {
     font-size: 14px;
     color: #333;
     margin-top: 5px;
+}
+
+/* Grid de Projetos */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 1rem;
+}
+
+/* Container para os projetos */
+.projects-container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Otimizações de performance */
+.projeto img, .skill-card img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    object-fit: cover;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* Correção para dispositivos móveis */
+@media (max-width: 768px) {
+    .projeto, .skill-card {
+        transform: none !important;
+        transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    }
+    
+    .projeto:hover, .skill-card:hover {
+        transform: translateY(-5px) !important;
+    }
+    
+    .projects-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
 }
 

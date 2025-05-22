@@ -74,41 +74,42 @@
         <div class="loader"></div>
     </div>
 
-    <!-- Controls Area (Theme, Language, Color & Notifications) -->
+    <!-- Barra de controles simples -->
     <div class="top-controls">
-        <!-- Seletor de Cores -->
-        <div id="color-selector">
-            <i id="color-selector-icon" class="fas fa-palette" aria-hidden="true"></i>
-            <span>Cores</span>
-            <div class="color-theme-options">
-                <div class="color-option" data-color="blue">
-                    <div class="color-preview" style="background-color: #0066ff;"></div>
-                    <div class="color-label">Azul</div>
-                </div>
-                <div class="color-option" data-color="green">
-                    <div class="color-preview" style="background-color: #00cc66;"></div>
-                    <div class="color-label">Verde</div>
-                </div>
-                <div class="color-option" data-color="purple">
-                    <div class="color-preview" style="background-color: #9933cc;"></div>
-                    <div class="color-label">Roxo</div>
-                </div>
-                <div class="color-option" data-color="orange">
-                    <div class="color-preview" style="background-color: #ff6600;"></div>
-                    <div class="color-label">Laranja</div>
-                </div>
-                <div class="color-option" data-color="red">
-                    <div class="color-preview" style="background-color: #ff3333;"></div>
-                    <div class="color-label">Vermelho</div>
-                </div>
-                <div class="color-option" data-color="teal">
-                    <div class="color-preview" style="background-color: #00b3b3;"></div>
-                    <div class="color-label">Turquesa</div>
-                </div>
-                <div class="color-option" data-color="pink">
-                    <div class="color-preview" style="background-color: #ff3399;"></div>
-                    <div class="color-label">Rosa</div>
-                </div>
+        <!-- Botão de tema -->
+        <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+            <i id="theme-icon" class="fas fa-sun"></i>
+        </button>
+        
+        <!-- Botão de idioma -->
+        <button id="language-btn" class="control-btn">
+            <span>PT</span>
+        </button>
+        
+        <!-- Botão de cores -->
+        <button id="color-btn" class="control-btn">
+            <i class="fas fa-palette"></i>
+        </button>
+        
+        <!-- Menu de cores (inicialmente oculto) -->
+        <div id="color-menu" class="control-dropdown">
+            <div class="color-option" data-color="blue">
+                <span class="color-circle" style="background-color: #0066ff;"></span>
+                <span>Azul</span>
+            </div>
+            <div class="color-option" data-color="green">
+                <span class="color-circle" style="background-color: #00cc66;"></span>
+                <span>Verde</span>
+            </div>
+            <div class="color-option" data-color="purple">
+                <span class="color-circle" style="background-color: #9933cc;"></span>
+                <span>Roxo</span>
+            </div>
+            <div class="color-option" data-color="orange">
+                <span class="color-circle" style="background-color: #ff6600;"></span>
+                <span>Laranja</span>
+            </div>
+        </div>
             </div>
         </div>
 

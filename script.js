@@ -25,6 +25,15 @@ function animateOnScroll() {
 }
 
 // Inicializa as animações quando o DOM estiver carregado
+// Loading Screen
+window.addEventListener('load', () => {
+    const loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.style.opacity = '0';
+    setTimeout(() => {
+        loadingScreen.style.display = 'none';
+    }, 500);
+});
+
 document.addEventListener("DOMContentLoaded", function () {
     animateOnScroll();
     
@@ -94,4 +103,56 @@ function isMobile() {
 
 if (isMobile()) {
     document.body.classList.add('mobile');
+}
+
+// Tema claro/escuro
+function toggleTheme() {
+    document.body.classList.toggle('light-mode');
+    localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+    updateThemeIcon();
+}
+
+function updateThemeIcon() {
+    const themeIcon = document.getElementById('theme-icon');
+    if (document.body.classList.contains('light-mode')) {
+        themeIcon.className = 'fas fa-moon';
+    } else {
+        themeIcon.className = 'fas fa-sun';
+    }
+}
+
+// Verificar preferência de tema salva
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'light') {
+    document.body.classList.add('light-mode');
+}
+
+// Efeito Parallax nos projetos
+document.addEventListener('mousemove', (e) => {
+    requestAnimationFrame(() => {
+        document.querySelectorAll('.projeto').forEach(card => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            card.style.transform = `
+                perspective(1000px)
+                rotateX(${(y - rect.height / 2) / 20}deg)
+                rotateY(${-(x - rect.width / 2) / 20}deg)
+            `;
+        });
+    });
+});
+
+// Registrar Service Worker para PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+                console.log('ServiceWorker registrado com sucesso:', registration.scope);
+            })
+            .catch(error => {
+                console.log('Falha ao registrar o ServiceWorker:', error);
+            });
+    });
 }

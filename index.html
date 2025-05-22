@@ -4,26 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Portfolio de Mikael de Matos - Desenvolvedor Jr. e Especialista em Cyber Security">
-    <meta name="keywords" content="desenvolvedor, cyber security, portfolio, java, javascript, python">
+    <meta name="keywords" content="desenvolvedor, cyber security, portfolio, java, javascript, python, front-end, back-end">
     <title>Mikael de Matos - Portfolio</title>
     
     <!-- PWA Support -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0066ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Portfolio Mikael">
+    
+    <!-- Ícones para dispositivos Apple -->
+    <link rel="apple-touch-icon" href="assets/images/icons/apple-icon-180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="assets/images/icons/apple-icon-152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/icons/apple-icon-180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="assets/images/icons/apple-icon-167.png">
+    
+    <!-- Ícone de atalho -->
+    <link rel="shortcut icon" href="assets/images/icons/favicon.ico" type="image/x-icon">
     
     <!-- Preconnect para performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://api.github.com">
+    
+    <!-- Prefetch de recursos importantes -->
+    <link rel="dns-prefetch" href="https://api.github.com">
     
     <!-- Estilos -->
     <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/new-features.css">
 
     <!-- Font Awesome para os ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
-    <!-- Script -->
-    <script defer src="assets/js/script.js"></script>
+    <!-- Scripts críticos para carregamento inicial -->
+    <script src="assets/js/script.js"></script>
+    
+    <!-- Scripts carregados com defer para melhorar performance -->
+    <script defer src="assets/js/performance.js"></script>
+    <script defer src="assets/js/advanced-features.js"></script>
+    <script defer src="assets/js/notifications.js"></script>
+    <script defer src="assets/js/github-api.js"></script>
+    <script defer src="assets/js/emerging-tech.js"></script>
+    <script defer src="assets/js/interactive-demos.js"></script>
+    
+    <!-- Meta tags Open Graph para compartilhamento social -->
+    <meta property="og:title" content="Mikael de Matos - Portfolio">
+    <meta property="og:description" content="Desenvolvedor Jr. e Especialista em Cyber Security">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://mikaeldematos.com.br">
+    <meta property="og:image" content="assets/images/icons/og-image.png">
+    
+    <!-- Meta tags para melhorar acessibilidade -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Mikael de Matos - Portfolio">
+    <meta name="twitter:description" content="Desenvolvedor Jr. e Especialista em Cyber Security">
+    <meta name="twitter:image" content="assets/images/icons/og-image.png">
 </head>
 <body>
     <!-- Loading Screen -->
@@ -32,26 +70,32 @@
     </div>
 
     <!-- Theme Toggle Button -->
-    <button id="theme-toggle" onclick="toggleTheme()">
-        <i id="theme-icon" class="fas fa-sun"></i>
+    <button id="theme-toggle" onclick="toggleTheme()" aria-label="Alternar entre tema escuro e claro" title="Alternar tema">
+        <i id="theme-icon" class="fas fa-sun" aria-hidden="true"></i>
+        <span class="sr-only">Alternar tema</span>
     </button>
 
     <!-- Foto do Usuário (Agora Aciona o Menu) -->
-    <div class="foto-perfil" onclick="toggleMenu()">
-        <img src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael">
+    <div class="foto-perfil" onclick="toggleMenu()" role="button" tabindex="0" aria-label="Abrir menu de navegação">
+        <img src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael" class="critical-image" loading="eager">
     </div>
 
    <!-- Menu Lateral Oculto -->
-    <nav id="menu-lateral" class="menu-fechado">
+    <nav id="menu-lateral" class="menu-fechado" aria-label="Menu de Navegação Principal" role="navigation">
         <ul>
-            <li><a href="pages/curriculum.html">Curriculum</a></li>
-            <li><a href="pages/projetos.html">All Uploaded Projects</a></li>
-            <li><a href="pages/mentors.html">Mentors</a></li>
-            <li><a href="pages/certificates-in-progress.html">Certificates in progress</a></li>
+            <li><a href="pages/curriculum.html" aria-label="Ver currículo"><i class="fas fa-file-alt" aria-hidden="true"></i> Curriculum</a></li>
+            <li><a href="pages/projetos.html" aria-label="Ver todos os projetos"><i class="fas fa-code" aria-hidden="true"></i> All Uploaded Projects</a></li>
+            <li><a href="pages/mentors.html" aria-label="Ver mentores"><i class="fas fa-chalkboard-teacher" aria-hidden="true"></i> Mentors</a></li>
+            <li><a href="pages/certificates-in-progress.html" aria-label="Ver certificados em progresso"><i class="fas fa-certificate" aria-hidden="true"></i> Certificates in progress</a></li>
         </ul>
 
+        <!-- Botão para fechar menu -->
+        <button id="close-menu" aria-label="Fechar menu de navegação" class="menu-close-btn">
+            <i class="fas fa-times"></i>
+        </button>
+
         <!-- Bonequinho Dançante -->
-        <div class="bonequinho">
+        <div class="bonequinho" aria-hidden="true">
             <i class="fas fa-user-alt"></i>
         </div>
     </nav>
@@ -118,10 +162,13 @@
             <h3>DISCORD PROJECTS</h3>
             <div class="projeto">
                 <h4>LINKING - DISCORDSRV</h4>
-                <img src="https://s13.gifyu.com/images/b2lDm.gif" alt="Demonstração do Projeto" class="preview-projeto">
+                <div class="image-container">
+                    <div class="image-placeholder" aria-hidden="true"></div>
+                    <img src="https://s13.gifyu.com/images/b2lDm.gif" alt="Demonstração do projeto de integração DiscordSRV com servidor" class="preview-projeto" loading="lazy" data-technology="java">
+                </div>
                 <p>Linking the DiscordSRV plugin, to facilitate the administration of SPIGOT servers.</p>
-                <a href="https://github.com/mikaelfmts/api" target="_blank">
-                    <button>Ver no GitHub</button>
+                <a href="https://github.com/mikaelfmts/api" target="_blank" class="github-btn" aria-label="Ver código do projeto LINKING - DISCORDSRV no GitHub">
+                    <button><i class="fab fa-github" aria-hidden="true"></i> Ver no GitHub</button>
                 </a>
             </div>
         </div>
@@ -131,10 +178,13 @@
             <h3>BOTS</h3>
             <div class="projeto">
                 <h4>Code for creating BOT (discord.py)</h4>
-                <img src="https://s13.gifyu.com/images/b2lDg.gif" alt="Demonstração do Projeto" class="preview-projeto">
+                <div class="image-container">
+                    <div class="image-placeholder" aria-hidden="true"></div>
+                    <img src="https://s13.gifyu.com/images/b2lDg.gif" alt="Demonstração do bot de filtragem de mensagens do Discord" class="preview-projeto" loading="lazy" data-technology="python">
+                </div>
                 <p>Filters selected messages from one channel and sends them to another channel automatically.</p>
-                <a href="https://github.com/seu-usuario/repositorio-BOT-discord" target="_blank">
-                    <button>Ver no GitHub</button>
+                <a href="https://github.com/seu-usuario/repositorio-BOT-discord" target="_blank" class="github-btn" aria-label="Ver código do projeto de BOT Discord no GitHub">
+                    <button><i class="fab fa-github" aria-hidden="true"></i> Ver no GitHub</button>
                 </a>
             </div>
         </div>
@@ -144,10 +194,13 @@
             <h3>APIs</h3>
             <div class="projeto">
                 <h4>API for user management</h4>
-                <img src="https://s13.gifyu.com/images/b2lol.gif" alt="Demonstração do Projeto" class="preview-projeto">
+                <div class="image-container">
+                    <div class="image-placeholder" aria-hidden="true"></div>
+                    <img src="https://s13.gifyu.com/images/b2lol.gif" alt="Demonstração da API de gerenciamento de usuários" class="preview-projeto" loading="lazy" data-technology="java">
+                </div>
                 <p>A RESTful API for managing users and authentication.</p>
-                <a href="https://github.com/mikaelfmts/api" target="_blank">
-                    <button>Ver no GitHub</button>
+                <a href="https://github.com/mikaelfmts/api" target="_blank" class="github-btn" aria-label="Ver código da API de gerenciamento de usuários no GitHub">
+                    <button><i class="fab fa-github" aria-hidden="true"></i> Ver no GitHub</button>
                 </a>
             </div>
         </div>
@@ -157,10 +210,13 @@
             <h3>OTHERS</h3>
             <div class="projeto">
                 <h4>SCRIPT FOR YOUR PROFILE WEBSITE - SIMPLE</h4>
-                <img src="https://s13.gifyu.com/images/b2loW.gif" alt="Demonstração do Projeto" class="preview-projeto">
+                <div class="image-container">
+                    <div class="image-placeholder" aria-hidden="true"></div>
+                    <img src="https://s13.gifyu.com/images/b2loW.gif" alt="Demonstração do projeto de site de perfil simples" class="preview-projeto" loading="lazy" data-technology="html">
+                </div>
                 <p>A script to create a simple profile website.</p>
-                <a href="https://github.com/mikaelfmts/seu-site-perfil.git" target="_blank">
-                    <button>Ver no GitHub</button>
+                <a href="https://github.com/mikaelfmts/seu-site-perfil.git" target="_blank" class="github-btn" aria-label="Ver código do projeto de site de perfil no GitHub">
+                    <button><i class="fab fa-github" aria-hidden="true"></i> Ver no GitHub</button>
                 </a>
             </div>
         </div>
@@ -169,6 +225,17 @@
         <a href="projetos.html">
             <button>See All Projects</button>
         </a>
+    </section>
+
+    <!-- Estatísticas do GitHub -->
+    <section id="github-section" class="github-stats-section">
+        <h2>GitHub Stats</h2>
+        <p class="section-description">Contribuições e estatísticas do meu perfil no GitHub</p>
+        
+        <div id="github-stats"></div>
+        
+        <h3>Linguagens Mais Utilizadas</h3>
+        <div id="language-chart"></div>
     </section>
 
     <!-- Redes Sociais -->

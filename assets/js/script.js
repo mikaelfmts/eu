@@ -13,7 +13,43 @@ window.addEventListener('load', () => {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-    // Inicialização básica da página
+    // Criar um estilo global para desativar TODAS as animações nos cards
+    const style = document.createElement('style');
+    style.textContent = `
+        .projeto, .skill-card, 
+        .projeto *, .skill-card * {
+            transform: none !important;
+            transition: none !important;
+            animation: none !important;
+            perspective: none !important;
+            transform-style: flat !important;
+            box-shadow: none !important;
+            will-change: auto !important;
+        }
+        .projeto:hover, .skill-card:hover,
+        .projeto:hover *, .skill-card:hover * {
+            transform: none !important;
+            transition: none !important;
+            animation: none !important;
+            perspective: none !important;
+            transform-style: flat !important;
+            box-shadow: none !important;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Remover TODAS as transformações e transições dos cards
+    const cards = document.querySelectorAll('.projeto, .skill-card');
+    cards.forEach(card => {
+        // Aplicar estilos com !important para garantir que nada seja aplicado
+        card.setAttribute('style', 'transform: none !important; transition: none !important; animation: none !important; opacity: 1 !important; perspective: none !important; box-shadow: none !important;');
+        
+        // Desativar quaisquer efeitos existentes
+        const allElements = card.querySelectorAll('*');
+        allElements.forEach(el => {
+            el.setAttribute('style', el.getAttribute('style') + '; transform: none !important; transition: none !important; animation: none !important;');
+        });
+    });
 });
 // Função para alternar a visibilidade do chat
 function toggleChat() {
@@ -79,28 +115,7 @@ if (savedTheme === 'light') {
     document.body.classList.add('light-mode');
 }
 
-// Efeito simples de fade in para os cards
-function handleCardEffect() {
-    const cards = document.querySelectorAll('.projeto, .skill-card');
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, { threshold: 0.1 });
-
-    cards.forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        observer.observe(card);
-    });
-}
-
-// Inicializar efeito dos cards quando o DOM estiver pronto
-document.addEventListener('DOMContentLoaded', handleCardEffect);
+// Efeito de cards removido
 
 // Registrar Service Worker para PWA
 if ('serviceWorker' in navigator) {

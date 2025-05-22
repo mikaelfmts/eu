@@ -127,55 +127,23 @@ if (savedTheme === 'light') {
     document.body.classList.add('light-mode');
 }
 
-// Efeito suave nos cards
+// Efeito simples de fade in para os cards
 function handleCardEffect() {
     const cards = document.querySelectorAll('.projeto, .skill-card');
-    let timeout;
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
 
     cards.forEach(card => {
-        card.addEventListener('mouseenter', (e) => {
-            clearTimeout(timeout);
-            cards.forEach(c => c.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)');
-            
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            
-            const rotateX = ((y - centerY) / 10) * -1;
-            const rotateY = (x - centerX) / 10;
-            
-            card.style.transform = `
-                translateY(-5px)
-                rotateX(${rotateX}deg)
-                rotateY(${rotateY}deg)
-            `;
-        });
-
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            
-            const rotateX = ((y - centerY) / 10) * -1;
-            const rotateY = (x - centerX) / 10;
-            
-            card.style.transform = `
-                translateY(-5px)
-                rotateX(${rotateX}deg)
-                rotateY(${rotateY}deg)
-            `;
-        });
-
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = 'translateY(0) rotateX(0) rotateY(0)';
-            timeout = setTimeout(() => {
-                card.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-            }, 300);
-        });
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        observer.observe(card);
     });
 }
 

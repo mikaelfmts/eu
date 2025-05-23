@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste do Chat - Sistema Simplificado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        
+        .status-ok {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .icon {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .test-chat {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        
+        .console-output {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Teste do Sistema de Chat</h1>
+        <p>Esta página testa o sistema de chat sem índices compostos do Firebase.</p>
+        
+        <h2>Status dos Componentes</h2>
+        <div id="status-list">
+            <div class="status-item">
+                <span class="icon">⏳</span>
+                <span>Carregando Firebase...</span>
+            </div>
+        </div>
+        
+        <h2>Console de Debug</h2>
+        <div id="console-output" class="console-output">Iniciando testes...\n</div>
+        
+        <h2>Teste de Conectividade</h2>
+        <button onclick="testFirebaseConnection()">Testar Conexão Firebase</button>
+        <button onclick="testSimpleQuery()">Testar Consulta Simples</button>
+        <button onclick="testCreateMessage()">Testar Criar Mensagem</button>
+        <button onclick="clearConsole()">Limpar Console</button>
+        
+        <div class="test-chat">
+            <h3>Teste do Chat</h3>
+            <input type="text" id="test-name" placeholder="Digite seu nome para teste" value="Usuário Teste">
+            <input type="text" id="test-message" placeholder="Digite uma mensagem de teste">
+            <button onclick="sendTestMessage()">Enviar Mensagem de Teste</button>
+            <div id="test-messages" style="margin-top: 20px; padding: 10px; background: white; border-radius: 5px; min-height: 100px;"></div>
+        </div>
+    </div>
+
+    <!-- Firebase imports -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            getDocs,
+            onSnapshot, 
+            query, 
+            where,
+            enableNetwork,
+            disableNetwork 
+        } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
+            authDomain: "mikaelfmts.firebaseapp.com",
+            projectId: "mikaelfmts",
+            storageBucket: "mikaelfmts.firebasestorage.app",
+            messagingSenderId: "516762612351",
+            appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
+        };
+
+        let app, db;
+        let testChatId = 'teste-' + Date.now();
+
+        // Função para adicionar ao console
+        function logToConsole(message, type = 'info') {
+            const console_output = document.getElementById('console-output');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            console_output.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            console_output.scrollTop = console_output.scrollHeight;
+        }
+
+        // Função para atualizar status
+        function updateStatus(message, type = 'ok') {
+            const statusList = document.getElementById('status-list');
+            const icons = { ok: '✅', error: '❌', warning: '⚠️', loading: '⏳' };
+            
+            const statusItem = document.createElement('div');
+            statusItem.className = `status-item status-${type}`;
+            statusItem.innerHTML = `
+                <span class="icon">${icons[type]}</span>
+                <span>${message}</span>
+            `;
+            
+            statusList.appendChild(statusItem);
+        }
+
+        // Inicializar Firebase
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            
+            enableNetwork(db);
+            
+            logToConsole('Firebase inicializado com sucesso!', 'success');
+            updateStatus('Firebase conectado', 'ok');
+            
+            // Expor funções globalmente
+            window.db = db;
+            window.testChatId = testChatId;
+            window.logToConsole = logToConsole;
+            window.updateStatus = updateStatus;
+            
+        } catch (error) {
+            logToConsole('Erro ao inicializar Firebase: ' + error.message, 'error');
+            updateStatus('Erro na conexão Firebase', 'error');
+        }
+
+        // Função de teste de conexão
+        window.testFirebaseConnection = async function() {
+            try {
+                logToConsole('Testando conexão com Firebase...');
+                
+                // Teste simples de leitura
+                const testCollection = collection(db, 'mensagens');
+                logToConsole('Coleção acessível ✓', 'success');
+                updateStatus('Acesso à coleção OK', 'ok');
+                
+            } catch (error) {
+                logToConsole('Erro na conexão: ' + error.message, 'error');
+                updateStatus('Erro de conexão', 'error');
+            }
+        };
+
+        // Função de teste de consulta simples
+        window.testSimpleQuery = async function() {
+            try {
+                logToConsole('Testando consulta simples (sem orderBy)...');
+                
+                const messagesRef = collection(db, 'mensagens');
+                const q = query(messagesRef, where('chat_id', '==', 'teste-query'));
+                
+                const querySnapshot = await getDocs(q);
+                logToConsole(`Consulta executada com sucesso! Encontradas ${querySnapshot.size} mensagens`, 'success');
+                updateStatus('Consulta simples OK', 'ok');
+                
+            } catch (error) {
+                logToConsole('Erro na consulta: ' + error.message, 'error');
+                updateStatus('Erro na consulta', 'error');
+            }
+        };
+
+        // Função de teste de criação de mensagem
+        window.testCreateMessage = async function() {
+            try {
+                logToConsole('Testando criação de mensagem...');
+                
+                const testMessage = {
+                    nome: 'Sistema de Teste',
+                    mensagem: 'Esta é uma mensagem de teste criada em ' + new Date().toLocaleString(),
+                    chat_id: testChatId,
+                    hora: new Date(),
+                    resposta: '',
+                    respondido: false
+                };
+                
+                const docRef = await addDoc(collection(db, 'mensagens'), testMessage);
+                logToConsole(`Mensagem criada com ID: ${docRef.id}`, 'success');
+                updateStatus('Criação de mensagem OK', 'ok');
+                
+            } catch (error) {
+                logToConsole('Erro ao criar mensagem: ' + error.message, 'error');
+                updateStatus('Erro na criação', 'error');
+            }
+        };
+
+        // Função para enviar mensagem de teste
+        window.sendTestMessage = async function() {
+            const nameInput = document.getElementById('test-name');
+            const messageInput = document.getElementById('test-message');
+            const messagesDiv = document.getElementById('test-messages');
+            
+            if (!messageInput.value.trim()) {
+                alert('Digite uma mensagem!');
+                return;
+            }
+            
+            try {
+                const message = {
+                    nome: nameInput.value || 'Usuário Teste',
+                    mensagem: messageInput.value,
+                    chat_id: testChatId,
+                    hora: new Date(),
+                    resposta: '',
+                    respondido: false
+                };
+                
+                await addDoc(collection(db, 'mensagens'), message);
+                
+                // Adicionar à interface local
+                const messageDiv = document.createElement('div');
+                messageDiv.style.cssText = 'padding: 10px; margin: 5px 0; background: #e3f2fd; border-radius: 5px;';
+                messageDiv.innerHTML = `
+                    <strong>${message.nome}:</strong> ${message.mensagem}<br>
+                    <small>${new Date().toLocaleTimeString()}</small>
+                `;
+                messagesDiv.appendChild(messageDiv);
+                
+                messageInput.value = '';
+                logToConsole('Mensagem de teste enviada com sucesso!', 'success');
+                
+            } catch (error) {
+                logToConsole('Erro ao enviar mensagem: ' + error.message, 'error');
+                alert('Erro ao enviar mensagem: ' + error.message);
+            }
+        };
+
+        // Função para limpar console
+        window.clearConsole = function() {
+            document.getElementById('console-output').textContent = '';
+        };
+
+        // Configurar listener para o chat de teste
+        try {
+            const messagesRef = collection(db, 'mensagens');
+            const q = query(messagesRef, where('chat_id', '==', testChatId));
+            
+            onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === 'added') {
+                        logToConsole('Nova mensagem detectada em tempo real', 'success');
+                    }
+                });
+            });
+            
+            updateStatus('Listener em tempo real ativo', 'ok');
+        } catch (error) {
+            logToConsole('Erro no listener: ' + error.message, 'error');
+            updateStatus('Erro no listener', 'error');
+        }
+
+        // Auto-teste inicial
+        setTimeout(() => {
+            window.testFirebaseConnection();
+        }, 1000);
+        
+        setTimeout(() => {
+            window.testSimpleQuery();
+        }, 2000);
+    </script>
+</body>
+</html>

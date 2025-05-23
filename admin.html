@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Mikael Ferreira</title>
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Configuração do Tailwind -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0066ff',
+                        secondary: '#0044aa',
+                        accent: '#00d4ff',
+                        dark: '#111827',
+                        darker: '#0f172a'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Scripts -->
+    <script type="module" src="assets/js/auth.js" defer></script>
+    <script type="module" src="assets/js/admin.js" defer></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .chat-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .chat-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 102, 255, 0.1);
+        }
+        
+        .message-bubble {
+            max-width: 85%;
+            word-wrap: break-word;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .user-message {
+            margin-left: auto;
+            background: linear-gradient(135deg, #0066ff, #0044aa);
+        }
+        
+        .admin-message {
+            margin-right: auto;
+            background: linear-gradient(135deg, #374151, #4b5563);
+        }
+        
+        .loading {
+            animation: pulse 2s infinite;
+        }
+        
+        .skeleton {
+            animation: shimmer 1.5s infinite;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+        }
+        
+        .toast {
+            animation: toastSlideIn 0.3s ease-out;
+        }
+        
+        .toast-exit {
+            animation: toastSlideOut 0.3s ease-in;
+        }
+        
+        .floating-action {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 50;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1), rgba(0, 68, 170, 0.05));
+            border: 1px solid rgba(0, 102, 255, 0.2);
+        }
+        
+        .quick-action {
+            transition: all 0.2s ease;
+        }
+        
+        .quick-action:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes toastSlideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Dark mode styles */
+        .dark .chat-card {
+            background: rgba(17, 24, 39, 0.8);
+            border-color: rgba(55, 65, 81, 0.5);
+        }
+        
+        .dark .skeleton {
+            background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+            background-size: 200% 100%;
+        }
+        
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        .dark .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .message-bubble {
+                max-width: 95%;
+            }
+            
+            .floating-action {
+                bottom: 1rem;
+                right: 1rem;
+            }
+        }
+    </style></head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p class="text-gray-600 dark:text-gray-300">Carregando...</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-primary to-secondary text-white shadow-xl sticky top-0 z-30">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-white bg-opacity-20 p-2 rounded-lg">
+                        <i class="fas fa-shield-alt text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Painel Administrativo</h1>
+                        <p class="text-blue-100 text-sm">Gerenciar mensagens e contatos</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle" class="p-2 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition-all">
+                        <i class="fas fa-moon text-lg"></i>
+                    </button>
+                    
+                    <!-- User Info -->
+                    <div class="hidden md:flex items-center space-x-2 bg-white bg-opacity-20 rounded-lg px-3 py-2">
+                        <div class="w-8 h-8 bg-white bg-opacity-30 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-sm"></i>
+                        </div>
+                        <span id="user-email" class="text-sm">Carregando...</span>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="flex items-center space-x-2">
+                        <a href="index.html" class="p-2 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition-all" title="Voltar ao Site">
+                            <i class="fas fa-home"></i>
+                        </a>
+                        <button id="logout-btn" class="p-2 rounded-lg bg-red-500 bg-opacity-80 hover:bg-opacity-100 transition-all" title="Sair">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6 min-h-screen">
+        <!-- Dashboard Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Messages -->
+            <div class="stats-card rounded-xl p-6 text-center">
+                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-envelope text-white text-xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white" id="total-messages">0</h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">Total de Mensagens</p>
+            </div>
+            
+            <!-- Unread Messages -->
+            <div class="stats-card rounded-xl p-6 text-center">
+                <div class="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-exclamation-circle text-white text-xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white" id="unread-messages">0</h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">Não Lidas</p>
+            </div>
+            
+            <!-- Today's Messages -->
+            <div class="stats-card rounded-xl p-6 text-center">
+                <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-calendar-day text-white text-xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white" id="today-messages">0</h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">Hoje</p>
+            </div>
+            
+            <!-- Response Rate -->
+            <div class="stats-card rounded-xl p-6 text-center">
+                <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-chart-line text-white text-xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white" id="response-rate">0%</h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">Taxa de Resposta</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Ações Rápidas</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <button class="quick-action bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg flex flex-col items-center space-y-2" onclick="refreshMessages()">
+                    <i class="fas fa-sync-alt text-xl"></i>
+                    <span class="text-sm font-medium">Atualizar</span>
+                </button>
+                
+                <button class="quick-action bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg flex flex-col items-center space-y-2" onclick="markAllAsRead()">
+                    <i class="fas fa-check-double text-xl"></i>
+                    <span class="text-sm font-medium">Marcar Lidas</span>
+                </button>
+                
+                <button class="quick-action bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg flex flex-col items-center space-y-2" onclick="exportMessages()">
+                    <i class="fas fa-download text-xl"></i>
+                    <span class="text-sm font-medium">Exportar</span>
+                </button>
+                
+                <button class="quick-action bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-lg flex flex-col items-center space-y-2" onclick="openAnalytics()">
+                    <i class="fas fa-chart-bar text-xl"></i>
+                    <span class="text-sm font-medium">Analytics</span>
+                </button>
+                
+                <button class="quick-action bg-gray-500 hover:bg-gray-600 text-white p-4 rounded-lg flex flex-col items-center space-y-2" onclick="openSettings()">
+                    <i class="fas fa-cog text-xl"></i>
+                    <span class="text-sm font-medium">Configurações</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+            <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Mensagens</h2>
+                
+                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <!-- Search -->
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="search-input" placeholder="Buscar mensagens..." 
+                               class="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white w-full sm:w-64">
+                    </div>
+                    
+                    <!-- Filter -->
+                    <select id="filter-select" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                        <option value="all">Todas</option>
+                        <option value="unread">Não Lidas</option>
+                        <option value="read">Lidas</option>
+                        <option value="today">Hoje</option>
+                        <option value="week">Esta Semana</option>
+                    </select>
+                    
+                    <!-- Sort -->
+                    <select id="sort-select" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                        <option value="newest">Mais Recentes</option>
+                        <option value="oldest">Mais Antigas</option>
+                        <option value="name">Por Nome</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div id="messages-container" class="space-y-4">
+            <!-- Skeleton Loading -->
+            <div id="loading-skeleton" class="space-y-4">
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+                    <div class="animate-pulse">
+                        <div class="flex items-center space-x-4">
+                            <div class="skeleton rounded-full h-12 w-12"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="skeleton h-4 rounded w-1/4"></div>
+                                <div class="skeleton h-3 rounded w-1/6"></div>
+                            </div>
+                        </div>
+                        <div class="mt-4 space-y-2">
+                            <div class="skeleton h-4 rounded w-3/4"></div>
+                            <div class="skeleton h-4 rounded w-1/2"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+                    <div class="animate-pulse">
+                        <div class="flex items-center space-x-4">
+                            <div class="skeleton rounded-full h-12 w-12"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="skeleton h-4 rounded w-1/3"></div>
+                                <div class="skeleton h-3 rounded w-1/5"></div>
+                            </div>
+                        </div>
+                        <div class="mt-4 space-y-2">
+                            <div class="skeleton h-4 rounded w-full"></div>
+                            <div class="skeleton h-4 rounded w-2/3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Empty State -->
+            <div id="empty-state" class="text-center py-12 hidden">
+                <div class="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-inbox text-3xl text-gray-400"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">Nenhuma mensagem encontrada</h3>
+                <p class="text-gray-500 dark:text-gray-400">Quando alguém entrar em contato, as mensagens aparecerão aqui.</p>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="flex justify-center items-center space-x-2 mt-8 hidden">
+            <button id="prev-page" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <span id="page-info" class="px-4 py-2 text-gray-600 dark:text-gray-300">Página 1 de 1</span>
+            <button id="next-page" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- Floating Action Button -->
+    <button class="floating-action bg-primary hover:bg-secondary text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up text-xl"></i>
+    </button>
+
+    <!-- Message Detail Modal -->
+    <div id="message-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Detalhes da Mensagem</h3>
+                        <button onclick="closeMessageModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="modal-content" class="p-6 overflow-y-auto custom-scrollbar max-h-96">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+                <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+                    <button onclick="closeMessageModal()" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        Fechar
+                    </button>
+                    <button id="reply-btn" class="px-4 py-2 bg-primary hover:bg-secondary text-white rounded-lg transition-colors">
+                        Responder
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom JavaScript for enhanced UX -->
+    <script>
+        // Theme Toggle
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            this.querySelector('i').className = isDark ? 'fas fa-sun text-lg' : 'fas fa-moon text-lg';
+            localStorage.setItem('admin-theme', isDark ? 'dark' : 'light');
+        });
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('admin-theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('theme-toggle').querySelector('i').className = 'fas fa-sun text-lg';
+        }
+
+        // Enhanced functions
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast bg-white dark:bg-gray-800 border-l-4 ${type === 'success' ? 'border-green-500' : type === 'error' ? 'border-red-500' : 'border-blue-500'} p-4 rounded-lg shadow-lg`;
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'success' ? 'check-circle text-green-500' : type === 'error' ? 'exclamation-circle text-red-500' : 'info-circle text-blue-500'} mr-3"></i>
+                    <span class="text-gray-800 dark:text-white">${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-auto text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('toast-exit');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        function refreshMessages() {
+            showToast('Atualizando mensagens...', 'info');
+            // Will be implemented by admin.js
+        }
+
+        function markAllAsRead() {
+            showToast('Marcando todas as mensagens como lidas...', 'info');
+            // Will be implemented by admin.js
+        }
+
+        function exportMessages() {
+            showToast('Preparando exportação...', 'info');
+            // Will be implemented by admin.js
+        }
+
+        function openAnalytics() {
+            showToast('Em breve: Dashboard de Analytics', 'info');
+        }
+
+        function openSettings() {
+            showToast('Em breve: Configurações avançadas', 'info');
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function closeMessageModal() {
+            document.getElementById('message-modal').classList.add('hidden');
+        }
+
+        // Search and filter functionality
+        document.getElementById('search-input').addEventListener('input', function() {
+            // Will be implemented by admin.js
+        });
+
+        document.getElementById('filter-select').addEventListener('change', function() {
+            // Will be implemented by admin.js
+        });
+
+        document.getElementById('sort-select').addEventListener('change', function() {
+            // Will be implemented by admin.js
+        });
+    </script>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Navigation Tabs -->
+        <div class="mb-8">
+            <nav class="flex space-x-4">
+                <button onclick="showSection('chat')" id="tab-chat" class="tab-button active bg-blue-500 text-white px-6 py-2 rounded-lg transition">
+                    <i class="fas fa-comments mr-2"></i>Gestão de Chat
+                </button>
+                <button onclick="showSection('uploads')" id="tab-uploads" class="tab-button bg-gray-300 text-gray-700 px-6 py-2 rounded-lg transition">
+                    <i class="fas fa-upload mr-2"></i>Uploads
+                </button>
+                <button onclick="showSection('users')" id="tab-users" class="tab-button bg-gray-300 text-gray-700 px-6 py-2 rounded-lg transition">
+                    <i class="fas fa-users mr-2"></i>Usuários
+                </button>
+            </nav>
+        </div>
+
+        <!-- Chat Section -->
+        <div id="section-chat" class="section">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Lista de Chats -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-xl font-semibold text-gray-800">
+                                <i class="fas fa-list mr-2"></i>Lista de Chats
+                            </h2>
+                            <button onclick="refreshChats()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        
+                        <div id="loading-chats" class="text-center py-8 loading">
+                            <i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
+                            <p class="text-gray-500 mt-2">Carregando chats...</p>
+                        </div>
+                        
+                        <div id="chats-list" class="space-y-3 hidden">
+                            <!-- Lista de chats será preenchida aqui -->
+                        </div>
+                        
+                        <div id="no-chats" class="text-center py-8 hidden">
+                            <i class="fas fa-comments text-4xl text-gray-300"></i>
+                            <p class="text-gray-500 mt-2">Nenhum chat encontrado</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área de Conversação -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <div id="no-chat-selected" class="text-center py-16">
+                            <i class="fas fa-comment-dots text-6xl text-gray-300"></i>
+                            <h3 class="text-xl text-gray-500 mt-4">Selecione um chat para visualizar</h3>
+                            <p class="text-gray-400">Clique em um chat da lista ao lado para ver as mensagens</p>
+                        </div>
+                        
+                        <div id="chat-conversation" class="hidden">
+                            <!-- Header da conversa -->
+                            <div class="border-b pb-4 mb-6">
+                                <h3 id="chat-title" class="text-xl font-semibold text-gray-800"></h3>
+                                <p id="chat-info" class="text-gray-500 text-sm"></p>
+                            </div>
+                            
+                            <!-- Mensagens -->
+                            <div id="messages-container" class="h-96 overflow-y-auto border rounded-lg p-4 mb-4 bg-gray-50">
+                                <!-- Mensagens serão carregadas aqui -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Uploads Section -->
+        <div id="section-uploads" class="section hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-upload mr-2"></i>Gestão de Uploads
+                </h2>
+                <p class="text-gray-500">Funcionalidade em desenvolvimento...</p>
+            </div>
+        </div>
+
+        <!-- Users Section -->
+        <div id="section-users" class="section hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-users mr-2"></i>Controle de Usuários
+                </h2>
+                <p class="text-gray-500">Funcionalidade em desenvolvimento...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Responder Mensagem -->
+    <div id="response-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg p-6 w-full max-w-md">
+                <h3 class="text-lg font-semibold mb-4">Responder Mensagem</h3>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Mensagem do usuário:</label>
+                    <p id="original-message" class="bg-gray-100 p-3 rounded text-sm"></p>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="response-text" class="block text-sm font-medium text-gray-700 mb-2">Sua resposta:</label>
+                    <textarea id="response-text" rows="4" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Digite sua resposta..."></textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeResponseModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded transition">
+                        Cancelar
+                    </button>
+                    <button onclick="sendResponse()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition">
+                        <i class="fas fa-paper-plane mr-2"></i>Enviar
+                    </button>
+                </div>
+            </div>
+        </div>    </div>    <!-- Scripts -->
+    <!-- Já incluídos no cabeçalho como módulos -->
+</body>
+</html>

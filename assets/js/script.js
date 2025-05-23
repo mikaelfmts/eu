@@ -468,34 +468,52 @@ function tryReconnectSilently() {
 
 // Função para exibir mensagem na interface
 function displayMessage(messageData, messageId) {
+    console.log('displayMessage chamada:', messageId);
+    console.log('Dados da mensagem:', messageData);
+    
     const chatMessages = document.getElementById('chat-messages');
-    if (!chatMessages) return;
+    if (!chatMessages) {
+        console.error('Elemento chat-messages não encontrado');
+        return;
+    }
     
     // Verificar se a mensagem já existe para atualizar
     const existingMsg = document.querySelector(`[data-message-id="${messageId}"]`);
+    console.log('Mensagem já existe?', !!existingMsg);
+    
     let wasUpdated = false;
     
     // Se existir uma mensagem e ela está sendo atualizada com uma resposta
     if (existingMsg && messageData.resposta && !existingMsg.querySelector('.admin-response')) {
+        console.log('Mensagem atualizada com nova resposta!');
         wasUpdated = true;
     }
     
     // Tratar corretamente o timestamp do Firestore
     let hora;
     if (messageData.hora) {
+        console.log('Tipo de messageData.hora:', typeof messageData.hora);
+        console.log('messageData.hora:', messageData.hora);
+        
         if (typeof messageData.hora.toDate === 'function') {
             // Caso seja um timestamp do Firestore
+            console.log('Usando toDate do Firestore');
             hora = messageData.hora.toDate().toLocaleTimeString();
         } else if (messageData.hora instanceof Date) {
             // Caso seja um objeto Date normal
+            console.log('Usando Date normal');
             hora = messageData.hora.toLocaleTimeString();
         } else {
             // Fallback
+            console.log('Usando fallback para timestamp');
             hora = new Date().toLocaleTimeString();
         }
     } else {
+        console.log('Sem timestamp, usando hora atual');
         hora = new Date().toLocaleTimeString();
     }
+    
+    console.log('Timestamp formatado:', hora);
     
     // Se tiver uma resposta, adicionar hora da resposta
     let horaResposta = '';

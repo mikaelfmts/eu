@@ -1,0 +1,142 @@
+/* Estilos para os botões movidos para o menu lateral */
+
+/* Container para controles no menu */
+.menu-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    padding: 1rem;
+    margin-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Estilo base para todos os botões de controle */
+.control-btn {
+    background: rgba(17, 24, 39, 0.8);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0;
+    transition: transform 0.2s, background-color 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Efeito hover para todos os botões */
+.control-btn:hover,
+#theme-toggle:hover {
+    background: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Botão de idioma */
+#language-btn {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+/* Menu dropdown para cores */
+.color-control {
+    position: relative;
+}
+
+.control-dropdown {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(17, 24, 39, 0.95);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px;
+    width: 150px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1010;
+}
+
+/* Opções de cor */
+.color-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.color-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.color-circle {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: block;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Estilo para botão ativo */
+.control-btn.active,
+#theme-toggle.active {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+/* Ajuste para o menu lateral quando aberto */
+#menu-lateral.menu-aberto .menu-controls {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Animação de entrada para os controles */
+.menu-controls {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Media queries para responsividade */
+@media (max-width: 768px) {
+    .menu-controls {
+        padding: 0.8rem;
+        gap: 8px;
+    }
+    
+    .control-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .menu-controls {
+        padding: 0.5rem;
+        gap: 5px;
+    }
+    
+    .control-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 0.7rem;
+    }
+    
+    .control-dropdown {
+        width: 130px;
+        font-size: 0.8rem;
+    }
+}

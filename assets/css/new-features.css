@@ -407,170 +407,188 @@ body:not(.reduce-motion) .demo-card:hover {
     background: rgba(255, 255, 255, 0.2);
 }
 
-/* Estilos para a calculadora */
-.calculator {
-    width: 100%;
-    max-width: 300px;
-    margin: 0 auto;
-    background: #111;
-    border-radius: 10px;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
-    overflow: hidden;
+/* Demonstrações Interativas - Link na página inicial */
+.interactive-demos-link {
+    text-align: center;
+    padding: 3rem 0;
+    border-radius: var(--border-radius);
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, rgba(0, 102, 255, 0.05) 0%, rgba(0, 204, 102, 0.05) 100%);
 }
 
-.calculator-display {
-    background: #222;
-    padding: 1rem;
-    text-align: right;
+.cta-container {
+    margin-top: 2rem;
 }
 
-#calc-history {
-    color: #777;
-    font-size: 0.9rem;
-    height: 20px;
-    margin-bottom: 0.5rem;
-    min-height: 1.2em;
-}
-
-#calc-current {
-    color: white;
-    font-size: 2rem;
-    font-weight: 600;
-    font-family: 'JetBrains Mono', monospace;
-}
-
-.calculator-buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    background: #333;
-}
-
-.calc-btn {
-    background: #444;
-    border: none;
-    padding: 1rem 0;
-    color: white;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.calc-btn:hover {
-    background: #555;
-}
-
-.calc-btn-num {
-    background: #333;
-}
-
-.calc-btn-op {
-    background: #444;
-}
-
-.calc-btn-equals {
-    background: var(--primary-color);
-}
-
-.calc-btn-clear {
-    background: #d33;
-}
-
-.calc-btn-equals:hover {
-    background: var(--secondary-color);
-}
-
-.calc-btn-clear:hover {
-    background: #e55;
-}
-
-.calc-btn.zero {
-    grid-column: span 2;
-}
-
-/* Estilos para o color picker */
-.color-picker {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-}
-
-.color-sliders {
-    flex: 1;
-    min-width: 200px;
-}
-
-.slider-group {
-    display: flex;
+.demo-cta-button {
+    display: inline-flex;
     align-items: center;
-    margin-bottom: 1rem;
+    justify-content: center;
+    gap: 0.75rem;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.85rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-medium);
 }
 
-.slider-group label {
-    width: 130px;
-    color: var(--text-secondary);
+.demo-cta-button:hover, 
+.demo-cta-button:focus {
+    transform: translateY(-3px);
+    background-color: var(--accent-color);
+    box-shadow: var(--shadow-heavy);
 }
 
-.slider-group input[type="range"] {
-    flex: 1;
-    margin: 0 1rem;
+.demo-cta-button i {
+    font-size: 1.2rem;
 }
 
-.slider-group span {
-    width: 50px;
-    text-align: right;
-    color: var(--text-secondary);
+/* Estilos específicos para a página de demonstrações interativas */
+.demos-container {
+    margin-top: 2rem;
 }
 
-.color-preview {
-    width: 100%;
-    max-width: 300px;
-}
-
-#color-preview-box {
-    width: 100%;
-    height: 150px;
-    border-radius: 10px;
-    margin-bottom: 1rem;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.color-values {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--text-secondary);
-}
-
-.color-palette {
-    flex: 1;
-    min-width: 200px;
-}
-
-.color-palette h4 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    color: var(--text-secondary);
-}
-
-#color-scheme {
+.demo-selection {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-    gap: 0.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
-.color-swatch {
-    width: 100%;
-    height: 50px;
-    border-radius: 5px;
+.demo-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.demo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-medium);
+}
+
+.demo-card h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+}
+
+.demo-card p {
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+}
+
+.demo-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
     cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    transition: transform 0.2s;
+    transition: all 0.2s ease;
 }
 
-.color-swatch:hover {
-    transform: scale(1.1);
+.demo-button:hover {
+    background-color: var(--accent-color);
+}
+
+.demo-content {
+    margin-top: 2rem;
+    min-height: 400px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: var(--card-bg);
+}
+
+.back-to-home {
+    text-align: center;
+    margin: 3rem 0;
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-color);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .language-switcher {
+        top: 70px;
+        right: 20px;
+    }
+    
+    .notification-btn {
+        top: 70px;
+        right: 150px;
+    }
+    
+    .accessibility-btn {
+        top: 20px;
+        right: 80px;
+    }
+    
+    .filter-container {
+        flex-direction: column;
+    }
+    
+    .github-profile {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .github-avatar {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .github-metrics {
+        justify-content: center;
+    }
+    
+    .color-picker {
+        flex-direction: column;
+    }
+    
+    .tech-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .demo-selection {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .notification-btn {
+        top: 120px;
+        right: 20px;
+        width: auto;
+    }
+    
+    .language-switcher {
+        top: 170px;
+        right: 20px;
+    }
+    
+    #theme-toggle {
+        width: 40px;
+    }
 }
 
 /* ----- ACCESSIBILITY PANEL ----- */
@@ -1045,6 +1063,10 @@ img.loaded {
     }
     
     .tech-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .demo-selection {
         grid-template-columns: 1fr;
     }
 }

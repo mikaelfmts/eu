@@ -102,6 +102,9 @@ body {
     color: var(--primary-color);
     opacity: 0;
     transition: all 0.3s ease;
+    text-decoration: none;
+    cursor: pointer;
+    display: block;
 }
 
 .menu-aberto .bonequinho {
@@ -1036,7 +1039,8 @@ section {
 /* Estilos para a seção de perfil do GitHub */
 #github-profile-section {
     padding: 20px;
-    margin: 20px 0;
+    margin: 20px auto;
+    max-width: 1200px;
 }
 
 .github-profile-container {

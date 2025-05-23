@@ -43,7 +43,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <!-- Scripts críticos para carregamento inicial -->
-    <script src="assets/js/script.js"></script>
+    <script defer src="assets/js/script.js"></script>
     
     <!-- Scripts carregados com defer para melhorar performance -->
     <script defer src="assets/js/performance.js"></script>
@@ -76,11 +76,19 @@
 
     <!-- Foto do Usuário (Agora Aciona o Menu) -->
     <div class="foto-perfil" onclick="toggleMenu()" role="button" tabindex="0" aria-label="Abrir menu de navegação">
-        <img src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael" class="critical-image" loading="eager">
+        <img src="https://i.ibb.co/YTxW7QB/profile-default.png" alt="Foto de Mikael" class="critical-image" loading="eager">
     </div>
+
+    <!-- Botão de menu alternativo sempre visível -->
+    <button id="menu-button" onclick="toggleMenu()" aria-label="Abrir menu de navegação">
+        <i class="fas fa-bars"></i> Menu
+    </button>
 
    <!-- Menu Lateral Oculto -->
     <nav id="menu-lateral" class="menu-fechado" aria-label="Menu de Navegação Principal" role="navigation">
+        <button id="close-menu" class="menu-close-btn" aria-label="Fechar menu">
+            <i class="fas fa-times"></i>
+        </button>
         <ul>
             <li><a href="pages/curriculum.html" aria-label="Ver currículo"><i class="fas fa-file-alt" aria-hidden="true"></i> Curriculum</a></li>
             <li><a href="pages/projetos.html" aria-label="Ver todos os projetos"><i class="fas fa-code" aria-hidden="true"></i> All Uploaded Projects</a></li>
@@ -118,11 +126,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Botão para fechar menu -->
-        <button id="close-menu" aria-label="Fechar menu de navegação" class="menu-close-btn">
-            <i class="fas fa-times"></i>
-        </button>
 
         <!-- Bonequinho Dançante -->
         <div class="bonequinho" aria-hidden="true">

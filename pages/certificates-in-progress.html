@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificates-in-progress</title>
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../assets/css/styles.css">
+
+    <!-- Font Awesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Script -->
+    <script type="module" src="../assets/js/script.js"></script>
+</head>
+<body>
+
+    <!-- Foto do Usuário (Agora Aciona o Menu) -->
+    <div class="foto-perfil" onclick="toggleMenu()">
+        <img src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
+    </div>
+
+   <!-- Menu Lateral Oculto -->
+    <nav id="menu-lateral" class="menu-fechado">
+        <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="curriculum.html">Curriculum</a></li>
+            <li><a href="projetos.html">All Uploaded Projects</a></li>
+            <li><a href="mentors.html">Mentors</a></li>
+            <li><a href="certificates-in-progress.html">Certificates in progress</a></li>
+            <li><a href="interactive-projects.html">Interactive Projects</a></li>
+        </ul>
+
+        <!-- Bonequinho Dançante -->
+        <div class="bonequinho">
+            <i class="fas fa-user-alt"></i>
+        </div>
+    </nav>
+
+    <!-- Cabeçalho -->
+    <header>
+        <h1 class="titulo-principal">
+            Mikael Ferreira
+        </h1>
+        <h2 class="subtitulo">
+            Desenvolvedor Web Full Stack  
+            <i class="fas fa-code"></i> |  
+            HTML <i class="fab fa-html5"></i> |
+            CSS <i class="fab fa-css3-alt"></i> |  
+            JavaScript <i class="fab fa-js"></i> |  
+            React <i class="fab fa-react"></i>
+        </h2>
+    </header>
+
+    <!-- Seção das Certificações -->
+    <section id="certificados">
+        <h2>Certificates in progress</h2>
+
+        <!-- Certificação: Formando em Sistemas de Informação -->
+        <div class="certificados">
+            <h3>Information Systems</h3>
+            <p>Universidade de Fortaleza</p>
+        </div>
+
+        <!-- Certificação: Meta Front-End Developer -->
+        <div class="certificados">
+            <h3>Meta Front-End Developer Professional Certificate</h3>
+            <h5>Comprehensive training in modern front-end development including React, responsive design, and front-end performance optimization.</h5>
+            <p>Meta (Facebook)</p>
+        </div>
+
+        <!-- Certificação: Full-Stack Web Development -->
+        <div class="certificados">
+            <h3>Full-Stack JavaScript Development Bootcamp</h3>
+            <h5>Intensive program covering MERN stack (MongoDB, Express, React, Node.js), RESTful APIs, and modern web development practices.</h5>
+            <p>Udemy</p>
+        </div>
+
+        <!-- Certificação: Google IT Automation with Python -->
+        <div class="certificados">
+            <h3>Google IT Automation with Python Professional Certificate</h3>
+            <h5>Hands-on experience in Python programming, automation tasks, and solving real-world IT problems using Python scripts.</h5>
+            <p>Google Inc</p>
+        </div>
+
+        <a href="curriculo.pdf" target="_blank">
+            <button>Solicite minhas certificações em PDF</button>
+        </a>
+    </section>
+
+    <!-- Redes Sociais -->
+    <section class="redes-sociais">
+        <h2>My Social Media</h2>
+        <div class="botoes-redes">
+            <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-btn tiktok">
+                <i class="fab fa-tiktok"></i>
+            </a>
+            <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-btn reddit">
+                <i class="fab fa-reddit"></i>
+            </a>
+            <a href="https://discord.gg/fffen2a4" target="_blank" class="social-btn discord">
+                <i class="fab fa-discord"></i>
+            </a>
+            <a href="https://github.com/mikaelfmts" target="_blank" class="social-btn github">
+                <i class="fab fa-github"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Chatbot -->
+    <div id="chatbot">
+        <div id="chat-header" onclick="toggleChat()">
+            🤖 Talk with my bot!
+        </div>
+        <div id="chat-body">
+            <div id="chat-messages"></div>
+            <div id="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Digite sua mensagem...">
+                <button onclick="sendMessage()">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>© 2025 Mikael Ferreira</p>
+    </footer>
+
+</body>
+</html>

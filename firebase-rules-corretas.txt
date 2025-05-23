@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Regras para a coleção de mensagens
+    match /mensagens/{messageId} {
+      // Permite leitura para todos
+      allow read: if true;
+      
+      // Permite criação de novas mensagens com validação
+      allow create: if isValidMessage();
+      
+      // Permite atualizações apenas nos campos de resposta
+      // (para quando você responder via admin panel)
+      allow update: if isValidUpdate();
+      
+      // Não permite deletar mensagens
+      allow delete: if false;
+    }
+    
+    // Funções auxiliares
+    function isValidMessage() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['nome', 'mensagem', 'hora', 'chat_id', 'respondido'])
+        && data.nome is string
+        && data.nome.size() > 0
+        && data.nome.size() <= 50
+        && data.mensagem is string
+        && data.mensagem.size() > 0
+        && data.mensagem.size() <= 1000
+        && data.chat_id is string
+        && data.respondido == false;
+    }
+    
+    function isValidUpdate() {
+      let beforeData = resource.data;
+      let afterData = request.resource.data;
+      
+      // Permite apenas atualizar resposta e status respondido
+      return beforeData.diff(afterData).affectedKeys().hasOnly(['resposta', 'respondido', 'horaResposta'])
+        && afterData.resposta is string
+        && afterData.resposta.size() > 0
+        && afterData.respondido == true;
+    }
+    
+    // Bloquear acesso a outras coleções
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -956,6 +956,119 @@ function initSnakeGame() {
     let isPaused = false;
     let obstacles = [];
     
+    // Variáveis para efeitos visuais
+    let particles = [];
+    let flashEffect = false;
+    let gameStartTime = 0;
+    
+    // Sistema de partículas para efeitos
+    class Particle {
+        constructor(x, y, color, velocity, life) {
+            this.x = x;
+            this.y = y;
+            this.color = color;
+            this.velocity = velocity;
+            this.life = life;
+            this.maxLife = life;
+        }
+        
+        update() {
+            this.x += this.velocity.x;
+            this.y += this.velocity.y;
+            this.velocity.x *= 0.98;
+            this.velocity.y *= 0.98;
+            this.life--;
+        }
+        
+        draw(ctx) {
+            const alpha = this.life / this.maxLife;
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 2, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.restore();
+        }
+        
+        isDead() {
+            return this.life <= 0;
+        }
+    }
+    
+    // Função para criar explosão de partículas
+    function createParticleExplosion(x, y, color, count = 10) {
+        for (let i = 0; i < count; i++) {
+            const angle = (Math.PI * 2 * i) / count;
+            const velocity = {
+                x: Math.cos(angle) * (Math.random() * 3 + 1),
+                y: Math.sin(angle) * (Math.random() * 3 + 1)
+            };
+            particles.push(new Particle(x, y, color, velocity, 30 + Math.random() * 20));
+        }
+    }
+    
+    // Função para atualizar partículas
+    function updateParticles() {
+        particles = particles.filter(particle => {
+            particle.update();
+            return !particle.isDead();
+        });
+    }
+    
+    // Função para desenhar partículas
+    function drawParticles() {
+        particles.forEach(particle => particle.draw(ctx));
+    }
+    
+    // Efeitos sonoros usando Web Audio API
+    let audioContext;
+    try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) {
+        console.log('Web Audio API não suportado');
+        audioContext = null;
+    }
+    
+    function playSound(frequency, duration, type = 'sine', volume = 0.1) {
+        if (!audioContext) return;
+        
+        try {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            oscillator.type = type;
+            
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        } catch (e) {
+            console.log('Erro ao reproduzir som:', e);
+        }
+    }
+    
+    function playEatSound() {
+        playSound(800, 0.1, 'square', 0.05);
+        setTimeout(() => playSound(1000, 0.1, 'square', 0.05), 50);
+    }
+    
+    function playGameOverSound() {
+        playSound(200, 0.3, 'sawtooth', 0.1);
+        setTimeout(() => playSound(150, 0.3, 'sawtooth', 0.1), 150);
+        setTimeout(() => playSound(100, 0.5, 'sawtooth', 0.1), 300);
+    }
+    
+    function playMoveSound() {
+        playSound(300, 0.05, 'triangle', 0.02);
+    }
+    
     // Inicializar jogo
     function initGame() {
         snake = [
@@ -969,6 +1082,11 @@ function initSnakeGame() {
         
         direction = 'right';
         nextDirection = 'right';
+        
+        // Resetar efeitos visuais
+        particles = [];
+        flashEffect = false;
+        gameStartTime = Date.now();
         
         generateFood();
         setDifficulty();
@@ -1045,11 +1163,33 @@ function initSnakeGame() {
         moveSnake();
         
         if (checkCollision()) {
-            gameOver();
+            // Efeito visual de game over
+            const head = snake[0];
+            createParticleExplosion(
+                head.x * gridSize + gridSize/2, 
+                head.y * gridSize + gridSize/2, 
+                '#FF5252', 
+                20
+            );
+            flashEffect = true;
+            playGameOverSound();
+            setTimeout(() => {
+                flashEffect = false;
+                gameOver();
+            }, 300);
             return;
         }
         
         if (eatFood()) {
+            // Efeitos visuais e sonoros ao comer
+            createParticleExplosion(
+                food.x * gridSize + gridSize/2, 
+                food.y * gridSize + gridSize/2, 
+                '#FFD700', 
+                15
+            );
+            playEatSound();
+            
             generateFood();
             score += 10;
             currentScoreElement.textContent = score;
@@ -1063,12 +1203,20 @@ function initSnakeGame() {
             snake.pop();
         }
         
+        // Atualizar partículas
+        updateParticles();
+        
         draw();
     }
     
     function moveSnake() {
         // Atualizar direção
         direction = nextDirection;
+        
+        // Som sutil de movimento
+        if (Math.random() < 0.1) { // 10% de chance de som
+            playMoveSound();
+        }
         
         // Calcular nova posição da cabeça
         const head = { ...snake[0] };
@@ -1088,11 +1236,23 @@ function initSnakeGame() {
                 break;
         }
         
-        // Teletransportar se atingir borda
-        if (head.x < 0) head.x = gridWidth - 1;
-        if (head.x >= gridWidth) head.x = 0;
-        if (head.y < 0) head.y = gridHeight - 1;
-        if (head.y >= gridHeight) head.y = 0;
+        // Teletransportar se atingir borda com efeito visual
+        if (head.x < 0) {
+            head.x = gridWidth - 1;
+            createParticleExplosion(gridWidth * gridSize - 10, head.y * gridSize + gridSize/2, '#00BCD4', 8);
+        }
+        if (head.x >= gridWidth) {
+            head.x = 0;
+            createParticleExplosion(10, head.y * gridSize + gridSize/2, '#00BCD4', 8);
+        }
+        if (head.y < 0) {
+            head.y = gridHeight - 1;
+            createParticleExplosion(head.x * gridSize + gridSize/2, gridHeight * gridSize - 10, '#00BCD4', 8);
+        }
+        if (head.y >= gridHeight) {
+            head.y = 0;
+            createParticleExplosion(head.x * gridSize + gridSize/2, 10, '#00BCD4', 8);
+        }
         
         // Adicionar nova cabeça à frente
         snake.unshift(head);
@@ -1197,32 +1357,229 @@ function initSnakeGame() {
     }
     
     function draw() {
-        // Limpar canvas
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--background-primary');
+        // Limpar canvas com gradiente de fundo
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        gradient.addColorStop(0, '#1a1a2e');
+        gradient.addColorStop(1, '#16213e');
+        ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // Desenhar cobra
-        for (let i = 0; i < snake.length; i++) {
-            if (i === 0) {
-                // Cabeça
-                ctx.fillStyle = '#4CAF50';
-            } else {
-                // Corpo
-                ctx.fillStyle = '#8BC34A';
-            }
-            
-            ctx.fillRect(snake[i].x * gridSize, snake[i].y * gridSize, gridSize - 2, gridSize - 2);
+        // Efeito de flash para game over
+        if (flashEffect) {
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
         
-        // Desenhar comida
-        ctx.fillStyle = '#FF5252';
-        ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
+        // Desenhar grid sutil
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.lineWidth = 0.5;
+        for (let x = 0; x <= canvas.width; x += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, canvas.height);
+            ctx.stroke();
+        }
+        for (let y = 0; y <= canvas.height; y += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(canvas.width, y);
+            ctx.stroke();
+        }
         
-        // Desenhar obstáculos
-        ctx.fillStyle = '#607D8B';
+        // Desenhar cobra com efeitos realistas
+        for (let i = 0; i < snake.length; i++) {
+            const segment = snake[i];
+            const x = segment.x * gridSize;
+            const y = segment.y * gridSize;
+            
+            if (i === 0) {
+                // Cabeça da cobra com gradiente e sombra
+                ctx.save();
+                
+                // Sombra
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 8;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+                
+                // Gradiente da cabeça
+                const headGradient = ctx.createRadialGradient(
+                    x + gridSize/2, y + gridSize/2, 0,
+                    x + gridSize/2, y + gridSize/2, gridSize/2
+                );
+                headGradient.addColorStop(0, '#66BB6A');
+                headGradient.addColorStop(1, '#2E7D32');
+                ctx.fillStyle = headGradient;
+                
+                // Desenhar cabeça redonda
+                ctx.beginPath();
+                ctx.arc(x + gridSize/2, y + gridSize/2, gridSize/2 - 1, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Olhos
+                ctx.shadowColor = 'transparent';
+                ctx.fillStyle = '#FFFFFF';
+                const eyeSize = 3;
+                const eyeOffset = 4;
+                
+                // Posição dos olhos baseada na direção
+                let eyeX1, eyeY1, eyeX2, eyeY2;
+                if (direction === 'right') {
+                    eyeX1 = x + gridSize - 6;
+                    eyeY1 = y + eyeOffset;
+                    eyeX2 = x + gridSize - 6;
+                    eyeY2 = y + gridSize - eyeOffset;
+                } else if (direction === 'left') {
+                    eyeX1 = x + 6;
+                    eyeY1 = y + eyeOffset;
+                    eyeX2 = x + 6;
+                    eyeY2 = y + gridSize - eyeOffset;
+                } else if (direction === 'up') {
+                    eyeX1 = x + eyeOffset;
+                    eyeY1 = y + 6;
+                    eyeX2 = x + gridSize - eyeOffset;
+                    eyeY2 = y + 6;
+                } else {
+                    eyeX1 = x + eyeOffset;
+                    eyeY1 = y + gridSize - 6;
+                    eyeX2 = x + gridSize - eyeOffset;
+                    eyeY2 = y + gridSize - 6;
+                }
+                
+                ctx.beginPath();
+                ctx.arc(eyeX1, eyeY1, eyeSize, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(eyeX2, eyeY2, eyeSize, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Pupilas
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                ctx.arc(eyeX1, eyeY1, eyeSize/2, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(eyeX2, eyeY2, eyeSize/2, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                ctx.restore();
+            } else {
+                // Corpo da cobra com gradiente e escala decrescente
+                const bodyScale = Math.max(0.7, 1 - (i * 0.05));
+                const bodySize = (gridSize - 2) * bodyScale;
+                const offset = (gridSize - bodySize) / 2;
+                
+                ctx.save();
+                
+                // Sombra do corpo
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetX = 1;
+                ctx.shadowOffsetY = 1;
+                
+                // Gradiente do corpo
+                const bodyGradient = ctx.createLinearGradient(x, y, x + gridSize, y + gridSize);
+                const intensity = Math.max(0.3, 1 - (i * 0.1));
+                bodyGradient.addColorStop(0, `rgba(139, 195, 74, ${intensity})`);
+                bodyGradient.addColorStop(1, `rgba(46, 125, 50, ${intensity})`);
+                ctx.fillStyle = bodyGradient;
+                
+                // Desenhar segmento do corpo arredondado
+                const radius = bodySize / 6;
+                ctx.beginPath();
+                ctx.roundRect(x + offset, y + offset, bodySize, bodySize, radius);
+                ctx.fill();
+                
+                // Padrão de escamas
+                if (i % 2 === 0) {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${0.1 * intensity})`;
+                    ctx.beginPath();
+                    ctx.roundRect(x + offset + 2, y + offset + 2, bodySize - 4, bodySize - 4, radius/2);
+                    ctx.fill();
+                }
+                
+                ctx.restore();
+            }
+        }
+        
+        // Desenhar comida com efeito pulsante e brilho
+        const time = Date.now() / 1000;
+        const pulseScale = 1 + Math.sin(time * 6) * 0.15;
+        const foodSize = (gridSize - 4) * pulseScale;
+        const foodOffset = (gridSize - foodSize) / 2;
+        const foodX = food.x * gridSize + foodOffset;
+        const foodY = food.y * gridSize + foodOffset;
+        
+        ctx.save();
+        
+        // Brilho da comida
+        ctx.shadowColor = '#FF4444';
+        ctx.shadowBlur = 15;
+        
+        // Gradiente da comida
+        const foodGradient = ctx.createRadialGradient(
+            foodX + foodSize/2, foodY + foodSize/2, 0,
+            foodX + foodSize/2, foodY + foodSize/2, foodSize/2
+        );
+        foodGradient.addColorStop(0, '#FF6B6B');
+        foodGradient.addColorStop(0.7, '#FF5252');
+        foodGradient.addColorStop(1, '#D32F2F');
+        ctx.fillStyle = foodGradient;
+        
+        // Desenhar comida como círculo
+        ctx.beginPath();
+        ctx.arc(foodX + foodSize/2, foodY + foodSize/2, foodSize/2, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Destaque na comida
+        ctx.shadowColor = 'transparent';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.beginPath();
+        ctx.arc(foodX + foodSize/3, foodY + foodSize/3, foodSize/6, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        ctx.restore();
+        
+        // Desenhar obstáculos com textura de pedra
         obstacles.forEach(obs => {
-            ctx.fillRect(obs.x * gridSize, obs.y * gridSize, gridSize - 2, gridSize - 2);
+            const obsX = obs.x * gridSize;
+            const obsY = obs.y * gridSize;
+            
+            ctx.save();
+            
+            // Sombra dos obstáculos
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+            ctx.shadowBlur = 6;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+            
+            // Gradiente dos obstáculos
+            const obsGradient = ctx.createLinearGradient(obsX, obsY, obsX + gridSize, obsY + gridSize);
+            obsGradient.addColorStop(0, '#78909C');
+            obsGradient.addColorStop(0.5, '#607D8B');
+            obsGradient.addColorStop(1, '#455A64');
+            ctx.fillStyle = obsGradient;
+            
+            // Desenhar obstáculo com bordas irregulares
+            ctx.beginPath();
+            ctx.roundRect(obsX + 1, obsY + 1, gridSize - 2, gridSize - 2, 3);
+            ctx.fill();
+            
+            // Textura de pedra
+            ctx.shadowColor = 'transparent';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.fillRect(obsX + 2, obsY + 2, 2, gridSize - 4);
+            ctx.fillRect(obsX + 2, obsY + 2, gridSize - 4, 2);
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(obsX + gridSize - 4, obsY + 4, 2, gridSize - 6);
+            ctx.fillRect(obsX + 4, obsY + gridSize - 4, gridSize - 6, 2);
+            
+            ctx.restore();
         });
+        
+        // Desenhar partículas
+        drawParticles();
     }
     
     // Event listeners e controles

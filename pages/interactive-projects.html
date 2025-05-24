@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Projetos interativos JavaScript de Mikael Ferreira - Desenvolvedor Web Full Stack">
+    <title>Projetos Interativos - Mikael Ferreira</title>
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#0066ff">
+    
+    <!-- Preconnect para performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../assets/css/styles.css">
+
+    <!-- Font Awesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Highlight.js para o editor de código -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/javascript.min.js"></script>
+      <!-- Script -->
+    <script type="module" src="../assets/js/script.js"></script>
+</head>
+<body>
+    <!-- Foto do Usuário (Agora Aciona o Menu) -->
+    <div class="foto-perfil" onclick="toggleMenu()">
+        <img src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
+    </div>
+
+    <!-- Menu Lateral Oculto -->
+    <nav id="menu-lateral" class="menu-fechado">
+        <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="curriculum.html">Curriculum</a></li>
+            <li><a href="projetos.html">All Uploaded Projects</a></li>
+            <li><a href="mentors.html">Mentors</a></li>
+            <li><a href="certificates-in-progress.html">Certificates in progress</a></li>
+            <li><a href="interactive-projects.html">Interactive Projects</a></li>
+        </ul>        <!-- Bonequinho Dançante -->
+        <div class="bonequinho">
+            <a href="../login.html">
+                <i class="fas fa-user-alt"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Cabeçalho -->
+    <header>
+        <h1 class="titulo-principal">
+            Mikael Ferreira
+        </h1>
+        <h2 class="subtitulo">
+            Projetos Interativos JavaScript
+            <i class="fab fa-js"></i>
+        </h2>
+    </header>    <div class="project-tabs">
+        <button class="tab-btn active" data-tab="calculator">Calculadora Avançada</button>
+        <button class="tab-btn" data-tab="game">Jogo Canvas</button>
+        <button class="tab-btn" data-tab="fehuna">Fehuna: Códigos Perdidos</button>
+        <button class="tab-btn" data-tab="editor">Editor de Código</button>
+    </div>
+
+    <section id="calculator-tab" class="project-content active">
+        <div class="project-description">
+            <h2>Calculadora Avançada</h2>
+            <p>Uma calculadora completa com múltiplos modos, histórico de cálculos e personalização de tema.</p>
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> Modos científico e padrão</li>
+                <li><i class="fas fa-check-circle"></i> Histórico de cálculos com localStorage</li>
+                <li><i class="fas fa-check-circle"></i> Suporte a atalhos de teclado</li>
+                <li><i class="fas fa-check-circle"></i> Tema claro/escuro</li>
+            </ul>
+        </div>
+
+        <div class="calculator-container">
+            <div class="calculator">
+                <div class="calc-header">
+                    <div class="calc-mode">
+                        <button id="standard-mode" class="mode-btn active">Padrão</button>
+                        <button id="scientific-mode" class="mode-btn">Científica</button>
+                    </div>
+                    <button id="calc-history-btn" class="history-btn" title="Histórico">
+                        <i class="fas fa-history"></i>
+                    </button>
+                </div>
+                
+                <div class="calc-display">
+                    <div class="calc-operation"></div>
+                    <div class="calc-result">0</div>
+                </div>
+                
+                <div class="calc-keypad standard-keypad">
+                    <button class="calc-key clear">C</button>
+                    <button class="calc-key backspace">&#9003;</button>
+                    <button class="calc-key percent">%</button>
+                    <button class="calc-key operator">/</button>
+                    <button class="calc-key number">7</button>
+                    <button class="calc-key number">8</button>
+                    <button class="calc-key number">9</button>
+                    <button class="calc-key operator">*</button>
+                    <button class="calc-key number">4</button>
+                    <button class="calc-key number">5</button>
+                    <button class="calc-key number">6</button>
+                    <button class="calc-key operator">-</button>
+                    <button class="calc-key number">1</button>
+                    <button class="calc-key number">2</button>
+                    <button class="calc-key number">3</button>
+                    <button class="calc-key operator">+</button>
+                    <button class="calc-key number">0</button>
+                    <button class="calc-key decimal">.</button>
+                    <button class="calc-key equals">=</button>
+                </div>
+                
+                <div class="calc-keypad scientific-keypad hidden">
+                    <!-- Botões científicos adicionais serão adicionados com JavaScript -->
+                </div>
+                
+                <div class="calc-history hidden">
+                    <div class="history-header">
+                        <h3>Histórico</h3>
+                        <button id="clear-history">Limpar</button>
+                    </div>
+                    <div class="history-list">
+                        <!-- História de cálculos será adicionada aqui via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="game-tab" class="project-content">
+        <div class="project-description">
+            <h2>Snake Game</h2>
+            <p>O clássico jogo da cobrinha com múltiplos níveis de dificuldade e controles personalizáveis.</p>
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> Controles direcionais (setas ou WASD)</li>
+                <li><i class="fas fa-check-circle"></i> Diferentes níveis de dificuldade</li>
+                <li><i class="fas fa-check-circle"></i> Sistema de pontuação com localStorage</li>
+                <li><i class="fas fa-check-circle"></i> Obstáculos e power-ups</li>
+            </ul>
+            
+            <div class="game-controls">
+                <h3>Controles</h3>
+                <div class="control-option">
+                    <input type="radio" id="arrows" name="controls" checked>
+                    <label for="arrows">Setas do Teclado</label>
+                </div>
+                <div class="control-option">
+                    <input type="radio" id="wasd" name="controls">
+                    <label for="wasd">WASD</label>
+                </div>
+                
+                <h3>Dificuldade</h3>
+                <div class="difficulty-slider">
+                    <input type="range" id="difficulty" min="1" max="3" value="2">
+                    <div class="difficulty-labels">
+                        <span>Fácil</span>
+                        <span>Médio</span>
+                        <span>Difícil</span>
+                    </div>
+                </div>
+                
+                <button id="start-game" class="start-btn">Iniciar Jogo</button>
+                <button id="pause-game" class="pause-btn hidden">Pausar</button>
+            </div>
+        </div>
+        
+        <div class="game-container">
+            <canvas id="snake-canvas" width="400" height="400"></canvas>
+            
+            <div class="game-stats">
+                <div class="score">Pontuação: <span id="current-score">0</span></div>
+                <div class="high-score">Recorde: <span id="high-score">0</span></div>
+            </div>
+            
+            <div class="game-message hidden">
+                <h2>Game Over!</h2>
+                <p>Sua pontuação: <span class="final-score">0</span></p>
+                <button id="restart-game">Jogar Novamente</button>
+            </div>        </div>
+    </section>    <section id="fehuna-tab" class="project-content">
+        <div class="project-description">
+            <h2>Fehuna: Códigos Perdidos</h2>
+            <p>Um épico RPG de aventura onde você é Ezequiel, um Dev Jr. em missão para restaurar arquivos corrompidos de um servidor invadido pela IA hostil Caracal. Combine combate estratégico com desafios de programação!</p>
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> Sistema de combate baseado em perguntas de programação</li>
+                <li><i class="fas fa-check-circle"></i> Mapa interativo em estilo dungeon</li>
+                <li><i class="fas fa-check-circle"></i> Mini puzzles de cibersegurança</li>
+                <li><i class="fas fa-check-circle"></i> Sistema de skills e magias/scripts</li>
+                <li><i class="fas fa-check-circle"></i> Sistema de level e progressão</li>
+            </ul>
+            
+            <div class="game-info">
+                <h3>História</h3>
+                <p>Como Ezequiel, um desenvolvedor júnior e aprendiz de segurança digital, sua missão é navegar através de um servidor corrompido e derrotar a IA Caracal que tomou controle do sistema.</p>
+                
+                <h3>Skills Disponíveis</h3>
+                <div class="skills-grid">
+                    <div class="skill-item">
+                        <i class="fas fa-search"></i>
+                        <span>scanVirus() - Revela informações do inimigo</span>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fas fa-lock"></i>
+                        <span>encryptAttack() - Ataque de alto dano</span>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>firewallShield() - Reduz dano recebido</span>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fas fa-bug"></i>
+                        <span>debugMode() - Cura e remove status negativos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Epic Battle Arena - Jogo Principal integrado -->
+        <section id="epic-battle-arena" class="main-game-section">
+            <div class="game-splash-screen">
+                <div class="game-logo">
+                    <div class="logo-effects">
+                        <div class="lightning-effect"></div>
+                        <div class="particle-system"></div>
+                    </div>
+                    <h1 class="game-title">FEHUNA</h1>
+                    <h2 class="game-subtitle">Códigos Perdidos</h2>
+                    <div class="version-tag">v1.5.2 - Developer's Quest</div>
+                </div>
+                
+                <div class="game-main-menu">
+                    <div class="menu-background">
+                        <div class="matrix-rain"></div>
+                    </div>
+                    
+                    <div class="menu-content">
+                        <button class="epic-btn primary-btn" id="start-campaign">
+                            <i class="fas fa-play"></i>
+                            <span>INICIAR AVENTURA</span>
+                            <div class="btn-glow"></div>
+                        </button>
+                        
+                        <button class="epic-btn secondary-btn" id="arena-mode">
+                            <i class="fas fa-code"></i>
+                            <span>MODO DESAFIO</span>
+                            <div class="btn-glow"></div>
+                        </button>
+                        
+                        <button class="epic-btn secondary-btn" id="survival-mode">
+                            <i class="fas fa-bug"></i>
+                            <span>DEBUG INFINITO</span>
+                            <div class="btn-glow"></div>
+                        </button>
+                        
+                        <button class="epic-btn secondary-btn" id="leaderboard-btn">
+                            <i class="fas fa-trophy"></i>
+                            <span>RANKING DEVS</span>
+                            <div class="btn-glow"></div>
+                        </button>
+                        
+                        <div class="player-stats-preview">
+                            <div class="player-avatar">
+                                <img src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Ezequiel - Dev Jr.">
+                                <div class="level-badge">LVL 1</div>
+                            </div>
+                            <div class="stats-info">
+                                <div class="player-name">EZEQUIEL_DEV</div>
+                                <div class="player-title">Junior Developer</div>
+                                <div class="stats-bars">
+                                    <div class="stat-bar">
+                                        <span>CODE</span>
+                                        <div class="bar"><div class="fill" style="width: 45%"></div></div>
+                                        <span>JUNIOR</span>
+                                    </div>
+                                    <div class="stat-bar">
+                                        <span>EXP</span>
+                                        <div class="bar"><div class="fill" style="width: 12%"></div></div>
+                                        <span>120 / 1,000</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Game Canvas - Hidden initially -->
+                <div class="game-arena hidden" id="game-arena">
+                    <div class="game-hud">
+                        <div class="hud-top">
+                            <div class="health-section">
+                                <div class="health-bar">
+                                    <div class="health-fill" id="player-health"></div>
+                                    <span class="health-text"><span id="health-value">100</span>/100</span>
+                                </div>
+                                <div class="shield-bar">
+                                    <div class="shield-fill" id="player-shield"></div>
+                                    <span class="shield-text">MP: <span id="shield-value">50</span>/50</span>
+                                </div>
+                            </div>
+                            
+                            <div class="score-section">
+                                <div class="score-display">
+                                    <i class="fas fa-star"></i>
+                                    <span id="current-score">0</span>
+                                </div>
+                                <div class="combo-display">
+                                    <span>NÍVEL</span>
+                                    <span id="combo-counter">1</span>
+                                </div>
+                            </div>
+                              <div class="abilities-section">
+                                <div class="ability-slot" data-ability="scan">
+                                    <i class="fas fa-search"></i>
+                                    <div class="cooldown-timer" id="scan-cooldown"></div>
+                                    <span class="hotkey">Q</span>
+                                </div>
+                                <div class="ability-slot" data-ability="encrypt">
+                                    <i class="fas fa-lock"></i>
+                                    <div class="cooldown-timer" id="encrypt-cooldown"></div>
+                                    <span class="hotkey">W</span>
+                                </div>
+                                <div class="ability-slot" data-ability="firewall">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <div class="cooldown-timer" id="firewall-cooldown"></div>
+                                    <span class="hotkey">E</span>
+                                </div>
+                                <div class="ability-slot" data-ability="debug">
+                                    <i class="fas fa-bug"></i>
+                                    <div class="cooldown-timer" id="debug-cooldown"></div>
+                                    <span class="hotkey">R</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <canvas id="game-canvas" width="1200" height="700"></canvas>
+                    
+                    <div class="game-controls">
+                        <div class="control-hint">
+                            <span>MOVER</span>
+                            <div class="key-combo">
+                                <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>
+                            </div>
+                        </div>                        <div class="control-hint">
+                            <span>ATIRAR</span>
+                            <div class="key-combo">
+                                <kbd>SPACE</kbd>
+                            </div>
+                        </div>
+                        <div class="control-hint">
+                            <span>HABILIDADES FEHUNA</span>
+                            <div class="key-combo">
+                                <kbd>Q</kbd><kbd>W</kbd><kbd>E</kbd><kbd>R</kbd>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Game Over Screen -->
+                    <div class="game-over-screen hidden" id="game-over">
+                        <div class="game-over-content">
+                            <h2>MISSÃO FINALIZADA</h2>
+                            <div class="final-stats">
+                                <div class="stat">
+                                    <span class="label">PONTOS FINAIS</span>
+                                    <span class="value" id="final-score">0</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">BUGS CORRIGIDOS</span>
+                                    <span class="value" id="enemies-killed">0</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">NÍVEL ALCANÇADO</span>
+                                    <span class="value" id="max-combo">1</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">TEMPO DE CÓDIGO</span>
+                                    <span class="value" id="survival-time">0s</span>
+                                </div>
+                            </div>
+                            <div class="rank-display">
+                                <div class="rank-medal">
+                                    <i class="fas fa-code" id="rank-icon"></i>
+                                </div>
+                                <div class="rank-text" id="rank-text">DEVELOPER</div>
+                            </div>
+                            <div class="game-over-buttons">
+                                <button class="epic-btn primary-btn" id="play-again">
+                                    <i class="fas fa-redo"></i>
+                                    TENTAR NOVAMENTE
+                                </button>
+                                <button class="epic-btn secondary-btn" id="back-to-menu">
+                                    <i class="fas fa-home"></i>
+                                    MENU PRINCIPAL
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Loading Screen -->
+                <div class="game-loading hidden" id="game-loading">
+                    <div class="loading-content">
+                        <div class="loading-logo">
+                            <i class="fas fa-cog fa-spin"></i>
+                        </div>
+                        <div class="loading-text">CARREGANDO SERVIDOR...</div>
+                        <div class="loading-bar">
+                            <div class="loading-fill" id="loading-progress"></div>
+                        </div>
+                        <div class="loading-tips">
+                            <div class="tip active" id="loading-tip">
+                                💡 Use scanVirus() para identificar vulnerabilidades antes de atacar!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+
+    <section id="editor-tab" class="project-content">
+        <div class="project-description">
+            <h2>Editor de Código JavaScript</h2>
+            <p>Um editor de código com syntax highlighting, autocompletar básico e capacidade de executar o código com segurança.</p>
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> Syntax highlighting com highlight.js</li>
+                <li><i class="fas fa-check-circle"></i> Autocompletar para palavras-chave de JavaScript</li>
+                <li><i class="fas fa-check-circle"></i> Execução segura em sandbox</li>
+                <li><i class="fas fa-check-circle"></i> Salvar snippets com localStorage</li>
+            </ul>
+        </div>
+        
+        <div class="code-editor-container">
+            <div class="editor-toolbar">
+                <button id="run-code" title="Executar código (Ctrl+Enter)">
+                    <i class="fas fa-play"></i> Executar
+                </button>
+                <button id="save-snippet" title="Salvar snippet">
+                    <i class="fas fa-save"></i> Salvar
+                </button>
+                <button id="clear-editor" title="Limpar editor">
+                    <i class="fas fa-trash"></i> Limpar
+                </button>
+                <select id="saved-snippets">
+                    <option value="">Snippets Salvos</option>
+                </select>
+            </div>
+            
+            <div class="editor-wrapper">
+                <textarea id="code-input" placeholder="// Digite seu código JavaScript aqui&#10;&#10;function exemplo() {&#10;  console.log('Olá, mundo!');&#10;}&#10;&#10;exemplo();"></textarea>
+                <pre><code id="highlighted-code" class="language-javascript"></code></pre>
+            </div>
+            
+            <div class="editor-output">
+                <div class="output-header">
+                    <h3>Console</h3>
+                    <button id="clear-console">Limpar Console</button>
+                </div>
+                <div id="console-output"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>© 2025 Mikael Ferreira</p>
+    </footer>
+
+</body>
+</html>

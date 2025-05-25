@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projetos - Mikael Ferreira</title>
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../assets/css/styles.css">
+
+    <!-- Font Awesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Script -->
+    <script type="module" src="../assets/js/script.js"></script>
+    
+    <!-- Verificação de Manutenção -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
+            authDomain: "mikaelfmts.firebaseapp.com",
+            projectId: "mikaelfmts",
+            storageBucket: "mikaelfmts.firebasestorage.app",
+            messagingSenderId: "516762612351",
+            appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        function checkMaintenanceStatus() {
+            const maintenanceRef = doc(db, 'configuracoes', 'manutencao');
+            
+            onSnapshot(maintenanceRef, (docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    const data = docSnapshot.data();
+                    if (data.ativo) {
+                        window.location.href = '../index.html';
+                    }
+                }
+            });
+        }
+        
+        window.addEventListener('load', checkMaintenanceStatus);
+    </script>
+    
+    <style>
+        /* Estilos específicos para a página de projetos */
+        .github-repos-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .repo-card {
+            background: var(--accent-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .repo-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), transparent);
+        }
+        
+        .repo-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(200, 170, 110, 0.3);
+            border-color: #f0e6d2;
+        }
+        
+        .repo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .repo-name {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .repo-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .repo-stats {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .language-tag {
+            background: linear-gradient(45deg, var(--primary-color), #785a28);
+            color: var(--background-primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .repo-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .repo-btn {
+            background: linear-gradient(45deg, var(--primary-color), #785a28);
+            color: var(--background-primary);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .repo-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(200, 170, 110, 0.4);
+        }
+        
+        .projects-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .projects-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+        
+        .loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            color: var(--primary-color);
+        }
+        
+        .github-profile-container {
+            background: var(--accent-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .stat-card {
+            background: rgba(30, 35, 40, 0.8);
+            border: 1px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+        
+        .stat-number {
+            color: var(--primary-color);
+            font-size: 2rem;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Foto do Usuário (Agora Aciona o Menu) -->
+    <div class="foto-perfil" onclick="toggleMenu()">
+        <img src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
+    </div>
+
+     <!-- Menu Lateral Oculto -->
+    <nav id="menu-lateral" class="menu-fechado">
+        <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="curriculum.html">Curriculum</a></li>
+            <li><a href="projetos.html">All Uploaded Projects</a></li>
+            <li><a href="mentors.html">Mentors</a></li>
+            <li><a href="certificates-in-progress.html">Certificates in progress</a></li>
+            <li><a href="interactive-projects.html">Interactive Projects</a></li>
+            <li><a href="games.html">Games</a></li>
+        </ul>
+
+        <!-- Bonequinho Dançante -->
+        <div class="bonequinho">
+            <a href="../admin.html" title="Painel Admin">
+                <i class="fas fa-user-alt"></i>
+            </a>
+        </div>
+    </nav>
+    
+    <!-- Cabeçalho -->
+     <header>
+        <h1 class="titulo-principal">
+            Mikael Ferreira
+        </h1>
+        <h2 class="subtitulo">
+            Desenvolvedor Web Full Stack  
+            <i class="fas fa-code"></i> |  
+            HTML <i class="fab fa-html5"></i> |
+            CSS <i class="fab fa-css3-alt"></i> |  
+            JavaScript <i class="fab fa-js"></i> |  
+            React <i class="fab fa-react"></i>
+        </h2>
+    </header>
+
+    <!-- Lista de Projetos -->
+    <section id="todos-projetos">
+        <div class="projects-header">
+            <h2>Todos os Projetos GitHub</h2>
+            <p class="projects-subtitle">
+                <i class="fab fa-github mr-2"></i>
+                Explore meus repositórios e projetos desenvolvidos
+            </p>
+        </div>
+        
+        <!-- GitHub Repos Section -->
+        <div id="github-repos" class="github-repos-container">
+            <!-- O conteúdo será preenchido pelo JavaScript -->
+            <div class="loader">
+                <div class="text-center">
+                    <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
+                    <p>Carregando projetos do GitHub...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- GitHub Profile Stats -->
+        <div id="github-profile" class="github-profile-container mt-8">
+            <!-- O conteúdo será preenchido pelo JavaScript -->
+        </div>
+    </section>
+    </section>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>© 2025 Mikael Ferreira</p>
+    </footer>
+
+</body>
+</html>

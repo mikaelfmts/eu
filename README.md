@@ -2,7 +2,7 @@
 
 ## 📌 Visão Geral
 
-Este projeto é um site portfolio pessoal inspirado visualmente no estilo League of Legends, que apresenta habilidades, projetos e informações profissionais minhas. O site incorpora um sistema de chat em tempo real para comunicação direta com visitantes, gerenciado através de um painel administrativo.
+Este projeto é um site portfolio pessoal inspirado visualmente no estilo League of Legends, que apresenta habilidades, projetos e informações profissionais minhas. O site incorpora um sistema de chat em tempo real para comunicação direta com visitantes, gerenciado através de um painel administrativo. Totalmente vinculado com a API do GITHUB.
 
 ## 🌟 Características Principais
 

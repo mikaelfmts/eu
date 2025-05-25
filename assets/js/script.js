@@ -19,10 +19,13 @@ window.addEventListener('load', () => {
     // Aguardar um pouco para garantir que todos os elementos estão disponíveis
     setTimeout(() => {
         const reposElement = document.getElementById('github-repos');
+        const profileElement = document.getElementById('github-profile');
         console.log('Elemento github-repos encontrado:', !!reposElement);
+        console.log('Elemento github-profile encontrado:', !!profileElement);
+        console.log('DOM está pronto, iniciando fetchGitHubData...');
         fetchGitHubData();
         ensureReposDisplay(); // Garantir que os repos sejam exibidos
-    }, 100);
+    }, 500); // Aumentei o tempo de 100ms para 500ms
 });
 
 // Função para buscar dados do GitHub
@@ -64,6 +67,12 @@ function useFallbackData() {
     };
     
     updateGitHubProfile(fallbackProfile);
+    
+    // Força uma segunda atualização após um delay maior
+    setTimeout(() => {
+        console.log('Forçando atualização do perfil GitHub novamente...');
+        updateGitHubProfile(fallbackProfile);
+    }, 1000);
     
     // Dados de fallback para repositórios reais do mikaelfmts
     const fallbackRepos = [
@@ -146,12 +155,25 @@ function generateFallbackSkills() {
 
 // Função para atualizar o perfil com dados do GitHub
 function updateGitHubProfile(profileData) {
+    console.log('updateGitHubProfile chamada com:', profileData);
+    
     // Verificar se há um elemento para exibir o perfil do GitHub
     const profileElement = document.getElementById('github-profile');
+    console.log('Elemento github-profile encontrado:', profileElement);
+    
     if (profileElement) {
+        console.log('Atualizando perfil GitHub na interface...');
+        
+        // Remover o loader primeiro
+        const loader = profileElement.querySelector('.loader');
+        if (loader) {
+            loader.remove();
+            console.log('Loader removido do perfil GitHub');
+        }
+        
         // Atualizar informações do perfil
         profileElement.innerHTML = `
-            <div class="github-card">
+            <div class="github-card" style="display: flex; visibility: visible;">
                 <div class="github-stats">
                     <div class="stat">
                         <span class="stat-value">${profileData.public_repos}</span>
@@ -171,6 +193,10 @@ function updateGitHubProfile(profileData) {
                 </a>
             </div>
         `;
+        console.log('HTML do perfil GitHub inserido com sucesso!');
+        console.log('Conteúdo atual do elemento:', profileElement.innerHTML);
+    } else {
+        console.warn('Elemento github-profile não encontrado no DOM');
     }
 }
 

@@ -1868,17 +1868,16 @@ section {
 .games-container {
     max-width: 1200px;
     margin: 0 auto;
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 4rem;
     align-items: center;
-    text-align: center;
     position: relative;
     z-index: 2;
-    gap: 2rem;
 }
 
 .games-content {
-    text-align: center;
+    text-align: left;
 }
 
 .games-icon {

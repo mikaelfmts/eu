@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projetos - Mikael Ferreira</title>
+
+    <!-- Preconnect para performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../assets/css/styles.css">
+
+    <!-- Font Awesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Estilo específico para a página de projetos -->
+    <style>
+        /* Estilos para o loading */
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(200, 170, 110, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            border-left-color: #d4af37;
+            animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            margin: 0 auto;
+            box-shadow: 0 0 15px rgba(200, 170, 110, 0.2);
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .github-repos-container {
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .github-repos-container .loader + p {
+            text-align: center;
+            color: var(--primary-color);
+            margin-top: 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Estilos para a página inteira */
+        body {
+            background: linear-gradient(135deg, 
+                rgba(15, 20, 25, 0.95) 0%, 
+                rgba(10, 12, 16, 0.98) 100%);
+            background-attachment: fixed;
+            background-size: cover;
+            min-height: 100vh;
+            padding-bottom: 3rem;
+        }
+        
+        /* Cabeçalho da página */
+        .projects-header {
+            text-align: center;
+            padding: 4rem 1rem 3rem;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to bottom, 
+                rgba(20, 25, 30, 0.9) 0%, 
+                transparent 100%);
+            margin-bottom: 3rem;
+        }
+        
+        .projects-header h1 {
+            font-family: 'Marcellus', serif;
+            font-size: 3rem;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .projects-header p {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            opacity: 0.9;
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Efeito decorativo do cabeçalho */
+        .projects-header::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -5%;
+            right: -5%;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(200, 170, 110, 0.05) 0%, 
+                transparent 100%);
+            transform: skewY(-3deg);
+            z-index: 1;
+        }
+        
+        .projects-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--primary-color), 
+                transparent);
+        }
+        
+        /* Container dos projetos */
+        .projects-container {
+            width: 90%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        /* Estilo dos cartões de projetos */
+        .repo-card {
+            background: linear-gradient(135deg, 
+                rgba(30, 35, 40, 0.9) 0%, 
+                rgba(20, 25, 30, 0.95) 100%);
+            border: 2px solid rgba(200, 170, 110, 0.3);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 5px 15px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            transform: translateY(0);
+            transition: all 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .repo-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 10px 20px rgba(200, 170, 110, 0.2);
+            border-color: rgba(200, 170, 110, 0.7);
+        }
+        
+        .repo-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, 
+                var(--primary-color) 0%, 
+                #d4af37 50%, 
+                var(--primary-color) 100%);
+            z-index: 10;
+            opacity: 0.8;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s ease;
+        }
+        
+        .repo-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        /* Botão voltar */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, 
+                rgba(200, 170, 110, 0.2) 0%, 
+                rgba(200, 170, 110, 0.1) 100%);
+            color: var(--primary-color);
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(200, 170, 110, 0.3);
+            margin: 2rem auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .back-button:hover {
+            background: linear-gradient(135deg, 
+                rgba(200, 170, 110, 0.3) 0%, 
+                rgba(200, 170, 110, 0.2) 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Responsividade */
+        /* Footer estilizado */
+        footer {
+            background: linear-gradient(180deg, 
+                transparent 0%, 
+                rgba(0, 0, 0, 0.3) 100%);
+            padding: 2rem 1rem;
+            margin-top: 4rem;
+            text-align: center;
+            border-top: 1px solid rgba(200, 170, 110, 0.2);
+            position: relative;
+            z-index: 100;
+        }
+        
+        footer p {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .footer-links a {
+            color: var(--text-secondary);
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(200, 170, 110, 0.2);
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary-color);
+            transform: translateY(-5px) scale(1.1);
+            background: rgba(0, 0, 0, 0.4);
+            border-color: rgba(200, 170, 110, 0.5);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* GitHub profile summary styling */
+        .github-profile-summary {
+            margin-bottom: 4rem;
+            text-align: center;
+        }
+        
+        .github-profile-container {
+            background: linear-gradient(135deg,
+                rgba(30, 35, 40, 0.95) 0%,
+                rgba(20, 25, 30, 0.98) 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(200, 170, 110, 0.3);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 768px) {
+            .projects-header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .repo-card {
+                padding: 1.5rem;
+            }
+            
+            .footer-links {
+                gap: 1rem;
+            }
+            
+            .footer-links a {
+                width: 35px;
+                height: 35px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+    
+    <!-- Script -->
+    <script type="module" src="../assets/js/script.js"></script>
+    
+    <!-- Verificação de Manutenção -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
+            authDomain: "mikaelfmts.firebaseapp.com",
+            projectId: "mikaelfmts",
+            storageBucket: "mikaelfmts.firebasestorage.app",
+            messagingSenderId: "516762612351",
+            appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        function checkMaintenanceStatus() {
+            try {
+                const maintenanceRef = doc(db, 'configuracoes', 'manutencao');
+                
+                onSnapshot(maintenanceRef, (docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const data = docSnapshot.data();
+                        if (data.ativo) {
+                            window.location.href = '../index.html';
+                        }
+                    } else {
+                        // Verificar localStorage como fallback
+                        checkMaintenanceFromLocal();
+                    }
+                }, (error) => {
+                    console.warn('Erro ao verificar manutenção no Firebase, usando localStorage:', error);
+                    checkMaintenanceFromLocal();
+                });
+            } catch (error) {
+                console.warn('Erro ao conectar Firebase, usando localStorage:', error);
+                checkMaintenanceFromLocal();
+            }
+        }
+        
+        function checkMaintenanceFromLocal() {
+            try {
+                const stored = localStorage.getItem('maintenanceStatus');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    if (data.ativo) {
+                        window.location.href = '../index.html';
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao verificar localStorage:', error);
+            }
+        }
+        
+        window.addEventListener('load', checkMaintenanceStatus);
+    </script>
+    
+    <!-- Removendo estilos duplicados da página de projetos que já foram definidos acima -->
+    <!-- 
+    <style>
+        /* Estilos específicos para a página de projetos */
+    </style>
+    -->
+        
+        .repo-card {
+            background: linear-gradient(135deg, 
+                rgba(30, 35, 40, 0.98) 0%, 
+                rgba(25, 30, 35, 0.95) 100%);
+            border: 2px solid rgba(200, 170, 110, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.4),
+                0 2px 10px rgba(200, 170, 110, 0.1);
+        }
+        
+        .repo-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, 
+                var(--primary-color) 0%, 
+                #d4af37 50%, 
+                var(--primary-color) 100%);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        
+        .repo-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(200, 170, 110, 0.05) 0%, 
+                rgba(255, 215, 0, 0.02) 50%, 
+                rgba(200, 170, 110, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+        
+        .repo-card:hover {
+            transform: translateY(-12px) translateZ(0);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                0 10px 30px rgba(200, 170, 110, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: rgba(200, 170, 110, 0.8);
+        }
+        
+        .repo-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .repo-card:hover::after {
+            opacity: 1;
+        }
+        
+        .repo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        
+        .repo-name {
+            color: var(--primary-color);
+            font-size: 1.4rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 0.8rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            font-family: 'Marcellus', serif;
+        }
+        
+        .repo-description {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .repo-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0.4rem 0.8rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(200, 170, 110, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            background: rgba(200, 170, 110, 0.1);
+            border-color: rgba(200, 170, 110, 0.4);
+            transform: scale(1.05);
+        }
+        
+        .stat-item i {
+            color: var(--primary-color);
+        }
+        
+        .language-tag {
+            background: linear-gradient(135deg, 
+                var(--primary-color) 0%, 
+                #d4af37 100%);
+            color: var(--background-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            box-shadow: 0 4px 15px rgba(200, 170, 110, 0.3);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .repo-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .repo-btn {
+            background: linear-gradient(135deg, 
+                var(--primary-color) 0%, 
+                #d4af37 100%);
+            color: var(--background-primary);
+            border: none;
+            padding: 1rem 1.8rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.9rem;
+            box-shadow: 
+                0 6px 20px rgba(200, 170, 110, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .repo-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 
+                0 10px 30px rgba(200, 170, 110, 0.5),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+        }
+        
+        .repo-btn i {
+            font-size: 1.1rem;
+        }
+        
+        /* Estamos removendo estilos duplicados pois já definimos acima */
+        /* 
+        .projects-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 2rem 0;
+        }
+        
+        .projects-header h2 {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+            font-family: 'Marcellus', serif;
+            letter-spacing: 2px;
+        }
+        
+        .projects-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-top: 1rem;
+            font-style: italic;
+            opacity: 0.9;
+        }
+        
+        .projects-subtitle i {
+            color: var(--primary-color);
+            margin-right: 0.5rem;
+            font-size: 1.4rem;
+        }
+        
+        .loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+        */
+            color: var(--primary-color);
+            text-align: center;
+        }
+        
+        .loader i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .github-profile-container {
+            background: linear-gradient(135deg, 
+                rgba(30, 35, 40, 0.98) 0%, 
+                rgba(25, 30, 35, 0.95) 100%);
+            border: 2px solid rgba(200, 170, 110, 0.4);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            margin-top: 4rem;
+            backdrop-filter: blur(15px);
+            box-shadow: 
+                0 15px 40px rgba(0, 0, 0, 0.4),
+                0 5px 15px rgba(200, 170, 110, 0.2);
+        }
+        
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, 
+                rgba(0, 0, 0, 0.4) 0%, 
+                rgba(0, 0, 0, 0.2) 100%);
+            border: 1px solid rgba(200, 170, 110, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(200, 170, 110, 0.6);
+            box-shadow: 0 10px 25px rgba(200, 170, 110, 0.2);
+        }
+        
+        .stat-number {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: 800;
+            display: block;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .github-repos-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 0 0.5rem;
+            }
+            
+            .repo-card {
+                padding: 1.5rem;
+            }
+            
+            .projects-header h2 {
+                font-size: 2rem;
+            }
+            
+            .repo-name {
+                font-size: 1.2rem;
+            }
+            
+            .repo-actions {
+                flex-direction: column;
+            }
+            
+            .repo-btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Foto do Usuário (Agora Aciona o Menu) -->
+    <div class="foto-perfil" onclick="toggleMenu()" id="github-profile-picture">
+        <img src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
+    </div>
+
+     <!-- Menu Lateral Oculto -->
+    <nav id="menu-lateral" class="menu-fechado">
+        <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="curriculum.html">Curriculum</a></li>
+            <li><a href="projetos.html">All Uploaded Projects</a></li>
+            <li><a href="mentors.html">Mentors</a></li>
+            <li><a href="certificates-in-progress.html">Certificates in progress</a></li>
+            <li><a href="interactive-projects.html">Interactive Projects</a></li>
+            <li><a href="games.html">Games</a></li>
+        </ul>
+
+        <!-- Bonequinho Dançante -->
+        <div class="bonequinho">
+            <a href="../admin.html" title="Painel Admin">
+                <i class="fas fa-user-alt"></i>
+            </a>
+        </div>
+    </nav>
+    
+    <!-- Cabeçalho -->
+     <header>
+        <h1 class="titulo-principal">
+            Mikael Ferreira
+        </h1>
+        <h2 class="subtitulo">
+            Desenvolvedor Web Full Stack  
+            <i class="fas fa-code"></i> |  
+            HTML <i class="fab fa-html5"></i> |
+            CSS <i class="fab fa-css3-alt"></i> |  
+            JavaScript <i class="fab fa-js"></i> |  
+            React <i class="fab fa-react"></i>
+        </h2>
+    </header>
+
+    <!-- Lista de Projetos -->
+    <section id="todos-projetos">
+        <div class="projects-header">
+            <h1>Meus Projetos</h1>
+            <p>
+                <i class="fab fa-github"></i>
+                Coleção de repositórios e trabalhos desenvolvidos com foco em tecnologias modernas
+            </p>
+        </div>
+        
+        <div class="projects-container">
+            <!-- GitHub Profile Stats -->
+            <div class="github-profile-summary">
+                <div id="github-profile" class="github-profile-container">
+                    <!-- O conteúdo será preenchido pelo JavaScript -->
+                    <div class="loader"></div>
+                    <p>Carregando perfil...</p>
+                </div>
+            </div>
+            
+            <!-- GitHub Repos Section -->
+            <div id="github-repos" class="github-repos-container">
+                <!-- O conteúdo será preenchido pelo JavaScript -->
+                <div class="loader"></div>
+                <p>Carregando repositórios GitHub...</p>
+            </div>
+            
+            <!-- Botão para voltar à página inicial -->
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="../index.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Voltar à Página Inicial
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>© 2025 Mikael Ferreira <i class="fas fa-chess-rook"></i></p>
+        <div class="footer-links">
+            <a href="https://github.com/mikaelfmts" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://www.linkedin.com/in/mikael-ferreira" target="_blank"><i class="fab fa-linkedin"></i></a>
+            <a href="../index.html"><i class="fas fa-home"></i></a>
+        </div>
+    </footer>
+    
+    <!-- Script para efeitos visuais extras -->
+    <script>
+        // Adicionar efeito de parallax suave no cabeçalho
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.projects-header');
+            if (header) {
+                const scrollY = window.scrollY;
+                if (scrollY < 600) { // Limitar o efeito às primeiras 600px de scroll
+                    header.style.backgroundPositionY = scrollY * 0.5 + 'px';
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

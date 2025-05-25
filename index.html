@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Portfolio de Mikael Ferreira - Desenvolvedor Web Full Stack">
+    <meta name="keywords" content="desenvolvedor web, frontend, backend, portfolio, html, css, javascript, react, node.js">
+    <title>Mikael Ferreira - Portfolio</title>
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0066ff">
+    
+    <!-- Preconnect para performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+
+    <!-- Font Awesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Script Principal como Módulo -->
+    <script type="module" src="assets/js/script.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle" onclick="toggleTheme()">
+        <i id="theme-icon" class="fab fa-battle-net"></i>
+    </button>
+
+    <!-- Foto do Usuário (Agora Aciona o Menu) -->
+    <div class="foto-perfil" onclick="toggleMenu()">
+        <img src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
+    </div>
+
+   <!-- Menu Lateral Oculto -->
+    <nav id="menu-lateral" class="menu-fechado">
+        <ul>
+            <li><a href="pages/curriculum.html">Curriculum</a></li>
+            <li><a href="pages/projetos.html">All Uploaded Projects</a></li>
+            <li><a href="pages/mentors.html">Mentors</a></li>
+            <li><a href="pages/certificates-in-progress.html">Certificates in progress</a></li>
+            <li><a href="pages/interactive-projects.html">Interactive Projects</a></li>
+            <li><a href="pages/games.html">Games</a></li>
+        </ul>
+
+        <!-- Bonequinho Dançante -->
+        <div class="bonequinho">
+            <a href="login.html">
+                <i class="fas fa-user-alt"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Cabeçalho -->
+    <header>
+         <h1 class="titulo-principal">
+            Mikael Ferreira
+         </h1>
+         <h2 class="subtitulo">
+            Desenvolvedor Web Full Stack  
+            <i class="fas fa-code"></i> |  
+            HTML <i class="fab fa-html5"></i> |
+            CSS <i class="fab fa-css3-alt"></i> |  
+            JavaScript <i class="fab fa-js"></i> |  
+            React <i class="fab fa-react"></i>
+        </h2>
+    </header>
+
+    <!-- Seção de Habilidades Técnicas -->
+    <section id="habilidades">
+        <h2>Technical Skills</h2>
+        <div class="skills-grid">
+            <div class="skill-card">
+                <h3>Front-end Development</h3>
+                <div class="skill-bar">
+                    <div class="skill-progress html-css-progress"></div>
+                </div>
+                <p class="skill-percentage">HTML/CSS - 85%</p>
+                <div class="skill-bar">
+                    <div class="skill-progress javascript-progress"></div>
+                </div>
+                <p class="skill-percentage">JavaScript - 75%</p>
+                <div class="skill-bar">
+                    <div class="skill-progress react-progress"></div>
+                </div>
+                <p class="skill-percentage">React - 65%</p>
+            </div>
+            
+            <div class="skill-card">
+                <h3>Back-end Development</h3>
+                <div class="skill-bar">
+                    <div class="skill-progress node-progress"></div>
+                </div>
+                <p class="skill-percentage">Node.js - 70%</p>
+                <div class="skill-bar">
+                    <div class="skill-progress python-progress"></div>
+                </div>
+                <p class="skill-percentage">Python - 65%</p>
+                <div class="skill-bar">
+                    <div class="skill-progress express-progress"></div>
+                </div>
+                <p class="skill-percentage">Express - 60%</p>
+            </div>
+
+            <div class="skill-card">
+                <h3>Web Tools & DevOps</h3>
+                <div class="skill-bar">
+                    <div class="skill-progress git-progress"></div>
+                </div>
+                <p class="skill-percentage">Git/GitHub - 80%</p>
+                <div class="skill-bar">
+                    <div class="skill-progress responsive-progress"></div>
+                </div>
+                <p class="skill-percentage">Responsive Design - 75%</p>
+                <div class="skill-bar">
+                    <div class="skill-progress api-progress"></div>
+                </div>
+                <p class="skill-percentage">RESTful APIs - 70%</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Games - Atalho Especial -->
+    <section id="games-section" class="games-highlight">
+        <div class="games-container">
+            <div class="games-content">
+                <div class="games-icon">
+                    🎮
+                </div>
+                <h2 class="games-title">Explore Meus Jogos</h2>
+                <p class="games-description">
+                    Descubra projetos interativos e jogos desenvolvidos com JavaScript, HTML5 Canvas e muito mais!
+                </p>
+                <div class="games-features">
+                    <span class="feature-tag">🕹️ Fehuna: Códigos Perdidos</span>
+                    <span class="feature-tag">🎯 Jogos Interativos</span>
+                    <span class="feature-tag">⚡ HTML5 Canvas</span>
+                </div>
+                <a href="pages/games.html" class="games-cta-button">
+                    <span class="button-text">🚀 Jogar Agora</span>
+                    <div class="button-glow"></div>
+                </a>
+            </div>
+            <div class="games-visual">
+                <div class="game-preview">
+                    <div class="pixel-art">
+                        <div class="pixel-row">
+                            <div class="pixel green"></div>
+                            <div class="pixel green"></div>
+                            <div class="pixel blue"></div>
+                            <div class="pixel blue"></div>
+                        </div>
+                        <div class="pixel-row">
+                            <div class="pixel green"></div>
+                            <div class="pixel yellow"></div>
+                            <div class="pixel yellow"></div>
+                            <div class="pixel blue"></div>
+                        </div>
+                        <div class="pixel-row">
+                            <div class="pixel red"></div>
+                            <div class="pixel red"></div>
+                            <div class="pixel yellow"></div>
+                            <div class="pixel yellow"></div>
+                        </div>
+                        <div class="pixel-row">
+                            <div class="pixel red"></div>
+                            <div class="pixel purple"></div>
+                            <div class="pixel purple"></div>
+                            <div class="pixel orange"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GitHub Profile Section -->
+    <section id="github-profile-section">
+        <h2>Meu Perfil GitHub</h2>
+        <div id="github-profile" class="github-profile-container">
+            <!-- O conteúdo será preenchido pelo JavaScript -->
+            <div class="loader"></div>
+        </div>
+    </section>
+
+    <!-- GitHub Repos Section -->
+    <section id="github-repos-section">
+        <h2>Meus Repositórios GitHub</h2>
+        <div id="github-repos" class="github-repos-container">
+            <!-- O conteúdo será preenchido pelo JavaScript -->
+            <div class="loader"></div>
+        </div>
+    </section>
+
+    <!-- Redes Sociais -->
+    <section class="redes-sociais">
+        <h2>My Social Media</h2>
+        <div class="botoes-redes">
+            <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-btn tiktok">
+                <i class="fab fa-tiktok"></i>
+            </a>
+            <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-btn reddit">
+                <i class="fab fa-reddit"></i>
+            </a>
+            <a href="https://discord.gg/fffen2a4" target="_blank" class="social-btn discord">
+                <i class="fab fa-discord"></i>
+            </a>
+            <a href="https://github.com/mikaelfmts" target="_blank" class="social-btn github">
+                <i class="fab fa-github"></i>
+            </a>
+        </div>
+    </section>
+
+<!-- Chatbot -->
+<div id="chatbot">
+    <div id="chat-header" onclick="toggleChat()">
+        <i class="fas fa-crown"></i> Summoner's Chat
+    </div>
+    <div id="chat-body">
+        <!-- Formulário de nome (mostrado inicialmente) -->
+        <div id="name-form" style="display: block;">
+            <div class="name-input-area">
+                <p>Como devo chamá-lo, Invocador?</p>
+                <input type="text" id="name-input" placeholder="Digite seu nome..." maxlength="50">
+                <button onclick="setUserName()">Entrar no Rift</button>
+            </div>
+        </div>
+        
+        <!-- Área do chat (oculta inicialmente) -->
+        <div id="chat-area" style="display: none;">
+            <div id="chat-messages"></div>
+            <div id="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Digite sua mensagem...">
+                <button onclick="sendMessage()"><i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>© 2025 Mikael Ferreira <i class="fas fa-chess-rook"></i></p>
+    </footer>
+    
+</body>
+   
+</html>

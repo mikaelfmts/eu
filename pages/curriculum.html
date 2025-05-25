@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curriculum - Mikael Ferreira</title>
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../assets/css/styles.css">
+
+    <!-- Font Awesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Script -->
+    <script type="module" src="../assets/js/script.js"></script>
+    
+    <!-- Verificação de Manutenção -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
+            authDomain: "mikaelfmts.firebaseapp.com",
+            projectId: "mikaelfmts",
+            storageBucket: "mikaelfmts.firebasestorage.app",
+            messagingSenderId: "516762612351",
+            appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        function checkMaintenanceStatus() {
+            try {
+                const maintenanceRef = doc(db, 'configuracoes', 'manutencao');
+                
+                onSnapshot(maintenanceRef, (docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const data = docSnapshot.data();
+                        if (data.ativo) {
+                            window.location.href = '../index.html';
+                        }
+                    } else {
+                        // Verificar localStorage como fallback
+                        checkMaintenanceFromLocal();
+                    }
+                }, (error) => {
+                    console.warn('Erro ao verificar manutenção no Firebase, usando localStorage:', error);
+                    checkMaintenanceFromLocal();
+                });
+            } catch (error) {
+                console.warn('Erro ao conectar Firebase, usando localStorage:', error);
+                checkMaintenanceFromLocal();
+            }
+        }
+        
+        function checkMaintenanceFromLocal() {
+            try {
+                const stored = localStorage.getItem('maintenanceStatus');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    if (data.ativo) {
+                        window.location.href = '../index.html';
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao verificar localStorage:', error);
+            }
+        }
+        
+        window.addEventListener('load', checkMaintenanceStatus);
+    </script>
+</head>
+<body>
+
+    <!-- Foto do Usuário (Agora Aciona o Menu) -->
+    <div class="foto-perfil" onclick="toggleMenu()">
+        <img id="profile-photo" alt="Foto de Mikael Ferreira">
+    </div>
+
+     <!-- Menu Lateral Oculto -->
+    <nav id="menu-lateral" class="menu-fechado">
+        <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="curriculum.html">Curriculum</a></li>
+            <li><a href="projetos.html">All Uploaded Projects</a></li>
+            <li><a href="mentors.html">Mentors</a></li>
+            <li><a href="certificates-in-progress.html">Certificates in progress</a></li>
+            <li><a href="interactive-projects.html">Interactive Projects</a></li>
+            <li><a href="games.html">Games</a></li>
+        </ul>
+
+        <!-- Bonequinho Dançante -->
+        <div class="bonequinho">
+            <a href="../login.html">
+                <i class="fas fa-user-alt"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Cabeçalho -->
+    <header>
+        <h1 class="titulo-principal">
+            Mikael Ferreira
+        </h1>
+        <h2 class="subtitulo">
+            Desenvolvedor Web Full Stack  
+            <i class="fas fa-code"></i> |  
+            HTML <i class="fab fa-html5"></i> |
+            CSS <i class="fab fa-css3-alt"></i> |  
+            JavaScript <i class="fab fa-js"></i> |  
+            React <i class="fab fa-react"></i>
+        </h2>
+    </header>
+
+    <!-- Seção do Currículo -->
+    <section id="curriculum">
+        <h2>Curriculum</h2>
+
+        <!-- Formação Acadêmica -->
+        <div class="categoria">
+            <h3>Academic Background</h3>
+            <div class="projeto">
+                <h4>Graduating in Information Systems</h4>
+                <p>Expected Graduation: 2029</p>
+            </div>
+        </div>
+
+        <!-- Experiência Profissional -->
+        <div class="categoria">
+            <h3>Professional Experience</h3>
+            <div class="projeto">
+                <h4>Application Programming Interface (API) Creator</h4>
+                <p>ELGAEHOST</p>
+            </div>
+        </div>
+
+        <!-- Habilidades Técnicas -->
+        <div class="categoria">
+            <h3>Technical Skills</h3>
+            <div class="projeto">
+                <ul>
+                    <li><i class="fab fa-html5"></i> HTML5</li>
+                    <li><i class="fab fa-css3-alt"></i> CSS3</li>
+                    <li><i class="fab fa-js"></i> JavaScript</li>
+                    <li><i class="fab fa-react"></i> React</li>
+                    <li><i class="fab fa-node-js"></i> Node.js</li>
+                    <li><i class="fab fa-git-alt"></i> Git & GitHub</li>
+                    <li><i class="fas fa-database"></i> Bancos de Dados</li>
+                    <li><i class="fas fa-server"></i> APIs REST</li>
+                    <li><i class="fas fa-mobile-alt"></i> Responsive Design</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Link para Download do Currículo -->
+        <a href="curriculo.pdf" target="_blank">
+            <button>Download Curriculum (PDF)</button>
+        </a>
+    </section>
+
+    <!-- Redes Sociais -->
+    <section class="redes-sociais">
+        <h2>My Social Media</h2>
+        <div class="botoes-redes">
+            <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-btn tiktok">
+                <i class="fab fa-tiktok"></i>
+            </a>
+            <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-btn reddit">
+                <i class="fab fa-reddit"></i>
+            </a>
+            <a href="https://discord.gg/fffen2a4" target="_blank" class="social-btn discord">
+                <i class="fab fa-discord"></i>
+            </a>
+            <a href="https://github.com/mikaelfmts" target="_blank" class="social-btn github">
+                <i class="fab fa-github"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>© 2025 Mikael Ferreira</p>
+        <p>🚀 Make Solutions</p>
+    </footer>
+
+</body>
+</html>

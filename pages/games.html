@@ -302,15 +302,18 @@
             <h2 class="game-title"><i class="fas fa-shield-alt"></i> Fehuna: Códigos Perdidos</h2>            <div class="game-description">
                 <p>Você é Ezequiel, um Dev Jr. e aprendiz de segurança digital. Seu objetivo é restaurar os arquivos corrompidos de um antigo servidor invadido por uma inteligência artificial hostil chamada Caracal.</p>
                 <p>Explore um mundo inspirado em Stardew Valley com batalhas táticas baseadas em scripts de programação, resolva puzzles de código e restaure os sistemas digitais comprometidos!</p>
-                
-                <div class="game-instructions" style="margin-top: 20px; display: flex; gap: 20px; flex-wrap: wrap;">
+                  <div class="game-instructions" style="margin-top: 20px; display: flex; gap: 20px; flex-wrap: wrap;">
                     <div class="desktop-instructions" style="flex: 1; min-width: 250px; background: rgba(10, 20, 40, 0.7); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px;">
-                        <h4 style="color: var(--primary-color);"><i class="fas fa-keyboard"></i> Instruções (Desktop)</h4>
-                        <ul style="list-style-type: none; padding-left: 5px;">
+                        <h4 style="color: var(--primary-color);"><i class="fas fa-keyboard"></i> Instruções (Desktop)</h4>                        <ul style="list-style-type: none; padding-left: 5px;">
                             <li><strong>W, A, S, D ou Setas:</strong> Movimentação</li>
-                            <li><strong>Espaço/Enter:</strong> Interagir/Confirmar</li>
+                            <li><strong>E:</strong> Interagir com NPCs</li>
+                            <li><strong>I:</strong> Abrir/Fechar Inventário</li>
+                            <li><strong>Espaço/Enter:</strong> Confirmar/Avançar diálogo</li>
                             <li><strong>ESC:</strong> Menu do jogo</li>
                             <li><strong>1-9:</strong> Selecionar habilidades em batalhas</li>
+                            <li><strong>F5:</strong> Salvar jogo</li>
+                            <li><strong>F9:</strong> Carregar jogo</li>
+                            <li><strong>F1:</strong> Ajuda/Controles</li>
                         </ul>
                     </div>
                     
@@ -435,23 +438,32 @@
       <script>
         // Variável global para a instância do jogo
         let fehunaGame;
-        
-        // Script para iniciar o jogo quando o botão for clicado
+          // Script para iniciar o jogo quando o botão for clicado
         document.getElementById('play-fehuna').addEventListener('click', function() {
             const canvas = document.getElementById('game-canvas');
+            const container = canvas.parentElement;
+            
+            // Mostrar e configurar o canvas
             canvas.style.display = 'block';
+            container.style.display = 'block';
             
             // Rolagem automática para o canvas
             canvas.scrollIntoView({ behavior: 'smooth' });
             
-            // Redimensionar o canvas para se adequar ao contêiner
-            resizeCanvas();
-            
-            // Iniciar o jogo após exibir o canvas
-            if (!fehunaGame) {
-                // Inicializar o jogo pela primeira vez
-                fehunaGame = new FehunaGame('game-canvas');
-            }
+            // Aguardar um momento para o canvas aparecer antes de inicializar
+            setTimeout(() => {
+                // Redimensionar o canvas para se adequar ao contêiner
+                resizeCanvas();
+                
+                // Iniciar o jogo após exibir o canvas
+                if (!fehunaGame) {
+                    console.log('Inicializando jogo Fehuna...');
+                    fehunaGame = new FehunaGame('game-canvas');
+                    console.log('Jogo inicializado com sucesso!');
+                } else {
+                    console.log('Jogo já está rodando');
+                }
+            }, 100);
         });
         
         // Função para redimensionar o canvas conforme necessário

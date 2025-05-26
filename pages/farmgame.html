@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Minha Fazendinha - Um jogo de simulação de fazenda estilo Harvest Moon">
+    <title>Minha Fazendinha - Mikael Ferreira</title>
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#0066ff">
+    
+    <!-- Preconnect para performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../assets/css/styles.css">
+
+    <!-- Font Awesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Scripts -->
+    <script type="module" src="../assets/js/script.js"></script>
+    
+    <!-- Verificação de Manutenção -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
+            authDomain: "mikaelfmts.firebaseapp.com",
+            projectId: "mikaelfmts",
+            storageBucket: "mikaelfmts.firebaseapp.com",
+            messagingSenderId: "516762612351",
+            appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        function checkMaintenanceStatus() {
+            try {
+                const maintenanceRef = doc(db, 'configuracoes', 'manutencao');
+                
+                onSnapshot(maintenanceRef, (docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const data = docSnapshot.data();
+                        if (data.ativo) {
+                            window.location.href = '../index.html';
+                        }
+                    } else {
+                        // Verificar localStorage como fallback
+                        checkMaintenanceFromLocal();
+                    }
+                }, (error) => {
+                    console.warn('Erro ao verificar manutenção no Firebase, usando localStorage:', error);
+                    checkMaintenanceFromLocal();
+                });
+            } catch (error) {
+                console.warn('Erro ao conectar Firebase, usando localStorage:', error);
+                checkMaintenanceFromLocal();
+            }
+        }
+        
+        function checkMaintenanceFromLocal() {
+            try {
+                const stored = localStorage.getItem('maintenanceStatus');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    if (data.ativo) {
+                        window.location.href = '../index.html';
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao verificar localStorage:', error);
+            }
+        }
+        
+        window.addEventListener('load', checkMaintenanceStatus);
+    </script>
+    
+    <style>
+        /* Estilos específicos para a página de jogos */
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px 0;
+            border-bottom: 2px solid var(--primary-color);
+            animation: fadeInDown 1s ease;
+        }
+        
+        .game-header h1 {
+            font-size: 3rem;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(200, 170, 110, 0.5);
+        }
+        
+        .game-header p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .game-card {
+            background: var(--card-bg);
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-medium);
+            transition: all 0.3s ease;
+            animation: fadeIn 1s ease;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(200, 170, 110, 0.6);
+        }
+        
+        .game-canvas-container {
+            width: 100%;
+            margin: 30px auto;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            overflow: hidden;
+            display: none;
+            background-color: #111;
+            box-shadow: 0 0 20px rgba(200, 170, 110, 0.4);
+        }
+        
+        .game-controls {
+            background: rgba(10, 20, 40, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .controls-title {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .key {
+            background: rgba(200, 170, 110, 0.2);
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            padding: 5px 10px;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .action {
+            color: var(--text-primary);
+        }
+        
+        #game-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Navbar entre jogos */
+        .games-navbar {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 20px;
+            background: rgba(10, 20, 40, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .game-nav-btn {
+            padding: 10px 20px;
+            background: var(--background-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .game-nav-btn.active {
+            background: var(--primary-color);
+            color: var(--background-primary);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(200, 170, 110, 0.5);
+        }
+        
+        .game-nav-btn:hover:not(.active) {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        @media (max-width: 768px) {
+            .game-header h1 {
+                font-size: 2rem;
+            }
+            
+            .game-controls {
+                padding: 10px;
+            }
+            
+            .controls-title {
+                font-size: 1.1rem;
+            }
+            
+            .control-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Container de partículas -->
+    <div class="particles-container"></div>
+    
+    <!-- Menu Lateral Oculto -->
+    <nav id="menu-lateral" class="menu-fechado">
+        <div class="menu-header">
+            <i class="fas fa-times" onclick="toggleMenu()"></i>
+        </div>
+        <ul class="menu-options">
+            <li><a href="../index.html"><i class="fas fa-home"></i> Início</a></li>
+            <li><a href="certificates-in-progress.html"><i class="fas fa-certificate"></i> Certificados</a></li>
+            <li><a href="projetos.html"><i class="fas fa-code"></i> Projetos</a></li>
+            <li><a href="games.html" class="active"><i class="fas fa-gamepad"></i> Games</a></li>
+            <li><a href="interactive-projects.html"><i class="fas fa-project-diagram"></i> Projetos Interativos</a></li>
+            <li><a href="mentors.html"><i class="fas fa-users"></i> Mentores</a></li>
+            <li><a href="curriculum.html"><i class="fas fa-file-alt"></i> Currículo</a></li>
+        </ul>
+        <div class="menu-footer">
+            <div class="social-icons">
+                <a href="https://github.com/mikaelferreira19" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/mikael-ferreira-687a65235/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                <a href="https://wa.me/5512981918503" target="_blank"><i class="fab fa-whatsapp"></i></a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Foto do Usuário (Aciona o Menu) -->
+    <div class="foto-perfil" onclick="toggleMenu()">
+        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
+    </div>
+    
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle" onclick="toggleTheme()">
+        <i id="theme-icon" class="fab fa-battle-net"></i>
+    </button>
+    
+    <div class="game-container">
+        <!-- Game Header -->
+        <header class="game-header">
+            <h1>Minha Fazendinha</h1>
+            <p>Um jogo de simulação de fazenda estilo Harvest Moon desenvolvido com Phaser 3</p>
+        </header>
+        
+        <!-- Navegação entre jogos -->
+        <div class="games-navbar">
+            <a href="games.html" class="game-nav-btn">Fehuna: Códigos Perdidos</a>
+            <a href="farmgame.html" class="game-nav-btn active">Minha Fazendinha</a>
+        </div>
+        
+        <!-- Game Description -->
+        <div class="game-card">
+            <h2 class="game-title"><i class="fas fa-tractor"></i> Sobre o Jogo</h2>
+            <div class="game-description">
+                <p>
+                    <strong>Minha Fazendinha</strong> é um jogo casual de simulação de fazenda inspirado em clássicos como Harvest Moon e Stardew Valley.
+                    Cuide da sua fazenda, plante cultivos, crie animais e expanda suas terras. Gerencia seu tempo e energia para maximizar sua produção.
+                </p>
+                <p>
+                    Este jogo foi desenvolvido com Phaser 3, uma das mais populares frameworks de jogos para HTML5, mostrando como criar jogos complexos
+                    que rodam diretamente no navegador sem plugins adicionais.
+                </p>
+            </div>
+            
+            <!-- Game Features -->
+            <div class="game-features">
+                <h3 class="feature-title">Funcionalidades</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4><i class="fas fa-seedling"></i> Sistema de Plantio</h4>
+                        <p>Plante, regue e colha diversos tipos de cultivos. Cada planta tem seu próprio tempo de crescimento e valor.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4><i class="fas fa-drumstick-bite"></i> Criação de Animais</h4>
+                        <p>Crie galinhas e vacas, alimente-as e colete ovos e leite para vender ou usar em receitas.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4><i class="fas fa-tools"></i> Ferramentas</h4>
+                        <p>Use diferentes ferramentas como enxada e regador para preparar o terreno e cuidar das plantas.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4><i class="fas fa-clock"></i> Ciclo Dia/Noite</h4>
+                        <p>Gerencie seu tempo e energia. Durma para recuperar energia e salvar seu progresso.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Play Button -->
+            <div class="text-center mt-8">
+                <button id="start-game" class="btn btn-primary">
+                    <i class="fas fa-play"></i> Iniciar Jogo
+                </button>
+            </div>
+        </div>
+        
+        <!-- Game Canvas Container -->
+        <div id="game-canvas-container" class="game-canvas-container">
+            <div id="game-container"></div>
+        </div>
+        
+        <!-- Game Controls -->
+        <div class="game-controls">
+            <h3 class="controls-title"><i class="fas fa-keyboard"></i> Controles do Jogo</h3>
+            <div class="control-grid">
+                <div class="control-item">
+                    <span class="key">Mouse</span>
+                    <span class="action">Mover personagem / Interagir</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">Setas</span>
+                    <span class="action">Mover personagem</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">E</span>
+                    <span class="action">Interagir (alimentar animais, dormir)</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">I</span>
+                    <span class="action">Abrir/fechar inventário</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">1</span>
+                    <span class="action">Selecionar enxada</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">2</span>
+                    <span class="action">Selecionar regador</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">3</span>
+                    <span class="action">Usar mãos (colheita/plantar)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phaser Library (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    
+    <!-- Game Script -->
+    <script src="../assets/js/farm-game.js"></script>
+    
+    <!-- Game Initialization -->
+    <script>
+        // Variável global para o jogo
+        let farmGame = null;
+        
+        // Iniciar jogo quando o botão for clicado
+        document.getElementById('start-game').addEventListener('click', function() {
+            const canvasContainer = document.getElementById('game-canvas-container');
+            const container = document.getElementById('game-container');
+            
+            // Mostrar e configurar o container
+            canvasContainer.style.display = 'block';
+            container.style.display = 'block';
+            
+            // Rolagem automática para o canvas
+            canvasContainer.scrollIntoView({ behavior: 'smooth' });
+            
+            // Aguardar um momento para o canvas aparecer antes de inicializar
+            setTimeout(() => {
+                // Iniciar o jogo apenas se ainda não estiver rodando
+                if (!farmGame) {
+                    console.log('Inicializando Minha Fazendinha...');
+                    farmGame = new FarmGame('game-container');
+                    console.log('Jogo inicializado com sucesso!');
+                } else {
+                    console.log('Jogo já está rodando');
+                }
+            }, 100);
+        });
+        
+        // Impedir que teclas como espaço e setas rolem a página quando o jogo estiver ativo
+        document.addEventListener('keydown', function(e) {
+            if (farmGame && ['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+                e.preventDefault();
+            }
+        });
+    </script>
+    
+    <!-- Sistema de Partículas -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const particlesContainer = document.querySelector('.particles-container');
+            
+            // Criar partículas
+            for (let i = 0; i < 50; i++) {
+                createParticle();
+            }
+            
+            function createParticle() {
+                const particle = document.createElement('div');
+                
+                // Adicionar classes
+                particle.classList.add('particle');
+                
+                // Tipo aleatório
+                const type = Math.random();
+                if (type < 0.4) {
+                    particle.classList.add('golden');
+                } else if (type < 0.7) {
+                    particle.classList.add('light');
+                } else {
+                    particle.classList.add('dark');
+                }
+                
+                // Tamanho e posição aleatórios
+                const size = Math.random() * 5 + 2;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}%`;
+                particle.style.top = `${posY}%`;
+                
+                // Animação
+                particle.style.animation = `float ${Math.random() * 15 + 10}s linear infinite`;
+                particle.style.opacity = Math.random() * 0.5 + 0.1;
+                
+                // Adicionar ao container
+                particlesContainer.appendChild(particle);
+                
+                // Reposicionar quando sair da tela
+                setInterval(() => {
+                    const newPosX = Math.random() * 100;
+                    const newPosY = Math.random() * 100;
+                    
+                    particle.style.left = `${newPosX}%`;
+                    particle.style.top = `${newPosY}%`;
+                }, (Math.random() * 15 + 10) * 1000);
+            }
+        });
+    </script>
+</body>
+</html>

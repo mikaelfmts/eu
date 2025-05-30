@@ -1,0 +1,894 @@
+/* Estilos do Gerador de Currículo */
+
+/* Variáveis CSS Customizáveis */
+:root {
+    --custom-font-size: 14px;
+    --primary-color: #3B82F6;
+    --secondary-color: #1E40AF;
+    --header-bg: var(--primary-color);
+    --accent-color: var(--secondary-color);
+    --gradient-bg: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    --box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    --animation-enabled: 0;
+}
+
+/* Aplicação de customizações */
+#resumePreview {
+    font-size: var(--custom-font-size) !important;
+}
+
+#resumePreview.show-colors .resume-header {
+    background: var(--header-bg) !important;
+    color: white !important;
+}
+
+#resumePreview.show-colors .resume-section h3 {
+    color: var(--accent-color) !important;
+}
+
+#resumePreview.use-gradients .resume-header {
+    background: var(--gradient-bg) !important;
+}
+
+#resumePreview.use-gradients .resume-section h3::after {
+    background: var(--gradient-bg) !important;
+}
+
+#resumePreview.use-shadows .resume-section,
+#resumePreview.use-shadows .project-item,
+#resumePreview.use-shadows .contact-links > div {
+    box-shadow: var(--box-shadow) !important;
+}
+
+#resumePreview.use-animations * {
+    transition: all 0.3s ease !important;
+}
+
+#resumePreview.use-animations .resume-section:hover {
+    transform: translateY(-2px) !important;
+}
+
+/* Estilos Gerais */
+.theme-transition {
+    transition: all 0.3s ease;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Layout de Colunas */
+.two-columns {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+}
+
+.one-column {
+    display: block;
+}
+
+.left-column {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+}
+
+.right-column {
+    padding: 0.5rem;
+}
+
+/* Foto de Perfil */
+.profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 1rem;
+    display: block;
+    border: 4px solid white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Tema Moderno */
+.theme-modern {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #2d3748;
+}
+
+.theme-modern .resume-header {
+    background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 0.5rem 0.5rem 0 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-modern .resume-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.1;
+}
+
+.theme-modern .resume-section {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    border-left: 4px solid var(--primary-color, #667eea);
+    background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+    border-radius: 0 0.5rem 0.5rem 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.theme-modern .resume-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.theme-modern .resume-section h3 {
+    color: var(--primary-color, #667eea);
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.theme-modern .resume-section h3::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color, #667eea), var(--secondary-color, #764ba2));
+    border-radius: 2px;
+}
+
+/* Tema Clássico */
+.theme-classic {
+    font-family: 'Times New Roman', serif;
+    line-height: 1.8;
+    color: #2c3e50;
+    background: #ffffff;
+}
+
+.theme-classic .resume-header {
+    background: var(--primary-color, #2c3e50);
+    color: white;
+    padding: 2.5rem;
+    text-align: center;
+    border-bottom: 5px solid var(--secondary-color, #34495e);
+}
+
+.theme-classic .resume-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem 0;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+.theme-classic .resume-section h3 {
+    color: var(--primary-color, #2c3e50);
+    font-weight: bold;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    text-transform: capitalize;
+    border-bottom: 1px solid #bdc3c7;
+    padding-bottom: 0.5rem;
+    font-variant: small-caps;
+}
+
+/* Tema Criativo */
+.theme-creative {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+    color: #2d3748;
+}
+
+.theme-creative .resume-header {
+    background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
+    color: white;
+    padding: 2.5rem;
+    border-radius: 1.5rem;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-creative .resume-header::before {
+    content: '✨';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 2rem;
+    animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+    50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+}
+
+.theme-creative .resume-section {
+    margin-bottom: 1.5rem;
+    padding: 2rem;
+    background: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+}
+
+.theme-creative .resume-section::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(45deg, var(--primary-color, #ff6b6b), var(--secondary-color, #4ecdc4));
+    border-radius: 1.5rem;
+    z-index: -1;
+}
+
+.theme-creative .resume-section h3 {
+    color: var(--primary-color, #ff6b6b);
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Tema Minimalista */
+.theme-minimal {
+    font-family: 'Helvetica Neue', sans-serif;
+    line-height: 1.7;
+    color: #333;
+    background: #ffffff;
+}
+
+.theme-minimal .resume-header {
+    background: none;
+    color: var(--primary-color, #333);
+    padding: 2rem 0;
+    text-align: left;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.theme-minimal .resume-section {
+    margin-bottom: 2rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.theme-minimal .resume-section h3 {
+    color: var(--primary-color, #333);
+    font-weight: 300;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    text-transform: lowercase;
+    letter-spacing: 2px;
+}
+
+/* Tema Tecnológico */
+.theme-tech {
+    font-family: 'Fira Code', 'Courier New', monospace;
+    line-height: 1.6;
+    background: #0d1117;
+    color: #c9d1d9;
+}
+
+.theme-tech .resume-header {
+    background: linear-gradient(135deg, var(--primary-color, #21262d) 0%, var(--secondary-color, #30363d) 100%);
+    color: #58a6ff;
+    padding: 2rem;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    position: relative;
+}
+
+.theme-tech .resume-header::before {
+    content: '> user@portfolio:~$ cat resume.txt';
+    position: absolute;
+    top: 0.5rem;
+    left: 1rem;
+    font-size: 0.8rem;
+    color: #7c3aed;
+    background: #21262d;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+}
+
+.theme-tech .resume-section {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    border-left: 4px solid var(--primary-color, #58a6ff);
+}
+
+.theme-tech .resume-section h3 {
+    color: var(--primary-color, #58a6ff);
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    text-transform: lowercase;
+    font-family: inherit;
+}
+
+.theme-tech .resume-section h3::before {
+    content: '// ';
+    color: #8b949e;
+}
+
+/* Estilos para listas e conteúdo */
+.resume-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.resume-section li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.resume-section li:last-child {
+    border-bottom: none;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .two-columns {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .resume-header {
+        padding: 1.5rem !important;
+    }
+    
+    .resume-section {
+        padding: 1rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .profile-photo {
+        width: 80px;
+        height: 80px;
+    }
+}
+
+/* Estilos para impressão */
+@media print {
+    body {
+        background: white !important;
+    }
+    
+    .theme-creative {
+        background: white !important;
+    }
+    
+    .theme-tech {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .resume-header,
+    .resume-section {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+    }
+    
+    .resume-section {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
+.theme-minimal {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    line-height: 1.7;
+    color: #333;
+}
+
+.theme-minimal .resume-header {
+    background: white;
+    color: #333;
+    padding: 2rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.theme-minimal .resume-section {
+    margin-bottom: 2rem;
+    padding: 0;
+}
+
+.theme-minimal .resume-section h3 {
+    color: #333;
+    font-weight: 300;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.5rem;
+}
+
+/* Tema Tecnológico */
+.theme-tech {
+    font-family: 'Courier New', monospace;
+    line-height: 1.6;
+    background: #0d1117;
+    color: #c9d1d9;
+}
+
+.theme-tech .resume-header {
+    background: #21262d;
+    color: #58a6ff;
+    padding: 2rem;
+    border: 1px solid #30363d;
+    border-radius: 0.375rem;
+}
+
+.theme-tech .resume-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 0.375rem;
+}
+
+.theme-tech .resume-section h3 {
+    color: #58a6ff;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #30363d;
+    padding-bottom: 0.5rem;
+}
+
+.theme-tech code {
+    background: #21262d;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.9rem;
+}
+
+/* Layout de duas colunas */
+.two-columns {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+}
+
+.two-columns .left-column {
+    background: rgba(0,0,0,0.05);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+}
+
+.two-columns .right-column {
+    padding: 1rem;
+}
+
+/* Layout de uma coluna */
+.one-column {
+    max-width: 100%;
+}
+
+/* Estilos para impressão */
+@media print {
+    body {
+        background: white !important;
+    }
+    
+    .no-print {
+        display: none !important;
+    }
+    
+    .theme-tech {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .theme-tech .resume-header {
+        background: #f5f5f5 !important;
+        color: black !important;
+        border: 1px solid #ccc !important;
+    }
+    
+    .theme-tech .resume-section {
+        background: white !important;
+        border: 1px solid #ccc !important;
+    }
+    
+    .theme-tech .resume-section h3 {
+        color: black !important;
+        border-bottom: 1px solid #ccc !important;
+    }
+}
+
+/* Estilos para edição */
+.editable {
+    border: 2px dashed #3B82F6;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    cursor: text;
+    transition: all 0.3s ease;
+}
+
+.editable:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.editable:focus {
+    outline: none;
+    border-color: #1D4ED8;
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Estilos para skills */
+.skill-item {
+    display: inline-block;
+    background: #e0e7ff;
+    color: #3730a3;
+    padding: 0.25rem 0.75rem;
+    margin: 0.25rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.theme-tech .skill-item {
+    background: #21262d;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+}
+
+.theme-creative .skill-item {
+    background: #ff6b6b;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.theme-classic .skill-item {
+    background: #2c3e50;
+    color: white;
+    border-radius: 0.25rem;
+}
+
+.theme-minimal .skill-item {
+    background: #f5f5f5;
+    color: #333;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.25rem;
+}
+
+/* Estilos para projetos */
+.project-item {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-left: 3px solid #3B82F6;
+    background: rgba(59, 130, 246, 0.05);
+    border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.project-item h4 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1e40af;
+}
+
+.project-item p {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.project-item .project-tech {
+    font-size: 0.8rem;
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .two-columns {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .theme-modern .resume-header,
+    .theme-classic .resume-header,
+    .theme-creative .resume-header,
+    .theme-minimal .resume-header,
+    .theme-tech .resume-header {
+        padding: 1rem;
+    }
+    
+    .resume-section {
+        padding: 0.75rem;
+    }
+}
+
+/* Estilos para loading */
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3B82F6;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Estilos específicos para cada tema - melhorias */
+
+/* Melhorias Tema Moderno */
+.theme-modern .profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid white;
+    object-fit: cover;
+    margin: 0 auto 1rem;
+    display: block;
+}
+
+/* Melhorias Tema Clássico */
+.theme-classic .profile-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 0;
+    border: 2px solid #2c3e50;
+    object-fit: cover;
+    margin: 0 auto 1rem;
+    display: block;
+}
+
+/* Melhorias Tema Criativo */
+.theme-creative .profile-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 5px solid #ff6b6b;
+    object-fit: cover;
+    margin: 0 auto 1rem;
+    display: block;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* Melhorias Tema Minimalista */
+.theme-minimal .profile-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 1px solid #e0e0e0;
+    object-fit: cover;
+    margin: 0 auto 1rem;
+    display: block;
+}
+
+/* Melhorias Tema Tecnológico */
+.theme-tech .profile-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 0.375rem;
+    border: 2px solid #58a6ff;
+    object-fit: cover;
+    margin: 0 auto 1rem;
+    display: block;
+}
+
+/* Ícones para seções */
+.section-icon {
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+}
+
+/* Links e contatos */
+.contact-links a {
+    color: inherit;
+    text-decoration: none;
+    margin-right: 1rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.contact-links a:hover {
+    text-decoration: underline;
+}
+
+.contact-links i {
+    margin-right: 0.25rem;
+}
+
+/* ===== MODO DE VISUALIZAÇÃO - ESTILOS ESPECÍFICOS ===== */
+
+/* Garantir que o modo de visualização tenha estilos consistentes */
+#resumePreview {
+    background: white !important;
+    min-height: 600px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    padding: 1.5rem !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Estilos para garantir visibilidade do conteúdo */
+#resumePreview * {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Garantir que o texto seja sempre legível */
+#resumePreview p,
+#resumePreview span,
+#resumePreview div,
+#resumePreview h1,
+#resumePreview h2,
+#resumePreview h3,
+#resumePreview h4,
+#resumePreview h5,
+#resumePreview h6 {
+    color: inherit !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+}
+
+/* Estilos específicos para cabeçalho do currículo */
+#resumePreview .resume-header {
+    padding: 2rem !important;
+    margin-bottom: 1.5rem !important;
+    border-radius: 0.5rem !important;
+    text-align: center !important;
+}
+
+/* Estilos para seções */
+#resumePreview .resume-section {
+    margin-bottom: 1.5rem !important;
+    padding: 1rem !important;
+    border-radius: 0.5rem !important;
+}
+
+/* Garantir que as listas sejam exibidas corretamente */
+#resumePreview ul,
+#resumePreview ol {
+    padding-left: 1.5rem !important;
+    margin: 0.5rem 0 !important;
+}
+
+#resumePreview li {
+    margin-bottom: 0.25rem !important;
+    line-height: 1.5 !important;
+}
+
+/* Estilos para links */
+#resumePreview a {
+    color: #3b82f6 !important;
+    text-decoration: none !important;
+}
+
+#resumePreview a:hover {
+    text-decoration: underline !important;
+}
+
+/* Garantir que imagens sejam responsivas */
+#resumePreview img {
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+/* Fix para modo de edição */
+#resumePreview .editable {
+    outline: 2px dashed #3b82f6 !important;
+    outline-offset: 2px !important;
+    padding: 0.25rem !important;
+    border-radius: 0.25rem !important;
+    transition: outline-color 0.2s ease !important;
+}
+
+#resumePreview .editable:focus {
+    outline-color: #1d4ed8 !important;
+    background-color: rgba(59, 130, 246, 0.05) !important;
+}
+
+/* Responsividade melhorada */
+@media (max-width: 768px) {
+    #resumePreview {
+        padding: 1rem !important;
+        font-size: 14px !important;
+    }
+    
+    #resumePreview.two-columns {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+    
+    #resumePreview .resume-header {
+        padding: 1.5rem !important;
+    }
+    
+    #resumePreview .profile-photo {
+        width: 80px !important;
+        height: 80px !important;
+    }
+}
+
+/* Estados de carregamento */
+#resumePreview.loading {
+    opacity: 0.7;
+    pointer-events: none;
+    position: relative;
+}
+
+#resumePreview.loading::after {
+    content: 'Gerando currículo...';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    font-weight: 600;
+    color: #374151;
+    z-index: 10;
+}
+
+/* Animações suaves */
+#resumePreview.fade-in {
+    animation: smoothFadeIn 0.5s ease-out;
+}
+
+@keyframes smoothFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

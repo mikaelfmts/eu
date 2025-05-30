@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curriculum - Mikael Ferreira</title>
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/curriculo-generator-styles.css">
+
+    <!-- Font Awesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        /* Estilos específicos para o conteúdo gerado */
+        .generated-content {
+            margin: 2rem 0;
+            padding: 2rem;
+            border: 3px solid transparent;
+            border-radius: 1rem;
+            background: linear-gradient(145deg, rgba(200, 170, 110, 0.1), rgba(240, 230, 210, 0.1));
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-height: 300px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .generated-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(200, 170, 110, 0.1) 0%, rgba(16, 26, 40, 0.1) 50%, rgba(200, 170, 110, 0.1) 100%);
+            z-index: -1;
+        }
+
+        .generated-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .generated-content:empty::before {
+            content: "✨ Conteúdo gerado pelo Gerador de Currículo aparecerá aqui ✨\A🚀 Use o Gerador de Currículo para criar um currículo personalizado e moderno";
+            color: #c8aa6e;
+            font-style: italic;
+            display: block;
+            text-align: center;
+            padding: 4rem 2rem;
+            white-space: pre-line;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            background: none;
+            z-index: 1;
+        }
+        
+        .generated-content .theme-modern,
+        .generated-content .theme-classic,
+        .generated-content .theme-creative,
+        .generated-content .theme-minimal,
+        .generated-content .theme-tech {
+            border: none;
+            background: transparent;
+            padding: 0;
+        }
+        
+        #original-curriculum-content {
+            display: block;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .generated-content:not(:empty) + #original-curriculum-content {
+            display: none;
+        }
+
+        /* Melhorias estéticas para o currículo original */
+        #curriculum {
+            background: linear-gradient(145deg, rgba(16, 26, 40, 0.9), rgba(30, 35, 40, 0.9));
+            border-radius: 1.5rem;
+            padding: 3rem;
+            margin: 2rem 0;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(200, 170, 110, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #curriculum::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" patternUnits="userSpaceOnUse" width="100" height="100"><circle cx="25" cy="25" r="1" fill="%23c8aa6e" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23c8aa6e" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="%23f0e6d2" opacity="0.1"/><circle cx="10" cy="50" r="0.5" fill="%23f0e6d2" opacity="0.1"/><circle cx="90" cy="30" r="0.5" fill="%23f0e6d2" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            z-index: -1;
+        }
+
+        #curriculum h2 {
+            color: #c8aa6e;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 20px rgba(200, 170, 110, 0.5);
+            letter-spacing: 2px;
+            position: relative;
+        }
+
+        #curriculum h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #c8aa6e, transparent);
+        }
+
+        .categoria {
+            margin-bottom: 2.5rem;
+            background: rgba(240, 230, 210, 0.05);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid rgba(200, 170, 110, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .categoria:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(200, 170, 110, 0.2);
+            border-color: rgba(200, 170, 110, 0.4);
+        }
+
+        .categoria h3 {
+            color: #f0e6d2;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #c8aa6e;
+            padding-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .categoria h3::before {
+            content: '⚡';
+            margin-right: 0.5rem;
+            color: #c8aa6e;
+        }
+
+        .projeto {
+            background: rgba(16, 26, 40, 0.3);
+            padding: 1.5rem;
+            border-radius: 0.8rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #c8aa6e;
+            transition: all 0.3s ease;
+        }
+
+        .projeto:hover {
+            background: rgba(16, 26, 40, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .projeto h4 {
+            color: #c8aa6e;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .projeto p {
+            color: #cdbe91;
+            line-height: 1.6;
+        }
+
+        .projeto ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .projeto ul li {
+            color: #f0e6d2;
+            padding: 0.3rem 0;
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .projeto ul li i {
+            position: absolute;
+            left: 0;
+            color: #c8aa6e;
+            width: 1.5rem;
+        }
+
+        /* Botão de download melhorado */
+        #curriculum button {
+            background: linear-gradient(135deg, #c8aa6e, #f0e6d2);
+            color: #0a1428;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 2rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(200, 170, 110, 0.3);
+            margin: 2rem auto;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #curriculum button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(200, 170, 110, 0.5);
+            background: linear-gradient(135deg, #f0e6d2, #c8aa6e);
+        }
+
+        /* Timestamp para conteúdo gerado */
+        .timestamp-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(200, 170, 110, 0.9);
+            color: #0a1428;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <!-- Script -->
+    <script type="module" src="../assets/js/script.js"></script>
+    
+    <!-- Script para carregar conteúdo do gerador -->
+    <script>
+        // Carregar conteúdo gerado do localStorage
+        function loadGeneratedCurriculum() {
+            try {
+                const savedCurriculum = localStorage.getItem('generated-curriculum');
+                if (savedCurriculum) {
+                    const curriculumData = JSON.parse(savedCurriculum);
+                    const generatedContent = document.getElementById('generated-curriculum-content');
+                    
+                    if (generatedContent && curriculumData.content) {
+                        generatedContent.innerHTML = curriculumData.content;
+                        generatedContent.className = `generated-content theme-${curriculumData.theme || 'modern'}`;
+                        
+                        // Adicionar indicador de quando foi gerado com estilo aprimorado
+                        const timestamp = new Date(curriculumData.timestamp).toLocaleString('pt-BR');
+                        const indicator = document.createElement('div');
+                        indicator.className = 'timestamp-indicator';
+                        indicator.innerHTML = `<i class="fas fa-clock mr-1"></i>Gerado em: ${timestamp}`;
+                        generatedContent.style.position = 'relative';
+                        generatedContent.appendChild(indicator);
+                        
+                        // Adicionar efeito de entrada
+                        generatedContent.style.opacity = '0';
+                        generatedContent.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            generatedContent.style.transition = 'all 0.6s ease';
+                            generatedContent.style.opacity = '1';
+                            generatedContent.style.transform = 'translateY(0)';
+                        }, 100);
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar currículo gerado:', error);
+            }
+        }
+        
+        // Carregar quando a página estiver pronta
+        document.addEventListener('DOMContentLoaded', loadGeneratedCurriculum);
+        
+        // Escutar por atualizações do localStorage
+        window.addEventListener('storage', function(event) {
+            if (event.key === 'generated-curriculum') {
+                loadGeneratedCurriculum();
+            }
+        });
+    </script>
+    
+    <!-- Verificação de Manutenção -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
+            authDomain: "mikaelfmts.firebaseapp.com",
+            projectId: "mikaelfmts",
+            storageBucket: "mikaelfmts.firebasestorage.app",
+            messagingSenderId: "516762612351",
+            appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        function checkMaintenanceStatus() {
+            try {
+                const maintenanceRef = doc(db, 'configuracoes', 'manutencao');
+                
+                onSnapshot(maintenanceRef, (docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const data = docSnapshot.data();
+                        if (data.ativo) {
+                            window.location.href = '../index.html';
+                        }
+                    } else {
+                        // Verificar localStorage como fallback
+                        checkMaintenanceFromLocal();
+                    }
+                }, (error) => {
+                    console.warn('Erro ao verificar manutenção no Firebase, usando localStorage:', error);
+                    checkMaintenanceFromLocal();
+                });
+            } catch (error) {
+                console.warn('Erro ao conectar Firebase, usando localStorage:', error);
+                checkMaintenanceFromLocal();
+            }
+        }
+        
+        function checkMaintenanceFromLocal() {
+            try {
+                const stored = localStorage.getItem('maintenanceStatus');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    if (data.ativo) {
+                        window.location.href = '../index.html';
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao verificar localStorage:', error);
+            }
+        }
+        
+        window.addEventListener('load', checkMaintenanceStatus);
+    </script>
+</head>
+<body>
+    <!-- Container de partículas -->
+    <div class="particles-container"></div>
+
+    <!-- Foto do Usuário (Agora Aciona o Menu) -->
+    <div class="foto-perfil" onclick="toggleMenu()">
+        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
+    </div>
+
+     <!-- Menu Lateral Oculto -->
+    <nav id="menu-lateral" class="menu-fechado">
+        <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="curriculum.html">Curriculum</a></li>
+            <li><a href="projetos.html">All Uploaded Projects</a></li>
+            <li><a href="mentors.html">Mentors</a></li>
+            <li><a href="certificates-in-progress.html">Certificates in progress</a></li>
+            <li><a href="interactive-projects.html">Interactive Projects</a></li>
+            <li><a href="games.html">Games</a></li>
+        </ul>
+
+        <!-- Bonequinho Dançante -->
+        <div class="bonequinho">
+            <a href="../login.html">
+                <i class="fas fa-user-alt"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Cabeçalho -->
+    <header>
+        <h1 class="titulo-principal">
+            Mikael Ferreira
+        </h1>
+        <h2 class="subtitulo">
+            Desenvolvedor Web Full Stack  
+            <i class="fas fa-code"></i> |  
+            HTML <i class="fab fa-html5"></i> |
+            CSS <i class="fab fa-css3-alt"></i> |  
+            JavaScript <i class="fab fa-js"></i> |  
+            React <i class="fab fa-react"></i>
+        </h2>
+    </header>
+
+    <!-- Seção do Currículo -->
+    <section id="curriculum">
+        <h2>Curriculum</h2>
+
+        <!-- Conteúdo Dinâmico do Gerador de Currículo -->
+        <div id="generated-curriculum-content" class="generated-content">
+            <!-- Este conteúdo será substituído pelo gerador de currículo -->
+        </div>
+
+        <!-- Conteúdo Original (mantido como fallback) -->
+        <div id="original-curriculum-content">
+            <!-- Formação Acadêmica -->
+            <div class="categoria">
+                <h3>Academic Background</h3>
+                <div class="projeto">
+                    <h4>Graduating in Information Systems</h4>
+                    <p>Expected Graduation: 2029</p>
+                </div>
+            </div>
+
+            <!-- Experiência Profissional -->
+            <div class="categoria">
+                <h3>Professional Experience</h3>
+                <div class="projeto">
+                    <h4>Application Programming Interface (API) Creator</h4>
+                    <p>ELGAEHOST</p>
+                </div>
+            </div>
+
+            <!-- Habilidades Técnicas -->
+            <div class="categoria">
+                <h3>Technical Skills</h3>
+                <div class="projeto">
+                    <ul>
+                        <li><i class="fab fa-html5"></i> HTML5</li>
+                        <li><i class="fab fa-css3-alt"></i> CSS3</li>
+                        <li><i class="fab fa-js"></i> JavaScript</li>
+                        <li><i class="fab fa-react"></i> React</li>
+                        <li><i class="fab fa-node-js"></i> Node.js</li>
+                        <li><i class="fab fa-git-alt"></i> Git & GitHub</li>
+                        <li><i class="fas fa-database"></i> Bancos de Dados</li>
+                        <li><i class="fas fa-server"></i> APIs REST</li>
+                        <li><i class="fas fa-mobile-alt"></i> Responsive Design</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Link para Download do Currículo -->
+        <a href="curriculo.pdf" target="_blank">
+            <button>Download Curriculum (PDF)</button>
+        </a>
+    </section>
+
+    <!-- Redes Sociais -->
+    <section class="redes-sociais">
+        <h2>My Social Media</h2>
+        <div class="botoes-redes">
+            <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-btn tiktok">
+                <i class="fab fa-tiktok"></i>
+            </a>
+            <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-btn reddit">
+                <i class="fab fa-reddit"></i>
+            </a>
+            <a href="https://discord.gg/fffen2a4" target="_blank" class="social-btn discord">
+                <i class="fab fa-discord"></i>
+            </a>
+            <a href="https://github.com/mikaelfmts" target="_blank" class="social-btn github">
+                <i class="fab fa-github"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>© 2025 Mikael Ferreira</p>
+        <p>🚀 Make Solutions</p>
+    </footer>
+
+</body>
+</html>

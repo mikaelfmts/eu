@@ -1,0 +1,1011 @@
+/* Estilos do Gerador de Currículo */
+
+/* Estilos Gerais */
+.theme-transition {
+    transition: all 0.3s ease;
+}
+
+/* Tema Moderno */
+.theme-modern {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+}
+
+.theme-modern .resume-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.theme-modern .resume-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-left: 4px solid #667eea;
+    background: #f8f9ff;
+}
+
+.theme-modern .resume-section h3 {
+    color: #667eea;
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Tema Clássico */
+.theme-classic {
+    font-family: 'Times New Roman', serif;
+    line-height: 1.8;
+    color: #2c3e50;
+}
+
+.theme-classic .resume-header {
+    background: #2c3e50;
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+.theme-classic .resume-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem 0;
+    border-bottom: 2px solid #bdc3c7;
+}
+
+.theme-classic .resume-section h3 {
+    color: #2c3e50;
+    font-weight: bold;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    text-transform: capitalize;
+    border-bottom: 1px solid #bdc3c7;
+    padding-bottom: 0.5rem;
+}
+
+/* Tema Criativo */
+.theme-creative {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    line-height: 1.6;
+    background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+}
+
+.theme-creative .resume-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.theme-creative .resume-section {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: 3px solid #ff6b6b;
+}
+
+.theme-creative .resume-section h3 {
+    color: #ff6b6b;
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Tema Minimalista */
+.theme-minimal {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    line-height: 1.7;
+    color: #333;
+}
+
+.theme-minimal .resume-header {
+    background: #ffffff;
+    color: #333;
+    padding: 3rem 2rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.theme-minimal .resume-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.theme-minimal .resume-section h3 {
+    color: #333;
+    font-weight: 300;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    border: none;
+    padding: 0;
+}
+
+.theme-minimal .resume-section:last-child {
+    border-bottom: none;
+}
+
+/* Tema Tecnológico */
+.theme-tech {
+    font-family: 'Courier New', monospace;
+    line-height: 1.6;
+    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+    color: #00ff41;
+}
+
+.theme-tech .resume-header {
+    background: linear-gradient(135deg, #0f0f0f 0%, #16213e 100%);
+    color: #00ff41;
+    padding: 2rem;
+    border: 2px solid #00ff41;
+    border-radius: 0;
+    position: relative;
+}
+
+.theme-tech .resume-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><rect width="60" height="60" fill="none"/><circle cx="30" cy="30" r="1" fill="%2300ff41" opacity="0.1"/></svg>');
+    z-index: -1;
+}
+
+.theme-tech .resume-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 1px solid #00ff41;
+    background: rgba(0, 255, 65, 0.05);
+    border-radius: 0;
+}
+
+.theme-tech .resume-section h3 {
+    color: #00ff41;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-bottom: 1px solid #00ff41;
+    padding-bottom: 0.5rem;
+}
+
+.theme-tech .resume-section h3::before {
+    content: '> ';
+    color: #00ff41;
+}
+
+/* Layout de duas colunas */
+.two-columns {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+}
+
+.two-columns .left-column {
+    background: rgba(0,0,0,0.05);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+}
+
+.two-columns .right-column {
+    padding: 1rem;
+}
+
+/* Layout de uma coluna */
+.one-column {
+    max-width: 100%;
+}
+
+/* Estilos para impressão */
+@media print {
+    body {
+        background: white !important;
+    }
+    
+    .no-print {
+        display: none !important;
+    }
+    
+    .theme-tech {
+        background: white;
+        color: black;
+    }
+    
+    .theme-tech .resume-header,
+    .theme-tech .resume-section {
+        border-color: black;
+        background: white;
+        color: black;
+    }
+}
+
+/* Estilos para edição */
+.editable {
+    border: 2px dashed #3B82F6;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    cursor: text;
+    transition: all 0.3s ease;
+}
+
+.editable:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.editable:focus {
+    outline: none;
+    border-color: #1D4ED8;
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Estilos para skills */
+.skill-item {
+    display: inline-block;
+    background: #e0e7ff;
+    color: #3730a3;
+    padding: 0.25rem 0.75rem;
+    margin: 0.25rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.theme-tech .skill-item {
+    background: #21262d;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+}
+
+.theme-creative .skill-item {
+    background: #ff6b6b;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.theme-classic .skill-item {
+    background: #2c3e50;
+    color: white;
+    border-radius: 0.25rem;
+}
+
+.theme-minimal .skill-item {
+    background: #f5f5f5;
+    color: #333;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.25rem;
+}
+
+/* Estilos para projetos */
+.project-item {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-left: 3px solid #3B82F6;
+    background: rgba(59, 130, 246, 0.05);
+    border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.project-item h4 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1e40af;
+}
+
+.project-item p {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.project-item .project-tech {
+    font-size: 0.8rem;
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .two-columns {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .theme-modern .resume-header,
+    .theme-classic .resume-header,
+    .theme-creative .resume-header,
+    .theme-minimal .resume-header,
+    .theme-tech .resume-header {
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .resume-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .resume-section:hover {
+        transform: none;
+    }
+}
+
+/* Estilos para loading */
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3B82F6;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Estilos específicos para cada tema - melhorias */
+
+/* Melhorias Tema Moderno */
+.theme-modern .profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid white;
+    object-fit: cover;
+    margin: 0 auto 1rem;
+    display: block;
+}
+
+/* Melhorias Tema Clássico */
+.theme-classic .profile-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 0;
+    border: 2px solid #2c3e50;
+    object-fit: cover;
+    margin: 0 auto 1rem;
+    display: block;
+}
+
+/* Melhorias Tema Criativo */
+.theme-creative .profile-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 5px solid #ff6b6b;
+    object-fit: cover;
+    margin: 0 auto 1rem;
+    display: block;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* Melhorias Tema Minimalista */
+.theme-minimal .profile-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 1px solid #e0e0e0;
+    object-fit: cover;
+    margin: 0 auto 1rem;
+    display: block;
+}
+
+/* Melhorias Tema Tecnológico */
+.theme-tech .profile-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 0.375rem;
+    border: 2px solid #58a6ff;
+    object-fit: cover;
+    margin: 0 auto 1rem;
+    display: block;
+}
+
+/* Ícones para seções */
+.section-icon {
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+}
+
+/* Links e contatos */
+.contact-links a {
+    color: inherit;
+    text-decoration: none;
+    margin-right: 1rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.contact-links a:hover {
+    text-decoration: underline;
+}
+
+.contact-links i {
+    margin-right: 0.25rem;
+}
+
+/* Novos temas aprimorados */
+.theme-tech {
+    font-family: 'Courier New', monospace;
+    line-height: 1.6;
+    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+    color: #00ff41;
+}
+
+.theme-tech .resume-header {
+    background: linear-gradient(135deg, #0f0f0f 0%, #16213e 100%);
+    color: #00ff41;
+    padding: 2rem;
+    border: 2px solid #00ff41;
+    border-radius: 0;
+    position: relative;
+}
+
+.theme-tech .resume-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><rect width="60" height="60" fill="none"/><circle cx="30" cy="30" r="1" fill="%2300ff41" opacity="0.1"/></svg>');
+    z-index: -1;
+}
+
+.theme-tech .resume-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 1px solid #00ff41;
+    background: rgba(0, 255, 65, 0.05);
+    border-radius: 0;
+}
+
+.theme-tech .resume-section h3 {
+    color: #00ff41;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-bottom: 1px solid #00ff41;
+    padding-bottom: 0.5rem;
+}
+
+.theme-tech .resume-section h3::before {
+    content: '> ';
+    color: #00ff41;
+}
+
+/* Estilos para seções customizadas */
+.custom-section {
+    border-left: 4px solid #ff6b6b;
+    background: rgba(255, 107, 107, 0.05);
+    position: relative;
+}
+
+.custom-section::before {
+    content: '★';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    color: #ff6b6b;
+    font-size: 1.2rem;
+}
+
+/* Print styles */
+@media print {
+    .resume-section:hover {
+        transform: none;
+    }
+    
+    .custom-section button {
+        display: none;
+    }
+    
+    .theme-tech {
+        background: white;
+        color: black;
+    }
+    
+    .theme-tech .resume-header,
+    .theme-tech .resume-section {
+        border-color: black;
+        background: white;
+        color: black;
+    }
+}
+
+/* Melhorias para cores customizadas */
+.resume-header.custom-colors {
+    background: var(--primary-color, #667eea);
+    background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
+}
+
+.resume-section h3.custom-colors {
+    color: var(--primary-color, #667eea);
+}
+
+.resume-section.custom-colors {
+    border-left-color: var(--primary-color, #667eea);
+}
+
+/* Estilos para sistema de notificações */
+.notification {
+    min-width: 300px;
+    max-width: 500px;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+/* Melhorias para botões hover */
+.hover-lift {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Validação visual para inputs */
+input:invalid:not(:placeholder-shown) {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+input:valid:not(:placeholder-shown) {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Tooltips aprimorados */
+.tooltip-advanced {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-advanced::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #1f2937;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.tooltip-advanced::after {
+    content: '';
+    position: absolute;
+    bottom: 115%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #1f2937;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.tooltip-advanced:hover::before,
+.tooltip-advanced:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Loading overlay melhorado */
+.loading-overlay {
+    backdrop-filter: blur(4px);
+    border-radius: inherit;
+}
+
+/* Animações para templates favoritos */
+.favorite-star {
+    color: #fbbf24;
+    animation: starPulse 0.6s ease-in-out;
+}
+
+@keyframes starPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Comparação de templates */
+.template-comparison {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.template-comparison:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.template-comparison::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s ease;
+}
+
+.template-comparison:hover::before {
+    left: 100%;
+}
+
+/* Modal melhorado */
+.modal-backdrop {
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Indicadores de status */
+.status-indicator {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.status-indicator::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.success::before {
+    background-color: #10b981;
+}
+
+.status-indicator.warning::before {
+    background-color: #f59e0b;
+}
+
+.status-indicator.error::before {
+    background-color: #ef4444;
+}
+
+.status-indicator.info::before {
+    background-color: #3b82f6;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Melhoria para sliders */
+.slider-enhanced {
+    position: relative;
+    background: linear-gradient(to right, #e5e7eb 0%, var(--primary-color, #3b82f6) 100%);
+}
+
+.slider-enhanced::-webkit-slider-thumb {
+    position: relative;
+    background: var(--primary-color, #3b82f6);
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+.slider-enhanced::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Progress bar para carregamento */
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background-color: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color, #3b82f6), var(--secondary-color, #8b5cf6));
+    border-radius: inherit;
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+.progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-image: linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.2) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.2) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 50px 50px;
+    animation: progressMove 1s linear infinite;
+}
+
+@keyframes progressMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 50px 50px; }
+}
+
+/* Drag and drop visual feedback */
+.drop-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: #f9fafb;
+}
+
+.drop-zone.drag-over {
+    border-color: var(--primary-color, #3b82f6);
+    background: rgba(59, 130, 246, 0.05);
+    transform: scale(1.02);
+}
+
+/* Modo escuro */
+.dark-mode {
+    background-color: #1a202c;
+    color: #e2e8f0;
+}
+
+.dark-mode .bg-white {
+    background-color: #2d3748 !important;
+    color: #e2e8f0;
+}
+
+.dark-mode .bg-gray-100 {
+    background-color: #1a202c !important;
+}
+
+.dark-mode .bg-gray-50 {
+    background-color: #2d3748 !important;
+}
+
+.dark-mode .text-gray-800 {
+    color: #e2e8f0 !important;
+}
+
+.dark-mode .text-gray-600 {
+    color: #a0aec0 !important;
+}
+
+.dark-mode .text-gray-500 {
+    color: #718096 !important;
+}
+
+.dark-mode .border-gray-300 {
+    border-color: #4a5568 !important;
+}
+
+.dark-mode .border-gray-200 {
+    border-color: #4a5568 !important;
+}
+
+.dark-mode input,
+.dark-mode textarea,
+.dark-mode select {
+    background-color: #4a5568 !important;
+    border-color: #718096 !important;
+    color: #e2e8f0 !important;
+}
+
+.dark-mode input:focus,
+.dark-mode textarea:focus,
+.dark-mode select:focus {
+    border-color: var(--primary-color, #3b82f6) !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+.dark-mode .shadow-lg {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark-mode #resumePreview {
+    background-color: #f7fafc !important;
+    color: #2d3748 !important;
+}
+
+/* Tema escuro específico para o preview do currículo */
+.dark-mode .theme-modern {
+    background: #f7fafc !important;
+    color: #2d3748 !important;
+}
+
+.dark-mode .theme-modern h1,
+.dark-mode .theme-modern h2,
+.dark-mode .theme-modern h3 {
+    color: #2d3748 !important;
+}
+
+/* Toggle para modo escuro */
+.dark-mode-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
+    background: var(--primary-color, #3b82f6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .dark-mode-toggle {
+    background: #fbbf24;
+    color: #1a202c;
+}
+
+/* Animações para troca de tema */
+.theme-transition {
+    transition: all 0.3s ease;
+}
+
+/* Melhorias para notificações no modo escuro */
+.dark-mode .notification {
+    background-color: #2d3748 !important;
+    border: 1px solid #4a5568;
+}
+
+/* Melhorias para modais no modo escuro */
+.dark-mode .modal-content {
+    background-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+
+.dark-mode .modal-content input,
+.dark-mode .modal-content select,
+.dark-mode .modal-content textarea {
+    background-color: #4a5568 !important;
+    border-color: #718096 !important;
+    color: #e2e8f0 !important;
+}
+
+/* Indicadores de status no modo escuro */
+.dark-mode .status-indicator.success::before {
+    background-color: #48bb78;
+}
+
+.dark-mode .status-indicator.warning::before {
+    background-color: #ed8936;
+}
+
+.dark-mode .status-indicator.error::before {
+    background-color: #f56565;
+}
+
+.dark-mode .status-indicator.info::before {
+    background-color: #4299e1;
+}
+
+/* Gráficos e estatísticas no modo escuro */
+.dark-mode .bg-blue-50 {
+    background-color: rgba(66, 153, 225, 0.1) !important;
+}
+
+.dark-mode .bg-green-50 {
+    background-color: rgba(72, 187, 120, 0.1) !important;
+}
+
+.dark-mode .bg-purple-50 {
+    background-color: rgba(159, 122, 234, 0.1) !important;
+}
+
+.dark-mode .bg-orange-50 {
+    background-color: rgba(237, 137, 54, 0.1) !important;
+}
+
+.dark-mode .text-blue-600 {
+    color: #63b3ed !important;
+}
+
+.dark-mode .text-green-600 {
+    color: #68d391 !important;
+}
+
+.dark-mode .text-purple-600 {
+    color: #b794f6 !important;
+}
+
+.dark-mode .text-orange-600 {
+    color: #f6ad55 !important;
+}
+
+/* Scrollbar personalizada para modo escuro */
+.dark-mode ::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dark-mode ::-webkit-scrollbar-track {
+    background: #2d3748;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+    background: #4a5568;
+    border-radius: 4px;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: #718096;
+}
+
+/* Transições suaves para elementos */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

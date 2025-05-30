@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curriculum - Mikael Ferreira</title>
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/curriculo-generator-styles.css">
+
+    <!-- Font Awesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        /* Estilos específicos para o conteúdo gerado */
+        .generated-content {
+            margin: 2rem auto;
+            padding: 2rem;
+            border: 2px dashed #3B82F6;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(255, 255, 255, 0.1) 100%);
+            min-height: 200px;
+            max-width: 900px;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1);
+        }
+
+        .generated-content:hover {
+            border-color: #1E40AF;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .generated-content:empty::before {
+            content: "✨ Conteúdo gerado pelo Gerador de Currículo aparecerá aqui ✨";
+            color: #6B7280;
+            font-style: italic;
+            display: block;
+            text-align: center;
+            padding: 4rem 2rem;
+            font-size: 1.1rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .generated-content:empty::after {
+            content: "👆 Clique no link abaixo para gerar seu currículo personalizado";
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #9CA3AF;
+            font-size: 0.9rem;
+            font-style: normal;
+        }
+        
+        .generated-content .theme-modern,
+        .generated-content .theme-classic,
+        .generated-content .theme-creative,
+        .generated-content .theme-minimal,
+        .generated-content .theme-tech {
+            border: none;
+            background: transparent;
+            padding: 0;
+        }
+        
+        #original-curriculum-content {
+            display: block;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .generated-content:not(:empty) + #original-curriculum-content {
+            display: none;
+        }
+
+        /* Melhorias estéticas para o currículo original */
+        .categoria {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid #3B82F6;
+            transition: all 0.3s ease;
+        }
+
+        .categoria:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            border-left-color: #1E40AF;
+        }
+
+        .categoria h3 {
+            color: #1E293B;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .categoria h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #3B82F6, #1E40AF);
+            border-radius: 2px;
+        }
+
+        .projeto {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #E5E7EB;
+            transition: all 0.2s ease;
+        }
+
+        .projeto:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-color: #3B82F6;
+        }
+
+        .projeto h4 {
+            color: #3B82F6;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .projeto p {
+            color: #6B7280;
+            line-height: 1.6;
+        }
+
+        .projeto ul {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            list-style: none;
+            padding: 0;
+        }
+
+        .projeto li {
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            color: #1E40AF;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.2s ease;
+        }
+
+        .projeto li:hover {
+            transform: scale(1.02);
+        }
+
+        .projeto li i {
+            color: #3B82F6;
+            width: 20px;
+        }
+
+        /* Botão de download melhorado */
+        .download-btn {
+            background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .download-btn:hover::before {
+            left: 100%;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Link para o gerador */
+        .generator-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 2rem 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .generator-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Indicador de timestamp */
+        .timestamp-indicator {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+
+        /* Responsividade melhorada */
+        @media (max-width: 768px) {
+            .generated-content {
+                margin: 1rem 0;
+                padding: 1.5rem;
+            }
+
+            .categoria {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .projeto ul {
+                grid-template-columns: 1fr;
+            }
+
+            .download-btn, .generator-link {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+
+    <!-- Script -->
+    <script type="module" src="../assets/js/script.js"></script>
+    
+    <!-- Script para carregar conteúdo do gerador -->
+    <script>
+        // Carregar conteúdo gerado do localStorage
+        function loadGeneratedCurriculum() {
+            try {
+                const savedCurriculum = localStorage.getItem('generated-curriculum');
+                if (savedCurriculum) {
+                    const curriculumData = JSON.parse(savedCurriculum);
+                    const generatedContent = document.getElementById('generated-curriculum-content');
+                    
+                    if (generatedContent && curriculumData.content) {
+                        generatedContent.innerHTML = curriculumData.content;
+                        generatedContent.className = `generated-content theme-${curriculumData.theme || 'modern'}`;
+                        
+                        // Adicionar indicador de quando foi gerado
+                        const timestamp = new Date(curriculumData.timestamp).toLocaleString('pt-BR');
+                        const indicator = document.createElement('div');
+                        indicator.className = 'timestamp-indicator';
+                        indicator.innerHTML = `<i class="fas fa-clock mr-2"></i>Currículo gerado em: ${timestamp}`;
+                        generatedContent.insertBefore(indicator, generatedContent.firstChild);
+                        
+                        // Adicionar animação de entrada
+                        generatedContent.style.opacity = '0';
+                        generatedContent.style.transform = 'translateY(20px)';
+                        
+                        setTimeout(() => {
+                            generatedContent.style.transition = 'all 0.6s ease';
+                            generatedContent.style.opacity = '1';
+                            generatedContent.style.transform = 'translateY(0)';
+                        }, 100);
+                        
+                        // Adicionar botão para regenerar
+                        const regenButton = document.createElement('div');
+                        regenButton.className = 'text-center mt-4';
+                        regenButton.innerHTML = `
+                            <a href="../curriculo-generator.html" class="generator-link">
+                                <i class="fas fa-magic mr-2"></i>Regenerar Currículo
+                            </a>
+                        `;
+                        generatedContent.appendChild(regenButton);
+                        
+                        console.log('Currículo gerado carregado com sucesso!');
+                        
+                        // Notificação visual
+                        showNotification('Currículo personalizado carregado!', 'success');
+                    }
+                } else {
+                    // Se não há currículo gerado, mostrar link para o gerador
+                    addGeneratorLink();
+                }
+            } catch (error) {
+                console.error('Erro ao carregar currículo gerado:', error);
+                showNotification('Erro ao carregar currículo personalizado', 'error');
+            }
+        }
+        
+        // Adicionar link para o gerador quando não há currículo salvo
+        function addGeneratorLink() {
+            const generatedContent = document.getElementById('generated-curriculum-content');
+            if (generatedContent && generatedContent.innerHTML.trim() === '') {
+                const linkContainer = document.createElement('div');
+                linkContainer.className = 'text-center p-8';
+                linkContainer.innerHTML = `
+                    <div class="mb-4">
+                        <i class="fas fa-file-alt text-6xl text-blue-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-700 mb-2">Crie seu Currículo Personalizado</h3>
+                        <p class="text-gray-500 mb-6">Use nossa ferramenta avançada para gerar um currículo profissional</p>
+                    </div>
+                    <a href="../curriculo-generator.html" class="generator-link">
+                        <i class="fas fa-magic mr-2"></i>Ir para o Gerador de Currículo
+                    </a>
+                `;
+                generatedContent.appendChild(linkContainer);
+            }
+        }
+        
+        // Mostrar notificações
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-x-full`;
+            
+            if (type === 'success') {
+                notification.classList.add('bg-green-500', 'text-white');
+                notification.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+            } else if (type === 'error') {
+                notification.classList.add('bg-red-500', 'text-white');
+                notification.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
+            } else {
+                notification.classList.add('bg-blue-500', 'text-white');
+                notification.innerHTML = `<i class="fas fa-info-circle mr-2"></i>${message}`;
+            }
+            
+            document.body.appendChild(notification);
+            
+            // Animação de entrada
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Remover após 4 segundos
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 4000);
+        }
+        
+        // Verificar atualizações periódicas
+        function checkForUpdates() {
+            const lastCheck = localStorage.getItem('curriculum-last-check');
+            const now = Date.now();
+            
+            if (!lastCheck || (now - parseInt(lastCheck)) > 5000) { // Verificar a cada 5 segundos
+                const savedCurriculum = localStorage.getItem('generated-curriculum');
+                if (savedCurriculum) {
+                    const curriculumData = JSON.parse(savedCurriculum);
+                    const currentContent = document.getElementById('generated-curriculum-content').innerHTML;
+                    
+                    if (!currentContent.includes(curriculumData.content)) {
+                        loadGeneratedCurriculum();
+                    }
+                }
+                localStorage.setItem('curriculum-last-check', now.toString());
+            }
+        }
+        
+        // Carregar quando a página estiver pronta
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGeneratedCurriculum();
+            
+            // Verificar atualizações periodicamente
+            setInterval(checkForUpdates, 5000);
+        });
+        
+        // Escutar por atualizações do localStorage
+        window.addEventListener('storage', function(event) {
+            if (event.key === 'generated-curriculum') {
+                loadGeneratedCurriculum();
+                showNotification('Currículo atualizado!', 'success');
+            }
+        });
+        
+        // Escutar mensagens de outras abas
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'curriculum-updated') {
+                loadGeneratedCurriculum();
+                showNotification('Currículo atualizado automaticamente!', 'success');
+            }
+        });
+    </script>
+    
+    <!-- Verificação de Manutenção -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
+            authDomain: "mikaelfmts.firebaseapp.com",
+            projectId: "mikaelfmts",
+            storageBucket: "mikaelfmts.firebasestorage.app",
+            messagingSenderId: "516762612351",
+            appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        function checkMaintenanceStatus() {
+            try {
+                const maintenanceRef = doc(db, 'configuracoes', 'manutencao');
+                
+                onSnapshot(maintenanceRef, (docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const data = docSnapshot.data();
+                        if (data.ativo) {
+                            window.location.href = '../index.html';
+                        }
+                    } else {
+                        // Verificar localStorage como fallback
+                        checkMaintenanceFromLocal();
+                    }
+                }, (error) => {
+                    console.warn('Erro ao verificar manutenção no Firebase, usando localStorage:', error);
+                    checkMaintenanceFromLocal();
+                });
+            } catch (error) {
+                console.warn('Erro ao conectar Firebase, usando localStorage:', error);
+                checkMaintenanceFromLocal();
+            }
+        }
+        
+        function checkMaintenanceFromLocal() {
+            try {
+                const stored = localStorage.getItem('maintenanceStatus');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    if (data.ativo) {
+                        window.location.href = '../index.html';
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao verificar localStorage:', error);
+            }
+        }
+        
+        window.addEventListener('load', checkMaintenanceStatus);
+    </script>
+</head>
+<body>
+    <!-- Container de partículas -->
+    <div class="particles-container"></div>
+
+    <!-- Foto do Usuário (Agora Aciona o Menu) -->
+    <div class="foto-perfil" onclick="toggleMenu()">
+        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
+    </div>
+
+     <!-- Menu Lateral Oculto -->
+    <nav id="menu-lateral" class="menu-fechado">
+        <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="curriculum.html">Curriculum</a></li>
+            <li><a href="projetos.html">All Uploaded Projects</a></li>
+            <li><a href="mentors.html">Mentors</a></li>
+            <li><a href="certificates-in-progress.html">Certificates in progress</a></li>
+            <li><a href="interactive-projects.html">Interactive Projects</a></li>
+            <li><a href="games.html">Games</a></li>
+        </ul>
+
+        <!-- Bonequinho Dançante -->
+        <div class="bonequinho">
+            <a href="../login.html">
+                <i class="fas fa-user-alt"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Cabeçalho -->
+    <header>
+        <h1 class="titulo-principal">
+            Mikael Ferreira
+        </h1>
+        <h2 class="subtitulo">
+            Desenvolvedor Web Full Stack  
+            <i class="fas fa-code"></i> |  
+            HTML <i class="fab fa-html5"></i> |
+            CSS <i class="fab fa-css3-alt"></i> |  
+            JavaScript <i class="fab fa-js"></i> |  
+            React <i class="fab fa-react"></i>
+        </h2>
+    </header>
+
+    <!-- Seção do Currículo -->
+    <section id="curriculum">
+        <h2>Curriculum</h2>
+
+        <!-- Conteúdo Dinâmico do Gerador de Currículo -->
+        <div id="generated-curriculum-content" class="generated-content">
+            <!-- GENERATED_CURRICULUM_START -->
+            <div id="firebase-loading" style="text-align: center; padding: 3rem;">
+                <div style="background: linear-gradient(45deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem; color: #667eea;"></i>
+                    <h3 style="margin: 0; font-size: 1.5rem;">🔥 Carregando currículo do Firebase...</h3>
+                    <p style="margin: 1rem 0 0 0; color: #6B7280;">Aguarde enquanto buscamos seus dados salvos</p>
+                </div>
+            </div>
+            <!-- GENERATED_CURRICULUM_END -->
+        </div>
+
+        <!-- Conteúdo Original (mantido como fallback) -->
+        <div id="original-curriculum-content">
+            <!-- Formação Acadêmica -->
+            <div class="categoria">
+                <h3>Academic Background</h3>
+                <div class="projeto">
+                    <h4>Graduating in Information Systems</h4>
+                    <p>Expected Graduation: 2029</p>
+                </div>
+            </div>
+
+            <!-- Experiência Profissional -->
+            <div class="categoria">
+                <h3>Professional Experience</h3>
+                <div class="projeto">
+                    <h4>Application Programming Interface (API) Creator</h4>
+                    <p>ELGAEHOST</p>
+                </div>
+            </div>
+
+            <!-- Habilidades Técnicas -->
+            <div class="categoria">
+                <h3>Technical Skills</h3>
+                <div class="projeto">
+                    <ul>
+                        <li><i class="fab fa-html5"></i> HTML5</li>
+                        <li><i class="fab fa-css3-alt"></i> CSS3</li>
+                        <li><i class="fab fa-js"></i> JavaScript</li>
+                        <li><i class="fab fa-react"></i> React</li>
+                        <li><i class="fab fa-node-js"></i> Node.js</li>
+                        <li><i class="fab fa-git-alt"></i> Git & GitHub</li>
+                        <li><i class="fas fa-database"></i> Bancos de Dados</li>
+                        <li><i class="fas fa-server"></i> APIs REST</li>
+                        <li><i class="fas fa-mobile-alt"></i> Responsive Design</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Link para Download do Currículo -->
+        <div class="text-center mt-8">
+            <a href="curriculo.pdf" target="_blank" class="inline-block">
+                <button class="download-btn">
+                    <i class="fas fa-download mr-2"></i>Download Curriculum (PDF)
+                </button>
+            </a>
+            
+            <div class="mt-4">
+                <a href="../curriculo-generator.html" class="generator-link">
+                    <i class="fas fa-magic mr-2"></i>Gerar Novo Currículo Personalizado
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Redes Sociais -->
+    <section class="redes-sociais">
+        <h2>My Social Media</h2>
+        <div class="botoes-redes">
+            <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-btn tiktok">
+                <i class="fab fa-tiktok"></i>
+            </a>
+            <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-btn reddit">
+                <i class="fab fa-reddit"></i>
+            </a>
+            <a href="https://discord.gg/fffen2a4" target="_blank" class="social-btn discord">
+                <i class="fab fa-discord"></i>
+            </a>
+            <a href="https://github.com/mikaelfmts" target="_blank" class="social-btn github">
+                <i class="fab fa-github"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>© 2025 Mikael Ferreira</p>
+        <p>🚀 Make Solutions</p>
+    </footer>
+
+    <script>
+        // Sistema de carregamento automático do currículo gerado
+        class CurriculumPageManager {
+            constructor() {
+                this.lastKnownUpdate = null;
+                this.loadGeneratedCurriculum();
+                this.setupAutoUpdate();
+                this.setupNotifications();
+                this.setupPersistenceBackup();
+                this.setupBroadcastChannel();
+            }
+
+            setupBroadcastChannel() {
+                try {
+                    if (typeof(BroadcastChannel) !== 'undefined') {
+                        this.channel = new BroadcastChannel('curriculum-updates');
+                        this.channel.onmessage = (event) => {
+                            if (event.data.type === 'FORCE_UPDATE') {
+                                console.log('Recebendo atualização forçada via BroadcastChannel');
+                                const curriculumData = event.data.data;
+                                this.applyContent(curriculumData);
+                            } else if (event.data.type === 'curriculum-updated') {
+                                console.log('Recebendo update via BroadcastChannel');
+                                this.loadGeneratedCurriculum();
+                                this.showNotification('Currículo atualizado em tempo real!', 'success');
+                            }
+                        };
+                    }
+                } catch (error) {
+                    console.log('BroadcastChannel não disponível:', error);
+                }
+                
+                // Escutar também por atualizações do Firebase via localStorage
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'curriculum-firebase-update') {
+                        console.log('Detectada atualização do Firebase, recarregando...');
+                        this.loadGeneratedCurriculum();
+                        this.showNotification('Currículo atualizado via Firebase!', 'success');
+                    }
+                });
+            }
+
+            // Nova função para carregar dados do Firebase
+            async loadFromFirebase() {
+                try {
+                    console.log('Tentando carregar do Firebase...');
+                    
+                    // Importar Firebase
+                    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js');
+                    const { getFirestore, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
+                    
+                    // Configuração do Firebase - MESMA DO GERADOR
+                    const firebaseConfig = {
+                        apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
+                        authDomain: "mikaelfmts.firebaseapp.com",
+                        projectId: "mikaelfmts",
+                        storageBucket: "mikaelfmts.firebasestorage.app",
+                        messagingSenderId: "516762612351",
+                        appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
+                    };
+                    
+                    // Inicializar Firebase com ID único para evitar conflitos
+                    const app = initializeApp(firebaseConfig, 'curriculum-viewer-' + Date.now());
+                    const db = getFirestore(app);
+                    
+                    console.log('Firebase inicializado para visualização');
+                    
+                    // Tentar carregar dados do currículo atual
+                    const curriculumRef = doc(db, 'curriculum', 'current');
+                    console.log('Buscando documento curriculum/current...');
+                    
+                    const curriculumSnap = await getDoc(curriculumRef);
+                    
+                    if (curriculumSnap.exists()) {
+                        console.log('Documento encontrado no Firebase!');
+                        const firebaseData = curriculumSnap.data();
+                        
+                        const contentDiv = document.getElementById('generated-curriculum-content');
+                        if (contentDiv && firebaseData.content) {
+                            contentDiv.innerHTML = firebaseData.content;
+                            contentDiv.className = `generated-content theme-${firebaseData.theme || 'modern'}`;
+                            
+                            // Mostrar timestamp da última atualização
+                            this.showUpdateTime(firebaseData.timestamp);
+                            
+                            // Mostrar notificação de carregamento
+                            this.showNotification('Currículo carregado do Firebase com sucesso!', 'success');
+                            
+                            // Adicionar indicador de persistência permanente
+                            this.addPermanentIndicator('Firebase');
+                            
+                            console.log('Currículo carregado do Firebase com sucesso');
+                            
+                            // Salvar também nos storages locais como backup
+                            const localData = {
+                                content: firebaseData.content,
+                                theme: firebaseData.theme,
+                                timestamp: firebaseData.timestamp,
+                                personalData: firebaseData.personalData,
+                                isPermanent: true,
+                                loadedFromFirebase: true
+                            };
+                            
+                            localStorage.setItem('curriculum-permanent-data', JSON.stringify(localData));
+                            sessionStorage.setItem('persistent-curriculum', JSON.stringify(localData));
+                            
+                            return true; // Indica que carregou com sucesso
+                        }
+                    } else {
+                        console.log('Nenhum currículo encontrado no Firebase');
+                        throw new Error('Documento não encontrado no Firebase');
+                    }
+                    
+                } catch (error) {
+                    console.error('Erro ao carregar do Firebase:', error);
+                    throw error; // Re-throw para que a função principal use fallback
+                }
+            }
+
+            applyContent(curriculumData) {
+                try {
+                    if (curriculumData && curriculumData.content) {
+                        const contentDiv = document.getElementById('generated-curriculum-content');
+                        
+                        if (contentDiv) {
+                            contentDiv.innerHTML = curriculumData.content;
+                            contentDiv.className = `generated-content theme-${curriculumData.theme || 'modern'}`;
+                            
+                            // Mostrar timestamp da última atualização
+                            this.showUpdateTime(curriculumData.timestamp);
+                            
+                            // Mostrar notificação de carregamento
+                            this.showNotification('Currículo atualizado automaticamente!', 'success');
+                            
+                            console.log('Currículo atualizado via BroadcastChannel');
+                            
+                            // Salvar novamente nos storages para garantir persistência
+                            localStorage.setItem('curriculum-permanent-data', JSON.stringify(curriculumData));
+                            sessionStorage.setItem('persistent-curriculum', JSON.stringify(curriculumData));
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erro ao aplicar conteúdo:', error);
+                }
+            }
+
+            async loadGeneratedCurriculum() {
+                try {
+                    let curriculumData = null;
+                    
+                    // PRIORIDADE MÁXIMA: Tentar carregar do Firebase primeiro
+                    try {
+                        await this.loadFromFirebase();
+                        // Se chegou aqui, dados foram carregados do Firebase
+                        return;
+                    } catch (error) {
+                        console.log('Firebase não disponível, usando storage local:', error);
+                    }
+                    
+                    // PRIMEIRA PRIORIDADE: Verificar dados permanentes especiais
+                    const permanentData = localStorage.getItem('curriculum-permanent-data');
+                    if (permanentData) {
+                        curriculumData = JSON.parse(permanentData);
+                        console.log('Currículo permanente especial encontrado e carregado');
+                    }
+                    
+                    // SEGUNDA PRIORIDADE: Verificar versão mais recente
+                    if (!curriculumData) {
+                        const latestVersion = localStorage.getItem('curriculum-latest-version');
+                        if (latestVersion) {
+                            const versionData = localStorage.getItem(latestVersion);
+                            if (versionData) {
+                                curriculumData = JSON.parse(versionData);
+                                console.log('Currículo da versão mais recente carregado');
+                            }
+                        }
+                    }
+                    
+                    // TERCEIRA PRIORIDADE: Verificar se existe currículo permanente
+                    if (!curriculumData) {
+                        const permanentCurrentKey = localStorage.getItem('curriculum-permanent-current');
+                        if (permanentCurrentKey) {
+                            const permanentDataOld = localStorage.getItem(permanentCurrentKey);
+                            if (permanentDataOld) {
+                                curriculumData = JSON.parse(permanentDataOld);
+                                console.log('Currículo permanente encontrado e carregado');
+                            }
+                        }
+                    }
+                    
+                    // QUARTA PRIORIDADE: Verificar sessionStorage
+                    if (!curriculumData) {
+                        const sessionData = sessionStorage.getItem('persistent-curriculum');
+                        if (sessionData) {
+                            curriculumData = JSON.parse(sessionData);
+                            console.log('Currículo do sessionStorage carregado');
+                        }
+                    }
+                    
+                    // QUINTA PRIORIDADE: localStorage normal
+                    if (!curriculumData) {
+                        const savedCurriculum = localStorage.getItem('generated-curriculum');
+                        if (savedCurriculum) {
+                            curriculumData = JSON.parse(savedCurriculum);
+                            console.log('Currículo do localStorage carregado');
+                        }
+                    }
+                    
+                    // Aplicar o conteúdo se encontrado
+                    if (curriculumData && curriculumData.content) {
+                        const contentDiv = document.getElementById('generated-curriculum-content');
+                        
+                        if (contentDiv) {
+                            contentDiv.innerHTML = curriculumData.content;
+                            contentDiv.className = `generated-content theme-${curriculumData.theme || 'modern'}`;
+                            
+                            // Mostrar timestamp da última atualização
+                            this.showUpdateTime(curriculumData.timestamp);
+                            
+                            // Mostrar notificação de carregamento
+                            this.showNotification('Currículo carregado com sucesso!', 'success');
+                            
+                            // Adicionar indicador se carregado de fonte permanente
+                            if (curriculumData.isPermanent || curriculumData.loadedFromFirebase) {
+                                this.addPermanentIndicator(curriculumData.loadedFromFirebase ? 'Firebase' : 'Local Permanente');
+                            }
+                            
+                            console.log('Currículo gerado carregado com sucesso');
+                            
+                            // Salvar novamente nos storages para garantir persistência
+                            localStorage.setItem('curriculum-permanent-data', JSON.stringify(curriculumData));
+                            sessionStorage.setItem('persistent-curriculum', JSON.stringify(curriculumData));
+                        }
+                    } else {
+                        console.log('Nenhum currículo gerado encontrado');
+                        this.showNotification('Nenhum currículo gerado encontrado. Acesse o gerador para criar um.', 'info');
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar currículo gerado:', error);
+                    this.showNotification('Erro ao carregar currículo. Verifique o console.', 'error');
+                }
+            }
+
+            setupAutoUpdate() {
+                // Verificar imediatamente ao carregar
+                this.checkForUpdates();
+                
+                // Verificar mudanças a cada segundo
+                setInterval(() => {
+                    this.checkForUpdates();
+                }, 1000);
+                
+                // Verificar Firebase periodicamente (a cada 30 segundos)
+                setInterval(() => {
+                    this.checkFirebaseUpdates();
+                }, 30000);
+
+                // Escutar eventos de storage (mudanças em outras abas)
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'generated-curriculum' || e.key === 'curriculum-update-trigger') {
+                        console.log('Detectada mudança no localStorage, recarregando...');
+                        this.loadGeneratedCurriculum();
+                        this.showNotification('Currículo atualizado automaticamente!', 'success');
+                    }
+                });
+
+                // BroadcastChannel para comunicação entre abas
+                try {
+                    const bc = new BroadcastChannel('curriculum-updates');
+                    bc.onmessage = (event) => {
+                        if (event.data.type === 'curriculum-updated') {
+                            console.log('Recebido update via BroadcastChannel');
+                            this.loadGeneratedCurriculum();
+                            this.showNotification('Currículo atualizado em tempo real!', 'success');
+                        }
+                    };
+                } catch (error) {
+                    console.log('BroadcastChannel não suportado');
+                }
+            }
+
+            // Nova função para verificar atualizações no Firebase
+            async checkFirebaseUpdates() {
+                try {
+                    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js');
+                    const { getFirestore, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
+                    
+                    const firebaseConfig = {
+                        apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
+                        authDomain: "mikaelfmts.firebaseapp.com",
+                        projectId: "mikaelfmts",
+                        storageBucket: "mikaelfmts.firebasestorage.app",
+                        messagingSenderId: "516762612351",
+                        appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
+                    };
+                    
+                    const app = initializeApp(firebaseConfig, 'curriculum-check-' + Date.now());
+                    const db = getFirestore(app);
+                    
+                    const curriculumRef = doc(db, 'curriculum', 'current');
+                    const curriculumSnap = await getDoc(curriculumRef);
+                    
+                    if (curriculumSnap.exists()) {
+                        const firebaseData = curriculumSnap.data();
+                        const currentData = localStorage.getItem('curriculum-permanent-data');
+                        
+                        // Verificar se há nova versão
+                        if (currentData) {
+                            const localData = JSON.parse(currentData);
+                            if (firebaseData.timestamp > localData.timestamp) {
+                                console.log('Nova versão detectada no Firebase, atualizando...');
+                                await this.loadFromFirebase();
+                                this.showNotification('Currículo atualizado automaticamente do Firebase!', 'success');
+                            }
+                        } else {
+                            // Se não há dados locais, carregar do Firebase
+                            await this.loadFromFirebase();
+                        }
+                    }
+                } catch (error) {
+                    console.log('Erro ao verificar atualizações do Firebase:', error);
+                }
+            }
+
+            checkForUpdates() {
+                const lastUpdate = localStorage.getItem('curriculum-update-trigger');
+                if (lastUpdate && lastUpdate !== this.lastKnownUpdate) {
+                    this.lastKnownUpdate = lastUpdate;
+                    console.log('Detectada nova atualização, recarregando currículo...');
+                    this.loadGeneratedCurriculum();
+                }
+            }
+
+            showUpdateTime(timestamp) {
+                if (!timestamp) return;
+                
+                const date = new Date(timestamp);
+                const timeString = date.toLocaleString('pt-BR');
+                
+                // Adicionar indicador de timestamp se não existir
+                let timeIndicator = document.getElementById('curriculum-timestamp');
+                if (!timeIndicator) {
+                    timeIndicator = document.createElement('div');
+                    timeIndicator.id = 'curriculum-timestamp';
+                    timeIndicator.style.cssText = `
+                        position: absolute;
+                        top: 10px;
+                        right: 10px;
+                        background: rgba(59, 130, 246, 0.1);
+                        color: #3B82F6;
+                        padding: 0.5rem;
+                        border-radius: 0.5rem;
+                        font-size: 0.8rem;
+                        border: 1px solid rgba(59, 130, 246, 0.2);
+                    `;
+                    
+                    const contentDiv = document.getElementById('generated-curriculum-content');
+                    if (contentDiv) {
+                        contentDiv.style.position = 'relative';
+                        contentDiv.appendChild(timeIndicator);
+                    }
+                }
+                
+                timeIndicator.innerHTML = `
+                    <i class="fas fa-clock mr-1"></i>
+                    Atualizado: ${timeString}
+                `;
+            }
+
+            // Nova função para adicionar indicador de persistência permanente
+            addPermanentIndicator(source) {
+                // Remover indicador existente se houver
+                const existingIndicator = document.getElementById('permanent-indicator');
+                if (existingIndicator) {
+                    existingIndicator.remove();
+                }
+                
+                const indicator = document.createElement('div');
+                indicator.id = 'permanent-indicator';
+                indicator.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: linear-gradient(135deg, #10B981, #059669);
+                    color: white;
+                    padding: 0.75rem 1.5rem;
+                    border-radius: 2rem;
+                    font-weight: 600;
+                    font-size: 0.9rem;
+                    z-index: 9999;
+                    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+                    border: 2px solid rgba(255, 255, 255, 0.2);
+                    backdrop-filter: blur(10px);
+                    animation: slideInFromTop 0.6s ease-out;
+                `;
+                
+                indicator.innerHTML = `
+                    <i class="fas fa-shield-check mr-2"></i>
+                    Currículo Permanente - Fonte: ${source}
+                    <i class="fas fa-check-circle ml-2"></i>
+                `;
+                
+                // Adicionar CSS da animação se não existir
+                if (!document.getElementById('permanent-indicator-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'permanent-indicator-styles';
+                    style.textContent = `
+                        @keyframes slideInFromTop {
+                            from {
+                                transform: translateX(-50%) translateY(-100%);
+                                opacity: 0;
+                            }
+                            to {
+                                transform: translateX(-50%) translateY(0);
+                                opacity: 1;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                document.body.appendChild(indicator);
+                
+                // Remover o indicador após 5 segundos
+                setTimeout(() => {
+                    if (indicator.parentNode) {
+                        indicator.style.animation = 'slideInFromTop 0.6s ease-out reverse';
+                        setTimeout(() => {
+                            if (indicator.parentNode) {
+                                indicator.remove();
+                            }
+                        }, 600);
+                    }
+                }, 5000);
+            }
+
+            setupNotifications() {
+                // Criar container de notificações se não existir
+                if (!document.getElementById('notifications-container')) {
+                    const container = document.createElement('div');
+                    container.id = 'notifications-container';
+                    container.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        z-index: 9999;
+                        pointer-events: none;
+                    `;
+                    document.body.appendChild(container);
+                }
+            }
+
+            showNotification(message, type = 'info') {
+                const container = document.getElementById('notifications-container');
+                if (!container) return;
+
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    background: ${type === 'success' ? '#10B981' : type === 'error' ? '#EF4444' : '#3B82F6'};
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 0.5rem;
+                    margin-bottom: 0.5rem;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    transform: translateX(100%);
+                    transition: transform 0.3s ease;
+                    pointer-events: all;
+                    max-width: 300px;
+                    font-weight: 500;
+                `;
+                
+                notification.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'} mr-2"></i>
+                    ${message}
+                `;
+
+                container.appendChild(notification);
+
+                // Animação de entrada
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 100);
+
+                // Remover após 4 segundos
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 4000);
+            }
+            
+            // NOVO: Sistema de backup automático
+            setupPersistenceBackup() {
+                // Salvar estado atual quando a página for fechada
+                window.addEventListener('beforeunload', () => {
+                    this.backupCurrentContent();
+                });
+                
+                // Salvar periodicamente a cada 30 segundos
+                setInterval(() => {
+                    this.backupCurrentContent();
+                }, 30000);
+                
+                // Verificar se há conteúdo para restaurar ao carregar
+                this.restoreBackupIfNeeded();
+            }
+            
+            backupCurrentContent() {
+                try {
+                    const contentDiv = document.getElementById('generated-curriculum-content');
+                    if (contentDiv && contentDiv.innerHTML.trim() && 
+                        !contentDiv.innerHTML.includes('Este conteúdo será substituído')) {
+                        
+                        const backupData = {
+                            content: contentDiv.innerHTML,
+                            className: contentDiv.className,
+                            timestamp: Date.now(),
+                            isBackup: true,
+                            isPermanent: true
+                        };
+                        
+                        // Salvar em múltiplos locais para máxima persistência
+                        localStorage.setItem('curriculum-backup', JSON.stringify(backupData));
+                        sessionStorage.setItem('curriculum-backup', JSON.stringify(backupData));
+                        
+                        // Salvar como dados permanentes também
+                        localStorage.setItem('curriculum-permanent-data', JSON.stringify(backupData));
+                        
+                        // Salvar com data para versionamento
+                        const versionKey = 'curriculum-version-' + new Date().toISOString().split('T')[0];
+                        localStorage.setItem(versionKey, JSON.stringify(backupData));
+                        localStorage.setItem('curriculum-latest-version', versionKey);
+                        
+                        // Usar indexedDB se disponível para persistência maior
+                        if (window.indexedDB) {
+                            this.saveToIndexedDB(backupData);
+                        }
+                        
+                        console.log('Backup do currículo salvo automaticamente com persistência permanente');
+                    }
+                } catch (error) {
+                    console.error('Erro ao fazer backup:', error);
+                }
+            }
+            
+            restoreBackupIfNeeded() {
+                try {
+                    const contentDiv = document.getElementById('generated-curriculum-content');
+                    if (!contentDiv || contentDiv.innerHTML.trim() === '' || 
+                        contentDiv.innerHTML.includes('Este conteúdo será substituído')) {
+                        
+                        // Tentar restaurar do backup mais recente
+                        let backupData = null;
+                        
+                        // Primeiro tentar sessionStorage
+                        const sessionBackup = sessionStorage.getItem('curriculum-backup');
+                        if (sessionBackup) {
+                            backupData = JSON.parse(sessionBackup);
+                        }
+                        
+                        // Depois tentar localStorage
+                        if (!backupData) {
+                            const localBackup = localStorage.getItem('curriculum-backup');
+                            if (localBackup) {
+                                backupData = JSON.parse(localBackup);
+                            }
+                        }
+                        
+                        // Restaurar se encontrou backup
+                        if (backupData && backupData.content) {
+                            contentDiv.innerHTML = backupData.content;
+                            contentDiv.className = backupData.className || 'generated-content';
+                            this.showUpdateTime(backupData.timestamp);
+                            this.showNotification('Currículo restaurado do backup!', 'success');
+                            console.log('Currículo restaurado do backup');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erro ao restaurar backup:', error);
+                }
+            }
+            
+            // Salvar no IndexedDB para persistência máxima
+            saveToIndexedDB(data) {
+                try {
+                    const request = indexedDB.open('CurriculumDB', 1);
+                    
+                    request.onupgradeneeded = function(e) {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('curriculums')) {
+                            db.createObjectStore('curriculums', { keyPath: 'id' });
+                        }
+                    };
+                    
+                    request.onsuccess = function(e) {
+                        const db = e.target.result;
+                        const transaction = db.transaction(['curriculums'], 'readwrite');
+                        const store = transaction.objectStore('curriculums');
+                        
+                        data.id = 'current';
+                        store.put(data);
+                        
+                        console.log('Currículo salvo no IndexedDB');
+                    };
+                } catch (error) {
+                    console.log('IndexedDB não disponível:', error);
+                }
+            }
+        }
+
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            new CurriculumPageManager();
+            // CARREGAR AUTOMATICAMENTE DO FIREBASE
+            loadCurriculumFromFirebase();
+        });
+
+        // FUNÇÃO PARA CARREGAR DO FIREBASE COM AUTH ANÔNIMA
+        async function loadCurriculumFromFirebase() {
+            console.log('🔥 Carregando currículo do Firebase...');
+            
+            const contentDiv = document.getElementById('generated-curriculum-content');
+            const loadingDiv = document.getElementById('firebase-loading');
+            
+            try {
+                // Importar Firebase sem Auth (modo público)
+                const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js');
+                const { getFirestore, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
+                
+                // Configuração do Firebase
+                const firebaseConfig = {
+                    apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
+                    authDomain: "mikaelfmts.firebaseapp.com",
+                    projectId: "mikaelfmts",
+                    storageBucket: "mikaelfmts.firebasestorage.app",
+                    messagingSenderId: "516762612351",
+                    appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
+                };
+                
+                // Inicializar Firebase
+                const app = initializeApp(firebaseConfig, 'curriculum-reader-' + Date.now());
+                const db = getFirestore(app);
+                
+                console.log('✅ Firebase inicializado em modo público...');
+                
+                // Buscar dados do currículo
+                const docRef = doc(db, 'curriculum', 'current');
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    const curriculumData = docSnap.data();
+                    console.log('✅ Currículo encontrado no Firebase!', curriculumData);
+                    
+                    displayFirebaseCurriculum(curriculumData, contentDiv, loadingDiv);
+                    
+                } else {
+                    console.log('❌ Nenhum currículo encontrado no Firebase, tentando localStorage...');
+                    throw new Error('Documento não encontrado no Firebase');
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar do Firebase:', error);
+                
+                // FALLBACK ROBUSTO: Tentar múltiplas fontes do localStorage
+                tryLocalStorageFallback(contentDiv, loadingDiv, error.message);
+            }
+        }
+        
+        // Função para exibir currículo do Firebase
+        function displayFirebaseCurriculum(curriculumData, contentDiv, loadingDiv) {
+            if (loadingDiv) loadingDiv.remove();
+            
+            // Corrigir problema de data
+            let dateString = 'Agora';
+            try {
+                const timestamp = curriculumData.timestamp || curriculumData.lastUpdated || Date.now();
+                const date = new Date(timestamp);
+                if (!isNaN(date.getTime())) {
+                    dateString = date.toLocaleDateString('pt-BR');
+                }
+            } catch (error) {
+                console.warn('Erro ao formatar data:', error);
+            }
+            
+            let updateString = 'Agora';
+            try {
+                const updateTimestamp = curriculumData.lastUpdated || curriculumData.timestamp || Date.now();
+                const updateDate = new Date(updateTimestamp);
+                if (!isNaN(updateDate.getTime())) {
+                    updateString = updateDate.toLocaleString('pt-BR');
+                }
+            } catch (error) {
+                console.warn('Erro ao formatar data de atualização:', error);
+            }
+            
+            contentDiv.innerHTML = `
+                <!-- GENERATED_CURRICULUM_START -->
+                <div class="theme-${curriculumData.theme || 'modern'}" style="position: relative;">
+                    <!-- Indicador de sucesso Firebase -->
+                    <div style="
+                        position: absolute; top: -10px; right: -10px;
+                        background: linear-gradient(135deg, #10B981, #059669); color: white; 
+                        padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;
+                        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); z-index: 100;
+                        animation: pulse 2s infinite;
+                    ">
+                        🔥 Firebase • ${dateString}
+                    </div>
+                    
+                    ${curriculumData.content || '<p>Conteúdo não encontrado</p>'}
+                    
+                    <!-- Metadata do Firebase -->
+                    <div style="
+                        margin-top: 2rem; padding: 1rem;
+                        background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%);
+                        border: 1px solid #10B981; border-radius: 8px;
+                        text-align: center; font-size: 0.9rem; color: #065F46;
+                    ">
+                        <strong>🔥 FIREBASE ONLINE:</strong> 
+                        Última atualização: ${updateString} • 
+                        Tema: ${curriculumData.theme || 'modern'} • 
+                        Versão: ${curriculumData.version || '2.0'}
+                    </div>
+                </div>
+                <!-- GENERATED_CURRICULUM_END -->
+            `;
+            
+            console.log('✅ Currículo do Firebase exibido com sucesso!');
+        }
+        
+        // Fallback para localStorage com múltiplas tentativas
+        function tryLocalStorageFallback(contentDiv, loadingDiv, firebaseError) {
+            console.log('🔄 Tentando carregar do localStorage...');
+            
+            // Lista de chaves para tentar (em ordem de prioridade)
+            const storageKeys = [
+                'curriculum-firebase-backup',
+                'curriculum-local-primary', 
+                'curriculum-permanent-data',
+                'curriculum-backup'
+            ];
+            
+            let curriculumData = null;
+            let sourceKey = '';
+            
+            // Tentar cada chave até encontrar dados válidos
+            for (const key of storageKeys) {
+                try {
+                    const stored = localStorage.getItem(key);
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        if (parsed && parsed.content) {
+                            curriculumData = parsed;
+                            sourceKey = key;
+                            console.log(`✅ Dados encontrados em: ${key}`);
+                            break;
+                        }
+                    }
+                } catch (e) {
+                    console.log(`❌ Erro ao ler ${key}:`, e);
+                }
+            }
+            
+            if (curriculumData) {
+                // Exibir currículo do localStorage
+                if (loadingDiv) loadingDiv.remove();
+                
+                const sourceType = curriculumData.isLocalBackup ? 'LOCAL BACKUP' : 'CACHE LOCAL';
+                const themeClass = curriculumData.theme || 'modern';
+                
+                contentDiv.innerHTML = `
+                    <!-- GENERATED_CURRICULUM_START -->
+                    <div class="theme-${themeClass}" style="position: relative;">
+                        <!-- Indicador de localStorage -->
+                        <div style="
+                            position: absolute; top: -10px; right: -10px;
+                            background: linear-gradient(135deg, #F59E0B, #D97706); color: white; 
+                            padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;
+                            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); z-index: 100;
+                        ">
+                            💾 ${sourceType} • ${new Date(curriculumData.lastUpdated || curriculumData.timestamp).toLocaleDateString('pt-BR')}
+                        </div>
+                        
+                        ${curriculumData.content}
+                        
+                        <!-- Metadata do localStorage -->
+                        <div style="
+                            margin-top: 2rem; padding: 1rem;
+                            background: linear-gradient(135deg, #FEF3C7 0%, #FEF7E3 100%);
+                            border: 1px solid #F59E0B; border-radius: 8px;
+                            text-align: center; font-size: 0.9rem; color: #92400E;
+                        ">
+                            <strong>💾 ARMAZENAMENTO LOCAL:</strong> 
+                            Fonte: ${sourceKey} • 
+                            Última atualização: ${new Date(curriculumData.lastUpdated || curriculumData.timestamp).toLocaleString('pt-BR')} • 
+                            Tema: ${curriculumData.theme} • 
+                            Versão: ${curriculumData.version || '1.0'}
+                            ${curriculumData.firebaseError ? `<br><small>Firebase Error: ${curriculumData.firebaseError}</small>` : ''}
+                        </div>
+                    </div>
+                    <!-- GENERATED_CURRICULUM_END -->
+                `;
+                
+                console.log('✅ Currículo do localStorage exibido com sucesso!');
+            } else {
+                // Nenhum dado encontrado
+                showFallbackMessage(firebaseError);
+            }
+        }
+        
+        // Função para mostrar mensagem quando não há dados
+        function showFallbackMessage(errorMsg = null) {
+            const contentDiv = document.getElementById('generated-curriculum-content');
+            const loadingDiv = document.getElementById('firebase-loading');
+            
+            if (loadingDiv) loadingDiv.remove();
+            
+            contentDiv.innerHTML = `
+                <!-- GENERATED_CURRICULUM_START -->
+                <div style="text-align: center; padding: 3rem;">
+                    <div style="background: linear-gradient(135deg, #FEF2F2 0%, #FEF7F7 100%); border: 2px solid #EF4444; border-radius: 15px; padding: 2rem;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #EF4444; margin-bottom: 1rem;"></i>
+                        <h3 style="color: #DC2626; margin-bottom: 1rem;">📋 Nenhum currículo encontrado</h3>
+                        <p style="color: #7F1D1D; margin-bottom: 2rem;">
+                            ${errorMsg ? `Erro: ${errorMsg}` : 'Ainda não há currículo salvo no Firebase.'}
+                        </p>
+                        <a href="../curriculo-generator.html" style="
+                            display: inline-block; background: #10B981; color: white;
+                            padding: 12px 24px; border-radius: 8px; text-decoration: none;
+                            font-weight: bold; transition: all 0.3s ease;
+                        " onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
+                            🚀 Gerar Meu Primeiro Currículo
+                        </a>
+                    </div>
+                </div>
+                <!-- GENERATED_CURRICULUM_END -->
+            `;
+        }
+
+        // Função para regenerar currículo (botão adicional)
+        function regenerateCurriculum() {
+            window.open('../curriculo-generator.html', '_blank');
+        }
+    </script>
+
+    <!-- Firebase Curriculum Display Script -->
+    <script type="module" src="../assets/js/curriculum-display.js"></script>
+
+</body>
+</html>

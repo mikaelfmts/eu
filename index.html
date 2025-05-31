@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Portfolio de Mikael Ferreira - Desenvolvedor Web Full Stack">
+    <meta name="keywords" content="desenvolvedor web, frontend, backend, portfolio, html, css, javascript, react, node.js">
+    <title>Mikael Ferreira - Portfolio</title>
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0066ff">
+    
+    <!-- Preconnect para performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+
+    <!-- Font Awesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Script Principal como Módulo -->
+    <script type="module" src="assets/js/script.js"></script>
+    <script src="assets/js/page-control.js"></script>
+    
+    <!-- Controle de Página -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            initPageControl('index');
+        });
+    </script>
+</head>
+<body>
+    <!-- Container de partículas -->
+    <div class="particles-container"></div>
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle" onclick="toggleTheme()">
+        <i id="theme-icon" class="fab fa-battle-net"></i>
+    </button>
+
+    <!-- Foto do Usuário (Agora Aciona o Menu) -->
+    <div class="foto-perfil" onclick="toggleMenu()">
+        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
+    </div>
+
+   <!-- Menu Lateral Oculto -->
+    <nav id="menu-lateral" class="menu-fechado">
+        <div class="menu-header" style="padding: 1.5rem; text-align: center; margin-bottom: 1rem; border-bottom: 1px solid rgba(200, 170, 110, 0.2);">
+            <h2 style="font-family: 'Marcellus', serif; color: var(--primary-color); font-size: 1.5rem; letter-spacing: 2px;">NAVEGAÇÃO</h2>
+            <div style="width: 50px; height: 3px; background: linear-gradient(90deg, transparent, var(--primary-color), transparent); margin: 0.5rem auto;"></div>
+        </div>
+        <ul>
+            <li><a href="pages/curriculum.html"><i class="fas fa-scroll" style="margin-right: 15px; color: var(--primary-color);"></i>Curriculum</a></li>
+            <li><a href="pages/projetos.html"><i class="fas fa-code-branch" style="margin-right: 15px; color: var(--primary-color);"></i>All Uploaded Projects</a></li>
+            <li><a href="pages/mentors.html"><i class="fas fa-users" style="margin-right: 15px; color: var(--primary-color);"></i>Mentors</a></li>
+            <li><a href="pages/certificates-in-progress.html"><i class="fas fa-certificate" style="margin-right: 15px; color: var(--primary-color);"></i>Certificates in progress</a></li>
+            <li><a href="pages/interactive-projects.html"><i class="fas fa-project-diagram" style="margin-right: 15px; color: var(--primary-color);"></i>Interactive Projects</a></li>
+            <li><a href="pages/games.html"><i class="fas fa-gamepad" style="margin-right: 15px; color: var(--primary-color);"></i>Games</a></li>
+        </ul>
+
+        <!-- Bonequinho Dançante -->
+        <div class="bonequinho">
+            <a href="login.html">
+                <i class="fas fa-user-alt"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Cabeçalho -->
+    <header>
+         <h1 class="titulo-principal">
+            Mikael Ferreira
+         </h1>
+         <h2 class="subtitulo">
+            Desenvolvedor Web Full Stack  
+            <i class="fas fa-code"></i> |  
+            HTML <i class="fab fa-html5"></i> |
+            CSS <i class="fab fa-css3-alt"></i> |  
+            JavaScript <i class="fab fa-js"></i> |  
+            React <i class="fab fa-react"></i>
+        </h2>
+    </header>
+
+    <!-- Seção de Habilidades Técnicas -->
+    <section id="habilidades">
+        <h2>Technical Skills</h2>
+        <div class="skills-info">
+            <p style="text-align: center; color: #c8aa6e; font-style: italic; margin-bottom: 1rem; padding: 0.8rem; background: rgba(200, 170, 110, 0.1); border-radius: 8px; border-left: 4px solid #c8aa6e;">
+                <i class="fab fa-github" style="margin-right: 0.5rem;"></i>
+                <strong>Dados Reais em Tempo Real:</strong> Os percentuais exibidos são calculados automaticamente através da API do GitHub, 
+                analisando linguagens, frameworks e tecnologias utilizadas nos repositórios públicos do meu perfil.
+            </p>
+            <div style="text-align: center; margin-bottom: 1rem;">
+                <button onclick="clearSkillsCache(); location.reload();" style="background: rgba(200, 170, 110, 0.2); border: 1px solid rgba(200, 170, 110, 0.5); color: #c8aa6e; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.3s ease;">
+                    <i class="fas fa-sync-alt" style="margin-right: 0.5rem;"></i>Atualizar Skills
+                </button>
+            </div>
+        </div>
+        <div class="skills-grid">
+            <!-- Loading indicator -->
+            <div id="skills-loading" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+                <div class="loader" style="margin: 0 auto 1rem;"></div>
+                <p style="color: #c8aa6e; margin-bottom: 0.5rem;"><strong>Analisando repositórios do GitHub...</strong></p>
+                <p style="color: #a09b8c; font-size: 0.8rem; opacity: 0.8;">Coletando dados de linguagens e tecnologias em tempo real</p>
+            </div>
+            
+            <!-- Skills cards will be populated dynamically -->
+        </div>
+    </section>
+
+    <!-- Seção de Games - Atalho Especial -->
+    <section id="games-section" class="games-highlight">
+        <div class="games-container">
+            <div class="games-content">
+                <div class="games-icon">
+                    🎮
+                </div>
+                <h2 class="games-title">Explore Meus Jogos</h2>
+                <p class="games-description">
+                    Descubra projetos interativos e jogos desenvolvidos com JavaScript, HTML5 Canvas e muito mais!
+                </p>
+                <div class="games-features">
+                    <span class="feature-tag">🕹️ Fehuna: Códigos Perdidos</span>
+                    <span class="feature-tag">🎯 Jogos Interativos</span>
+                    <span class="feature-tag">⚡ HTML5 Canvas</span>
+                </div>
+                <a href="pages/games.html" class="games-cta-button">
+                    <span class="button-text">🚀 Jogar Agora</span>
+                    <div class="button-glow"></div>
+                </a>
+            </div>
+            <div class="games-visual">
+                <div class="game-preview">
+                    <div class="pixel-art">
+                        <div class="pixel-row">
+                            <div class="pixel green"></div>
+                            <div class="pixel green"></div>
+                            <div class="pixel blue"></div>
+                            <div class="pixel blue"></div>
+                        </div>
+                        <div class="pixel-row">
+                            <div class="pixel green"></div>
+                            <div class="pixel yellow"></div>
+                            <div class="pixel yellow"></div>
+                            <div class="pixel blue"></div>
+                        </div>
+                        <div class="pixel-row">
+                            <div class="pixel red"></div>
+                            <div class="pixel red"></div>
+                            <div class="pixel yellow"></div>
+                            <div class="pixel yellow"></div>
+                        </div>
+                        <div class="pixel-row">
+                            <div class="pixel red"></div>
+                            <div class="pixel purple"></div>
+                            <div class="pixel purple"></div>
+                            <div class="pixel orange"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GitHub Profile Section -->
+    <section id="github-profile-section">
+        <h2>Meu Perfil GitHub</h2>
+        <div id="github-profile" class="github-profile-container">
+            <!-- O conteúdo será preenchido pelo JavaScript -->
+            <div class="loader"></div>
+        </div>
+    </section>
+
+    <!-- GitHub Repos Section -->
+    <section id="github-repos-section">
+        <h2>Meus Repositórios GitHub</h2>
+        <div id="github-repos" class="github-repos-container">
+            <!-- O conteúdo será preenchido pelo JavaScript -->
+            <div class="loader"></div>
+        </div>
+    </section>
+
+    <!-- LinkedIn Profile Section -->
+    <section id="linkedin-profile-section">
+        <h2>Meu Perfil LinkedIn</h2>
+        <div class="linkedin-info">
+            <p style="text-align: center; color: #0077b5; font-style: italic; margin-bottom: 1rem; padding: 0.8rem; background: rgba(0, 119, 181, 0.1); border-radius: 8px; border-left: 4px solid #0077b5;">
+                <i class="fab fa-linkedin" style="margin-right: 0.5rem;"></i>
+                <strong>Perfil Profissional:</strong> Conecte-se comigo no LinkedIn para acompanhar minha jornada profissional e networking.
+            </p>
+        </div>
+        <div id="linkedin-profile" class="linkedin-profile-container">
+            <!-- O conteúdo será preenchido pelo JavaScript -->
+            <div class="loader"></div>
+        </div>
+    </section>
+
+    <!-- Redes Sociais -->
+    <section class="redes-sociais">
+        <h2>My Social Media</h2>
+        <div class="botoes-redes">
+            <a href="https://www.linkedin.com/in/mikaelferreira/" target="_blank" class="social-btn linkedin">
+                <i class="fab fa-linkedin"></i>
+            </a>
+            <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-btn tiktok">
+                <i class="fab fa-tiktok"></i>
+            </a>
+            <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-btn reddit">
+                <i class="fab fa-reddit"></i>
+            </a>
+            <a href="https://discord.gg/fffen2a4" target="_blank" class="social-btn discord">
+                <i class="fab fa-discord"></i>
+            </a>
+            <a href="https://github.com/mikaelfmts" target="_blank" class="social-btn github">
+                <i class="fab fa-github"></i>
+            </a>
+        </div>
+    </section>
+
+<!-- Chatbot -->
+<div id="chatbot">
+    <div id="chat-header" onclick="toggleChat()">
+        <i class="fas fa-crown"></i> Summoner's Chat
+    </div>
+    <div id="chat-body">
+        <!-- Formulário de nome (mostrado inicialmente) -->
+        <div id="name-form" style="display: block;">
+            <div class="name-input-area">
+                <p>Como devo chamá-lo, Invocador?</p>
+                <input type="text" id="name-input" placeholder="Digite seu nome..." maxlength="50">
+                <button onclick="setUserName()">Entrar no Rift</button>
+            </div>
+        </div>
+        
+        <!-- Área do chat (oculta inicialmente) -->
+        <div id="chat-area" style="display: none;">
+            <div id="chat-messages"></div>
+            <div id="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Digite sua mensagem...">
+                <button onclick="sendMessage()"><i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>© 2025 Mikael Ferreira <i class="fas fa-chess-rook"></i></p>
+    </footer>
+    
+    <!-- Modal de Manutenção -->
+    <div id="maintenance-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0a0e27 0%, #1e1b24 30%, #2b1810 60%, #1a0e0e 100%); z-index: 9999; justify-content: center; align-items: center; overflow: hidden;">
+        <!-- Background de Chamas Animadas -->
+        <div class="flames-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.15; pointer-events: none;">
+            <div class="flame" style="position: absolute; bottom: 0; left: 10%; width: 3px; height: 100px; background: linear-gradient(to top, #ff4500, #ff6b35, transparent); animation: flicker1 2s infinite;"></div>
+            <div class="flame" style="position: absolute; bottom: 0; left: 25%; width: 4px; height: 120px; background: linear-gradient(to top, #ff6600, #ff8533, transparent); animation: flicker2 2.5s infinite;"></div>
+            <div class="flame" style="position: absolute; bottom: 0; left: 40%; width: 2px; height: 80px; background: linear-gradient(to top, #ff3300, #ff5533, transparent); animation: flicker3 1.8s infinite;"></div>
+            <div class="flame" style="position: absolute; bottom: 0; left: 60%; width: 5px; height: 140px; background: linear-gradient(to top, #ff4500, #ff7744, transparent); animation: flicker1 2.2s infinite;"></div>
+            <div class="flame" style="position: absolute; bottom: 0; left: 75%; width: 3px; height: 90px; background: linear-gradient(to top, #ff5500, #ff6633, transparent); animation: flicker2 1.9s infinite;"></div>
+            <div class="flame" style="position: absolute; bottom: 0; left: 90%; width: 4px; height: 110px; background: linear-gradient(to top, #ff4400, #ff7755, transparent); animation: flicker3 2.3s infinite;"></div>
+        </div>
+        
+        <!-- Particulas de Ember -->
+        <div class="embers" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+            <div class="ember" style="position: absolute; top: 80%; left: 20%; width: 4px; height: 4px; background: #ff6600; border-radius: 50%; animation: float-ember 8s infinite;"></div>
+            <div class="ember" style="position: absolute; top: 75%; left: 50%; width: 3px; height: 3px; background: #ff4500; border-radius: 50%; animation: float-ember 10s infinite 2s;"></div>
+            <div class="ember" style="position: absolute; top: 85%; left: 80%; width: 5px; height: 5px; background: #ff5500; border-radius: 50%; animation: float-ember 7s infinite 4s;"></div>
+        </div>
+        
+        <div style="text-align: center; color: #f0e6d2; padding: 3rem; max-width: 700px; margin: 0 auto; position: relative; z-index: 10; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border-radius: 20px; border: 2px solid rgba(200, 170, 110, 0.3); box-shadow: 0 20px 60px rgba(255, 69, 0, 0.2);">
+            <!-- Emblema da Riot/LoL com Chamas -->
+            <div style="margin-bottom: 2rem; position: relative;">
+                <div style="width: 120px; height: 120px; margin: 0 auto; position: relative; background: radial-gradient(circle, rgba(255,69,0,0.3) 0%, rgba(255,140,0,0.2) 50%, transparent 70%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-fire" style="font-size: 4rem; color: #ff4500; text-shadow: 0 0 30px rgba(255, 69, 0, 0.8), 0 0 60px rgba(255, 140, 0, 0.4); animation: fire-pulse 2s ease-in-out infinite;"></i>
+                </div>
+                <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 140px; height: 140px; border: 3px solid transparent; border-radius: 50%; background: linear-gradient(45deg, #c8aa6e, #f0c674, #c8aa6e); padding: 3px; animation: rotate-border 8s linear infinite;">
+                    <div style="width: 100%; height: 100%; background: transparent; border-radius: 50%;"></div>
+                </div>
+            </div>
+            
+            <!-- Título com Estilo LoL -->
+            <h1 id="maintenance-title-display" style="font-family: 'Marcellus', serif; font-size: 3rem; color: #c8aa6e; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 20px rgba(200, 170, 110, 0.6), 0 0 40px rgba(255, 69, 0, 0.3); position: relative;">
+                <span style="background: linear-gradient(45deg, #c8aa6e, #f0c674, #ff8c00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Site em Manutenção</span>
+            </h1>
+            
+            <!-- Separador com Chamas -->
+            <div style="margin: 2rem 0; position: relative;">
+                <div style="width: 300px; height: 3px; background: linear-gradient(90deg, transparent, #ff4500, #c8aa6e, #ff4500, transparent); margin: 0 auto; border-radius: 2px; box-shadow: 0 0 15px rgba(255, 69, 0, 0.5);"></div>
+                <i class="fas fa-dragon" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; color: #c8aa6e; background: rgba(0, 0, 0, 0.8); padding: 8px; border-radius: 50%; border: 2px solid #ff4500;"></i>
+            </div>
+            
+            <!-- Mensagem -->
+            <p id="maintenance-message-display" style="font-size: 1.3rem; line-height: 1.8; margin-bottom: 2rem; color: #f0e6d2; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); font-weight: 300;">
+                Estamos realizando melhorias no site. Voltamos em breve!
+            </p>
+            
+            <!-- Previsão (opcional) -->
+            <p id="maintenance-eta-display" style="font-size: 1.1rem; color: #ff8c00; margin-bottom: 2rem; font-style: italic; display: none; padding: 1rem; background: rgba(255, 140, 0, 0.1); border: 1px solid rgba(255, 140, 0, 0.3); border-radius: 10px; text-shadow: 0 0 10px rgba(255, 140, 0, 0.5);">
+            </p>
+            
+            <!-- Mensagem adicional com Estilo LoL -->
+            <div style="margin-top: 2rem; padding: 1rem; background: rgba(200, 170, 110, 0.1); border: 1px solid rgba(200, 170, 110, 0.3); border-radius: 10px;">
+                <p style="font-size: 1rem; color: #c8aa6e; opacity: 0.9; margin: 0;">
+                    <i class="fas fa-shield-alt" style="margin-right: 0.8rem; color: #ff4500;"></i>
+                    <strong>Mikael</strong> pode acessar o painel normalmente
+                </p>
+            </div>
+            
+            <!-- Elementos Decorativos LoL -->
+            <div style="position: absolute; top: 20px; left: 20px; width: 50px; height: 50px; opacity: 0.3;">
+                <i class="fas fa-chess-rook" style="font-size: 2rem; color: #c8aa6e; transform: rotate(-15deg);"></i>
+            </div>
+            <div style="position: absolute; top: 30px; right: 30px; width: 40px; height: 40px; opacity: 0.3;">
+                <i class="fas fa-crown" style="font-size: 1.8rem; color: #ff8c00; transform: rotate(15deg);"></i>
+            </div>
+            <div style="position: absolute; bottom: 25px; left: 30px; width: 45px; height: 45px; opacity: 0.3;">
+                <i class="fas fa-gem" style="font-size: 1.7rem; color: #c8aa6e; transform: rotate(-10deg);"></i>
+            </div>
+            <div style="position: absolute; bottom: 35px; right: 25px; width: 35px; height: 35px; opacity: 0.3;">
+                <i class="fas fa-magic" style="font-size: 1.5rem; color: #ff4500; transform: rotate(20deg);"></i>
+            </div>
+        </div>
+        
+        <!-- Estilos das Animações -->
+        <style>
+            @keyframes flicker1 {
+                0%, 100% { transform: scaleY(1) scaleX(1); opacity: 0.8; }
+                25% { transform: scaleY(1.1) scaleX(0.9); opacity: 1; }
+                50% { transform: scaleY(0.9) scaleX(1.1); opacity: 0.9; }
+                75% { transform: scaleY(1.05) scaleX(0.95); opacity: 0.85; }
+            }
+            
+            @keyframes flicker2 {
+                0%, 100% { transform: scaleY(1) scaleX(1); opacity: 0.9; }
+                33% { transform: scaleY(1.15) scaleX(0.85); opacity: 1; }
+                66% { transform: scaleY(0.85) scaleX(1.15); opacity: 0.8; }
+            }
+            
+            @keyframes flicker3 {
+                0%, 100% { transform: scaleY(1) scaleX(1); opacity: 0.7; }
+                20% { transform: scaleY(1.2) scaleX(0.8); opacity: 1; }
+                40% { transform: scaleY(0.8) scaleX(1.2); opacity: 0.85; }
+                60% { transform: scaleY(1.1) scaleX(0.9); opacity: 0.9; }
+                80% { transform: scaleY(0.9) scaleX(1.1); opacity: 0.75; }
+            }
+            
+            @keyframes float-ember {
+                0% { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
+                50% { transform: translateY(-100px) translateX(20px) scale(0.8); opacity: 0.7; }
+                100% { transform: translateY(-200px) translateX(-10px) scale(0.5); opacity: 0; }
+            }
+            
+            @keyframes fire-pulse {
+                0%, 100% { transform: scale(1); text-shadow: 0 0 30px rgba(255, 69, 0, 0.8), 0 0 60px rgba(255, 140, 0, 0.4); }
+                50% { transform: scale(1.1); text-shadow: 0 0 40px rgba(255, 69, 0, 1), 0 0 80px rgba(255, 140, 0, 0.6); }
+            }
+            
+            @keyframes rotate-border {
+                0% { transform: translateX(-50%) rotate(0deg); }
+                100% { transform: translateX(-50%) rotate(360deg); }
+            }
+        </style>
+    </div>
+    
+</body>
+   
+</html>

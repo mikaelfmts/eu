@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Currículo - Mikael Ferreira</title>
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0066ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Gerador CV">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Estilos específicos do gerador de currículo -->
+    <link rel="stylesheet" href="assets/css/curriculo-generator-styles.css">
+    
+    <!-- Scripts -->
+    <script type="module" src="assets/js/auth.js"></script>
+    <script type="module" src="assets/js/curriculo-generator.js"></script>
+</head>
+<body class="theme-lol">
+    <!-- Container de partículas -->
+    <div class="particles-container"></div>
+    
+    <div class="cv-generator-container">
+        <!-- Cabeçalho -->
+        <header class="cv-header flex justify-between items-center">
+            <div>
+                <h1 class="cv-title">Gerador de Currículo</h1>
+                <p class="cv-subtitle">Crie e personalize seu currículo profissional</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <span id="user-email" class="text-sm text-gray-400"></span>
+                <a href="../admin.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar ao Painel
+                </a>
+            </div>
+        </header>
+        
+        <!-- Container principal -->
+        <div class="cv-main-container">
+            <!-- Seção de edição -->
+            <div class="cv-editor-section">
+                <!-- Container de navegação por abas -->
+                <div class="tabs-container">
+                    <ul class="tabs">
+                        <li class="tab-item active" data-tab="personal">Dados Pessoais</li>
+                        <li class="tab-item" data-tab="experience">Experiência</li>
+                        <li class="tab-item" data-tab="education">Educação</li>
+                        <li class="tab-item" data-tab="projects">Projetos</li>
+                        <li class="tab-item" data-tab="certificates">Certificados</li>
+                        <li class="tab-item" data-tab="skills">Habilidades</li>
+                        <li class="tab-item" data-tab="languages">Idiomas</li>
+                        <li class="tab-item" data-tab="appearance">Aparência</li>
+                    </ul>
+                </div>
+                
+                <!-- Conteúdo das abas -->
+                <!-- Aba de dados pessoais -->
+                <div id="content-personal" class="tab-content active">
+                    <form id="personal-form" class="cv-form">
+                        <div class="form-group">
+                            <label for="name">Nome Completo</label>
+                            <input type="text" id="name" class="form-control" placeholder="Seu nome completo">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="title">Título Profissional</label>
+                            <input type="text" id="title" class="form-control" placeholder="Ex: Desenvolvedor Web Full Stack">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">E-mail</label>
+                            <input type="email" id="email" class="form-control" placeholder="seu.email@exemplo.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Telefone</label>
+                            <input type="text" id="phone" class="form-control" placeholder="(XX) XXXXX-XXXX">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="location">Localização</label>
+                            <input type="text" id="location" class="form-control" placeholder="Cidade, Estado">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="website">Website</label>
+                            <input type="url" id="website" class="form-control" placeholder="https://seusite.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="github">GitHub</label>
+                            <input type="url" id="github" class="form-control" placeholder="https://github.com/seuperfil">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="linkedin">LinkedIn</label>
+                            <input type="url" id="linkedin" class="form-control" placeholder="https://linkedin.com/in/seuperfil">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="bio">Biografia</label>
+                            <textarea id="bio" class="form-control" placeholder="Uma breve descrição sobre você e seus objetivos profissionais"></textarea>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Aba de experiência -->
+                <div id="content-experience" class="tab-content">
+                    <div class="text-right mb-4">
+                        <button id="add-experience" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Adicionar Experiência
+                        </button>
+                    </div>
+                    
+                    <div id="experience-container" class="cv-form">
+                        <!-- Itens de experiência serão adicionados aqui dinamicamente -->
+                    </div>
+                </div>
+                
+                <!-- Aba de educação -->
+                <div id="content-education" class="tab-content">
+                    <div class="text-right mb-4">
+                        <button id="add-education" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Adicionar Educação
+                        </button>
+                    </div>
+                    
+                    <div id="education-container" class="cv-form">
+                        <!-- Itens de educação serão adicionados aqui dinamicamente -->
+                    </div>
+                </div>
+                
+                <!-- Aba de projetos -->
+                <div id="content-projects" class="tab-content">
+                    <div class="text-right mb-4">
+                        <button id="add-project" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Adicionar Projeto
+                        </button>
+                    </div>
+                    
+                    <div id="projects-container" class="cv-form">
+                        <!-- Itens de projetos serão adicionados aqui dinamicamente -->
+                    </div>
+                    
+                    <div class="form-group mb-4">
+                        <label>Importar Projetos</label>
+                        <div class="flex gap-2 mt-2">
+                            <button id="import-github" class="btn btn-secondary">
+                                <i class="fab fa-github"></i> Importar do GitHub
+                            </button>
+                            <button id="import-site" class="btn btn-secondary">
+                                <i class="fas fa-globe"></i> Importar do Site
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Aba de certificados -->
+                <div id="content-certificates" class="tab-content">
+                    <div class="text-right mb-4">
+                        <button id="add-certificate" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Adicionar Certificado
+                        </button>
+                    </div>
+                    
+                    <div id="certificates-container" class="cv-form">
+                        <!-- Itens de certificados serão adicionados aqui dinamicamente -->
+                    </div>
+                    
+                    <div class="form-group mb-4">
+                        <label>Importar Certificados</label>
+                        <div class="mt-2">
+                            <button id="import-certificates" class="btn btn-secondary">
+                                <i class="fas fa-certificate"></i> Importar do Firebase
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Aba de habilidades -->
+                <div id="content-skills" class="tab-content">
+                    <div class="form-group">
+                        <label>Adicionar Nova Habilidade</label>
+                        <form id="add-skill-form" class="flex gap-2">
+                            <input type="text" id="new-skill" class="form-control flex-1" placeholder="Digite uma habilidade">
+                            <button type="submit" class="btn btn-primary">Adicionar</button>
+                        </form>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Suas Habilidades</label>
+                        <div id="skills-container" class="skills-container">
+                            <!-- Habilidades serão adicionadas aqui dinamicamente -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mt-4">
+                        <label>Importar Habilidades</label>
+                        <div class="flex gap-2 mt-2">
+                            <button id="import-website-skills" class="btn btn-secondary">
+                                <i class="fas fa-file-code"></i> Do Website
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Aba de idiomas -->
+                <div id="content-languages" class="tab-content">
+                    <div class="text-right mb-4">
+                        <button id="add-language" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Adicionar Idioma
+                        </button>
+                    </div>
+                    
+                    <div id="languages-container" class="cv-form">
+                        <!-- Itens de idiomas serão adicionados aqui dinamicamente -->
+                    </div>
+                </div>
+                
+                <!-- Aba de aparência -->
+                <div id="content-appearance" class="tab-content">
+                    <div class="form-group">
+                        <label>Tema</label>
+                        <div class="theme-options">
+                            <div class="theme-option theme-lol active" data-theme="theme-lol">
+                                <div class="theme-name">League of Legends</div>
+                            </div>
+                            <div class="theme-option theme-corporate" data-theme="theme-corporate">
+                                <div class="theme-name">Corporativo</div>
+                            </div>
+                            <div class="theme-option theme-minimal" data-theme="theme-minimal">
+                                <div class="theme-name">Minimalista</div>
+                            </div>
+                            <div class="theme-option theme-creative" data-theme="theme-creative">
+                                <div class="theme-name">Criativo</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="template-selector">Template</label>
+                        <select id="template-selector" class="form-control">                            <option value="modern">Moderno</option>
+                            <option value="classic">Clássico</option>
+                            <option value="creative">Criativo</option>
+                            <option value="minimalist">Minimalista</option>
+                            <option value="professional">Profissional</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Barra de botões de ação -->                <div class="btn-group mt-6">
+                    <button id="save-cv" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar Currículo
+                    </button>
+                    <button id="export-cv" class="btn btn-secondary">
+                        <i class="fas fa-file-export"></i> Exportar JSON
+                    </button>
+                    <button id="import-cv" class="btn btn-info">
+                        <i class="fas fa-file-import"></i> Importar JSON
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Seção de visualização -->
+            <div class="cv-preview-section">
+                <div class="preview-controls">
+                    <div id="print-cv" class="preview-control" title="Imprimir">
+                        <i class="fas fa-print"></i>
+                    </div>
+                    <div id="download-cv" class="preview-control" title="Download PDF">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                </div>
+                
+                <div id="cv-preview-pane" class="cv-preview-pane">
+                    <!-- A visualização do currículo será renderizada aqui -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast de notificação -->
+    <div id="toast-container" class="toast-container"></div>
+    
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" class="loading-spinner hidden"></div>
+    
+    <!-- Sistema de Partículas -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const particlesContainer = document.querySelector('.particles-container');
+            const particleCount = 30;
+            
+            // Criar partículas
+            for (let i = 0; i < particleCount; i++) {
+                createParticle();
+            }
+            
+            function createParticle() {
+                const particle = document.createElement('div');
+                
+                // Selecionar tipo aleatório
+                const types = ['golden', 'light', 'dark'];
+                const typeClass = types[Math.floor(Math.random() * types.length)];
+                
+                // Configurar propriedades da partícula
+                particle.className = `particle ${typeClass}`;
+                
+                // Posição aleatória
+                const size = Math.random() * 6 + 2; // 2px a 8px
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                
+                // Posicionar no topo aleatoriamente
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = -10 + 'px';
+                
+                // Configurar animação
+                const duration = Math.random() * 10 + 15; // 15-25s
+                const delay = Math.random() * 5; // 0-5s
+                
+                particle.style.animation = `floatDown ${duration}s ${delay}s infinite linear`;
+                
+                // Adicionar ao container
+                particlesContainer.appendChild(particle);
+                
+                // Criar animação em keyframes
+                if (!document.querySelector('#particle-animation')) {
+                    const style = document.createElement('style');
+                    style.id = 'particle-animation';
+                    style.innerHTML = `
+                        @keyframes floatDown {
+                            0% {
+                                transform: translateY(-10px) rotate(0deg);
+                                opacity: 0;
+                            }
+                            10% {
+                                opacity: 1;
+                            }
+                            90% {
+                                opacity: 1;
+                            }
+                            100% {
+                                transform: translateY(${window.innerHeight}px) rotate(360deg);
+                                opacity: 0;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

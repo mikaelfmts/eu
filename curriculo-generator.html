@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Currículo - Mikael Ferreira</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+      <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- jsPDF para geração de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="assets/css/curriculo-generator-styles.css">
+    
+    <!-- Scripts -->
+    <script type="module" src="assets/js/auth.js"></script>
+    <script type="module" src="assets/js/curriculo-generator.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Container de partículas -->
+    <div class="particles-container"></div>
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">
+                <i class="fas fa-file-alt mr-2"></i>Gerador de Currículo
+            </h1>
+            <div class="flex space-x-4">
+                <a href="admin.html" class="bg-blue-500 hover:bg-blue-700 px-4 py-2 rounded">
+                    <i class="fas fa-arrow-left mr-2"></i>Voltar ao Admin
+                </a>
+                <button id="logout-btn" class="bg-red-500 hover:bg-red-700 px-4 py-2 rounded">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Painel de Configurações -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <h2 class="text-xl font-bold mb-4">
+                        <i class="fas fa-cogs mr-2"></i>Configurações do Currículo
+                    </h2>
+                    
+                    <!-- Tema do Currículo -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2">Tema do Currículo</label>
+                        <select id="curriculum-theme" class="w-full p-2 border rounded-lg">
+                            <option value="professional">Profissional</option>
+                            <option value="modern">Moderno</option>
+                            <option value="creative">Criativo</option>
+                            <option value="minimalist">Minimalista</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Cor Principal -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2">Cor Principal</label>
+                        <input type="color" id="primary-color" value="#0066ff" class="w-full h-10 border rounded-lg">
+                    </div>
+                    
+                    <!-- Formato -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2">Formato</label>
+                        <select id="format-type" class="w-full p-2 border rounded-lg">
+                            <option value="a4">A4 (210 x 297 mm)</option>
+                            <option value="letter">Carta (216 x 279 mm)</option>
+                            <option value="web">Web (Responsivo)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Ações -->
+                    <div class="space-y-2">
+                        <button id="save-curriculum" class="w-full bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded-lg">
+                            <i class="fas fa-save mr-2"></i>Salvar Currículo
+                        </button>
+                        <button id="preview-curriculum" class="w-full bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-lg">
+                            <i class="fas fa-eye mr-2"></i>Visualizar
+                        </button>
+                        
+                        <!-- Menu Dropdown para Exportação -->
+                        <div class="relative">
+                            <button id="export-dropdown-btn" class="w-full bg-purple-500 hover:bg-purple-700 text-white py-2 px-4 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-download mr-2"></i>Exportar <i class="fas fa-chevron-down ml-2"></i>
+                            </button>
+                            <div id="export-dropdown" class="hidden absolute top-full left-0 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 z-10">
+                                <button onclick="downloadPDF()" class="w-full text-left px-4 py-2 hover:bg-gray-100 border-b">
+                                    <i class="fas fa-file-pdf mr-2 text-red-500"></i>PDF
+                                </button>
+                                <button onclick="exportCurriculum('docx')" class="w-full text-left px-4 py-2 hover:bg-gray-100 border-b">
+                                    <i class="fas fa-file-word mr-2 text-blue-500"></i>Word (.doc)
+                                </button>
+                                <button onclick="exportCurriculum('txt')" class="w-full text-left px-4 py-2 hover:bg-gray-100 border-b">
+                                    <i class="fas fa-file-alt mr-2 text-gray-500"></i>Texto (.txt)
+                                </button>
+                                <button onclick="exportCurriculum('json')" class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-file-code mr-2 text-green-500"></i>JSON (backup)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Fonte de Dados -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold mb-4">
+                        <i class="fas fa-database mr-2"></i>Fonte de Dados
+                    </h3>
+                    <div class="space-y-2">
+                        <button id="load-from-site" class="w-full bg-purple-500 hover:bg-purple-700 text-white py-2 px-4 rounded-lg text-sm">
+                            <i class="fas fa-globe mr-2"></i>Carregar do Site
+                        </button>
+                        <button id="load-from-github" class="w-full bg-gray-800 hover:bg-gray-900 text-white py-2 px-4 rounded-lg text-sm">
+                            <i class="fab fa-github mr-2"></i>Carregar do GitHub
+                        </button>
+                        <button id="reset-form" class="w-full bg-orange-500 hover:bg-orange-700 text-white py-2 px-4 rounded-lg text-sm">
+                            <i class="fas fa-redo mr-2"></i>Resetar Formulário
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Templates Predefinidos -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <h2 class="text-xl font-bold mb-4">
+                        <i class="fas fa-layer-group mr-2"></i>Templates Profissionais
+                    </h2>
+                    <p class="text-sm text-gray-600 mb-4">Aplique templates predefinidos para diferentes áreas</p>
+                    
+                    <div class="grid grid-cols-1 gap-3">
+                        <button onclick="applyTemplate('developer')" class="template-btn bg-blue-50 border border-blue-200 hover:bg-blue-100 p-3 rounded-lg text-left transition">
+                            <div class="font-medium text-blue-800">💻 Desenvolvedor</div>
+                            <div class="text-sm text-blue-600">JavaScript, React, Node.js</div>
+                        </button>
+                        
+                        <button onclick="applyTemplate('designer')" class="template-btn bg-purple-50 border border-purple-200 hover:bg-purple-100 p-3 rounded-lg text-left transition">
+                            <div class="font-medium text-purple-800">🎨 Designer UX/UI</div>
+                            <div class="text-sm text-purple-600">Figma, Photoshop, Design Thinking</div>
+                        </button>
+                        
+                        <button onclick="applyTemplate('marketing')" class="template-btn bg-green-50 border border-green-200 hover:bg-green-100 p-3 rounded-lg text-left transition">
+                            <div class="font-medium text-green-800">📈 Marketing Digital</div>
+                            <div class="text-sm text-green-600">SEO, Google Ads, Analytics</div>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Gerenciamento de Versões -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <h2 class="text-xl font-bold mb-4">
+                        <i class="fas fa-code-branch mr-2"></i>Versões do Currículo
+                    </h2>
+                    
+                    <!-- Salvar nova versão -->
+                    <div class="mb-4">
+                        <div class="flex gap-2">
+                            <input type="text" id="version-name" placeholder="Nome da versão..." class="flex-1 p-2 border rounded-lg text-sm">
+                            <button onclick="saveNewVersion()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-sm">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista de versões -->
+                    <div id="versions-list" class="max-h-40 overflow-y-auto">
+                        <!-- Versões serão renderizadas aqui -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulário de Edição -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-bold mb-6">
+                        <i class="fas fa-edit mr-2"></i>Editar Informações
+                    </h2>
+                    
+                    <!-- Tabs -->
+                    <div class="border-b border-gray-200 mb-6">
+                        <nav class="flex space-x-8">
+                            <button class="tab-button active" data-tab="personal">
+                                <i class="fas fa-user mr-2"></i>Pessoais
+                            </button>
+                            <button class="tab-button" data-tab="experience">
+                                <i class="fas fa-briefcase mr-2"></i>Experiência
+                            </button>
+                            <button class="tab-button" data-tab="education">
+                                <i class="fas fa-graduation-cap mr-2"></i>Educação
+                            </button>
+                            <button class="tab-button" data-tab="skills">
+                                <i class="fas fa-code mr-2"></i>Habilidades
+                            </button>
+                            <button class="tab-button" data-tab="projects">
+                                <i class="fas fa-project-diagram mr-2"></i>Projetos
+                            </button>
+                            <button class="tab-button" data-tab="certificates">
+                                <i class="fas fa-certificate mr-2"></i>Certificados
+                            </button>
+                        </nav>
+                    </div>
+                    
+                    <!-- Tab Content -->
+                    <div id="tab-content">
+                        
+                        <!-- Informações Pessoais -->
+                        <div id="personal-tab" class="tab-panel active">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Nome Completo</label>
+                                    <input type="text" id="full-name" class="w-full p-2 border rounded-lg" placeholder="Seu nome completo">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Título/Cargo</label>
+                                    <input type="text" id="job-title" class="w-full p-2 border rounded-lg" placeholder="Desenvolvedor Web Full Stack">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Email</label>
+                                    <input type="email" id="email" class="w-full p-2 border rounded-lg" placeholder="seu@email.com">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Telefone</label>
+                                    <input type="tel" id="phone" class="w-full p-2 border rounded-lg" placeholder="(00) 00000-0000">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">LinkedIn</label>
+                                    <input type="url" id="linkedin" class="w-full p-2 border rounded-lg" placeholder="https://linkedin.com/in/seu-perfil">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">GitHub</label>
+                                    <input type="url" id="github" class="w-full p-2 border rounded-lg" placeholder="https://github.com/seu-usuario">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium mb-2">Sobre Mim</label>
+                                    <textarea id="about" rows="4" class="w-full p-2 border rounded-lg" placeholder="Descreva brevemente sua experiência e objetivos profissionais..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Experiência Profissional -->
+                        <div id="experience-tab" class="tab-panel">
+                            <div class="mb-4">
+                                <button id="add-experience" class="bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded-lg">
+                                    <i class="fas fa-plus mr-2"></i>Adicionar Experiência
+                                </button>
+                            </div>
+                            <div id="experience-list" class="space-y-4">
+                                <!-- Experiências serão adicionadas aqui dinamicamente -->
+                            </div>
+                        </div>
+                        
+                        <!-- Educação -->
+                        <div id="education-tab" class="tab-panel">
+                            <div class="mb-4">
+                                <button id="add-education" class="bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded-lg">
+                                    <i class="fas fa-plus mr-2"></i>Adicionar Educação
+                                </button>
+                            </div>
+                            <div id="education-list" class="space-y-4">
+                                <!-- Educação será adicionada aqui dinamicamente -->
+                            </div>
+                        </div>
+                        
+                        <!-- Habilidades -->
+                        <div id="skills-tab" class="tab-panel">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold mb-3">Habilidades Técnicas</h4>
+                                    <div class="mb-4">
+                                        <button id="add-technical-skill" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded text-sm">
+                                            <i class="fas fa-plus mr-1"></i>Adicionar
+                                        </button>
+                                    </div>
+                                    <div id="technical-skills-list" class="space-y-2">
+                                        <!-- Habilidades técnicas serão adicionadas aqui -->
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold mb-3">Habilidades Pessoais</h4>
+                                    <div class="mb-4">
+                                        <button id="add-soft-skill" class="bg-purple-500 hover:bg-purple-700 text-white py-1 px-3 rounded text-sm">
+                                            <i class="fas fa-plus mr-1"></i>Adicionar
+                                        </button>
+                                    </div>
+                                    <div id="soft-skills-list" class="space-y-2">
+                                        <!-- Habilidades pessoais serão adicionadas aqui -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Projetos -->
+                        <div id="projects-tab" class="tab-panel">
+                            <div class="mb-4">
+                                <button id="add-project" class="bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded-lg">
+                                    <i class="fas fa-plus mr-2"></i>Adicionar Projeto
+                                </button>
+                                <button id="load-github-projects" class="bg-gray-800 hover:bg-gray-900 text-white py-2 px-4 rounded-lg ml-2">
+                                    <i class="fab fa-github mr-2"></i>Carregar do GitHub
+                                </button>
+                            </div>
+                            <div id="projects-list" class="space-y-4">
+                                <!-- Projetos serão adicionados aqui dinamicamente -->
+                            </div>
+                        </div>
+                        
+                        <!-- Certificados -->
+                        <div id="certificates-tab" class="tab-panel">
+                            <div class="mb-4">
+                                <button id="add-certificate" class="bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded-lg">
+                                    <i class="fas fa-plus mr-2"></i>Adicionar Certificado
+                                </button>
+                                <button id="load-site-certificates" class="bg-purple-500 hover:bg-purple-700 text-white py-2 px-4 rounded-lg ml-2">
+                                    <i class="fas fa-globe mr-2"></i>Carregar do Site
+                                </button>
+                            </div>
+                            <div id="certificates-list" class="space-y-4">
+                                <!-- Certificados serão adicionados aqui dinamicamente -->
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="preview-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 p-4">
+        <div class="bg-white rounded-lg shadow-lg max-w-6xl mx-auto mt-8 max-h-full overflow-auto">
+            <div class="p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold">Preview do Currículo</h3>
+                    <button id="close-preview" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="preview-content" class="p-6">
+                <!-- Preview será gerado aqui -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Sistema de Partículas -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const particlesContainer = document.querySelector('.particles-container');
+            
+            function createParticle() {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const types = ['golden', 'light', 'dark'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                particle.classList.add(type);
+                
+                const size = Math.random() * 4 + 2;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                
+                particle.style.left = Math.random() * window.innerWidth + 'px';
+                particle.style.top = window.innerHeight + 'px';
+                
+                const duration = Math.random() * 10000 + 5000;
+                const horizontalMovement = (Math.random() - 0.5) * 200;
+                
+                particle.style.animation = `particleFloat ${duration}ms linear forwards`;
+                particle.style.setProperty('--horizontal-movement', horizontalMovement + 'px');
+                
+                particlesContainer.appendChild(particle);
+                
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, duration);
+            }
+            
+            // Criar partículas
+            setInterval(createParticle, 500);
+            
+            // CSS para animação das partículas
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes particleFloat {
+                    0% {
+                        transform: translateY(0) translateX(0);
+                        opacity: 0;
+                    }
+                    10% {
+                        opacity: 1;
+                    }
+                    90% {
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translateY(-${window.innerHeight + 100}px) translateX(var(--horizontal-movement));
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>

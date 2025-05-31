@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curriculum - Mikael Ferreira</title>
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../assets/css/styles.css">
+
+    <!-- Font Awesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Script -->
+    <script type="module" src="../assets/js/script.js"></script>
+    
+    <!-- Script para carregar currículo do Firebase -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore, doc, getDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
+            authDomain: "mikaelfmts.firebaseapp.com",
+            projectId: "mikaelfmts",
+            storageBucket: "mikaelfmts.firebasestorage.app",
+            messagingSenderId: "516762612351",
+            appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // ID do usuário administrador (você pode configurar isso)
+        const ADMIN_USER_ID = 'admin'; // Ou use um ID específico do Firebase Auth
+        
+        async function loadCurriculum() {
+            try {
+                const curriculumRef = doc(db, 'curriculum', ADMIN_USER_ID);
+                const curriculumDoc = await getDoc(curriculumRef);
+                
+                if (curriculumDoc.exists()) {
+                    const data = curriculumDoc.data();
+                    renderCurriculum(data);
+                } else {
+                    showNoDataMessage();
+                }
+            } catch (error) {
+                console.error('Erro ao carregar currículo:', error);
+                showNoDataMessage();
+            }
+        }
+        
+        function renderCurriculum(data) {
+            hideLoadingIndicator();
+            
+            // Renderizar dados pessoais
+            renderPersonalData(data.personalData || {});
+            
+            // Renderizar seções
+            renderExperience(data.experience || []);
+            renderProjects(data.projects || []);
+            renderSkills(data.skills || []);
+            renderCertificates(data.certificates || []);
+            
+            // Aplicar configurações de estilo
+            applyCurriculumSettings(data.settings || {});
+            
+            // Mostrar conteúdo
+            document.getElementById('curriculum-content').style.display = 'block';
+        }
+        
+        function renderPersonalData(personalData) {
+            const nameElement = document.getElementById('curriculum-name');
+            const titleElement = document.getElementById('curriculum-title');
+            const contactElement = document.getElementById('curriculum-contact');
+            const summaryElement = document.getElementById('curriculum-summary');
+            
+            if (nameElement) {
+                nameElement.textContent = personalData.nomeCompleto || 'Mikael Ferreira';
+            }
+            
+            if (titleElement) {
+                titleElement.innerHTML = personalData.tituloProfissional || 'Desenvolvedor Web Full Stack';
+            }
+            
+            if (contactElement && (personalData.email || personalData.telefone || personalData.localizacao)) {
+                let contactHtml = '<div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">';
+                
+                if (personalData.email) {
+                    contactHtml += `<span><i class="fas fa-envelope"></i> ${personalData.email}</span>`;
+                }
+                if (personalData.telefone) {
+                    contactHtml += `<span><i class="fas fa-phone"></i> ${personalData.telefone}</span>`;
+                }
+                if (personalData.localizacao) {
+                    contactHtml += `<span><i class="fas fa-map-marker-alt"></i> ${personalData.localizacao}</span>`;
+                }
+                if (personalData.linkedin) {
+                    contactHtml += `<a href="${personalData.linkedin}" target="_blank" style="color: #0066cc;"><i class="fab fa-linkedin"></i> LinkedIn</a>`;
+                }
+                if (personalData.github) {
+                    contactHtml += `<a href="${personalData.github}" target="_blank" style="color: #333;"><i class="fab fa-github"></i> GitHub</a>`;
+                }
+                
+                contactHtml += '</div>';
+                contactElement.innerHTML = contactHtml;
+            }
+            
+            if (summaryElement && personalData.resumoProfissional) {
+                summaryElement.innerHTML = `<p style="font-style: italic; color: #666; text-align: center;">${personalData.resumoProfissional}</p>`;
+            }
+        }
+        
+        function renderExperience(experience) {
+            const section = document.getElementById('experience-section');
+            const list = document.getElementById('experience-list');
+            
+            if (experience.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            section.style.display = 'block';
+            list.innerHTML = '';
+            
+            experience.forEach(exp => {
+                const expElement = document.createElement('div');
+                expElement.className = 'projeto';
+                expElement.innerHTML = `
+                    <h4>${exp.cargo}</h4>
+                    <p style="color: #0066cc; font-weight: bold; margin: 0.5rem 0;">${exp.empresa}</p>
+                    <p style="color: #666; margin: 0.5rem 0; font-size: 0.9rem;">${exp.periodo}</p>
+                    ${exp.descricao ? `<p style="margin-top: 0.5rem;">${exp.descricao}</p>` : ''}
+                `;
+                list.appendChild(expElement);
+            });
+        }
+        
+        function renderProjects(projects) {
+            const section = document.getElementById('projects-section');
+            const list = document.getElementById('projects-list');
+            
+            if (projects.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            section.style.display = 'block';
+            list.innerHTML = '';
+            
+            projects.forEach(project => {
+                const projectElement = document.createElement('div');
+                projectElement.className = 'projeto';
+                projectElement.innerHTML = `
+                    <h4>${project.nome}</h4>
+                    <p style="margin: 0.5rem 0;">${project.descricao}</p>
+                    ${project.tecnologias && project.tecnologias.length > 0 ? `
+                        <p style="margin: 0.5rem 0;"><strong>Tecnologias:</strong> ${project.tecnologias.join(', ')}</p>
+                    ` : ''}
+                    ${project.link ? `
+                        <a href="${project.link}" target="_blank" style="color: #0066cc; text-decoration: none;">
+                            <i class="fas fa-external-link-alt"></i> Ver projeto
+                        </a>
+                    ` : ''}
+                `;
+                list.appendChild(projectElement);
+            });
+        }
+        
+        function renderSkills(skills) {
+            const section = document.getElementById('skills-section');
+            const list = document.getElementById('skills-list');
+            
+            if (skills.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            section.style.display = 'block';
+            list.innerHTML = '';
+            
+            // Criar grid de habilidades
+            list.style.display = 'grid';
+            list.style.gridTemplateColumns = 'repeat(auto-fit, minmax(200px, 1fr))';
+            list.style.gap = '1rem';
+            list.style.marginTop = '1rem';
+            
+            skills.forEach(skill => {
+                const skillElement = document.createElement('div');
+                skillElement.style.display = 'flex';
+                skillElement.style.justifyContent = 'space-between';
+                skillElement.style.alignItems = 'center';
+                skillElement.style.padding = '0.5rem';
+                skillElement.style.background = '#f8f9fa';
+                skillElement.style.borderRadius = '8px';
+                skillElement.style.border = '1px solid #e9ecef';
+                
+                skillElement.innerHTML = `
+                    <span style="font-weight: 500;">${skill.nome}</span>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 60px; height: 8px; background: #e9ecef; border-radius: 4px; overflow: hidden;">
+                            <div style="width: ${skill.nivel || 0}%; height: 100%; background: #0066cc; transition: width 0.3s ease;"></div>
+                        </div>
+                        <span style="font-size: 0.8rem; color: #666;">${skill.nivel || 0}%</span>
+                    </div>
+                `;
+                list.appendChild(skillElement);
+            });
+        }
+        
+        function renderCertificates(certificates) {
+            const section = document.getElementById('certificates-section');
+            const list = document.getElementById('certificates-list');
+            
+            if (certificates.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            section.style.display = 'block';
+            list.innerHTML = '';
+            
+            certificates.forEach(cert => {
+                const certElement = document.createElement('div');
+                certElement.className = 'projeto';
+                certElement.innerHTML = `
+                    <h4>${cert.titulo}</h4>
+                    <p style="color: #0066cc; font-weight: bold; margin: 0.5rem 0;">${cert.instituicao}</p>
+                    ${cert.data ? `<p style="color: #666; margin: 0.5rem 0; font-size: 0.9rem;">${cert.data}</p>` : ''}
+                    ${cert.status ? `
+                        <span style="display: inline-block; padding: 0.25rem 0.5rem; font-size: 0.8rem; border-radius: 12px; 
+                                     background: ${cert.status === 'concluido' ? '#d4edda' : '#fff3cd'}; 
+                                     color: ${cert.status === 'concluido' ? '#155724' : '#856404'};">
+                            ${cert.status === 'concluido' ? 'Concluído' : 'Em Progresso'}
+                        </span>
+                    ` : ''}
+                    ${cert.url ? `
+                        <a href="${cert.url}" target="_blank" style="color: #0066cc; text-decoration: none; margin-left: 1rem;">
+                            <i class="fas fa-external-link-alt"></i> Ver certificado
+                        </a>
+                    ` : ''}
+                `;
+                list.appendChild(certElement);
+            });
+        }
+        
+        function applyCurriculumSettings(settings) {
+            if (!settings) return;
+            
+            const root = document.documentElement;
+            
+            // Aplicar cor primária
+            if (settings.primaryColor) {
+                root.style.setProperty('--primary-color', settings.primaryColor);
+            }
+            
+            // Aplicar fonte
+            if (settings.fontFamily) {
+                document.body.style.fontFamily = `'${settings.fontFamily}', sans-serif`;
+            }
+            
+            // Aplicar tamanho da fonte
+            if (settings.fontSize) {
+                const sizes = {
+                    small: '0.9rem',
+                    medium: '1rem',
+                    large: '1.1rem'
+                };
+                document.body.style.fontSize = sizes[settings.fontSize] || '1rem';
+            }
+        }
+        
+        function hideLoadingIndicator() {
+            const loading = document.getElementById('curriculum-loading');
+            if (loading) {
+                loading.style.display = 'none';
+            }
+        }
+        
+        function showNoDataMessage() {
+            hideLoadingIndicator();
+            const noDataMessage = document.getElementById('no-data-message');
+            if (noDataMessage) {
+                noDataMessage.style.display = 'block';
+            }
+        }
+        
+        // Carregar currículo quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            // Aguardar um pouco para garantir que a página esteja totalmente carregada
+            setTimeout(loadCurriculum, 1000);
+        });
+        
+        // Verificar manutenção antes de carregar o currículo
+        function checkMaintenanceStatus() {
+            try {
+                const maintenanceRef = doc(db, 'configuracoes', 'manutencao');
+                
+                onSnapshot(maintenanceRef, (docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const data = docSnapshot.data();
+                        if (data.ativo) {
+                            window.location.href = '../index.html';
+                        }
+                    } else {
+                        // Verificar localStorage como fallback
+                        checkMaintenanceFromLocal();
+                    }
+                }, (error) => {
+                    console.warn('Erro ao verificar manutenção no Firebase, usando localStorage:', error);
+                    checkMaintenanceFromLocal();
+                });
+                
+            } catch (error) {
+                console.warn('Erro ao conectar com Firebase, verificando localStorage:', error);
+                checkMaintenanceFromLocal();
+            }
+        }
+        
+        function checkMaintenanceFromLocal() {
+            const maintenanceData = localStorage.getItem('maintenanceStatus');
+            if (maintenanceData) {
+                const data = JSON.parse(maintenanceData);
+                if (data.ativo) {
+                    window.location.href = '../index.html';
+                }
+            }
+        }
+        
+        // Verificar manutenção ao carregar
+        function checkMaintenanceStatus() {
+            try {
+                const maintenanceRef = doc(db, 'configuracoes', 'manutencao');
+                
+                onSnapshot(maintenanceRef, (docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const data = docSnapshot.data();
+                        if (data.ativo) {
+                            window.location.href = '../index.html';
+                        }
+                    } else {
+                        // Verificar localStorage como fallback
+                        checkMaintenanceFromLocal();
+                    }
+                }, (error) => {
+                    console.warn('Erro ao verificar manutenção no Firebase, usando localStorage:', error);
+                    checkMaintenanceFromLocal();
+                });
+            } catch (error) {
+                console.warn('Erro ao conectar Firebase, usando localStorage:', error);
+                checkMaintenanceFromLocal();
+            }
+        }
+        
+        function checkMaintenanceFromLocal() {
+            try {
+                const stored = localStorage.getItem('maintenanceStatus');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    if (data.ativo) {
+                        window.location.href = '../index.html';
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao verificar localStorage:', error);
+            }
+        }
+        
+        // Carregar currículo e verificar manutenção ao carregar
+        window.addEventListener('load', () => {
+            loadCurriculum();
+            checkMaintenanceStatus();
+        });
+    </script>
+</head>
+<body>
+    <!-- Container de partículas -->
+    <div class="particles-container"></div>
+
+    <!-- Foto do Usuário (Agora Aciona o Menu) -->
+    <div class="foto-perfil" onclick="toggleMenu()">
+        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
+    </div>
+
+     <!-- Menu Lateral Oculto -->
+    <nav id="menu-lateral" class="menu-fechado">
+        <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="curriculum.html">Curriculum</a></li>
+            <li><a href="projetos.html">All Uploaded Projects</a></li>
+            <li><a href="mentors.html">Mentors</a></li>
+            <li><a href="certificates-in-progress.html">Certificates in progress</a></li>
+            <li><a href="interactive-projects.html">Interactive Projects</a></li>
+            <li><a href="games.html">Games</a></li>
+        </ul>
+
+        <!-- Bonequinho Dançante -->
+        <div class="bonequinho">
+            <a href="../login.html">
+                <i class="fas fa-user-alt"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Cabeçalho -->
+    <header id="curriculum-header">
+        <h1 id="curriculum-name" class="titulo-principal">
+            Carregando...
+        </h1>
+        <h2 id="curriculum-title" class="subtitulo">
+            Carregando título profissional...
+        </h2>
+        <div id="curriculum-contact" class="contact-info" style="margin-top: 1rem; text-align: center;">
+            <!-- Informações de contato serão carregadas aqui -->
+        </div>
+        <div id="curriculum-summary" class="professional-summary" style="margin-top: 1rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+            <!-- Resumo profissional será carregado aqui -->
+        </div>
+    </header>
+
+    <!-- Seção do Currículo -->
+    <section id="curriculum">
+        <h2>Curriculum</h2>
+
+        <!-- Loading Indicator -->
+        <div id="curriculum-loading" class="text-center py-8">
+            <i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i>
+            <p class="mt-4">Carregando currículo...</p>
+        </div>
+
+        <!-- Curriculum Content -->
+        <div id="curriculum-content" style="display: none;">
+            
+            <!-- Experiência Profissional -->
+            <div id="experience-section" class="categoria" style="display: none;">
+                <h3><i class="fas fa-briefcase mr-2"></i>Experiência Profissional</h3>
+                <div id="experience-list">
+                    <!-- Experiências serão carregadas aqui -->
+                </div>
+            </div>
+
+            <!-- Projetos -->
+            <div id="projects-section" class="categoria" style="display: none;">
+                <h3><i class="fas fa-code mr-2"></i>Projetos</h3>
+                <div id="projects-list">
+                    <!-- Projetos serão carregados aqui -->
+                </div>
+            </div>
+
+            <!-- Habilidades Técnicas -->
+            <div id="skills-section" class="categoria" style="display: none;">
+                <h3><i class="fas fa-cogs mr-2"></i>Habilidades Técnicas</h3>
+                <div id="skills-list" class="skills-grid">
+                    <!-- Habilidades serão carregadas aqui -->
+                </div>
+            </div>
+
+            <!-- Certificados -->
+            <div id="certificates-section" class="categoria" style="display: none;">
+                <h3><i class="fas fa-certificate mr-2"></i>Certificados e Educação</h3>
+                <div id="certificates-list">
+                    <!-- Certificados serão carregados aqui -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Mensagem quando não há dados -->
+        <div id="no-data-message" class="text-center py-8" style="display: none;">
+            <i class="fas fa-info-circle text-3xl text-gray-400"></i>
+            <p class="mt-4 text-gray-600">Nenhum currículo foi configurado ainda.</p>
+        </div>
+    </section>
+
+    <!-- Redes Sociais -->
+    <section class="redes-sociais">
+        <h2>My Social Media</h2>
+        <div class="botoes-redes">
+            <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-btn tiktok">
+                <i class="fab fa-tiktok"></i>
+            </a>
+            <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-btn reddit">
+                <i class="fab fa-reddit"></i>
+            </a>
+            <a href="https://discord.gg/fffen2a4" target="_blank" class="social-btn discord">
+                <i class="fab fa-discord"></i>
+            </a>
+            <a href="https://github.com/mikaelfmts" target="_blank" class="social-btn github">
+                <i class="fab fa-github"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>© 2025 Mikael Ferreira</p>
+        <p>🚀 Make Solutions</p>
+    </footer>
+
+</body>
+</html>

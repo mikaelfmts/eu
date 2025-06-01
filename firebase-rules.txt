@@ -148,3 +148,27 @@ service cloud.firestore {
     }
   }
 }
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Regra para galeria - leitura pública, escrita autenticada
+    match /galeria/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.resource.size <= 50 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*|video/.*');
+    }
+    
+    // Regra para testes - leitura pública, escrita autenticada
+    match /test-cors/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Regra para debug - leitura pública, escrita autenticada
+    match /debug-upload/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}

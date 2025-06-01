@@ -18,15 +18,23 @@ class MinervaUltraAssistant {    constructor() {
             userPreferences: {},
             conversationHistory: []
         };
-        
-        // GitHub Integration System
+          // GitHub Integration System
         this.githubIntegration = {
             enabled: true,
             cache: new Map(),
+            fileContentCache: new Map(), // Cache específico para conteúdo de arquivos
             rateLimit: {
-                requestsPerHour: 50, // Limite conservador para Minerva
+                requestsPerHour: 30, // Reduzido para 30 para incluir análise de arquivos
                 requests: [],
                 isRateLimited: false
+            },
+            fileAnalysis: {
+                enabled: true,
+                maxFileSize: 500 * 1024, // 500KB máximo por arquivo
+                allowedExtensions: ['.js', '.html', '.css', '.json', '.md', '.txt', '.py', '.jsx', '.ts', '.tsx'],
+                cacheDuration: 60 * 60 * 1000, // 1 hora cache para arquivos (mudam menos)
+                priorityFiles: ['README.md', 'package.json', 'index.html', 'script.js'], // Arquivos mais importantes
+                maxFilesPerRepo: 10 // Máximo 10 arquivos por repositório
             },
             lastFetch: 0,
             cacheDuration: 15 * 60 * 1000 // 15 minutos cache para Minerva
@@ -982,13 +990,449 @@ class MinervaUltraAssistant {    constructor() {
                 });
                 
                 this.knowledgeBase.owner.github.technologies = Array.from(technologies);
-            }
-
-            console.log('✅ Minerva: Base de conhecimento enriquecida com dados do GitHub');
+            }            console.log('✅ Minerva: Base de conhecimento enriquecida com dados do GitHub');
             
         } catch (error) {
             console.log('⚠️ Minerva: Erro ao enriquecer base de conhecimento:', error.message);
-        }    }
+        }
+    }
+
+    // ========== GITHUB FILE CONTENT ANALYSIS ==========
+    
+    async getFileContent(repoName, filePath) {
+        const cacheKey = `file_${repoName}_${filePath}`;
+        
+        try {
+            // Verificar cache primeiro (cache de 1 hora para arquivos)
+            if (this.githubIntegration.fileContentCache.has(cacheKey)) {
+                const cached = this.githubIntegration.fileContentCache.get(cacheKey);
+                if (Date.now() - cached.timestamp < this.githubIntegration.fileAnalysis.cacheDuration) {
+                    console.log(`📁 Minerva: Arquivo do cache: ${filePath}`);
+                    return cached.data;
+                }
+            }
+
+            // Verificar se pode fazer request (rate limit ultra-conservador)
+            if (!this.checkGitHubRateLimit()) {
+                console.log('⚠️ Minerva: Rate limit para análise de arquivos');
+                return this.getFileFromCache(cacheKey);
+            }
+
+            // Verificar extensão permitida
+            const extension = filePath.toLowerCase().substring(filePath.lastIndexOf('.'));
+            if (!this.githubIntegration.fileAnalysis.allowedExtensions.includes(extension)) {
+                console.log(`⚠️ Minerva: Extensão não permitida: ${extension}`);
+                return null;
+            }
+
+            // Fazer request ultra-cuidadosa
+            const url = `https://api.github.com/repos/mikaelfmts/${repoName}/contents/${filePath}`;
+            this.addGitHubRateLimitRequest();
+            
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`GitHub API: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            // Verificar tamanho do arquivo
+            if (data.size > this.githubIntegration.fileAnalysis.maxFileSize) {
+                console.log(`⚠️ Minerva: Arquivo muito grande: ${data.size} bytes`);
+                return null;
+            }
+
+            // Decodificar conteúdo base64
+            const content = atob(data.content.replace(/\n/g, ''));
+            
+            // Cache do conteúdo
+            this.githubIntegration.fileContentCache.set(cacheKey, {
+                data: {
+                    content: content,
+                    size: data.size,
+                    path: filePath,
+                    sha: data.sha,
+                    encoding: data.encoding
+                },
+                timestamp: Date.now()
+            });
+
+            console.log(`✅ Minerva: Arquivo analisado: ${filePath} (${data.size} bytes)`);
+            return { content, size: data.size, path: filePath };
+
+        } catch (error) {
+            console.log(`⚠️ Minerva: Erro ao acessar arquivo ${filePath}:`, error.message);
+            return this.getFileFromCache(cacheKey);
+        }
+    }
+
+    getFileFromCache(cacheKey) {
+        if (this.githubIntegration.fileContentCache.has(cacheKey)) {
+            const cached = this.githubIntegration.fileContentCache.get(cacheKey);
+            console.log(`📁 Minerva: Usando arquivo do cache: ${cacheKey}`);
+            return cached.data;
+        }
+        return null;
+    }
+
+    async analyzeProjectStructure(repoName) {
+        const cacheKey = `structure_${repoName}`;
+        
+        try {
+            // Verificar cache
+            if (this.githubIntegration.cache.has(cacheKey)) {
+                const cached = this.githubIntegration.cache.get(cacheKey);
+                if (Date.now() - cached.timestamp < this.githubIntegration.fileAnalysis.cacheDuration) {
+                    return cached.data;
+                }
+            }
+
+            // Rate limit check
+            if (!this.checkGitHubRateLimit()) {
+                return this.getExistingGitHubData(cacheKey);
+            }
+
+            const url = `https://api.github.com/repos/mikaelfmts/${repoName}/git/trees/main?recursive=1`;
+            this.addGitHubRateLimitRequest();
+            
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`GitHub API: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            // Analisar estrutura
+            const structure = {
+                totalFiles: data.tree.length,
+                directories: data.tree.filter(item => item.type === 'tree').map(item => item.path),
+                files: data.tree.filter(item => item.type === 'blob').map(item => ({
+                    path: item.path,
+                    size: item.size
+                })),
+                languages: new Set(),
+                frameworks: new Set()
+            };
+
+            // Detectar tecnologias pela estrutura de arquivos
+            structure.files.forEach(file => {
+                const ext = file.path.toLowerCase().substring(file.path.lastIndexOf('.'));
+                if (ext === '.js') structure.languages.add('JavaScript');
+                if (ext === '.ts') structure.languages.add('TypeScript');
+                if (ext === '.py') structure.languages.add('Python');
+                if (ext === '.html') structure.languages.add('HTML');
+                if (ext === '.css') structure.languages.add('CSS');
+                if (file.path.includes('package.json')) structure.frameworks.add('Node.js');
+                if (file.path.includes('requirements.txt')) structure.frameworks.add('Python');
+            });
+
+            structure.languages = Array.from(structure.languages);
+            structure.frameworks = Array.from(structure.frameworks);
+
+            // Cache da estrutura
+            this.githubIntegration.cache.set(cacheKey, {
+                data: structure,
+                timestamp: Date.now()
+            });
+
+            console.log(`✅ Minerva: Estrutura analisada: ${repoName}`);
+            return structure;
+
+        } catch (error) {
+            console.log(`⚠️ Minerva: Erro ao analisar estrutura de ${repoName}:`, error.message);
+            return this.getExistingGitHubData(cacheKey);
+        }
+    }
+
+    async getProjectDocumentation(repoName) {
+        const priorityFiles = ['README.md', 'readme.md', 'README.txt', 'docs/README.md'];
+        
+        for (const fileName of priorityFiles) {
+            const content = await this.getFileContent(repoName, fileName);
+            if (content && content.content) {
+                return {
+                    fileName: fileName,
+                    content: content.content.substring(0, 2000), // Limitar a 2KB para performance
+                    size: content.size
+                };
+            }
+        }
+        
+        return null;
+    }
+
+    async searchInCode(repoName, searchTerm) {
+        // Implementação básica - buscar em arquivos prioritários
+        const priorityFiles = this.githubIntegration.fileAnalysis.priorityFiles;
+        const results = [];
+        
+        for (const fileName of priorityFiles) {
+            const content = await this.getFileContent(repoName, fileName);
+            if (content && content.content.toLowerCase().includes(searchTerm.toLowerCase())) {
+                results.push({
+                    file: fileName,
+                    matches: this.findMatches(content.content, searchTerm)
+                });
+            }
+        }
+        
+        return results;
+    }
+
+    findMatches(content, searchTerm) {
+        const lines = content.split('\n');
+        const matches = [];
+        
+        lines.forEach((line, index) => {
+            if (line.toLowerCase().includes(searchTerm.toLowerCase())) {
+                matches.push({
+                    lineNumber: index + 1,
+                    line: line.trim()
+                });
+            }
+        });
+          return matches.slice(0, 5); // Máximo 5 matches por arquivo
+    }
+
+    // ========== GITHUB FILE CONTENT ANALYSIS ==========
+    
+    async getFileContent(repoName, filePath) {
+        try {
+            const cacheKey = `file_${repoName}_${filePath}`;
+            
+            // Verificar cache primeiro
+            if (this.githubIntegration.fileContentCache.has(cacheKey)) {
+                const cached = this.githubIntegration.fileContentCache.get(cacheKey);
+                if (Date.now() - cached.timestamp < this.githubIntegration.fileAnalysis.cacheDuration) {
+                    console.log(`📄 Minerva: Usando arquivo do cache: ${filePath}`);
+                    return cached.content;
+                }
+            }
+
+            // Verificar rate limit ultra conservador
+            if (!this.checkGitHubRateLimit()) {
+                console.log('⚠️ Minerva: Rate limit para análise de arquivos, usando cache');
+                return null;
+            }
+
+            // Verificar se outras partes do site estão usando a API
+            const globalRateLimit = this.checkGlobalGitHubUsage();
+            if (!globalRateLimit.canMakeRequest) {
+                console.log('⚠️ Minerva: Site está usando GitHub API, skipping arquivo');
+                return null;
+            }
+
+            const url = `https://api.github.com/repos/mikaelfmts/${repoName}/contents/${filePath}`;
+            this.addGitHubRateLimitRequest();
+            
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`GitHub File API: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            // Verificar tamanho do arquivo
+            if (data.size > this.githubIntegration.fileAnalysis.maxFileSize) {
+                console.log(`⚠️ Minerva: Arquivo muito grande: ${filePath} (${data.size} bytes)`);
+                return null;
+            }
+
+            // Decodificar conteúdo base64
+            const content = atob(data.content);
+            
+            // Cache do conteúdo
+            this.githubIntegration.fileContentCache.set(cacheKey, {
+                content: content,
+                timestamp: Date.now(),
+                size: data.size
+            });
+
+            console.log(`✅ Minerva: Arquivo obtido e em cache: ${filePath}`);
+            return content;
+
+        } catch (error) {
+            console.log(`⚠️ Minerva: Erro ao buscar arquivo ${filePath}:`, error.message);
+            return null;
+        }
+    }
+
+    async analyzeProjectStructure(repoName) {
+        try {
+            const cacheKey = `structure_${repoName}`;
+            
+            // Verificar cache
+            if (this.githubIntegration.fileContentCache.has(cacheKey)) {
+                const cached = this.githubIntegration.fileContentCache.get(cacheKey);
+                if (Date.now() - cached.timestamp < this.githubIntegration.fileAnalysis.cacheDuration) {
+                    return cached.content;
+                }
+            }
+
+            // Rate limit check
+            if (!this.checkGitHubRateLimit()) {
+                return null;
+            }
+
+            const url = `https://api.github.com/repos/mikaelfmts/${repoName}/git/trees/main?recursive=1`;
+            this.addGitHubRateLimitRequest();
+            
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`GitHub Tree API: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const structure = {
+                totalFiles: 0,
+                directories: [],
+                files: [],
+                fileTypes: {}
+            };
+
+            data.tree.forEach(item => {
+                if (item.type === 'blob') {
+                    structure.totalFiles++;
+                    structure.files.push(item.path);
+                    
+                    const ext = item.path.split('.').pop();
+                    if (ext) {
+                        structure.fileTypes[ext] = (structure.fileTypes[ext] || 0) + 1;
+                    }
+                } else if (item.type === 'tree') {
+                    structure.directories.push(item.path);
+                }
+            });
+
+            // Cache da estrutura
+            this.githubIntegration.fileContentCache.set(cacheKey, {
+                content: structure,
+                timestamp: Date.now()
+            });
+
+            return structure;
+
+        } catch (error) {
+            console.log(`⚠️ Minerva: Erro ao analisar estrutura de ${repoName}:`, error.message);
+            return null;
+        }
+    }
+
+    async getProjectDocumentation(repoName) {
+        try {
+            // Buscar arquivos de documentação importantes
+            const docFiles = ['README.md', 'readme.md', 'README.txt', 'docs/README.md'];
+            let documentation = null;
+
+            for (const file of docFiles) {
+                const content = await this.getFileContent(repoName, file);
+                if (content) {
+                    documentation = {
+                        file: file,
+                        content: content.slice(0, 3000) // Limitar a 3000 caracteres
+                    };
+                    break;
+                }
+            }
+
+            return documentation;
+
+        } catch (error) {
+            console.log(`⚠️ Minerva: Erro ao buscar documentação de ${repoName}:`, error.message);
+            return null;
+        }
+    }
+
+    async analyzeProjectDependencies(repoName) {
+        try {
+            const packageContent = await this.getFileContent(repoName, 'package.json');
+            if (packageContent) {
+                const packageJson = JSON.parse(packageContent);
+                return {
+                    name: packageJson.name,
+                    description: packageJson.description,
+                    dependencies: packageJson.dependencies || {},
+                    devDependencies: packageJson.devDependencies || {},
+                    scripts: packageJson.scripts || {}
+                };
+            }
+
+            // Tentar requirements.txt para Python
+            const requirementsContent = await this.getFileContent(repoName, 'requirements.txt');
+            if (requirementsContent) {
+                const dependencies = requirementsContent.split('\n')
+                    .filter(line => line.trim() && !line.startsWith('#'))
+                    .map(line => line.trim());
+                
+                return {
+                    type: 'python',
+                    dependencies: dependencies
+                };
+            }
+
+            return null;
+
+        } catch (error) {
+            console.log(`⚠️ Minerva: Erro ao analisar dependências de ${repoName}:`, error.message);
+            return null;
+        }
+    }
+
+    async searchInCode(repoName, searchQuery, maxFiles = 3) {
+        try {
+            const structure = await this.analyzeProjectStructure(repoName);
+            if (!structure) return null;
+
+            const relevantFiles = structure.files
+                .filter(file => {
+                    const ext = '.' + file.split('.').pop();
+                    return this.githubIntegration.fileAnalysis.allowedExtensions.includes(ext);
+                })
+                .slice(0, maxFiles); // Limitar número de arquivos
+
+            const results = [];
+
+            for (const file of relevantFiles) {
+                const content = await this.getFileContent(repoName, file);
+                if (content && content.toLowerCase().includes(searchQuery.toLowerCase())) {
+                    const lines = content.split('\n');
+                    const matchingLines = lines
+                        .map((line, index) => ({ line, number: index + 1 }))
+                        .filter(({ line }) => line.toLowerCase().includes(searchQuery.toLowerCase()))
+                        .slice(0, 3); // Máximo 3 linhas por arquivo
+
+                    if (matchingLines.length > 0) {
+                        results.push({
+                            file: file,
+                            matches: matchingLines
+                        });
+                    }
+                }
+
+                // Rate limit check between files
+                if (!this.checkGitHubRateLimit()) {
+                    break;
+                }
+            }
+
+            return results;
+
+        } catch (error) {
+            console.log(`⚠️ Minerva: Erro ao buscar código em ${repoName}:`, error.message);
+            return null;
+        }
+    }
+
+    getFileAnalysisStatus() {
+        return {
+            enabled: this.githubIntegration.fileAnalysis.enabled,
+            filesCached: this.githubIntegration.fileContentCache.size,
+            maxFileSize: this.githubIntegration.fileAnalysis.maxFileSize / 1024 + 'KB',
+            allowedExtensions: this.githubIntegration.fileAnalysis.allowedExtensions,
+            maxFilesPerRepo: this.githubIntegration.fileAnalysis.maxFilesPerRepo,
+            cacheDuration: this.githubIntegration.fileAnalysis.cacheDuration / (60 * 1000) + ' minutos'
+        };
+    }
 
     // ========== END GITHUB INTEGRATION ==========
 
@@ -997,8 +1441,7 @@ class MinervaUltraAssistant {    constructor() {
             // Tentar enriquecer com dados do GitHub se necessário
             const githubData = context.githubData;
             let githubContext = '';
-            
-            if (githubData && (githubData.user || githubData.repositories)) {
+              if (githubData && (githubData.user || githubData.repositories)) {
                 githubContext = `
 
 DADOS ATUAIS DO GITHUB DO MIKAEL:
@@ -1017,6 +1460,83 @@ INSTRUÇÕES PARA DADOS DO GITHUB:
 - Sempre prefira dados REAIS do GitHub sobre informações genéricas`;
             }
 
+            // Análise avançada de conteúdo de arquivos se necessário
+            let fileAnalysisContext = '';
+            const lowerQuestion = question.toLowerCase();
+            
+            // Detectar se pergunta é sobre análise específica de código/arquivos
+            if ((lowerQuestion.includes('código') || lowerQuestion.includes('arquivo') || lowerQuestion.includes('readme') || 
+                 lowerQuestion.includes('package.json') || lowerQuestion.includes('estrutura') || lowerQuestion.includes('buscar')) &&
+                 lowerQuestion.includes('repositório')) {
+                
+                const repoMatch = lowerQuestion.match(/repositório (\w+)|repo (\w+)/);
+                if (repoMatch && githubData && githubData.repositories) {
+                    const repoName = repoMatch[1] || repoMatch[2];
+                    const repo = githubData.repositories.find(r => r.name.toLowerCase().includes(repoName.toLowerCase()));
+                    
+                    if (repo) {
+                        try {
+                            let analysisResults = {};
+                            
+                            // README analysis
+                            if (lowerQuestion.includes('readme') || lowerQuestion.includes('documentação')) {
+                                const doc = await this.getProjectDocumentation(repo.name);
+                                if (doc) {
+                                    analysisResults.documentation = doc;
+                                }
+                            }
+                            
+                            // Package.json analysis
+                            if (lowerQuestion.includes('package.json') || lowerQuestion.includes('dependência')) {
+                                const deps = await this.analyzeProjectDependencies(repo.name);
+                                if (deps) {
+                                    analysisResults.dependencies = deps;
+                                }
+                            }
+                            
+                            // Structure analysis
+                            if (lowerQuestion.includes('estrutura') || lowerQuestion.includes('arquivos')) {
+                                const structure = await this.analyzeProjectStructure(repo.name);
+                                if (structure) {
+                                    analysisResults.structure = structure;
+                                }
+                            }
+                            
+                            // Code search
+                            const searchMatch = lowerQuestion.match(/buscar ['"]([^'"]+)['"]|buscar (\w+)/);
+                            if (searchMatch) {
+                                const searchTerm = searchMatch[1] || searchMatch[2];
+                                const codeResults = await this.searchInCode(repo.name, searchTerm);
+                                if (codeResults && codeResults.length > 0) {
+                                    analysisResults.codeSearch = {
+                                        term: searchTerm,
+                                        results: codeResults
+                                    };
+                                }
+                            }
+                            
+                            if (Object.keys(analysisResults).length > 0) {
+                                fileAnalysisContext = `
+
+ANÁLISE AVANÇADA DO REPOSITÓRIO ${repo.name.toUpperCase()}:
+${JSON.stringify(analysisResults, null, 2)}
+
+INSTRUÇÕES PARA ANÁLISE DE ARQUIVOS:
+- Use estas informações REAIS do conteúdo dos arquivos para respostas específicas
+- Se há documentação, explique baseado no README real
+- Se há dependências, mencione as tecnologias REAIS usadas
+- Se há estrutura, descreva a organização REAL do projeto
+- Se há busca de código, mostre exemplos REAIS encontrados
+- Seja específico e técnico baseado no conteúdo real dos arquivos`;
+                            }
+                            
+                        } catch (error) {
+                            console.log('⚠️ Minerva: Erro na análise de arquivos:', error.message);
+                        }
+                    }
+                }
+            }
+
             const systemPrompt = `Você é Minerva, a assistente virtual ultra-inteligente do portfolio de Mikael Ferreira. Você é uma coruja sábia, conhecedora de todas as tecnologias e detalhes deste site.
 
 PERSONALIDADE:
@@ -1028,6 +1548,7 @@ PERSONALIDADE:
 INFORMAÇÕES COMPLETAS DO SITE:
 ${JSON.stringify(context.knowledgeBase, null, 2)}
 ${githubContext}
+${fileAnalysisContext}
 
 CONTEXTO ATUAL DO USUÁRIO:
 - Está na página: ${context.currentPage}
@@ -1042,6 +1563,7 @@ INSTRUÇÕES ESPECÍFICAS:
 5. Se perguntarem sobre desenvolvimento, dê detalhes técnicos relevantes
 6. Se perguntarem sobre carreira/contrato, destaque as habilidades do Mikael e como contactá-lo
 7. SEMPRE use dados REAIS do GitHub quando disponíveis, especialmente para perguntas sobre repositórios e projetos
+8. Se há análise de arquivos disponível, use o conteúdo REAL dos arquivos para respostas específicas e técnicas
 
 Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja completa na informação.
 
@@ -1112,12 +1634,61 @@ PERGUNTA DO USUÁRIO: ${question}`;
         if (lowerQuestion.includes('github status') || lowerQuestion.includes('status github') || lowerQuestion.includes('verificar github')) {
             const status = this.getGitHubIntegrationStatus();
             return `Status da Integração GitHub:\n\n✅ Habilitada: ${status.enabled ? 'Sim' : 'Não'}\n📅 Última atualização: ${status.lastFetch}\n💾 Dados em cache: ${status.cacheSize} itens\n🔄 Rate limit usado: ${status.rateLimitUsed}/${status.rateLimitMax}\n👤 Dados do usuário: ${status.hasUserData ? 'Disponível' : 'Não disponível'}\n📁 Dados dos repositórios: ${status.hasReposData ? 'Disponível' : 'Não disponível'}\n🧠 Base de conhecimento atualizada: ${status.knowledgeBaseUpdated ? 'Sim' : 'Não'}\n\nA integração permite que eu acesse dados reais do GitHub para responder perguntas específicas sobre repositórios e projetos.`;
+        }        if (lowerQuestion.includes('cache github') || lowerQuestion.includes('limpar cache github')) {
+            const oldSize = this.githubIntegration.cache.size;
+            const oldFileSize = this.githubIntegration.fileContentCache.size;
+            this.githubIntegration.cache.clear();
+            this.githubIntegration.fileContentCache.clear();
+            return `✅ Cache do GitHub limpo! ${oldSize} metadados e ${oldFileSize} arquivos removidos. Na próxima pergunta, buscarei dados atualizados.`;
+        }
+
+        if (lowerQuestion.includes('file analysis status') || lowerQuestion.includes('status arquivos')) {
+            const status = this.getFileAnalysisStatus();
+            return `📄 Status da Análise de Arquivos:\n\n✅ Habilitada: ${status.enabled}\n💾 Arquivos em cache: ${status.filesCached}\n📏 Tamanho máximo: ${status.maxFileSize}\n📁 Máximo por repo: ${status.maxFilesPerRepo}\n🕒 Cache duration: ${status.cacheDuration}\n📝 Extensões suportadas: ${status.allowedExtensions.join(', ')}\n\nPosso analisar conteúdo real dos arquivos dos repositórios!`;
         }
         
-        if (lowerQuestion.includes('cache github') || lowerQuestion.includes('limpar cache github')) {
-            const oldSize = this.githubIntegration.cache.size;
-            this.githubIntegration.cache.clear();
-            return `✅ Cache do GitHub limpo! ${oldSize} itens removidos. Na próxima pergunta sobre GitHub, buscarei dados atualizados.`;
+        // Comandos para análise de arquivos
+        if (lowerQuestion.includes('analisar arquivo') || lowerQuestion.includes('mostrar arquivo') || lowerQuestion.includes('ver arquivo')) {
+            const repoMatch = lowerQuestion.match(/repositório (\w+)|repo (\w+)/);
+            const fileMatch = lowerQuestion.match(/arquivo ([^\s]+)/);
+            
+            if (repoMatch && fileMatch) {
+                const repoName = repoMatch[1] || repoMatch[2];
+                const fileName = fileMatch[1];
+                return `📁 Para analisar arquivos específicos, use comandos como:\n• "readme do repositório ${repoName}"\n• "package.json do ${repoName}"\n• "estrutura do ${repoName}"\n• "código do ${repoName}"\n\nPosso analisar arquivos .js, .html, .css, .json, .md, .txt, .py até 500KB.`;
+            }
+            
+            return `📁 Comandos de análise de arquivos:\n• "readme do repositório X" - Ver documentação\n• "estrutura do repositório X" - Mapear arquivos\n• "package.json do X" - Ver dependências\n• "código javascript do X" - Analisar código\n• "buscar 'termo' no repositório X" - Buscar no código\n\nEu posso analisar o conteúdo real dos arquivos dos repositórios!`;
+        }
+        
+        // Comandos específicos para README
+        if (lowerQuestion.includes('readme') && (lowerQuestion.includes('repositório') || lowerQuestion.includes('repo'))) {
+            const repoMatch = lowerQuestion.match(/repositório (\w+)|repo (\w+)/);
+            if (repoMatch) {
+                const repoName = repoMatch[1] || repoMatch[2];
+                return `📖 Buscando README do repositório ${repoName}... (Aguarde, analisando arquivo real)`;
+            }
+        }
+        
+        // Comandos para estrutura de projeto
+        if (lowerQuestion.includes('estrutura') && (lowerQuestion.includes('repositório') || lowerQuestion.includes('repo') || lowerQuestion.includes('projeto'))) {
+            const repoMatch = lowerQuestion.match(/repositório (\w+)|repo (\w+)|projeto (\w+)/);
+            if (repoMatch) {
+                const repoName = repoMatch[1] || repoMatch[2] || repoMatch[3];
+                return `🏗️ Analisando estrutura do repositório ${repoName}... (Mapeando arquivos e diretórios)`;
+            }
+        }
+        
+        // Comandos para busca em código
+        if (lowerQuestion.includes('buscar') && lowerQuestion.includes('repositório')) {
+            const searchMatch = lowerQuestion.match(/'([^']+)'|"([^"]+)"/);
+            const repoMatch = lowerQuestion.match(/repositório (\w+)|repo (\w+)/);
+            
+            if (searchMatch && repoMatch) {
+                const searchTerm = searchMatch[1] || searchMatch[2];
+                const repoName = repoMatch[1] || repoMatch[2];
+                return `🔍 Buscando "${searchTerm}" no repositório ${repoName}... (Analisando código real)`;
+            }
         }
         
         // Análise inteligente de intenções

@@ -98,39 +98,8 @@ let curriculumData = {
 };
 
 // GitHub API Configuration
-// GitHub Configuration
 const GITHUB_USERNAME = 'MikaelFMTS'; // Substitua pelo seu username do GitHub
 const GITHUB_API_BASE = 'https://api.github.com';
-
-// Sistema de Cache e Rate Limiting Inteligente para GitHub API (sincronizado com script.js)
-const GITHUB_RATE_LIMIT = {
-    max: 30, // Reduzido para 30 requisições por hora para máxima segurança
-    window: 60 * 60 * 1000, // 1 hora em millisegundos
-    key: 'github_rate_limit_v2', // Compartilhar com script.js
-    cooldown: 10 * 60 * 1000 // 10 minutos de cooldown entre rajadas
-};
-
-// Sistema de Cache Unificado Inteligente (sincronizado com script.js)
-const GITHUB_CACHE_SYSTEM = {
-    profile: { 
-        key: 'github_profile_cache_v2', 
-        duration: 24 * 60 * 60 * 1000, // 24 horas
-        priority: 'high'
-    },
-    repos: { 
-        key: 'github_repos_cache_v2', 
-        duration: 6 * 60 * 60 * 1000, // 6 horas
-        priority: 'medium'
-    },
-    userData: { 
-        key: 'github_user_cache_v2', 
-        duration: 24 * 60 * 60 * 1000, // 24 horas
-        priority: 'high'
-    }
-};
-
-// Sistema de deduplicação de requisições em andamento (sincronizado)
-const pendingRequests = new Map();
 
 // LinkedIn Configuration
 const LINKEDIN_PROFILE_URL = 'https://www.linkedin.com/in/mikaelferreira/';
@@ -164,166 +133,120 @@ const LINKEDIN_FALLBACK_DATA = {
     ]
 };
 
-// Funções de cache inteligente (sincronizadas com script.js)
+// Cache configuration for GitHub API
+const GITHUB_CACHE = {
+    userData: 'github_user_data',
+    repositories: 'github_repositories'
+};
+
+// Rate limiting configuration
+const GITHUB_RATE_LIMIT = {
+    requestsPerMinute: 60,
+    requestsCount: 0,
+    resetTime: 0,
+    isLimited: false
+};
+
+// GitHub API rate limiter
 function checkRateLimit() {
     const now = Date.now();
-    const rateLimitData = localStorage.getItem(GITHUB_RATE_LIMIT.key);
     
-    if (!rateLimitData) {
-        return { canMakeRequest: true, requestsLeft: GITHUB_RATE_LIMIT.max };
+    // Reset counter every minute
+    if (now > GITHUB_RATE_LIMIT.resetTime) {
+        GITHUB_RATE_LIMIT.requestsCount = 0;
+        GITHUB_RATE_LIMIT.resetTime = now + 60000; // 1 minute
+        GITHUB_RATE_LIMIT.isLimited = false;
     }
     
-    const data = JSON.parse(rateLimitData);
-    const windowStart = now - GITHUB_RATE_LIMIT.window;
+    // Check if we've exceeded the limit
+    if (GITHUB_RATE_LIMIT.requestsCount >= GITHUB_RATE_LIMIT.requestsPerMinute) {
+        GITHUB_RATE_LIMIT.isLimited = true;
+        console.warn('⚠️ Rate limit atingido, aguardando reset...');
+        return false;
+    }
     
-    const recentRequests = data.requests.filter(timestamp => timestamp > windowStart);
-    const requestsLeft = GITHUB_RATE_LIMIT.max - recentRequests.length;
-    const canMakeRequest = requestsLeft > 5; // Buffer de 5 requisições
-    
-    const updatedData = { requests: recentRequests, lastCleanup: now };
-    localStorage.setItem(GITHUB_RATE_LIMIT.key, JSON.stringify(updatedData));
-    
-    console.log(`🔧 Rate Limit Check (Currículo): ${requestsLeft} requisições restantes`);
-    return { canMakeRequest, requestsLeft };
+    return true;
 }
 
 function incrementRateLimit() {
-    const now = Date.now();
-    const rateLimitData = localStorage.getItem(GITHUB_RATE_LIMIT.key);
-    
-    let data;
-    if (!rateLimitData) {
-        data = { requests: [], lastCleanup: now };
-    } else {
-        data = JSON.parse(rateLimitData);
-    }
-    
-    data.requests.push(now);
-    localStorage.setItem(GITHUB_RATE_LIMIT.key, JSON.stringify(data));
-    console.log(`📊 Rate Limit (Currículo): ${data.requests.length}/${GITHUB_RATE_LIMIT.max} usado`);
+    GITHUB_RATE_LIMIT.requestsCount++;
 }
 
-function getCacheItem(cacheConfig) {
+// Enhanced GitHub API request wrapper
+async function makeGitHubRequest(url, options = {}) {
+    // Check rate limit first
+    if (!checkRateLimit()) {
+        const waitTime = Math.ceil((GITHUB_RATE_LIMIT.resetTime - Date.now()) / 1000);
+        throw new Error(`Rate limit atingido. Aguarde ${waitTime} segundos.`);
+    }
+    
     try {
-        const cached = localStorage.getItem(cacheConfig.key);
+        incrementRateLimit();
+        const response = await fetch(url, options);
+        
+        if (response.status === 403) {
+            const resetTime = response.headers.get('X-RateLimit-Reset');
+            if (resetTime) {
+                GITHUB_RATE_LIMIT.resetTime = parseInt(resetTime) * 1000;
+                GITHUB_RATE_LIMIT.isLimited = true;
+            }
+            throw new Error('Rate limit da API GitHub excedido');
+        }
+        
+        if (!response.ok) {
+            throw new Error(`GitHub API Error: ${response.status} ${response.statusText}`);
+        }
+        
+        return response;
+    } catch (error) {
+        console.error('Erro na requisição GitHub:', error);
+        throw error;
+    }
+}
+
+// Cache utility functions
+function getCacheItem(key) {
+    try {
+        const cached = localStorage.getItem(key);
         if (!cached) return null;
         
-        const { data, timestamp } = JSON.parse(cached);
-        const age = Date.now() - timestamp;
+        const data = JSON.parse(cached);
+        const now = Date.now();
         
-        if (age > cacheConfig.duration) {
-            localStorage.removeItem(cacheConfig.key);
-            console.log(`🗑️ Cache expirado removido: ${cacheConfig.key}`);
+        // Cache expires after 30 minutes for user data, 1 hour for repositories
+        const expiryTime = key === GITHUB_CACHE.userData ? 30 * 60 * 1000 : 60 * 60 * 1000;
+        
+        if (now - data.timestamp > expiryTime) {
+            localStorage.removeItem(key);
             return null;
         }
         
-        const hoursOld = Math.round(age / (1000 * 60 * 60) * 10) / 10;
-        console.log(`📦 Cache hit (Currículo): ${cacheConfig.key} (${hoursOld}h de idade)`);
-        return data;
+        return data.data;
     } catch (error) {
-        console.warn('⚠️ Erro ao ler cache:', error);
-        localStorage.removeItem(cacheConfig.key);
+        console.error(`Erro ao ler cache ${key}:`, error);
         return null;
     }
 }
 
-function setCacheItem(cacheConfig, data) {
+function setCacheItem(key, data) {
     try {
-        const cache = { data, timestamp: Date.now() };
-        localStorage.setItem(cacheConfig.key, JSON.stringify(cache));
-        console.log(`💾 Cache salvo (Currículo): ${cacheConfig.key}`);
+        const cacheData = {
+            data: data,
+            timestamp: Date.now()
+        };
+        localStorage.setItem(key, JSON.stringify(cacheData));
     } catch (error) {
-        console.warn('⚠️ Erro ao salvar cache:', error);
+        console.error(`Erro ao salvar cache ${key}:`, error);
     }
 }
 
-// Função para fazer requisições à API do GitHub com rate limiting inteligente
-async function makeGitHubRequest(url, retries = 3) {
-    // Verificar se já há uma requisição pendente para esta URL
-    if (pendingRequests.has(url)) {
-        console.log(`⏳ Aguardando requisição em andamento para: ${url}`);
-        return pendingRequests.get(url);
-    }
-    
-    const rateLimit = checkRateLimit();
-    
-    if (!rateLimit.canMakeRequest) {
-        console.log(`⚠️ GitHub API rate limit atingido (Currículo). Requisições restantes: ${rateLimit.requestsLeft}`);
-        throw new Error(`GitHub API rate limit exceeded. Requests left: ${rateLimit.requestsLeft}`);
-    }
-    
-    // Criar promise para deduplicação
-    const requestPromise = (async () => {
-        for (let attempt = 1; attempt <= retries; attempt++) {
-            try {
-                if (attempt > 1) {
-                    const delay = attempt * 2000;
-                    console.log(`⏳ Tentativa ${attempt}/${retries} em ${delay/1000}s...`);
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                }
-                
-                const response = await fetch(url, {
-                    headers: {
-                        'Accept': 'application/vnd.github.v3+json',
-                        'User-Agent': 'Portfolio-Mikael-Ferreira-Curriculo'
-                    }
-                });
-                
-                incrementRateLimit();
-                
-                if (response.status === 403) {
-                    const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
-                    if (rateLimitRemaining === '0') {
-                        console.log(`⚠️ GitHub API rate limit atingido (Currículo)`);
-                        throw new Error('GitHub API rate limit exceeded (HTTP 403)');
-                    }
-                }
-                
-                if (!response.ok) {
-                    throw new Error(`GitHub API request failed: ${response.status} ${response.statusText}`);
-                }
-                
-                return response;
-                
-            } catch (error) {
-                console.log(`❌ Tentativa ${attempt}/${retries} falhou (Currículo):`, error.message);
-                
-                if (attempt === retries) {
-                    throw new Error(`GitHub API failed after ${retries} attempts: ${error.message}`);
-                }
-            }
-        }
-    })();
-    
-    // Salvar na lista de requisições pendentes
-    pendingRequests.set(url, requestPromise);
-      try {
-        const result = await requestPromise;
-        return result;
-    } finally {
-        // Remover da lista de pendentes após completar
-        pendingRequests.delete(url);
-    }
-}
-
-// Limpeza automática de cache antigo
-function cleanOldCache() {
-    const keys = Object.keys(localStorage);
-    keys.forEach(key => {
-        if (key.startsWith('github_') && !key.includes('_v2')) {
-            localStorage.removeItem(key);
-            console.log(`🧹 Cache antigo removido: ${key}`);
-        }
-    });
-}
-
-// Função para sincronizar foto do GitHub com cache inteligente
+// Função para sincronizar foto do GitHub
 async function syncGitHubPhoto() {
     try {
         console.log('🖼️ Sincronizando foto do GitHub...');
         
-        // Verificar cache primeiro usando o novo sistema
-        const cachedUser = getCacheItem(GITHUB_CACHE_SYSTEM.userData);
+        // Verificar cache primeiro
+        const cachedUser = getCacheItem(GITHUB_CACHE.userData);
         if (cachedUser && cachedUser.avatar_url) {
             console.log('✅ Usando foto do cache');
             updatePhotoInUI(cachedUser.avatar_url);
@@ -333,8 +256,8 @@ async function syncGitHubPhoto() {
         const response = await makeGitHubRequest(`${GITHUB_API_BASE}/users/${GITHUB_USERNAME}`);
         const data = await response.json();
         
-        // Salvar no cache usando o novo sistema
-        setCacheItem(GITHUB_CACHE_SYSTEM.userData, data);
+        // Salvar no cache
+        setCacheItem(GITHUB_CACHE.userData, data);
         
         if (data.avatar_url) {
             console.log('✅ Foto do GitHub sincronizada:', data.avatar_url);
@@ -357,13 +280,13 @@ window.syncGitHubPhotoManually = async function() {
         showNotification('Sincronizando foto do GitHub...', 'info');
         
         // Limpar cache primeiro para forçar nova busca
-        localStorage.removeItem(GITHUB_CACHE_SYSTEM.userData.key);
+        localStorage.removeItem(GITHUB_CACHE.userData);
         
         const response = await makeGitHubRequest(`${GITHUB_API_BASE}/users/${GITHUB_USERNAME}`);
         const data = await response.json();
         
-        // Salvar no cache usando novo sistema
-        setCacheItem(GITHUB_CACHE_SYSTEM.userData, data);
+        // Salvar no cache
+        setCacheItem(GITHUB_CACHE.userData, data);
         
         if (data.avatar_url) {
             console.log('✅ Foto do GitHub sincronizada manualmente:', data.avatar_url);
@@ -688,37 +611,82 @@ window.removeExperience = function(id) {
     showNotification('Experiência removida', 'success');
 };
 
-// Função para carregar projetos do GitHub com cache inteligente
+// Gerenciamento de projetos com cache
+const GITHUB_CACHE_KEY = 'github_projects_cache';
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutos
+
+function isCacheValid() {
+    const cache = localStorage.getItem(GITHUB_CACHE_KEY);
+    if (!cache) return false;
+    
+    try {
+        const { timestamp } = JSON.parse(cache);
+        return (Date.now() - timestamp) < CACHE_DURATION;
+    } catch {
+        return false;
+    }
+}
+
+function getCachedProjects() {
+    try {
+        const cache = localStorage.getItem(GITHUB_CACHE_KEY);
+        if (!cache) return null;
+        
+        const { data, timestamp } = JSON.parse(cache);
+        if ((Date.now() - timestamp) > CACHE_DURATION) {
+            localStorage.removeItem(GITHUB_CACHE_KEY);
+            return null;
+        }
+        
+        return data;
+    } catch {
+        return null;
+    }
+}
+
+function setCachedProjects(projects) {
+    try {
+        const cache = {
+            data: projects,
+            timestamp: Date.now()
+        };
+        localStorage.setItem(GITHUB_CACHE_KEY, JSON.stringify(cache));
+    } catch (error) {
+        console.warn('Erro ao salvar cache:', error);
+    }
+}
+
 window.loadGitHubProjects = async function() {
     try {
         showNotification('Carregando projetos do GitHub...', 'info');
         
-        // Verificar cache primeiro usando o novo sistema
-        const cachedRepos = getCacheItem(GITHUB_CACHE_SYSTEM.repos);
-        if (cachedRepos && Array.isArray(cachedRepos)) {
-            console.log('✅ Usando projetos do cache inteligente');
-            cachedRepos.forEach(project => {
-                const exists = curriculumData.projects.some(p => p.id === project.id);
-                if (!exists) {
-                    curriculumData.projects.push(project);
-                }
-            });
-            renderProjectsList();
-            updateProgress();
-            showNotification('Projetos carregados do cache', 'success');
-            return;
+        // Verificar cache primeiro
+        if (isCacheValid()) {
+            const cachedProjects = getCachedProjects();
+            if (cachedProjects) {
+                console.log('Usando projetos do cache');
+                cachedProjects.forEach(project => {
+                    const exists = curriculumData.projects.some(p => p.id === project.id);
+                    if (!exists) {
+                        curriculumData.projects.push(project);
+                    }
+                });
+                renderProjectsList();
+                updateProgress();
+                showNotification('Projetos carregados do cache', 'success');
+                return;
+            }
         }
-        
-        // Implementar fallback local caso a API falhe
+          // Implementar fallback local caso a API falhe
         let repos;
         try {
-            console.log('🔄 Fazendo chamada para GitHub API (projetos)...');
+            console.log('Fazendo chamada para GitHub API...');
             const response = await makeGitHubRequest(`https://api.github.com/users/mikaelfmts/repos?sort=updated&per_page=20`);
             
             repos = await response.json();
-            console.log(`✅ Carregados ${repos.length} repositórios da API`);
+            console.log(`Carregados ${repos.length} repositórios da API`);
         } catch (apiError) {
-            console.warn('⚠️ GitHub API indisponível, usando projetos padrão:', apiError);
+            console.warn('GitHub API indisponível, usando projetos padrão:', apiError);
             
             // Projetos padrão como fallback
             repos = [
@@ -779,10 +747,10 @@ window.loadGitHubProjects = async function() {
                 }
             }
         });
-          // Salvar no cache usando o novo sistema inteligente
+        
+        // Salvar no cache se carregou da API
         if (projectsToCache.length > 0 && repos.length > 3) {
-            setCacheItem(GITHUB_CACHE_SYSTEM.repos, projectsToCache);
-            console.log(`💾 ${projectsToCache.length} projetos salvos no cache inteligente`);
+            setCachedProjects(projectsToCache);
         }
         
         renderProjectsList();
@@ -973,7 +941,8 @@ function renderSkillsList() {
                                     style="stroke-dashoffset: ${157 - (157 * skill.nivel / 100)}"></circle>
                         </svg>
                         <div class="absolute inset-0 flex items-center justify-center text-sm font-semibold">
-                            ${skill.nivel}%</div>
+                            ${skill.nivel}%
+                        </div>
                     </div>
                     <div>
                         <h3 class="font-semibold">${skill.nome}</h3>
@@ -1163,8 +1132,9 @@ function generateHeaderSection() {
     const showPhoto = curriculumData.settings.showPhoto;
     
     let photoUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNjAiIGZpbGw9IiNmMGYwZjAiLz48Y2lyY2xlIGN4PSI2MCIgY3k9IjQ1IiByPSIyMCIgZmlsbD0iIzk5OTk5OSIvPjxwYXRoIGQ9Ik0yMCA5NWMwLTE2IDIwLTMwIDQwLTMwczQwIDE0IDQwIDMwIiBmaWxsPSIjOTk5OTk5Ii8+PC9zdmc+';
-      // Verificar cache do GitHub primeiro usando o novo sistema
-    const cachedUser = getCacheItem(GITHUB_CACHE_SYSTEM.userData);
+    
+    // Verificar cache do GitHub primeiro e converter para base64 para PDF
+    const cachedUser = getCacheItem(GITHUB_CACHE.userData);
     if (cachedUser && cachedUser.avatar_url) {
         // Usar URL base64 se disponível no cache, senão usar URL original
         if (cachedUser.avatar_base64) {
@@ -1538,11 +1508,12 @@ window.downloadPDF = async function() {
                 const base64Image = await convertImageToBase64(photoElement.src);
                 if (base64Image) {
                     photoElement.src = base64Image;
-                      // Atualizar cache com versão base64 usando novo sistema
-                    const cachedUser = getCacheItem(GITHUB_CACHE_SYSTEM.userData);
+                    
+                    // Atualizar cache com versão base64
+                    const cachedUser = getCacheItem(GITHUB_CACHE.userData);
                     if (cachedUser) {
                         cachedUser.avatar_base64 = base64Image;
-                        setCacheItem(GITHUB_CACHE_SYSTEM.userData, cachedUser);
+                        setCacheItem(GITHUB_CACHE.userData, cachedUser);
                     }
                 }
             } catch (error) {
@@ -2067,6 +2038,7 @@ window.applySelectedLayout = function() {
     const layoutSelect = document.getElementById('layout-type');
     if (!layoutSelect) return;
     
+       
     const selectedLayout = layoutSelect.value;
     console.log('🎨 Aplicando layout:', selectedLayout);
     
@@ -2078,7 +2050,7 @@ window.applySelectedLayout = function() {
     if (previewContainer) {
         // Remover classes de layout existentes
         previewContainer.classList.remove(...Array.from(previewContainer.classList).filter(c => c.startsWith('layout-')));
-
+        
         // Adicionar nova classe de layout
         previewContainer.classList.add(`layout-${selectedLayout}`);
         
@@ -2118,7 +2090,7 @@ window.applySelectedSpacing = function() {
     scheduleAutoSave();
 };
 
- // Função para conectar eventos de formatação
+// Função para conectar eventos de formatação
 function setupFormattingEvents() {
     // Conectar seletores de formatação com as funções
     const themeSelect = document.getElementById('curriculum-theme');
@@ -2161,6 +2133,14 @@ window.applyAllFormatting = function() {
     
     showNotification('Formatação completa aplicada!', 'success');
 };
+
+// Inicializar eventos de formatação quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', function() {
+    // Configurar eventos de formatação
+    setTimeout(() => {
+        setupFormattingEvents();
+    }, 1000);
+});
 
 // Função para pré-visualizar tema antes de aplicar
 window.previewTheme = function(themeName) {
@@ -2422,9 +2402,5 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             applyCustomColorsToPreview(currentColors);
         }, 500);
-        
-        // Inicializar sistema de cache inteligente
-        cleanOldCache();
-        console.log('🔧 Sistema de cache inteligente inicializado (Currículo)');
     }, 1000);
 });

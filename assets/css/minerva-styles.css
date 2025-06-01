@@ -45,8 +45,8 @@
 
 /* Coruja Minerva - Ultra Imponente e Realista */
 .minerva-owl {
-    width: 70px;
-    height: 85px;
+    width: 100px;
+    height: 120px;
     cursor: pointer;
     position: relative;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -95,7 +95,7 @@
     animation: auraRotate 8s linear infinite;
 }
 
-/* Cabeça da Coruja - Apenas cabeça, sem corpo */
+/* Corpo da Coruja - Formato Realista */
 .owl-body {
     width: 100%;
     height: 100%;
@@ -109,11 +109,11 @@
 .owl-body::before {
     content: '';
     position: absolute;
-    top: 15px;
+    top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 50px;
-    height: 50px;
+    width: 70px;
+    height: 70px;
     background: linear-gradient(135deg, 
         #4A3B2A 0%, 
         #5C4A36 25%, 
@@ -121,18 +121,41 @@
         #7A6247 75%, 
         #5C4A36 100%);
     border-radius: 50% 50% 45% 45%;
+    border: 3px solid #C89B3C;
+    box-shadow: 
+        inset 0 -10px 20px rgba(0, 0, 0, 0.3),
+        inset 0 8px 15px rgba(200, 155, 60, 0.2),
+        0 0 25px rgba(200, 155, 60, 0.4);
+    z-index: 1;
+}
+
+/* Corpo da Coruja */
+.owl-body::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 55px;
+    background: linear-gradient(135deg, 
+        #3E2F20 0%, 
+        #4A3B2A 25%, 
+        #564435 50%, 
+        #624D3A 75%, 
+        #4A3B2A 100%);
+    border-radius: 45% 45% 60% 60%;
     border: 2px solid #C89B3C;
     box-shadow: 
         inset 0 -8px 16px rgba(0, 0, 0, 0.3),
-        inset 0 6px 12px rgba(200, 155, 60, 0.2),
-        0 0 20px rgba(200, 155, 60, 0.4);
-    z-index: 1;
+        inset 0 6px 12px rgba(200, 155, 60, 0.1),
+        0 0 20px rgba(200, 155, 60, 0.3);
 }
 
 /* Tufos de Penas (Orelhas) */
 .owl-body .owl-tufts {
     position: absolute;
-    top: 10px;
+    top: -5px;
     left: 50%;
     transform: translateX(-50%);
     width: 80px;
@@ -169,30 +192,30 @@
 /* Olhos da Coruja - Mais Expressivos e Realistas */
 .owl-eyes {
     position: absolute;
-    top: 30px;
+    top: 20px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 6px;
+    gap: 8px;
     z-index: 3;
 }
 
 .eye {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     background: radial-gradient(circle at 30% 30%, 
         #ffffff 0%, 
         #f5f5f5 30%, 
         #e8e8e8 70%,
         #d0d0d0 100%);
     border-radius: 50%;
-    border: 1px solid #2A1F17;
+    border: 2px solid #2A1F17;
     position: relative;
     overflow: hidden;
     box-shadow: 
-        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
-        0 2px 6px rgba(0, 0, 0, 0.3),
-        0 0 10px rgba(200, 155, 60, 0.3);
+        inset 0 -3px 6px rgba(0, 0, 0, 0.2),
+        0 3px 8px rgba(0, 0, 0, 0.3),
+        0 0 15px rgba(200, 155, 60, 0.3);
 }
 
 .eye::before {
@@ -208,8 +231,8 @@
 }
 
 .pupil {
-    width: 10px;
-    height: 10px;
+    width: 14px;
+    height: 14px;
     background: radial-gradient(circle at 25% 25%, 
         #1a1a1a 0%, 
         #000000 70%);
@@ -219,7 +242,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
 }
 
 .pupil::after {
@@ -236,7 +259,7 @@
 /* Bico da Coruja - Mais Detalhado e Realista */
 .owl-beak {
     position: absolute;
-    top: 50px;
+    top: 48px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 3;
@@ -268,6 +291,79 @@
     border-right: 3px solid transparent;
     border-top: 5px solid #B8860B;
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* Asas da Coruja - Mais Realistas e Dinâmicas */
+.owl-wings {
+    position: absolute;
+    top: 35px;
+    width: 100%;
+    height: 40px;
+    z-index: 1;
+}
+
+.wing {
+    position: absolute;
+    top: 0;
+    width: 22px;
+    height: 35px;
+    background: linear-gradient(145deg, 
+        #5D4037 0%, 
+        #6B4423 25%, 
+        #8B4513 50%, 
+        #A0522D 75%,
+        #6B4423 100%);
+    border-radius: 65% 25% 85% 45%;
+    border: 2px solid #C89B3C;
+    box-shadow: 
+        inset 0 3px 6px rgba(200, 155, 60, 0.3),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+        0 3px 10px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.wing::before {
+    content: '';
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    width: 70%;
+    height: 70%;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 3px,
+        rgba(200, 155, 60, 0.2) 3px,
+        rgba(200, 155, 60, 0.2) 4px
+    );
+    border-radius: 50%;
+}
+
+.wing::after {
+    content: '';
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(circle at center, 
+        rgba(218, 165, 32, 0.4) 0%, 
+        transparent 60%);
+    border-radius: 50%;
+}
+
+.left-wing {
+    left: -8px;
+    transform: rotate(-25deg);
+    transform-origin: right center;
+    animation: leftWingFlap 3s ease-in-out infinite;
+}
+
+.right-wing {
+    right: -8px;
+    transform: rotate(25deg);
+    transform-origin: left center;
+    animation: rightWingFlap 3s ease-in-out infinite;
 }
 
 /* Indicador de Pensamento - Mais Elaborado */
@@ -321,9 +417,9 @@
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 400px;
+    width: 380px;
     max-width: calc(100vw - 40px);
-    height: 520px;
+    height: 500px;
     max-height: calc(100vh - 40px);
     background: var(--card-bg);
     backdrop-filter: blur(20px);
@@ -334,8 +430,8 @@
         var(--primary-color)) 1;
     border-radius: 15px;
     box-shadow: 
-        var(--shadow-heavy),
-        0 0 30px rgba(200, 170, 110, 0.3),
+        0 25px 50px rgba(0, 0, 0, 0.8),
+        0 0 30px rgba(200, 170, 110, 0.2),
         inset 0 1px 0 rgba(240, 230, 210, 0.1);
     font-family: 'Spiegel', 'Marcellus', serif;
     z-index: 1001;
@@ -345,10 +441,6 @@
     pointer-events: none;
     display: flex;
     flex-direction: column;
-    background-image: 
-        url('https://lolstatic-a.akamaihd.net/frontpage/apps/prod/clash-2018/pt_BR/c9bf09f08bfd566d9b36445f5562432202cf0203/assets/img/patterns/golden-noise.png');
-    background-blend-mode: overlay;
-    background-size: 300px;
 }
 
 .minerva-chat:not(.hidden) {
@@ -362,28 +454,16 @@
 }
 
 .minerva-header {
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, 
+        var(--accent-color) 0%, 
+        var(--secondary-color) 100%);
     border-bottom: 1px solid var(--primary-color);
     padding: 15px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-radius: 13px 13px 0 0;
-    box-shadow: var(--shadow-medium);
-    position: relative;
-}
-
-.minerva-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('https://lolstatic-a.akamaihd.net/frontpage/apps/prod/clash-2018/pt_BR/c9bf09f08bfd566d9b36445f5562432202cf0203/assets/img/patterns/golden-noise.png');
-    opacity: 0.1;
-    border-radius: 13px 13px 0 0;
-    pointer-events: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .minerva-title {
@@ -416,11 +496,6 @@
     background: #00ff88;
     box-shadow: 0 0 10px #00ff88;
     animation: statusPulse 2s ease-in-out infinite;
-}
-
-.status-dot.offline {
-    background: #ff6b6b;
-    box-shadow: 0 0 10px #ff6b6b;
 }
 
 .minerva-close {
@@ -534,43 +609,27 @@
 }
 
 .suggestion-btn {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    background: linear-gradient(135deg, 
+        rgba(200, 170, 110, 0.1) 0%, 
+        rgba(200, 170, 110, 0.05) 100%);
+    border: 1px solid rgba(200, 170, 110, 0.3);
     color: var(--text-primary);
-    padding: 12px 15px;
+    padding: 10px 12px;
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    font-size: 0.8rem;
     text-align: left;
-    line-height: 1.4;
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-}
-
-.suggestion-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--gradient-primary);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
+    line-height: 1.3;
 }
 
 .suggestion-btn:hover {
+    background: linear-gradient(135deg, 
+        rgba(200, 170, 110, 0.2) 0%, 
+        rgba(200, 170, 110, 0.1) 100%);
     border-color: var(--primary-color);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-medium);
-    color: var(--secondary-color);
-}
-
-.suggestion-btn:hover::before {
-    opacity: 1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(200, 170, 110, 0.2);
 }
 
 .message {
@@ -633,41 +692,25 @@
 
 .minerva-input-area {
     padding: 15px 20px;
-    background: var(--gradient-accent);
+    background: var(--accent-color);
     border-top: 1px solid var(--primary-color);
     border-radius: 0 0 13px 13px;
-    position: relative;
-}
-
-.minerva-input-area::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('https://lolstatic-a.akamaihd.net/frontpage/apps/prod/clash-2018/pt_BR/c9bf09f08bfd566d9b36445f5562432202cf0203/assets/img/patterns/golden-noise.png');
-    opacity: 0.05;
-    border-radius: 0 0 13px 13px;
-    pointer-events: none;
 }
 
 .input-container {
     display: flex;
     align-items: center;
     gap: 10px;
-    background: var(--background-primary);
-    border: 1px solid var(--border-color);
+    background: rgba(1, 10, 19, 0.8);
+    border: 1px solid rgba(200, 170, 110, 0.3);
     border-radius: 25px;
     padding: 3px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    z-index: 1;
+    transition: all 0.3s ease;
 }
 
 .input-container:focus-within {
     border-color: var(--primary-color);
-    box-shadow: 0 0 20px rgba(200, 170, 110, 0.4);
+    box-shadow: 0 0 15px rgba(200, 170, 110, 0.3);
 }
 
 #minerva-input {

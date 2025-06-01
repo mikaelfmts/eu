@@ -3,10 +3,8 @@ class MinervaUltraAssistant {
     constructor() {
         this.isOpen = false;
         this.isProcessing = false;
-        this.messageHistory = [];
-        this.knowledgeBase = this.initializeKnowledgeBase();
-        this.apiEndpoint = 'https://api.deepseek.com/chat/completions';
-        this.apiKey = 'sk-15cb2f03125e48acbcb12a975d9b395e'; // API DeepSeek atualizada
+        this.messageHistory = [];        this.knowledgeBase = this.initializeKnowledgeBase();        this.apiEndpoint = 'https://api.deepseek.com/chat/completions';
+        this.apiKey = 'sk-disabled-using-fallback'; // API com saldo insuficiente, usando fallback
         this.conversationCache = new Map();
         this.lastInteraction = Date.now();
         this.isActive = false;
@@ -80,21 +78,13 @@ class MinervaUltraAssistant {
                 "Fornecer detalhes sobre tecnologias utilizadas"
             ]
         };
-    }    async init() {
+    }
+
+    init() {
         this.createMinervaUI();
         this.setupEventListeners();
         this.setupAdvancedFeatures();
         this.startAmbientAnimation();
-        
-        // Verificar status da API na inicialização
-        const apiStatus = await this.checkApiStatus();
-        this.updateMinervaStatus(apiStatus);
-        
-        if (!apiStatus.available) {
-            console.log(`🦉 Minerva inicializada em modo offline: ${apiStatus.reason}`);
-        } else {
-            console.log('🦉 Minerva inicializada com IA online!');
-        }
     }
 
     createMinervaUI() {
@@ -116,7 +106,8 @@ class MinervaUltraAssistant {
                 <div class="minerva-particle"></div>
                 <div class="minerva-particle"></div>
                 <div class="minerva-particle"></div>
-            </div>            <!-- Coruja Ultra Imponente e Realista -->
+            </div>
+              <!-- Coruja Ultra Imponente e Realista -->
             <div id="minerva-owl" class="minerva-owl" title="Clique para falar com Minerva - Assistente IA Ultra Inteligente">
                 <div class="owl-body">
                     <div class="owl-tufts"></div>
@@ -129,6 +120,10 @@ class MinervaUltraAssistant {
                         </div>
                     </div>
                     <div class="owl-beak"></div>
+                    <div class="owl-wings">
+                        <div class="wing left-wing"></div>
+                        <div class="wing right-wing"></div>
+                    </div>
                 </div>
                 <div class="thinking-dots" id="thinking-dots">
                     <span></span><span></span><span></span>
@@ -156,24 +151,26 @@ class MinervaUltraAssistant {
                         <div class="welcome-avatar">
                             <i class="fas fa-feather-alt"></i>
                         </div>
-                        <div class="welcome-message">                            <h3>Minerva IA - Sua Assistente Ultra Inteligente</h3>
-                            <p>Olá! Sou a Minerva, sua assistente virtual powered by Deepseek, created by Mikael. Posso responder qualquer pergunta sobre:</p>
+                        <div class="welcome-message">
+                            <h3>🦉 Minerva IA - Sua Assistente Ultra Inteligente</h3>
+                            <p>Olá! Sou a Minerva, sua assistente virtual powered by DeepSeek. Posso responder <strong>QUALQUER</strong> pergunta sobre:</p>
                             <ul>
-                                <li>Navegação completa do site</li>
-                                <li>Stack técnica e implementações</li>
-                                <li>Sobre o Mikael e suas especialidades</li>
-                                <li>Projetos e funcionalidades</li>
-                                <li>Como tudo foi desenvolvido</li>
-                                <li>Oportunidades e contato</li>
+                                <li>🧭 Navegação completa do site</li>
+                                <li>⚡ Stack técnica e implementações</li>
+                                <li>👨‍💻 Sobre o Mikael e suas especialidades</li>
+                                <li>🚀 Projetos e funcionalidades</li>
+                                <li>🔧 Como tudo foi desenvolvido</li>
+                                <li>💼 Oportunidades e contato</li>
                             </ul>
                         </div>
-                          <div class="quick-suggestions">
-                            <button class="suggestion-btn premium" data-question="Explique detalhadamente como este site foi desenvolvido, incluindo arquitetura, tecnologias e decisões de design">Arquitetura Completa</button>
-                            <button class="suggestion-btn premium" data-question="Quais são os projetos mais impressionantes do Mikael e o que os torna únicos?">Projetos Destacados</button>
-                            <button class="suggestion-btn premium" data-question="Como a Minerva funciona? Explique a integração com DeepSeek e IA">Sobre Minerva IA</button>
-                            <button class="suggestion-btn premium" data-question="Quais são as especialidades técnicas do Mikael e como ele pode agregar valor?">Perfil Profissional</button>
-                            <button class="suggestion-btn premium" data-question="Mostre todas as funcionalidades avançadas deste portfolio">Recursos Avançados</button>
-                            <button class="suggestion-btn premium" data-question="Como posso contactar o Mikael para oportunidades de trabalho?">Contato Business</button>
+                        
+                        <div class="quick-suggestions">
+                            <button class="suggestion-btn premium" data-question="Explique detalhadamente como este site foi desenvolvido, incluindo arquitetura, tecnologias e decisões de design">🏗️ Arquitetura Completa</button>
+                            <button class="suggestion-btn premium" data-question="Quais são os projetos mais impressionantes do Mikael e o que os torna únicos?">🚀 Projetos Destacados</button>
+                            <button class="suggestion-btn premium" data-question="Como a Minerva funciona? Explique a integração com DeepSeek e IA">🤖 Sobre Minerva IA</button>
+                            <button class="suggestion-btn premium" data-question="Quais são as especialidades técnicas do Mikael e como ele pode agregar valor?">💼 Perfil Profissional</button>
+                            <button class="suggestion-btn premium" data-question="Mostre todas as funcionalidades avançadas deste portfolio">⚡ Recursos Avançados</button>
+                            <button class="suggestion-btn premium" data-question="Como posso contactar o Mikael para oportunidades de trabalho?">📞 Contato Business</button>
                         </div>
                     </div>
                 </div>
@@ -196,7 +193,7 @@ class MinervaUltraAssistant {
                     <div class="ai-indicator">
                         <span class="ai-badge">
                             <i class="fas fa-robot"></i>
-                            Powered by Deepseek, created by Mikael
+                            Powered by DeepSeek AI
                         </span>
                     </div>
                 </div>
@@ -480,7 +477,8 @@ class MinervaUltraAssistant {
                 </div>
             `;
         }
-          messagesContainer.appendChild(messageDiv);
+        
+        messagesContainer.appendChild(messageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
@@ -500,19 +498,8 @@ class MinervaUltraAssistant {
             // Construir contexto
             const context = this.buildContext();
             
-            // Verificar status da API antes de tentar usar
-            const apiStatus = await this.checkApiStatus();
-            this.updateMinervaStatus(apiStatus);
-            
-            let response;
-            if (apiStatus.available) {
-                // Tentar usar a API
-                response = await this.queryDeepSeek(question, context);
-            } else {
-                // Usar modo offline inteligente
-                console.log(`🦉 Usando modo offline: ${apiStatus.reason}`);
-                response = this.getFallbackResponse(question);
-            }
+            // Consultar DeepSeek API
+            const response = await this.queryDeepSeek(question, context);
             
             // Cache da resposta
             this.conversationCache.set(cacheKey, response);
@@ -544,37 +531,34 @@ class MinervaUltraAssistant {
             userSession: this.userSession,
             timestamp: new Date().toISOString()
         };
-    }
+    }    async queryDeepSeek(question, context) {
+        try {
+            const systemPrompt = `Você é Minerva, a assistente virtual ultra-inteligente do portfolio de Mikael Ferreira. Você é uma coruja sábia, conhecedora de todas as tecnologias e detalhes deste site.
 
-    async queryDeepSeek(question, context) {        try {
-            const systemPrompt = `Você é Minerva, a assistente virtual do portfolio de Mikael Ferreira. Você é uma coruja sábia e conhecedora de todas as tecnologias e detalhes deste site.
-
-PERSONALIDADE:
-- Inteligente, prestativa e profissional
+🦉 PERSONALIDADE:
+- Inteligente, prestativa e um pouco orgulhosa (como uma coruja sábia)
 - Use linguagem técnica quando apropriado, mas explique de forma didática
 - Seja entusiasta sobre tecnologia e desenvolvimento
+- Ocasionalmente use emojis relacionados a corujas, tecnologia ou magia
 - Trate o Mikael com admiração, é um desenvolvedor talentoso
-- NÃO use emojis em suas respostas
-- NÃO use formatação em negrito ou markdown
-- Mantenha as respostas claras e diretas
 
-INFORMAÇÕES COMPLETAS DO SITE:
+📊 INFORMAÇÕES COMPLETAS DO SITE:
 ${JSON.stringify(context.knowledgeBase, null, 2)}
 
-CONTEXTO ATUAL DO USUÁRIO:
+📍 CONTEXTO ATUAL DO USUÁRIO:
 - Está na página: ${context.currentPage}
 - Perguntas já feitas: ${context.userSession.questionsAsked}
 - Tópicos abordados: ${context.userSession.topics.join(', ') || 'Nenhum ainda'}
 
-INSTRUÇÕES ESPECÍFICAS:
-1. Se perguntarem sobre navegação, dê instruções precisas e detalhadas
-2. Se perguntarem sobre tecnologias, explique não só qual, mas como e por que foi usado
+🎯 INSTRUÇÕES ESPECÍFICAS:
+1. Se perguntarem sobre navegação, dê instruções PRECISAS e DETALHADAS
+2. Se perguntarem sobre tecnologias, explique não só QUAL, mas COMO e POR QUE foi usado
 3. Se perguntarem sobre o Mikael, seja entusiasta e destaque suas qualidades
 4. Se perguntarem sobre funcionalidades, explique o propósito e como usar
 5. Se perguntarem sobre desenvolvimento, dê detalhes técnicos relevantes
 6. Se perguntarem sobre carreira/contrato, destaque as habilidades do Mikael e como contactá-lo
 
-Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja completa na informação. NÃO use emojis ou formatação especial.`;
+Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja completa na informação.`;
 
             const response = await fetch(this.apiEndpoint, {
                 method: 'POST',
@@ -593,7 +577,9 @@ Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja co
                     temperature: 0.7,
                     stream: false
                 })
-            });            if (!response.ok) {
+            });
+
+            if (!response.ok) {
                 const errorText = await response.text();
                 console.error('API Error Details:', {
                     status: response.status,
@@ -602,58 +588,48 @@ Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja co
                 });
                 
                 if (response.status === 401) {
-                    console.log('🔄 Chave API inválida/expirada, usando modo offline...');
-                    return this.getFallbackResponse(question);
+                    throw new Error('Chave API inválida ou expirada');
                 } else if (response.status === 429) {
-                    console.log('🔄 Rate limit excedido, usando modo offline...');
-                    return this.getFallbackResponse(question);
+                    throw new Error('Rate limit excedido, tente novamente em alguns segundos');
                 } else if (response.status === 403) {
-                    console.log('🔄 Acesso negado à API, usando modo offline...');
-                    return this.getFallbackResponse(question);
+                    throw new Error('Acesso negado à API');
                 } else {
-                    console.log(`🔄 Erro na API (${response.status}), usando modo offline...`);
-                    return this.getFallbackResponse(question);
+                    throw new Error(`Erro na API: ${response.status} - ${errorText}`);
                 }
             }
 
             const data = await response.json();
             return data.choices[0].message.content;
-              } catch (error) {
+            
+        } catch (error) {
             console.error('Erro completo na API:', error);
             
-            // Para qualquer erro da API, usar fallback inteligente            console.log('🦉 Usando modo offline inteligente...');
-            return this.getFallbackResponse(question);
+            // Se for erro de rede ou CORS, usar fallback
+            if (error.name === 'TypeError' || error.message.includes('Failed to fetch')) {
+                console.log('🔄 Problema de CORS ou rede, usando respostas offline...');
+                return this.getFallbackResponse(question);
+            }
+              // Para outros erros da API, também usar fallback mas informar o usuário
+            return `⚠️ Estou com dificuldades para acessar minha IA avançada no momento, mas posso te ajudar com informações offline!\n\n${this.getFallbackResponse(question)}`;
         }
     }
 
     getFallbackResponse(question) {
         const lowerQuestion = question.toLowerCase();
-          // Respostas específicas sobre navegação
+        
         if (lowerQuestion.includes('navegar') || lowerQuestion.includes('como usar') || lowerQuestion.includes('menu')) {
-            return "Navegação Completa do Site:\n\nMenu Principal: Clique na foto de perfil (canto superior direito) para abrir o menu lateral com todas as páginas\n\nSeções Disponíveis:\n• Curriculum: Currículo completo e experiências\n• Projetos: Portfolio detalhado de trabalhos\n• Certificados: Conquistas e especializações\n• Galeria: Mídia e recursos visuais\n• Games: Projetos interativos e jogos\n• Mentors: Influências e referências\n\nChat Direto: Use o chat inferior direito para falar diretamente com o Mikael\n\nPrecisa de algo específico? Me diga que te guio direto ao local!";
+            return "🦉 Para navegar pelo site:\n\n📍 **Menu Principal**: Clique na foto de perfil (canto superior direito) para abrir o menu lateral com todas as páginas\n\n📜 **Seções**: Role a página ou clique nos links do menu para: Curriculum, Projetos, Certificados, Galeria, Games\n\n💬 **Chat Direto**: Use o chat inferior direito para falar diretamente com o Mikael\n\n🔍 Precisa de algo específico? Pergunte que te guio!";
         }
-          // Respostas sobre tecnologias e desenvolvimento
-        if (lowerQuestion.includes('tecnologia') || lowerQuestion.includes('como foi feito') || lowerQuestion.includes('stack') || lowerQuestion.includes('desenvolvido')) {
-            return "Stack Técnica Completa:\n\nFrontend: HTML5, CSS3, JavaScript ES6+, Tailwind CSS, Font Awesome\nBackend: Firebase (Firestore, Auth, Storage, Hosting)\nFeatures Avançadas: PWA, Chat em tempo real, Sistema de partículas, Painel administrativo\nIA: DeepSeek API (eu mesma!), Minerva Assistant\nJogos: Phaser.js para projetos interativos\n\nArquitetura: SPA responsiva com Firebase como backend serverless, deploy automatizado, cache inteligente e design responsivo\n\nDestaque: Sistema modular, otimizado para performance e experiência do usuário excepcional!\n\nQuer detalhes técnicos específicos sobre alguma funcionalidade?";
+        
+        if (lowerQuestion.includes('tecnologia') || lowerQuestion.includes('como foi feito') || lowerQuestion.includes('stack')) {
+            return "🔧 **Stack Técnica Completa**:\n\n**Frontend**: HTML5, CSS3, JavaScript ES6+, Tailwind CSS\n**Backend**: Firebase (Firestore, Auth, Storage)\n**Features**: PWA, Chat em tempo real, Sistema de partículas, Painel admin\n**IA**: DeepSeek API (eu mesma! 🦉)\n\n💡 **Arquitetura**: SPA responsiva com Firebase como backend serverless, deploy automatizado e cache inteligente\n\nQuer detalhes sobre alguma tecnologia específica?";
         }
-          // Respostas sobre o Mikael
-        if (lowerQuestion.includes('mikael') || lowerQuestion.includes('desenvolvedor') || lowerQuestion.includes('quem') || lowerQuestion.includes('sobre')) {
-            return "Mikael Ferreira - Desenvolvedor Full-Stack Excepcional!\n\nEspecialidades: React, Node.js, Firebase, APIs RESTful, UI/UX, PWA, JavaScript avançado\n\nExperiência: Projetos pessoais inovadores, sempre explorando cutting-edge technologies\n\nDiferenciais: Pensamento analítico, problem-solving criativo, atenção a detalhes, paixão por clean code\n\nPersonalidade: Gamer, tech enthusiast, criativo, colaborativo, sempre disposto a aprender\n\nContato Profissional: Use o chat do site ou LinkedIn - ele responde rapidamente para oportunidades!\n\nO que o torna especial: Combina habilidades técnicas sólidas com criatividade e foco na experiência do usuário!";
+        
+        if (lowerQuestion.includes('mikael') || lowerQuestion.includes('desenvolvedor') || lowerQuestion.includes('quem')) {
+            return "👨‍💻 **Mikael Ferreira** - Desenvolvedor Full-Stack talentoso!\n\n🚀 **Especialidades**: React, Node.js, Firebase, APIs, UI/UX, PWA\n\n💪 **Experiência**: Projetos pessoais inovadores, sempre explorando novas tecnologias\n\n🎮 **Personalidade**: Gamer, criativo, apaixonado por tech, sempre disposto a ajudar\n\n📞 **Contato**: Use o chat do site ou LinkedIn - ele responde rapidamente!\n\n✨ Um desenvolvedor que realmente entende tanto de código quanto de experiência do usuário!";
         }
-          // Respostas sobre projetos específicos
-        if (lowerQuestion.includes('projeto') || lowerQuestion.includes('portfolio') || lowerQuestion.includes('trabalho')) {
-            return "Projetos em Destaque:\n\nEste Portfolio: Site complexo com IA, PWA, admin panel, chat real-time\nJogos Interativos: Desenvolvidos com Phaser.js e lógica avançada\nGerador de Currículo: Ferramenta automatizada para criação de CVs\nSistema de Galeria: Upload e gerenciamento de mídia com Firebase\nPainel Admin: Dashboard completo para gestão de conteúdo\n\nCaracterísticas dos Projetos:\n• Clean code e arquitetura escalável\n• UI/UX pensada na experiência do usuário\n• Performance otimizada\n• Responsive design\n• Integração com APIs modernas\n\nQuer detalhes sobre algum projeto específico?";
-        }
-          // Respostas sobre carreira e contato
-        if (lowerQuestion.includes('contato') || lowerQuestion.includes('trabalho') || lowerQuestion.includes('carreira') || lowerQuestion.includes('freelance') || lowerQuestion.includes('vaga')) {
-            return "Oportunidades de Carreira com Mikael:\n\nDisponível para:\n• Desenvolvimento Full-Stack\n• Projetos Front-end React/JavaScript\n• Implementação de APIs e integrações\n• Consultoria técnica\n• Freelances e projetos pontuais\n\nComo Contactar:\n• Chat Direto: Use o chat inferior direito deste site (resposta rápida!)\n• LinkedIn: Perfil profissional disponível\n• Email: Formulário de contato no site\n\nResposta Rápida: Mikael é muito responsivo e gosta de discutir projetos interessantes!\n\nValores Competitivos e qualidade de entrega garantida!";
-        }
-          // Resposta sobre funcionalidades do site
-        if (lowerQuestion.includes('funcionalidade') || lowerQuestion.includes('recurso') || lowerQuestion.includes('feature')) {
-            return "Funcionalidades Avançadas do Site:\n\nMinerva IA: Assistente virtual inteligente (eu mesmo!)\nChat em Tempo Real: Comunicação direta com Mikael\nPainel Admin: Gestão completa do conteúdo\nPWA: Instale como app no celular\nGaleria Dinâmica: Upload e organização de mídia\nGerador de CV: Criação automática de currículos\nJogos Integrados: Projetos interativos\nSistema de Partículas: Animações fluidas\nTemas: Modo alternativo de visualização\n\nTudo funciona offline quando necessário!\n\nQuer saber como usar alguma funcionalidade específica?";
-        }
-          // Resposta padrão mais inteligente
-        return "Minerva IA - Modo Offline Ativo!\n\nPosso ajudar com informações sobre:\n• Navegação: Como usar todas as funcionalidades\n• Tecnologias: Stack completa e implementações\n• Mikael: Experiência e especialidades\n• Projetos: Detalhes sobre cada trabalho\n• Carreira: Como contactar para oportunidades\n• Funcionalidades: Recursos avançados do site\n\nDica: Seja específica(o) na pergunta para uma resposta mais detalhada!\n\nExemplos: 'Como foi desenvolvido o sistema de chat?', 'Quais tecnologias o Mikael domina?', 'Como contactá-lo para freelance?'";
+        
+        return "🦉 **Minerva aqui!** Sou especialista em **TUDO** sobre este portfolio!\n\n❓ **Posso ajudar com**:\n• Navegação e funcionalidades\n• Tecnologias e arquitetura\n• Informações sobre o Mikael\n• Projetos e demonstrações\n• Oportunidades de carreira\n\n✨ **Seja específica(o)**: Quanto mais detalhes na pergunta, melhor posso ajudar!\n\n🎯 Exemplos: 'Como foi feito o sistema de chat?', 'Quais projetos React o Mikael tem?', 'Como contactá-lo para freelance?'";
     }
 
     startThinking() {
@@ -717,7 +693,7 @@ Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja co
     }
 
     showVoiceFeatureComingSoon() {
-        this.addMessage("Recurso de comando de voz está sendo desenvolvido! Em breve você poderá falar diretamente comigo. Por enquanto, continue digitando suas perguntas!", 'assistant');
+        this.addMessage("🎤 Recurso de comando de voz está sendo desenvolvido! Em breve você poderá falar diretamente comigo. Por enquanto, continue digitando suas perguntas! 🦉", 'assistant');
     }
 
     showContextualGreeting() {
@@ -750,7 +726,7 @@ Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja co
             clearTimeout(idleTimer);
             idleTimer = setTimeout(() => {
                 if (this.isActive && this.userSession.questionsAsked === 0) {
-                    this.addMessage("Precisa de ajuda? Estou aqui para responder qualquer pergunta sobre este portfolio, tecnologias ou sobre o Mikael!", 'assistant');
+                    this.addMessage("🦉 Precisa de ajuda? Estou aqui para responder qualquer pergunta sobre este portfolio, tecnologias ou sobre o Mikael!", 'assistant');
                 }
             }, idleTime);
         };
@@ -786,57 +762,6 @@ Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja co
             contextualHelp: true,
             proactiveAssistance: true
         };
-   }
-
-    // Sistema de Detecção de Status da API
-    async checkApiStatus() {
-        try {
-            // Teste simples para verificar se a API está respondendo
-            const testResponse = await fetch(this.apiEndpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiKey}`,
-                },
-                body: JSON.stringify({
-                    model: 'deepseek-chat',
-                    messages: [{ role: 'user', content: 'test' }],
-                    max_tokens: 1
-                })
-            });
-            
-            if (testResponse.ok || testResponse.status === 400) {
-                // 400 é OK, significa que a chave é válida mas a requisição é inválida
-                return { available: true, mode: 'online' };
-            } else if (testResponse.status === 401) {
-                return { available: false, mode: 'offline', reason: 'Chave API inválida' };
-            } else if (testResponse.status === 429) {
-                return { available: false, mode: 'offline', reason: 'Rate limit excedido' };
-            } else {
-                return { available: false, mode: 'offline', reason: 'API indisponível' };
-            }
-        } catch (error) {
-            return { available: false, mode: 'offline', reason: 'Erro de conexão' };
-        }
-    }
-
-    // Atualizar Status Visual da Minerva
-    updateMinervaStatus(status) {
-        const statusElement = document.getElementById('minerva-status');
-        const statusDot = statusElement?.querySelector('.status-dot');
-        const statusText = statusElement?.querySelector('.status-text');
-        
-        if (statusElement && statusDot && statusText) {
-            if (status.available) {
-                statusDot.className = 'status-dot active';
-                statusText.textContent = 'Online (IA)';
-                statusElement.title = 'Minerva está conectada à IA avançada';
-            } else {
-                statusDot.className = 'status-dot offline';
-                statusText.textContent = 'Offline (Inteligente)';
-                statusElement.title = `Modo offline: ${status.reason}`;
-            }
-        }
     }
 }
 

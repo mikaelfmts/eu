@@ -15,12 +15,9 @@ async function checkPageStatus(pageId, redirectPath = '../index.html') {
     console.log(`Verificando status da página: ${pageId}`);
     
     try {
-        // Não bloquear a página durante a verificação
-        setTimeout(async () => {
-            try {
-                // Importar Firebase dinamicamente
-                const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js');
-                const { getFirestore, doc, onSnapshot } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
+        // Importar Firebase dinamicamente
+        const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js');
+        const { getFirestore, doc, onSnapshot } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
         
         const app = initializeApp(pageControlFirebaseConfig);
         const db = getFirestore(app);
@@ -753,30 +750,15 @@ function checkMaintenanceFromLocal() {
     }
 }
 
-// Função de inicialização para páginas - Versão não-bloqueante
+// Função de inicialização para páginas
 function initPageControl(pageId) {
     console.log(`Inicializando controle para página: ${pageId}`);
     
-    // Não bloquear o carregamento da página - executar verificações em background
-    setTimeout(() => {
-        try {
-            checkMaintenanceStatus();
-            checkPageStatusAsync(pageId);
-        } catch (error) {
-            console.warn('Erro no controle de página:', error);
-        }
-    }, 100); // Pequeno delay para não bloquear
-}
-
-// Verificação assíncrona que não bloqueia
-async function checkPageStatusAsync(pageId) {
-    try {
-        console.log(`Verificação assíncrona do status da página: ${pageId}`);
-        // Verificar cache local primeiro
-        checkPageStatusFromLocal(pageId);
-    } catch (error) {
-        console.warn('Erro na verificação assíncrona:', error);
-    }
+    // Verificar manutenção geral primeiro
+    checkMaintenanceStatus();
+    
+    // Depois verificar status específico da página
+    checkPageStatus(pageId);
 }
 
 // Exportar função principal

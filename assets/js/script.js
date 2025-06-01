@@ -1,43 +1,10 @@
 
-// Sistema de Cache e Rate Limiting Inteligente para GitHub API
+// Sistema de Rate Limiting para GitHub API
 const GITHUB_RATE_LIMIT = {
-    max: 30, // Reduzido para 30 requisições por hora para máxima segurança
+    max: 60, // GitHub permite 60 requisições por hora para usuários não autenticados
     window: 60 * 60 * 1000, // 1 hora em millisegundos
-    key: 'github_rate_limit_v2',
-    cooldown: 10 * 60 * 1000 // 10 minutos de cooldown entre rajadas
+    key: 'github_rate_limit'
 };
-
-// Sistema de Cache Unificado Inteligente
-const GITHUB_CACHE_SYSTEM = {
-    profile: { 
-        key: 'github_profile_cache_v2', 
-        duration: 24 * 60 * 60 * 1000, // 24 horas - perfil muda raramente
-        priority: 'high'
-    },
-    repos: { 
-        key: 'github_repos_cache_v2', 
-        duration: 6 * 60 * 60 * 1000, // 6 horas - repos podem mudar
-        priority: 'medium'
-    },
-    languages: { 
-        key: 'github_languages_cache_v2', 
-        duration: 8 * 60 * 60 * 1000, // 8 horas - linguagens são relativamente estáveis
-        priority: 'low'
-    },
-    packages: { 
-        key: 'github_packages_cache_v2', 
-        duration: 12 * 60 * 60 * 1000, // 12 horas - package.json não muda muito
-        priority: 'low'
-    },
-    userData: { 
-        key: 'github_user_cache_v2', 
-        duration: 24 * 60 * 60 * 1000, // 24 horas - dados do usuário estáveis
-        priority: 'high'
-    }
-};
-
-// Sistema de deduplicação de requisições em andamento
-const pendingRequests = new Map();
 
 function checkRateLimit() {
     const now = Date.now();
@@ -54,13 +21,12 @@ function checkRateLimit() {
     const recentRequests = data.requests.filter(timestamp => timestamp > windowStart);
     
     const requestsLeft = GITHUB_RATE_LIMIT.max - recentRequests.length;
-    const canMakeRequest = requestsLeft > 5; // Manter buffer de 5 requisições
+    const canMakeRequest = requestsLeft > 0;
     
     // Atualizar dados com requisições recentes
     const updatedData = { requests: recentRequests, lastCleanup: now };
     localStorage.setItem(GITHUB_RATE_LIMIT.key, JSON.stringify(updatedData));
     
-    console.log(`🔧 Rate Limit Check: ${requestsLeft} requisições restantes`);
     return { canMakeRequest, requestsLeft };
 }
 
@@ -77,159 +43,36 @@ function incrementRateLimit() {
     
     data.requests.push(now);
     localStorage.setItem(GITHUB_RATE_LIMIT.key, JSON.stringify(data));
-    console.log(`📊 Rate Limit: ${data.requests.length}/${GITHUB_RATE_LIMIT.max} usado`);
 }
 
-// Função de cache inteligente unificada
-function getCacheItem(cacheConfig) {
-    try {
-        const cached = localStorage.getItem(cacheConfig.key);
-        if (!cached) return null;
-        
-        const { data, timestamp } = JSON.parse(cached);
-        const age = Date.now() - timestamp;
-        
-        if (age > cacheConfig.duration) {
-            localStorage.removeItem(cacheConfig.key);
-            console.log(`🗑️ Cache expirado removido: ${cacheConfig.key}`);
-            return null;
-        }
-        
-        const hoursOld = Math.round(age / (1000 * 60 * 60) * 10) / 10;
-        console.log(`📦 Cache hit: ${cacheConfig.key} (${hoursOld}h de idade)`);
-        return data;
-    } catch (error) {
-        console.warn('⚠️ Erro ao ler cache:', error);
-        localStorage.removeItem(cacheConfig.key);
-        return null;
-    }
-}
-
-function setCacheItem(cacheConfig, data) {
-    try {
-        const cache = { data, timestamp: Date.now() };
-        localStorage.setItem(cacheConfig.key, JSON.stringify(cache));
-        console.log(`💾 Cache salvo: ${cacheConfig.key}`);
-    } catch (error) {
-        console.warn('⚠️ Erro ao salvar cache:', error);
-        // Tentar limpar caches antigos se localStorage estiver cheio
-        clearOldCaches();
-    }
-}
-
-// Função para limpar caches antigos quando localStorage está cheio
-function clearOldCaches() {
-    try {
-        const cacheKeys = Object.keys(localStorage).filter(key => 
-            key.includes('github_') && key.includes('cache')
-        );
-        
-        // Remover os mais antigos primeiro
-        cacheKeys.forEach(key => {
-            try {
-                const cached = JSON.parse(localStorage.getItem(key));
-                const age = Date.now() - cached.timestamp;
-                // Remover caches com mais de 1 hora se necessário
-                if (age > 60 * 60 * 1000) {
-                    localStorage.removeItem(key);
-                    console.log(`🧹 Cache antigo removido: ${key}`);
-                }
-            } catch (e) {
-                localStorage.removeItem(key);
-            }
-        });
-    } catch (error) {
-        console.warn('Erro ao limpar caches:', error);
-    }
-}
-
-async function makeGitHubRequest(url, retries = 3) {
-    // Sistema de deduplicação - evitar requisições simultâneas para a mesma URL
-    const requestKey = url;
-    
-    // Se já há uma requisição em andamento para esta URL, aguardar ela
-    if (pendingRequests.has(requestKey)) {
-        console.log(`🔄 Aguardando requisição já em andamento: ${url}`);
-        try {
-            return await pendingRequests.get(requestKey);
-        } catch (error) {
-            // Se a requisição pendente falhar, remover do cache e tentar novamente
-            pendingRequests.delete(requestKey);
-            throw error;
-        }
-    }
-    
+async function makeGitHubRequest(url) {
     const rateLimit = checkRateLimit();
     
     if (!rateLimit.canMakeRequest) {
-        console.log(`⚠️ GitHub API rate limit atingido. Requisições restantes: ${rateLimit.requestsLeft}`);
         throw new Error(`GitHub API rate limit exceeded. Requests left: ${rateLimit.requestsLeft}`);
     }
     
-    // Criar promise para esta requisição
-    const requestPromise = (async () => {
-        for (let attempt = 1; attempt <= retries; attempt++) {
-            try {
-                // Adicionar delay progressivo entre tentativas
-                if (attempt > 1) {
-                    const delay = attempt * 2000; // 2s, 4s, 6s
-                    console.log(`⏳ Tentativa ${attempt}/${retries} em ${delay/1000}s...`);
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                }
-                
-                const response = await fetch(url, {
-                    headers: {
-                        'Accept': 'application/vnd.github.v3+json',
-                        'User-Agent': 'Portfolio-Mikael-Ferreira'
-                    }
-                });
-                
-                incrementRateLimit();
-                
-                if (response.status === 403) {
-                    const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
-                    const rateLimitReset = response.headers.get('X-RateLimit-Reset');
-                    
-                    if (rateLimitRemaining === '0') {
-                        const resetTime = new Date(parseInt(rateLimitReset) * 1000);
-                        console.log(`⚠️ GitHub API rate limit atingido. Reset em: ${resetTime.toLocaleTimeString()}`);
-                        throw new Error('GitHub API rate limit exceeded (HTTP 403)');
-                    }
-                }
-                
-                if (response.status === 404) {
-                    console.log(`⚠️ Recurso não encontrado: ${url}`);
-                    throw new Error('Resource not found (HTTP 404)');
-                }
-                
-                if (!response.ok) {
-                    throw new Error(`GitHub API request failed: ${response.status} ${response.statusText}`);
-                }
-                
-                return response;
-                
-            } catch (error) {
-                console.log(`❌ Tentativa ${attempt}/${retries} falhou:`, error.message);
-                
-                if (attempt === retries) {
-                    if (error.message.includes('rate limit')) {
-                        throw error;
-                    }
-                    throw new Error(`GitHub API failed after ${retries} attempts: ${error.message}`);
-                }
+    try {
+        const response = await fetch(url);
+        incrementRateLimit();
+        
+        if (response.status === 403) {
+            const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+            if (rateLimitRemaining === '0') {
+                throw new Error('GitHub API rate limit exceeded (HTTP 403)');
             }
         }
-    })();
-    
-    // Adicionar ao mapa de requisições pendentes
-    pendingRequests.set(requestKey, requestPromise);
-    
-    try {
-        const result = await requestPromise;
-        return result;
-    } finally {
-        // Remover da lista de pendentes quando concluir (sucesso ou erro)
-        pendingRequests.delete(requestKey);
+        
+        if (!response.ok) {
+            throw new Error(`GitHub API request failed: ${response.status} ${response.statusText}`);
+        }
+        
+        return response;
+    } catch (error) {
+        if (error.message.includes('rate limit')) {
+            throw error;
+        }
+        throw new Error(`Network error: ${error.message}`);
     }
 }
 
@@ -239,7 +82,7 @@ async function syncProfilePhoto() {
         console.log('🖼️ Sincronizando foto do perfil com GitHub API...');
         
         // Verificar cache primeiro
-        const cachedUser = getCacheItem(GITHUB_CACHE_SYSTEM.userData);
+        const cachedUser = getCacheItem(GITHUB_CACHE.userData);
         if (cachedUser && cachedUser.avatar_url) {
             console.log('✅ Usando foto do cache');
             const profilePhotos = document.querySelectorAll('.foto-perfil img, #profile-photo');
@@ -255,7 +98,7 @@ async function syncProfilePhoto() {
         const data = await response.json();
         
         // Salvar no cache
-        setCacheItem(GITHUB_CACHE_SYSTEM.userData, data);
+        setCacheItem(GITHUB_CACHE.userData, data);
         
         const profilePhotos = document.querySelectorAll('.foto-perfil img, #profile-photo');
         
@@ -421,14 +264,14 @@ async function fetchGitHubData() {
     // Nome de usuário do GitHub (altere para o seu)
     const username = "mikaelfmts";
     
-    // Verificar cache de habilidades primeiro
-    const cachedSkills = getCacheItem(GITHUB_CACHE_SYSTEM.languages);
-    if (cachedSkills) {
-        console.log('📂 Usando dados de habilidades do cache...');
-        const { languageStats, technologyStats, totalBytes } = cachedSkills;
+    // Verificar cache primeiro
+    const cachedData = getFromCache();
+    if (cachedData) {
+        console.log('📂 Usando dados do cache...');
+        const { languageStats, technologyStats, totalBytes } = cachedData;
         createSkillCards(languageStats, technologyStats, totalBytes, true);
         
-        // Também buscar perfil e repos em paralelo (eles têm seus próprios caches)
+        // Usar dados de fallback para perfil e repos
         fetchGitHubProfile(username);
         fetchGitHubRepositories(username);
         return;
@@ -437,7 +280,7 @@ async function fetchGitHubData() {
     console.log('🔄 Tentando buscar dados reais da API do GitHub para:', username);
     
     try {
-        // Tentar buscar dados de perfil e repositórios em paralelo para economizar tempo
+        // Tentar buscar dados de perfil e repositórios
         await Promise.all([
             fetchGitHubProfile(username),
             fetchGitHubRepositories(username)
@@ -2539,16 +2382,45 @@ function formatBytes(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
-// Nota: Este bloco foi removido para resolver o problema de duplicação de funções.
-// As funções getCacheItem e setCacheItem já estão definidas no início do script.
-// O objeto GITHUB_CACHE_SYSTEM já está definido no topo do arquivo.
+// Cache para GitHub API
+const GITHUB_CACHE = {
+    profile: { key: 'github_profile_cache', duration: 60 * 60 * 1000 }, // 1 hora
+    repos: { key: 'github_repos_cache', duration: 30 * 60 * 1000 },    // 30 minutos
+    userData: { key: 'github_user_cache', duration: 60 * 60 * 1000 }   // 1 hora
+};
+
+function getCacheItem(cacheConfig) {
+    try {
+        const cached = localStorage.getItem(cacheConfig.key);
+        if (!cached) return null;
+        
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp > cacheConfig.duration) {
+            localStorage.removeItem(cacheConfig.key);
+            return null;
+        }
+        
+        return data;
+    } catch {
+        return null;
+    }
+}
+
+function setCacheItem(cacheConfig, data) {
+    try {
+        const cache = { data, timestamp: Date.now() };
+        localStorage.setItem(cacheConfig.key, JSON.stringify(cache));
+    } catch (error) {
+        console.warn('Erro ao salvar cache:', error);
+    }
+}
 
 // Função para buscar perfil do GitHub
 async function fetchGitHubProfile(username) {
     console.log('🔍 Buscando perfil do GitHub para:', username);
     
     // Verificar cache primeiro
-    const cachedProfile = getCacheItem(GITHUB_CACHE_SYSTEM.profile);
+    const cachedProfile = getCacheItem(GITHUB_CACHE.profile);
     if (cachedProfile) {
         console.log('✅ Usando perfil do cache');
         updateGitHubProfile(cachedProfile);
@@ -2561,7 +2433,7 @@ async function fetchGitHubProfile(username) {
         console.log('✅ Perfil obtido da API:', profileData);
         
         // Salvar no cache
-        setCacheItem(GITHUB_CACHE_SYSTEM.profile, profileData);
+        setCacheItem(GITHUB_CACHE.profile, profileData);
         
         console.log('✅ Dados de perfil obtidos:', profileData.name);
         
@@ -2591,7 +2463,7 @@ async function fetchGitHubRepositories(username) {
     console.log('🔍 Buscando repositórios do GitHub para:', username);
     
     // Verificar cache primeiro
-    const cachedRepos = getCacheItem(GITHUB_CACHE_SYSTEM.repos);
+    const cachedRepos = getCacheItem(GITHUB_CACHE.repos);
     if (cachedRepos) {
         console.log('✅ Usando repositórios do cache');
         updateGitHubRepos(cachedRepos);
@@ -2604,7 +2476,7 @@ async function fetchGitHubRepositories(username) {
         console.log('✅ Repositórios obtidos da API:', repos.length);
         
         // Salvar no cache
-        setCacheItem(GITHUB_CACHE_SYSTEM.repos, repos);
+        setCacheItem(GITHUB_CACHE.repos, repos);
         
         updateGitHubRepos(repos);
         return repos;
@@ -2671,16 +2543,6 @@ async function fetchGitHubRepositories(username) {
 // Função para analisar habilidades dos repositórios do GitHub
 async function analyzeSkillsFromRepos(username) {
     console.log('🧪 Iniciando análise de habilidades técnicas...');
-    
-    // Verificar cache primeiro
-    const cachedSkills = getCacheItem(GITHUB_CACHE_SYSTEM.languages);
-    if (cachedSkills) {
-        console.log('✅ Usando análise de habilidades do cache');
-        const { languageStats, technologyStats, totalBytes } = cachedSkills;
-        createSkillCards(languageStats, technologyStats, totalBytes, true);
-        return cachedSkills;
-    }
-    
     try {
         // Buscar repositórios (ou usar os que já foram obtidos)
         const repos = await fetchGitHubRepositories(username);
@@ -2694,14 +2556,8 @@ async function analyzeSkillsFromRepos(username) {
         const technologyStats = {};
         let totalBytes = 0;
         
-        // Implementar sistema de processamento em lotes para reduzir chamadas à API
-        const batchSize = 3; // Processar apenas 3 repos por vez para reduzir rate limit
-        const reposBatch = repos.slice(0, batchSize);
-        
-        console.log(`🔄 Processando ${reposBatch.length} de ${repos.length} repositórios para evitar rate limit...`);
-        
         // Para cada repositório, obtemos as linguagens usadas
-        await Promise.all(reposBatch.map(async (repo) => {
+        await Promise.all(repos.map(async (repo) => {
             try {
                 // Se o repo já tem uma linguagem definida, podemos usar
                 if (repo.language) {
@@ -2710,19 +2566,16 @@ async function analyzeSkillsFromRepos(username) {
                     totalBytes += 1000;
                 }
                 
-                // Tentar obter estatísticas detalhadas de linguagens (com limite)
-                try {
-                    const langResponse = await makeGitHubRequest(`https://api.github.com/repos/${username}/${repo.name}/languages`);
-                    const languages = await langResponse.json();
-                    
-                    // Adicionar bytes de cada linguagem
-                    Object.entries(languages).forEach(([lang, bytes]) => {
-                        languageStats[lang] = (languageStats[lang] || 0) + bytes;
-                        totalBytes += bytes;
-                    });
-                } catch (langError) {
-                    console.log(`⚠️ Não foi possível obter linguagens de ${repo.name}, usando fallback`);
-                }
+                // Tentar obter estatísticas detalhadas de linguagens
+                const langResponse = await makeGitHubRequest(`https://api.github.com/repos/${username}/${repo.name}/languages`);
+                
+                const languages = await langResponse.json();
+                
+                // Adicionar bytes de cada linguagem
+                Object.entries(languages).forEach(([lang, bytes]) => {
+                    languageStats[lang] = (languageStats[lang] || 0) + bytes;
+                    totalBytes += bytes;
+                });
                 
                 // Analisar descrição e nome para tecnologias
                 const repoText = (repo.description || '') + ' ' + repo.name;
@@ -2759,50 +2612,48 @@ async function analyzeSkillsFromRepos(username) {
                     });
                 });
                 
-                // Verificar arquivo package.json para dependências (apenas para alguns repos para evitar rate limit)
-                if (Math.random() < 0.3) { // Analisar apenas 30% dos repos para reduzir chamadas
-                    try {
-                        const contentResponse = await makeGitHubRequest(`https://api.github.com/repos/${username}/${repo.name}/contents/package.json`);
+                // Verificar arquivo package.json para dependências
+                try {
+                    const contentResponse = await makeGitHubRequest(`https://api.github.com/repos/${username}/${repo.name}/contents/package.json`);
+                    
+                    const data = await contentResponse.json();
+                    // Converter conteúdo de base64
+                    const content = atob(data.content);
+                    const packageJson = JSON.parse(content);
                         
-                        const data = await contentResponse.json();
-                        // Converter conteúdo de base64
-                        const content = atob(data.content);
-                        const packageJson = JSON.parse(content);
-                            
-                        // Analisar dependências
-                        const dependencies = { 
-                            ...(packageJson.dependencies || {}), 
-                            ...(packageJson.devDependencies || {}) 
-                        };
-                        
-                        // Mapear dependências para tecnologias
-                        const depToTech = {
-                            'react': 'React',
-                            'react-dom': 'React',
-                            'vue': 'Vue.js',
-                            'angular': 'Angular',
-                            'express': 'Node.js',
-                            'firebase': 'Firebase',
-                            'bootstrap': 'Bootstrap',
-                            'tailwindcss': 'Tailwind CSS',
-                            'axios': 'API',
-                            'mongoose': 'MongoDB',
-                            'sequelize': 'SQL',
-                            'redux': 'React',
-                            'next': 'Next.js',
-                            'webpack': 'Web Development',
-                            'jest': 'Testing',
-                            'typescript': 'TypeScript'
-                        };
-                        
-                        // Incrementar pontuação para cada dependência
-                        Object.keys(dependencies).forEach(dep => {
-                            const tech = depToTech[dep] || 'JavaScript';
-                            technologyStats[tech] = (technologyStats[tech] || 0) + 15;
-                        });
-                    } catch (e) {
-                        console.log(`⚠️ Não foi possível analisar package.json de ${repo.name}`);
-                    }
+                    // Analisar dependências
+                    const dependencies = { 
+                        ...(packageJson.dependencies || {}), 
+                        ...(packageJson.devDependencies || {}) 
+                    };
+                    
+                    // Mapear dependências para tecnologias
+                    const depToTech = {
+                        'react': 'React',
+                        'react-dom': 'React',
+                        'vue': 'Vue.js',
+                        'angular': 'Angular',
+                        'express': 'Node.js',
+                        'firebase': 'Firebase',
+                        'bootstrap': 'Bootstrap',
+                        'tailwindcss': 'Tailwind CSS',
+                        'axios': 'API',
+                        'mongoose': 'MongoDB',
+                        'sequelize': 'SQL',
+                        'redux': 'React',
+                        'next': 'Next.js',
+                        'webpack': 'Web Development',
+                        'jest': 'Testing',
+                        'typescript': 'TypeScript'
+                    };
+                    
+                    // Incrementar pontuação para cada dependência
+                    Object.keys(dependencies).forEach(dep => {
+                        const tech = depToTech[dep] || 'JavaScript';
+                        technologyStats[tech] = (technologyStats[tech] || 0) + 15;
+                    });
+                } catch (e) {
+                    console.log(`Não foi possível analisar package.json de ${repo.name}:`, e);
                 }
                 
             } catch (repoError) {
@@ -2827,44 +2678,69 @@ async function analyzeSkillsFromRepos(username) {
         // Armazenar dados
         const skillsData = { languageStats, technologyStats, totalBytes };
         
-        // Salvar no cache ANTES de gerar os cards
-        setCacheItem(GITHUB_CACHE_SYSTEM.languages, skillsData);
-        
         // Gerar cards de skills
         createSkillCards(languageStats, technologyStats, totalBytes);
+        
+        // Salvar no cache para próximos acessos
+        saveToCache(skillsData);
         
         return skillsData;
     } catch (error) {
         console.error('❌ Erro na análise de habilidades:', error);
         
         // Em caso de falha, usar dados de fallback
-        const fallbackData = generateFallbackSkills();
+        generateFallbackSkills();
         
-        // Salvar dados de fallback no cache por um tempo menor
-        try {
-            const fallbackCache = {
-                key: 'github_fallback_skills_v2',
-                duration: 2 * 60 * 60 * 1000 // 2 horas apenas para fallback
-            };
-            setCacheItem(fallbackCache, fallbackData);
-        } catch (e) {
-            console.warn('Erro ao salvar fallback no cache:', e);
+        return null;
+    }
+}
+
+// Função para salvar dados no cache
+function saveToCache(data) {
+    try {
+        // Adicionar timestamp para controle de expiração
+        const cacheData = {
+            ...data,
+            timestamp: Date.now()
+        };
+        
+        localStorage.setItem('github-skills-cache', JSON.stringify(cacheData));
+        console.log('💾 Dados salvos no cache local');
+    } catch (error) {
+        console.warn('⚠️ Erro ao salvar no cache:', error);
+    }
+}
+
+// Função para obter dados do cache
+function getFromCache() {
+    try {
+        const cachedData = localStorage.getItem('github-skills-cache');
+        
+        if (!cachedData) return null;
+        
+        const data = JSON.parse(cachedData);
+        const cacheAge = Date.now() - (data.timestamp || 0);
+        const cacheExpiry = 60 * 60 * 1000; // 1 hora
+        
+        if (cacheAge > cacheExpiry) {
+            console.log('🕒 Cache expirado, buscando novos dados...');
+            return null;
         }
         
-        return fallbackData;
+        console.log('🔄 Cache válido encontrado, idade:', Math.round(cacheAge / 1000 / 60), 'minutos');
+        return data;
+    } catch (error) {
+        console.warn('⚠️ Erro ao ler cache:', error);
+        return null;
     }
 }
 
 // Função para limpar cache de skills (usada pelo botão)
 function clearSkillsCache() {
     try {
-        // Limpar todos os caches relacionados ao GitHub
-        Object.values(GITHUB_CACHE_SYSTEM).forEach(cache => {
-            localStorage.removeItem(cache.key);
-        });
-        localStorage.removeItem('github_rate_limit_v2');
+        localStorage.removeItem('github-skills-cache');
         console.log('🧹 Cache de skills limpo com sucesso!');
-        alert('Cache limpo! Os dados serão atualizados na próxima visualização.');
+        alert('Cache de skills limpo! Os dados serão atualizados na próxima visualização da página.');
     } catch (error) {
         console.warn('⚠️ Erro ao limpar cache:', error);
     }

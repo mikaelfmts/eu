@@ -580,22 +580,22 @@ class MinervaUltraAssistant {
         try {
             const systemPrompt = `Você é Minerva, a assistente virtual ultra-inteligente do portfolio de Mikael Ferreira. Você é uma coruja sábia, conhecedora de todas as tecnologias e detalhes deste site.
 
-🦉 PERSONALIDADE:
+PERSONALIDADE:
 - Inteligente, prestativa e um pouco orgulhosa (como uma coruja sábia)
 - Use linguagem técnica quando apropriado, mas explique de forma didática
 - Seja entusiasta sobre tecnologia e desenvolvimento
 - Ocasionalmente use emojis relacionados a corujas, tecnologia ou magia
 - Trate o Mikael com admiração, é um desenvolvedor talentoso
 
-📊 INFORMAÇÕES COMPLETAS DO SITE:
+INFORMAÇÕES COMPLETAS DO SITE:
 ${JSON.stringify(context.knowledgeBase, null, 2)}
 
-📍 CONTEXTO ATUAL DO USUÁRIO:
+CONTEXTO ATUAL DO USUÁRIO:
 - Está na página: ${context.currentPage}
 - Perguntas já feitas: ${context.userSession.questionsAsked}
 - Tópicos abordados: ${context.userSession.topics.join(', ') || 'Nenhum ainda'}
 
-🎯 INSTRUÇÕES ESPECÍFICAS:
+INSTRUÇÕES ESPECÍFICAS:
 1. Se perguntarem sobre navegação, dê instruções PRECISAS e DETALHADAS
 2. Se perguntarem sobre tecnologias, explique não só QUAL, mas COMO e POR QUE foi usado
 3. Se perguntarem sobre o Mikael, seja entusiasta e destaque suas qualidades
@@ -651,30 +651,46 @@ Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja co
             
             // Se for erro de rede ou CORS, usar fallback
             if (error.name === 'TypeError' || error.message.includes('Failed to fetch')) {
-                console.log('🔄 Problema de CORS ou rede, usando respostas offline...');
+                console.log('Problema de CORS ou rede, usando respostas offline...');
                 return this.getFallbackResponse(question);
             }
               // Para outros erros da API, também usar fallback mas informar o usuário
-            return `⚠️ Estou com dificuldades para acessar minha IA avançada no momento, mas posso te ajudar com informações offline!\n\n${this.getFallbackResponse(question)}`;
+            return `Estou com dificuldades para acessar minha IA avançada no momento, mas posso te ajudar com informações offline!\n\n${this.getFallbackResponse(question)}`;
         }
-    }
-
-    getFallbackResponse(question) {
+    }    getFallbackResponse(question) {
         const lowerQuestion = question.toLowerCase();
         
-        if (lowerQuestion.includes('navegar') || lowerQuestion.includes('como usar') || lowerQuestion.includes('menu')) {
-            return "🦉 Para navegar pelo site:\n\n📍 **Menu Principal**: Clique na foto de perfil (canto superior direito) para abrir o menu lateral com todas as páginas\n\n📜 **Seções**: Role a página ou clique nos links do menu para: Curriculum, Projetos, Certificados, Galeria, Games\n\n💬 **Chat Direto**: Use o chat inferior direito para falar diretamente com o Mikael\n\n🔍 Precisa de algo específico? Pergunte que te guio!";
+        // Análise inteligente de intenções
+        if (lowerQuestion.includes('site') || lowerQuestion.includes('portfolio') || lowerQuestion.includes('como foi feito') || lowerQuestion.includes('desenvolvido')) {
+            return "Este portfolio foi desenvolvido com uma arquitetura moderna e tecnologias avançadas. O site é uma SPA (Single Page Application) construída com HTML5, CSS3 e JavaScript vanilla ES6+, utilizando Firebase como backend serverless para autenticação, banco de dados Firestore e storage de arquivos.\n\nPrincipais recursos: Sistema de chat em tempo real, painel administrativo completo, PWA com cache offline, sistema de partículas interativo, gerador automático de currículo, galeria de mídia administrativa e esta assistente IA powered by DeepSeek.\n\nA interface foi inspirada no visual de League of Legends/Riot Games, com design responsivo e animações fluidas. Todo o código é otimizado para performance e SEO.";
         }
         
-        if (lowerQuestion.includes('tecnologia') || lowerQuestion.includes('como foi feito') || lowerQuestion.includes('stack')) {
-            return "🔧 **Stack Técnica Completa**:\n\n**Frontend**: HTML5, CSS3, JavaScript ES6+, Tailwind CSS\n**Backend**: Firebase (Firestore, Auth, Storage)\n**Features**: PWA, Chat em tempo real, Sistema de partículas, Painel admin\n**IA**: DeepSeek API (eu mesma! 🦉)\n\n💡 **Arquitetura**: SPA responsiva com Firebase como backend serverless, deploy automatizado e cache inteligente\n\nQuer detalhes sobre alguma tecnologia específica?";
+        if (lowerQuestion.includes('tecnologia') || lowerQuestion.includes('stack') || lowerQuestion.includes('ferramentas') || lowerQuestion.includes('framework')) {
+            return "Stack técnica completa:\n\nFrontend: HTML5 semântico, CSS3 com Flexbox/Grid, JavaScript ES6+ modular, Tailwind CSS para styling consistente, Font Awesome para ícones.\n\nBackend: Firebase Firestore (NoSQL), Firebase Authentication, Firebase Storage, Firebase Hosting.\n\nFeatures avançadas: PWA com Service Worker, sistema de cache inteligente, chat em tempo real com Firestore listeners, sistema de partículas WebGL, API integration com DeepSeek AI, sistema de upload de arquivos, gerador de PDF dinâmico.\n\nFerramentas: Git para versionamento, Chrome DevTools para debug, Lighthouse para performance, Firebase Console para monitoramento.";
         }
         
-        if (lowerQuestion.includes('mikael') || lowerQuestion.includes('desenvolvedor') || lowerQuestion.includes('quem')) {
-            return "👨‍💻 **Mikael Ferreira** - Desenvolvedor Full-Stack talentoso!\n\n🚀 **Especialidades**: React, Node.js, Firebase, APIs, UI/UX, PWA\n\n💪 **Experiência**: Projetos pessoais inovadores, sempre explorando novas tecnologias\n\n🎮 **Personalidade**: Gamer, criativo, apaixonado por tech, sempre disposto a ajudar\n\n📞 **Contato**: Use o chat do site ou LinkedIn - ele responde rapidamente!\n\n✨ Um desenvolvedor que realmente entende tanto de código quanto de experiência do usuário!";
+        if (lowerQuestion.includes('projeto') || lowerQuestion.includes('trabalho') || lowerQuestion.includes('exemplo') || lowerQuestion.includes('demonstração')) {
+            return "O portfolio apresenta diversos projetos únicos:\n\n1. Sistema de Chat em Tempo Real - Implementação completa com Firebase, autenticação, histórico de mensagens e painel administrativo.\n\n2. Gerador de Currículo Dinâmico - Ferramenta que gera PDFs personalizados com dados sincronizados do GitHub.\n\n3. Painel Administrativo Completo - Interface para gestão de chats, certificados, configurações e manutenção do site.\n\n4. Jogos Interativos - Projetos em Phaser.js demonstrando habilidades em game development.\n\n5. PWA Portfolio - Aplicação progressiva com cache offline e instalação nativa.\n\n6. Sistema de Partículas - Animações WebGL otimizadas para performance.\n\nCada projeto demonstra diferentes aspectos das habilidades técnicas do Mikael.";
         }
         
-        return "🦉 **Minerva aqui!** Sou especialista em **TUDO** sobre este portfolio!\n\n❓ **Posso ajudar com**:\n• Navegação e funcionalidades\n• Tecnologias e arquitetura\n• Informações sobre o Mikael\n• Projetos e demonstrações\n• Oportunidades de carreira\n\n✨ **Seja específica(o)**: Quanto mais detalhes na pergunta, melhor posso ajudar!\n\n🎯 Exemplos: 'Como foi feito o sistema de chat?', 'Quais projetos React o Mikael tem?', 'Como contactá-lo para freelance?'";
+        if (lowerQuestion.includes('contato') || lowerQuestion.includes('trabalhar') || lowerQuestion.includes('freelance') || lowerQuestion.includes('emprego') || lowerQuestion.includes('oportunidade')) {
+            return "Para entrar em contato com Mikael Ferreira:\n\n1. Chat direto do site - Use o sistema de chat na página principal para enviar uma mensagem direta. Ele recebe notificações em tempo real.\n\n2. LinkedIn - Perfil profissional disponível através do botão LinkedIn no site. Ideal para networking e oportunidades profissionais.\n\n3. GitHub - Repositórios públicos com código de qualidade demonstrando expertise técnica.\n\nMikael está aberto a oportunidades de desenvolvimento web, projetos freelance, consultorias técnicas e posições full-time. Ele tem experiência em React, Node.js, Firebase, APIs REST, UI/UX design e é conhecido por entregar projetos de alta qualidade dentro do prazo.\n\nTempo de resposta típico: 24-48 horas para contatos profissionais.";
+        }
+        
+        if (lowerQuestion.includes('mikael') || lowerQuestion.includes('desenvolvedor') || lowerQuestion.includes('quem') || lowerQuestion.includes('sobre')) {
+            return "Mikael Ferreira é um desenvolvedor web full-stack apaixonado por criar experiências digitais únicas e funcionais.\n\nEspecialidades técnicas: JavaScript ES6+, React.js, Node.js, Firebase, APIs REST, HTML5/CSS3, Git, UI/UX Design, PWA development, Database design.\n\nPerfil profissional: Desenvolvedor autodidata com forte capacidade de aprendizado, sempre explorando novas tecnologias. Conhecido por escrever código limpo, bem documentado e seguir best practices. Tem experiência em projetos pessoais inovadores que demonstram criatividade e competência técnica.\n\nDiferenciais: Combina conhecimento técnico sólido com design thinking, resultando em aplicações tanto funcionais quanto visualmente atraentes. Gaming background que trouxe insights únicos para desenvolvimento de interfaces interativas.\n\nEstá sempre disposto a colaborar em projetos desafiadores e aprender novas tecnologias.";
+        }
+        
+        if (lowerQuestion.includes('minerva') || lowerQuestion.includes('assistente') || lowerQuestion.includes('ia') || lowerQuestion.includes('como funciona')) {
+            return "Sou Minerva, a assistente IA deste portfolio, powered by DeepSeek AI.\n\nFuncionalidades:\n- Respostas inteligentes sobre o site, projetos e tecnologias\n- Conhecimento detalhado sobre a estrutura do portfolio\n- Informações sobre o Mikael e suas especialidades\n- Orientação para navegação e uso do site\n- Respostas contextuais baseadas na página atual\n\nImplementação técnica: Integração com API DeepSeek para processamento de linguagem natural, sistema de cache inteligente para respostas rápidas, fallback offline para garantir funcionamento sempre, interface modal responsiva com animações CSS.\n\nBase de conhecimento: Tenho acesso a informações detalhadas sobre toda a arquitetura do site, projetos implementados, stack técnica utilizada e informações profissionais do Mikael.\n\nPosso responder dúvidas técnicas específicas, explicar funcionalidades e ajudar com navegação pelo portfolio.";
+        }
+        
+        if (lowerQuestion.includes('navegar') || lowerQuestion.includes('como usar') || lowerQuestion.includes('menu') || lowerQuestion.includes('páginas')) {
+            return "Para navegar pelo portfolio:\n\nMenu Principal: Clique na foto de perfil (canto superior direito) para abrir o menu lateral com todas as seções disponíveis.\n\nPáginas principais:\n- Home: Apresentação geral, habilidades e projetos principais\n- Projetos: Portfolio detalhado com demonstrações\n- Currículo: CV completo e gerador de currículo personalizado\n- Certificados: Certificações e cursos em andamento\n- Galeria: Mídia e recursos visuais do site\n- Games: Projetos de jogos e aplicações interativas\n- Admin: Painel administrativo (restrito)\n\nChat Direto: Sistema de mensagens na parte inferior direita para contato direto com o Mikael.\n\nNavegação é intuitiva e responsiva, funcionando bem tanto em desktop quanto mobile.";
+        }
+        
+        // Resposta padrão mais inteligente
+        return "Sou Minerva, especialista em tudo sobre este portfolio. Posso ajudar com:\n\n• Explicações técnicas detalhadas sobre desenvolvimento\n• Informações sobre projetos e funcionalidades\n• Detalhes sobre tecnologias e arquitetura\n• Informações profissionais sobre o Mikael\n• Orientação para navegação do site\n• Esclarecimentos sobre oportunidades de colaboração\n\nPara respostas mais precisas, seja específico na sua pergunta. Exemplos:\n- 'Como foi implementado o sistema de chat?'\n- 'Quais tecnologias foram usadas no backend?'\n- 'Como posso contactar o Mikael para projetos?'\n- 'Mostre detalhes sobre os projetos React'\n\nQual aspecto específico gostaria de conhecer melhor?";
     }
 
     startThinking() {
@@ -735,28 +751,25 @@ Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja co
         
         // Limpar cache se necessário
         this.conversationCache.clear();
-    }
-
-    showVoiceFeatureComingSoon() {
-        this.addMessage("🎤 Recurso de comando de voz está sendo desenvolvido! Em breve você poderá falar diretamente comigo. Por enquanto, continue digitando suas perguntas! 🦉", 'assistant');
+    }    showVoiceFeatureComingSoon() {
+        this.addMessage("Recurso de comando de voz está sendo desenvolvido! Em breve você poderá falar diretamente comigo. Por enquanto, continue digitando suas perguntas!", 'assistant');
     }
 
     showContextualGreeting() {
         const page = this.currentPage;
         let greeting = "";
-        
-        const pageGreetings = {
-            'home': "🏠 Bem-vindo à página principal! Aqui você pode conhecer o Mikael, suas habilidades e projetos principais. Posso te guiar através de todo o portfolio!",
-            'projetos': "🚀 Excelente! Está na seção de projetos. Posso explicar detalhadamente cada projeto, as tecnologias usadas e o processo de desenvolvimento!",
-            'admin': "⚙️ Está no painel administrativo! Posso explicar como usar todas as funcionalidades de gestão do site e como tudo foi implementado.",
-            'curriculo': "📄 Na área do gerador de currículo! Esta é uma ferramenta incrível que o Mikael desenvolveu. Posso explicar como funciona!",
-            'certificados': "🏆 Vendo os certificados do Mikael! Posso falar sobre sua jornada de aprendizado e especializações.",
-            'games': "🎮 Na seção de jogos! Aqui estão projetos interativos únicos. Posso explicar como foram desenvolvidos!",
-            'galeria': "🖼️ Na galeria de mídia! Posso explicar o sistema de upload e gerenciamento de arquivos.",
-            'login': "🔐 Na área de autenticação! Posso explicar como o sistema de login foi implementado com Firebase."
+          const pageGreetings = {
+            'home': "Bem-vindo à página principal! Aqui você pode conhecer o Mikael, suas habilidades e projetos principais. Posso te guiar através de todo o portfolio!",
+            'projetos': "Excelente! Está na seção de projetos. Posso explicar detalhadamente cada projeto, as tecnologias usadas e o processo de desenvolvimento!",
+            'admin': "Está no painel administrativo! Posso explicar como usar todas as funcionalidades de gestão do site e como tudo foi implementado.",
+            'curriculo': "Na área do gerador de currículo! Esta é uma ferramenta incrível que o Mikael desenvolveu. Posso explicar como funciona!",
+            'certificados': "Vendo os certificados do Mikael! Posso falar sobre sua jornada de aprendizado e especializações.",
+            'games': "Na seção de jogos! Aqui estão projetos interativos únicos. Posso explicar como foram desenvolvidos!",
+            'galeria': "Na galeria de mídia! Posso explicar o sistema de upload e gerenciamento de arquivos.",
+            'login': "Na área de autenticação! Posso explicar como o sistema de login foi implementado com Firebase."
         };
         
-        greeting = pageGreetings[page] || "🦉 Olá! Sou a Minerva, sua assistente IA ultra-inteligente!";
+        greeting = pageGreetings[page] || "Olá! Sou a Minerva, sua assistente IA ultra-inteligente!";
         
         setTimeout(() => {
             this.addMessage('minerva', greeting);
@@ -768,10 +781,9 @@ Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja co
         const idleTime = 30000; // 30 segundos
         
         const resetIdleTimer = () => {
-            clearTimeout(idleTimer);
-            idleTimer = setTimeout(() => {
+            clearTimeout(idleTimer);            idleTimer = setTimeout(() => {
                 if (this.isActive && this.userSession.questionsAsked === 0) {
-                    this.addMessage("🦉 Precisa de ajuda? Estou aqui para responder qualquer pergunta sobre este portfolio, tecnologias ou sobre o Mikael!", 'assistant');
+                    this.addMessage("Precisa de ajuda? Estou aqui para responder qualquer pergunta sobre este portfolio, tecnologias ou sobre o Mikael!", 'assistant');
                 }
             }, idleTime);
         };
@@ -816,7 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         try {
             window.minerva = new MinervaUltraAssistant();
-            console.log('🦉 Minerva Ultra Assistant inicializada com sucesso!');
+            console.log('Minerva Ultra Assistant inicializada com sucesso!');
         } catch (error) {
             console.error('Erro ao inicializar Minerva:', error);
         }

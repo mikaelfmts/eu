@@ -43,119 +43,179 @@
 .minerva-particle:nth-child(5) { top: 50%; left: 5%; animation-delay: 2s; }
 .minerva-particle:nth-child(6) { top: 60%; right: 5%; animation-delay: 2.5s; }
 
-/* Coruja Minerva - Ultra Imponente */
+/* Coruja Minerva - Ultra Imponente e Realista */
 .minerva-owl {
-    width: 90px;
-    height: 90px;
+    width: 100px;
+    height: 120px;
     cursor: pointer;
     position: relative;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 0 20px rgba(200, 155, 60, 0.4));
     transform-origin: center bottom;
     z-index: 2;
 }
 
 .minerva-owl:hover {
-    transform: scale(1.2) translateY(-8px);
-    filter: drop-shadow(0 20px 45px rgba(0, 100, 255, 0.7)) 
-            drop-shadow(0 0 40px rgba(255, 215, 0, 0.4));
-    animation: owlGlow 2s ease-in-out infinite;
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 30px rgba(200, 155, 60, 0.7));
 }
 
 .minerva-owl.active {
-    transform: scale(1.3) translateY(-12px);
-    filter: drop-shadow(0 25px 50px rgba(0, 100, 255, 0.9)) 
-            drop-shadow(0 0 60px rgba(255, 215, 0, 0.6));
-    animation: owlPulse 1.5s ease-in-out infinite;
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 40px rgba(200, 155, 60, 0.9));
+    animation: owlPulse 2s ease-in-out infinite;
 }
 
 .minerva-owl.thinking {
-    animation: owlThinking 1.2s ease-in-out infinite, owlGlow 2s ease-in-out infinite;
+    animation: owlThinking 1.5s ease-in-out infinite;
 }
 
-.minerva-owl.processing {
-    animation: owlProcessing 0.8s ease-in-out infinite, owlGlowIntense 1s ease-in-out infinite;
+/* Aura Mágica Ultra Imponente */
+.minerva-owl::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    right: -15px;
+    bottom: -15px;
+    background: radial-gradient(circle, 
+        rgba(200, 155, 60, 0.1) 0%, 
+        rgba(240, 230, 210, 0.05) 50%, 
+        transparent 70%);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+    z-index: -1;
 }
 
-/* Corpo da Coruja - Design Minimalista com Listras */
+.minerva-owl.active::before,
+.minerva-owl:hover::before {
+    opacity: 1;
+    animation: auraRotate 8s linear infinite;
+}
+
+/* Corpo da Coruja - Formato Realista */
 .owl-body {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, 
-        #2B1810 0%, 
-        #3E261A 25%, 
-        #52351E 50%, 
-        #664422 75%, 
-        #4A2C20 100%);
-    border-radius: 50% 50% 60% 60%;
     position: relative;
-    border: 3px solid #C89B3C;
-    box-shadow: 
-        inset 0 -20px 40px rgba(0, 0, 0, 0.4),
-        inset 0 15px 25px rgba(200, 155, 60, 0.2),
-        0 0 30px rgba(200, 155, 60, 0.5);
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-/* Listras minimalistas na coruja */
+/* Cabeça da Coruja */
 .owl-body::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 8px,
-        rgba(200, 155, 60, 0.1) 8px,
-        rgba(200, 155, 60, 0.1) 10px
-    );
-    border-radius: inherit;
-    pointer-events: none;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, 
+        #4A3B2A 0%, 
+        #5C4A36 25%, 
+        #6B5540 50%, 
+        #7A6247 75%, 
+        #5C4A36 100%);
+    border-radius: 50% 50% 45% 45%;
+    border: 3px solid #C89B3C;
+    box-shadow: 
+        inset 0 -10px 20px rgba(0, 0, 0, 0.3),
+        inset 0 8px 15px rgba(200, 155, 60, 0.2),
+        0 0 25px rgba(200, 155, 60, 0.4);
+    z-index: 1;
 }
 
+/* Corpo da Coruja */
 .owl-body::after {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 70%;
-    height: 70%;
-    background: radial-gradient(circle at center, 
-        rgba(200, 155, 60, 0.15) 0%, 
-        transparent 60%);
-    border-radius: 50%;
-    pointer-events: none;
-}
-
-/* Olhos da Coruja - Mais Expressivos */
-.owl-eyes {
-    position: absolute;
-    top: 18px;
+    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    display: flex;
-    gap: 12px;
+    width: 60px;
+    height: 55px;
+    background: linear-gradient(135deg, 
+        #3E2F20 0%, 
+        #4A3B2A 25%, 
+        #564435 50%, 
+        #624D3A 75%, 
+        #4A3B2A 100%);
+    border-radius: 45% 45% 60% 60%;
+    border: 2px solid #C89B3C;
+    box-shadow: 
+        inset 0 -8px 16px rgba(0, 0, 0, 0.3),
+        inset 0 6px 12px rgba(200, 155, 60, 0.1),
+        0 0 20px rgba(200, 155, 60, 0.3);
+}
+
+/* Tufos de Penas (Orelhas) */
+.owl-body .owl-tufts {
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 20px;
     z-index: 2;
 }
 
+.owl-body .owl-tufts::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    width: 8px;
+    height: 18px;
+    background: linear-gradient(45deg, #6B5540, #4A3B2A);
+    border-radius: 50% 50% 0 0;
+    transform: rotate(-15deg);
+    border: 1px solid #C89B3C;
+}
+
+.owl-body .owl-tufts::after {
+    content: '';
+    position: absolute;
+    right: 8px;
+    top: 0;
+    width: 8px;
+    height: 18px;
+    background: linear-gradient(45deg, #6B5540, #4A3B2A);
+    border-radius: 50% 50% 0 0;
+    transform: rotate(15deg);
+    border: 1px solid #C89B3C;
+}
+
+/* Olhos da Coruja - Mais Expressivos e Realistas */
+.owl-eyes {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 3;
+}
+
 .eye {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     background: radial-gradient(circle at 30% 30%, 
         #ffffff 0%, 
-        #f0f0f0  40%, 
-        #e0e0e0 100%);
+        #f5f5f5 30%, 
+        #e8e8e8 70%,
+        #d0d0d0 100%);
     border-radius: 50%;
-    border: 3px solid #333;
+    border: 2px solid #2A1F17;
     position: relative;
     overflow: hidden;
     box-shadow: 
-        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
-        0 2px 6px rgba(0, 0, 0, 0.3);
+        inset 0 -3px 6px rgba(0, 0, 0, 0.2),
+        0 3px 8px rgba(0, 0, 0, 0.3),
+        0 0 15px rgba(200, 155, 60, 0.3);
 }
 
 .eye::before {
@@ -163,26 +223,26 @@
     position: absolute;
     top: 15%;
     left: 20%;
-    width: 30%;
-    height: 40%;
-    background: rgba(255, 255, 255, 0.8);
+    width: 25%;
+    height: 35%;
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 50%;
     pointer-events: none;
 }
 
 .pupil {
-    width: 12px;
-    height: 12px;
-    background: radial-gradient(circle at 30% 30%, 
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(circle at 25% 25%, 
         #1a1a1a 0%, 
-        #000000 60%);
+        #000000 70%);
     border-radius: 50%;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
 }
 
 .pupil::after {
@@ -192,73 +252,103 @@
     left: 25%;
     width: 3px;
     height: 3px;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 50%;
 }
 
-/* Bico da Coruja - Mais Detalhado */
+/* Bico da Coruja - Mais Detalhado e Realista */
 .owl-beak {
     position: absolute;
-    bottom: 22px;
+    top: 48px;
     left: 50%;
     transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 12px solid #FF8C00;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
-    z-index: 2;
+    z-index: 3;
 }
 
 .owl-beak::before {
     content: '';
     position: absolute;
-    top: -8px;
-    left: -3px;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 8px solid #D2691E;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.owl-beak::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
     width: 0;
     height: 0;
     border-left: 3px solid transparent;
     border-right: 3px solid transparent;
-    border-top: 6px solid #FFB84D;
+    border-top: 5px solid #B8860B;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
 
-/* Asas da Coruja - Mais Dinâmicas */
+/* Asas da Coruja - Mais Realistas e Dinâmicas */
 .owl-wings {
     position: absolute;
-    top: 25px;
+    top: 35px;
     width: 100%;
-    height: 35px;
+    height: 40px;
     z-index: 1;
 }
 
 .wing {
     position: absolute;
     top: 0;
-    width: 20px;
-    height: 30px;
-    background: linear-gradient(45deg, 
+    width: 22px;
+    height: 35px;
+    background: linear-gradient(145deg, 
         #5D4037 0%, 
-        #6B4423 30%, 
-        #8B4513 60%, 
-        #A0522D 100%);
-    border-radius: 60% 20% 80% 40%;
-    border: 2px solid #4A2C20;
+        #6B4423 25%, 
+        #8B4513 50%, 
+        #A0522D 75%,
+        #6B4423 100%);
+    border-radius: 65% 25% 85% 45%;
+    border: 2px solid #C89B3C;
     box-shadow: 
-        inset 0 2px 4px rgba(255, 215, 0, 0.2),
-        0 2px 8px rgba(0, 0, 0, 0.3);
+        inset 0 3px 6px rgba(200, 155, 60, 0.3),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+        0 3px 10px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
 }
 
 .wing::before {
     content: '';
     position: absolute;
-    top: 20%;
-    left: 20%;
-    width: 60%;
-    height: 60%;
-    background: linear-gradient(45deg, 
-        rgba(218, 165, 32, 0.3) 0%, 
-        transparent 50%);
+    top: 15%;
+    left: 15%;
+    width: 70%;
+    height: 70%;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 3px,
+        rgba(200, 155, 60, 0.2) 3px,
+        rgba(200, 155, 60, 0.2) 4px
+    );
+    border-radius: 50%;
+}
+
+.wing::after {
+    content: '';
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(circle at center, 
+        rgba(218, 165, 32, 0.4) 0%, 
+        transparent 60%);
     border-radius: 50%;
 }
 
@@ -602,113 +692,37 @@
 }
 
 /* Animações Avançadas */
-@keyframes owlGlow {
-    0%, 100% {
-        filter: drop-shadow(0 15px 35px rgba(0, 100, 255, 0.6)) 
-                drop-shadow(0 0 30px rgba(255, 215, 0, 0.3));
-    }
-    50% {
-        filter: drop-shadow(0 20px 40px rgba(0, 100, 255, 0.8)) 
-                drop-shadow(0 0 50px rgba(255, 215, 0, 0.6));
-    }
-}
-
 @keyframes owlPulse {
-    0%, 100% {
-        transform: scale(1.25) translateY(-8px);
+    0%, 100% { 
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 40px rgba(200, 155, 60, 0.9));
     }
-    50% {
-        transform: scale(1.35) translateY(-12px);
+    50% { 
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 50px rgba(200, 155, 60, 1));
     }
 }
 
 @keyframes owlThinking {
-    0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0) rotate(0deg);
+    0%, 100% { 
+        transform: scale(1.05) rotate(-2deg);
     }
-    10% {
-        transform: translateY(-8px) rotate(-2deg);
-    }
-    30% {
-        transform: translateY(-12px) rotate(2deg);
-    }
-    40% {
-        transform: translateY(-15px) rotate(-1deg);
-    }
-    60% {
-        transform: translateY(-10px) rotate(1deg);
-    }
-    70% {
-        transform: translateY(-5px) rotate(-0.5deg);
+    50% { 
+        transform: scale(1.08) rotate(2deg);
     }
 }
 
-@keyframes leftWingFlap {
-    0%, 100% {
-        transform: rotate(-25deg) scaleY(1);
-    }
-    25% {
-        transform: rotate(-35deg) scaleY(0.8);
-    }
-    50% {
-        transform: rotate(-20deg) scaleY(1.1);
-    }
-    75% {
-        transform: rotate(-30deg) scaleY(0.9);
-    }
+@keyframes auraRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-@keyframes rightWingFlap {
-    0%, 100% {
-        transform: rotate(25deg) scaleY(1);
+@keyframes owlGlow {
+    0%, 100% { 
+        filter: drop-shadow(0 0 20px rgba(200, 155, 60, 0.4));
     }
-    25% {
-        transform: rotate(35deg) scaleY(0.8);
-    }
-    50% {
-        transform: rotate(20deg) scaleY(1.1);
-    }
-    75% {
-        transform: rotate(30deg) scaleY(0.9);
-    }
-}
-
-@keyframes advancedThinkingDots {
-    0%, 80%, 100% {
-        transform: scale(0) translateY(0);
-        opacity: 0.3;
-    }
-    20% {
-        transform: scale(0.8) translateY(-2px);
-        opacity: 0.7;
-    }
-    40% {
-        transform: scale(1.2) translateY(-5px);
-        opacity: 1;
-    }
-    60% {
-        transform: scale(1) translateY(-3px);
-        opacity: 0.8;
-    }
-}
-
-@keyframes messageSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(15px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-@keyframes riotGlow {
-    0%, 100% {
-        box-shadow: 0 0 20px rgba(200, 155, 60, 0.3);
-    }
-    50% {
-        box-shadow: 0 0 30px rgba(200, 155, 60, 0.6);
+    50% { 
+        filter: drop-shadow(0 0 35px rgba(200, 155, 60, 0.8));
     }
 }
 
@@ -935,5 +949,3 @@
                 drop-shadow(0 0 80px rgba(255, 215, 0, 0.8));
     }
 }
-
-/* ...existing code... */

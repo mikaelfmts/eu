@@ -3,10 +3,9 @@ class MinervaUltraAssistant {
     constructor() {
         this.isOpen = false;
         this.isProcessing = false;
-        this.messageHistory = [];
-        this.knowledgeBase = this.initializeKnowledgeBase();
-        this.apiEndpoint = 'https://api.deepseek.com/v1/chat/completions';
-        this.apiKey = 'sk-b4fe7e36c4f74b6187999ba1c4d6a42f';
+        this.messageHistory = [];        this.knowledgeBase = this.initializeKnowledgeBase();
+        this.apiEndpoint = 'https://api.deepseek.com/chat/completions';
+        this.apiKey = 'sk-15cb2f03125e48acbcb12a975d9b395e';
         this.conversationCache = new Map();
         this.lastInteraction = Date.now();
         this.isActive = false;
@@ -109,10 +108,10 @@ class MinervaUltraAssistant {
                 <div class="minerva-particle"></div>
                 <div class="minerva-particle"></div>
             </div>
-            
-            <!-- Coruja Ultra Imponente -->
+              <!-- Coruja Ultra Imponente e Realista -->
             <div id="minerva-owl" class="minerva-owl" title="Clique para falar com Minerva - Assistente IA Ultra Inteligente">
                 <div class="owl-body">
+                    <div class="owl-tufts"></div>
                     <div class="owl-eyes">
                         <div class="eye left-eye">
                             <div class="pupil"></div>
@@ -426,13 +425,19 @@ class MinervaUltraAssistant {
         const owl = document.getElementById('minerva-owl');
         const particles = document.querySelector('.minerva-particles');
         
-        owl.classList.add('active');
-        particles.classList.add('active');
+        // Ativar efeitos visuais ultra
+        if (particles) {
+            particles.style.opacity = '1';
+        }
         
-        // Efeito especial de ativação
-        setTimeout(() => {
-            owl.style.animation = 'owlMajestic 3s ease-in-out infinite';
-        }, 200);
+        // Animação de entrada majestosa
+        owl.style.animation = 'owlPulse 2s ease-in-out infinite';
+        
+        // Atualizar status para ultra mode
+        const statusText = document.querySelector('.status-text');
+        if (statusText) {
+            statusText.textContent = 'Ultra Mode ON';
+        }
     }
 
     async sendMessage(customMessage = null) {
@@ -527,10 +532,9 @@ class MinervaUltraAssistant {
             userSession: this.userSession,
             timestamp: new Date().toISOString()
         };
-    }
-
-    async queryDeepSeek(question, context) {
-        const systemPrompt = `Você é Minerva, a assistente virtual ultra-inteligente do portfolio de Mikael Ferreira. Você é uma coruja sábia, conhecedora de todas as tecnologias e detalhes deste site.
+    }    async queryDeepSeek(question, context) {
+        try {
+            const systemPrompt = `Você é Minerva, a assistente virtual ultra-inteligente do portfolio de Mikael Ferreira. Você é uma coruja sábia, conhecedora de todas as tecnologias e detalhes deste site.
 
 🦉 PERSONALIDADE:
 - Inteligente, prestativa e um pouco orgulhosa (como uma coruja sábia)
@@ -557,30 +561,58 @@ ${JSON.stringify(context.knowledgeBase, null, 2)}
 
 Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja completa na informação.`;
 
-        const response = await fetch(this.apiEndpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.apiKey}`
-            },
-            body: JSON.stringify({
-                model: 'deepseek-chat',
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: question }
-                ],
-                max_tokens: 400,
-                temperature: 0.8,
-                stream: false
-            })
-        });
+            const response = await fetch(this.apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'deepseek-chat',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: question }
+                    ],
+                    max_tokens: 400,
+                    temperature: 0.7,
+                    stream: false
+                })
+            });
 
-        if (!response.ok) {
-            throw new Error(`Erro na API: ${response.status}`);
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API Error Details:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: errorText
+                });
+                
+                if (response.status === 401) {
+                    throw new Error('Chave API inválida ou expirada');
+                } else if (response.status === 429) {
+                    throw new Error('Rate limit excedido, tente novamente em alguns segundos');
+                } else if (response.status === 403) {
+                    throw new Error('Acesso negado à API');
+                } else {
+                    throw new Error(`Erro na API: ${response.status} - ${errorText}`);
+                }
+            }
+
+            const data = await response.json();
+            return data.choices[0].message.content;
+            
+        } catch (error) {
+            console.error('Erro completo na API:', error);
+            
+            // Se for erro de rede ou CORS, usar fallback
+            if (error.name === 'TypeError' || error.message.includes('Failed to fetch')) {
+                console.log('🔄 Problema de CORS ou rede, usando respostas offline...');
+                return this.getFallbackResponse(question);
+            }
+              // Para outros erros da API, também usar fallback mas informar o usuário
+            return `⚠️ Estou com dificuldades para acessar minha IA avançada no momento, mas posso te ajudar com informações offline!\n\n${this.getFallbackResponse(question)}`;
         }
-
-        const data = await response.json();
-        return data.choices[0].message.content;
     }
 
     getFallbackResponse(question) {
@@ -666,24 +698,25 @@ Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja co
     }
 
     showContextualGreeting() {
-        const currentPage = this.detectCurrentPage();
-        let greeting = "🦉 Olá! Sou a Minerva, sua assistente IA ultra inteligente!";
+        const page = this.currentPage;
+        let greeting = "";
         
-        switch(currentPage) {
-            case 'home':
-                greeting += " Vejo que você está na página principal. Posso te ajudar a navegar e conhecer tudo sobre o Mikael e este portfolio incrível!";
-                break;
-            case 'admin':
-                greeting += " Vejo que você está na área administrativa. Posso explicar todas as funcionalidades de gestão do site!";
-                break;
-            case 'projetos':
-                greeting += " Ótimo! Você está vendo os projetos do Mikael. Posso explicar detalhes técnicos de qualquer um deles!";
-                break;
-            default:
-                greeting += " Pergunte-me qualquer coisa sobre este site, tecnologias ou sobre o Mikael!";
-        }
+        const pageGreetings = {
+            'home': "🏠 Bem-vindo à página principal! Aqui você pode conhecer o Mikael, suas habilidades e projetos principais. Posso te guiar através de todo o portfolio!",
+            'projetos': "🚀 Excelente! Está na seção de projetos. Posso explicar detalhadamente cada projeto, as tecnologias usadas e o processo de desenvolvimento!",
+            'admin': "⚙️ Está no painel administrativo! Posso explicar como usar todas as funcionalidades de gestão do site e como tudo foi implementado.",
+            'curriculo': "📄 Na área do gerador de currículo! Esta é uma ferramenta incrível que o Mikael desenvolveu. Posso explicar como funciona!",
+            'certificados': "🏆 Vendo os certificados do Mikael! Posso falar sobre sua jornada de aprendizado e especializações.",
+            'games': "🎮 Na seção de jogos! Aqui estão projetos interativos únicos. Posso explicar como foram desenvolvidos!",
+            'galeria': "🖼️ Na galeria de mídia! Posso explicar o sistema de upload e gerenciamento de arquivos.",
+            'login': "🔐 Na área de autenticação! Posso explicar como o sistema de login foi implementado com Firebase."
+        };
         
-        this.addMessage(greeting, 'assistant');
+        greeting = pageGreetings[page] || "🦉 Olá! Sou a Minerva, sua assistente IA ultra-inteligente!";
+        
+        setTimeout(() => {
+            this.addMessage('minerva', greeting);
+        }, 800);
     }
 
     setupIdleDetection() {

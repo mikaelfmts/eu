@@ -106,11 +106,13 @@ class MinervaUltraAssistant {
                 <div class="minerva-particle"></div>
                 <div class="minerva-particle"></div>
                 <div class="minerva-particle"></div>
-            </div>
-              <!-- Coruja Ultra Imponente e Realista -->
+            </div>              <!-- Coruja Ultra Imponente e Realista -->
             <div id="minerva-owl" class="minerva-owl" title="Clique para falar com Minerva - Assistente IA Ultra Inteligente">
-                <div class="owl-body">
-                    <div class="owl-tufts"></div>
+                <div class="owl-head">
+                    <div class="owl-tufts">
+                        <div class="tuft-left"></div>
+                        <div class="tuft-right"></div>
+                    </div>
                     <div class="owl-eyes">
                         <div class="eye left-eye">
                             <div class="pupil"></div>
@@ -120,10 +122,6 @@ class MinervaUltraAssistant {
                         </div>
                     </div>
                     <div class="owl-beak"></div>
-                    <div class="owl-wings">
-                        <div class="wing left-wing"></div>
-                        <div class="wing right-wing"></div>
-                    </div>
                 </div>
                 <div class="thinking-dots" id="thinking-dots">
                     <span></span><span></span><span></span>
@@ -150,27 +148,25 @@ class MinervaUltraAssistant {
                     <div class="minerva-welcome">
                         <div class="welcome-avatar">
                             <i class="fas fa-feather-alt"></i>
-                        </div>
-                        <div class="welcome-message">
-                            <h3>🦉 Minerva IA - Sua Assistente Ultra Inteligente</h3>
-                            <p>Olá! Sou a Minerva, sua assistente virtual powered by DeepSeek. Posso responder <strong>QUALQUER</strong> pergunta sobre:</p>
+                        </div>                        <div class="welcome-message">
+                            <h3>Minerva IA - Sua Assistente Ultra Inteligente</h3>
+                            <p>Olá! Sou a Minerva, sua assistente virtual powered by DeepSeek. Posso responder qualquer pergunta sobre:</p>
                             <ul>
-                                <li>🧭 Navegação completa do site</li>
-                                <li>⚡ Stack técnica e implementações</li>
-                                <li>👨‍💻 Sobre o Mikael e suas especialidades</li>
-                                <li>🚀 Projetos e funcionalidades</li>
-                                <li>🔧 Como tudo foi desenvolvido</li>
-                                <li>💼 Oportunidades e contato</li>
+                                <li>Navegação completa do site</li>
+                                <li>Stack técnica e implementações</li>
+                                <li>Sobre o Mikael e suas especialidades</li>
+                                <li>Projetos e funcionalidades</li>
+                                <li>Como tudo foi desenvolvido</li>
+                                <li>Oportunidades e contato</li>
                             </ul>
                         </div>
-                        
-                        <div class="quick-suggestions">
-                            <button class="suggestion-btn premium" data-question="Explique detalhadamente como este site foi desenvolvido, incluindo arquitetura, tecnologias e decisões de design">🏗️ Arquitetura Completa</button>
-                            <button class="suggestion-btn premium" data-question="Quais são os projetos mais impressionantes do Mikael e o que os torna únicos?">🚀 Projetos Destacados</button>
-                            <button class="suggestion-btn premium" data-question="Como a Minerva funciona? Explique a integração com DeepSeek e IA">🤖 Sobre Minerva IA</button>
-                            <button class="suggestion-btn premium" data-question="Quais são as especialidades técnicas do Mikael e como ele pode agregar valor?">💼 Perfil Profissional</button>
-                            <button class="suggestion-btn premium" data-question="Mostre todas as funcionalidades avançadas deste portfolio">⚡ Recursos Avançados</button>
-                            <button class="suggestion-btn premium" data-question="Como posso contactar o Mikael para oportunidades de trabalho?">📞 Contato Business</button>
+                          <div class="quick-suggestions">
+                            <button class="suggestion-btn premium" data-question="Explique detalhadamente como este site foi desenvolvido, incluindo arquitetura, tecnologias e decisões de design">Arquitetura Completa</button>
+                            <button class="suggestion-btn premium" data-question="Quais são os projetos mais impressionantes do Mikael e o que os torna únicos?">Projetos Destacados</button>
+                            <button class="suggestion-btn premium" data-question="Como a Minerva funciona? Explique a integração com DeepSeek e IA">Sobre Minerva IA</button>
+                            <button class="suggestion-btn premium" data-question="Quais são as especialidades técnicas do Mikael e como ele pode agregar valor?">Perfil Profissional</button>
+                            <button class="suggestion-btn premium" data-question="Mostre todas as funcionalidades avançadas deste portfolio">Recursos Avançados</button>
+                            <button class="suggestion-btn premium" data-question="Como posso contactar o Mikael para oportunidades de trabalho?">Contato Business</button>
                         </div>
                     </div>
                 </div>
@@ -378,14 +374,17 @@ class MinervaUltraAssistant {
         } else {
             this.openChat();
         }
-    }
-
-    openChat() {
+    }    openChat() {
         const chat = document.getElementById('minerva-chat');
         const owl = document.getElementById('minerva-owl');
         const container = document.querySelector('.minerva-container');
         
+        // Criar overlay para escurecer o fundo
+        this.createOverlay();
+        
+        // Transformar o chat em modal centralizado
         chat.classList.remove('hidden');
+        chat.classList.add('modal-open');
         owl.classList.add('active');
         container.classList.add('ultra-active');
         
@@ -406,12 +405,42 @@ class MinervaUltraAssistant {
         this.activateUltraMode();
     }
 
+    createOverlay() {
+        // Verificar se já existe overlay
+        let overlay = document.getElementById('minerva-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'minerva-overlay';
+            overlay.className = 'minerva-overlay';
+            document.body.appendChild(overlay);
+            
+            // Fechar ao clicar no overlay
+            overlay.addEventListener('click', () => {
+                this.closeChat();
+            });
+        }
+        overlay.classList.add('active');
+        document.body.classList.add('modal-open');
+    }
+
+    removeOverlay() {
+        const overlay = document.getElementById('minerva-overlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
+        document.body.classList.remove('modal-open');
+    }
+
     closeChat() {
         const chat = document.getElementById('minerva-chat');
         const owl = document.getElementById('minerva-owl');
         const container = document.querySelector('.minerva-container');
         
+        // Remover modal e overlay
         chat.classList.add('hidden');
+        chat.classList.remove('modal-open');
+        this.removeOverlay();
+        
         owl.classList.remove('active', 'thinking', 'processing');
         container.classList.remove('ultra-active');
         

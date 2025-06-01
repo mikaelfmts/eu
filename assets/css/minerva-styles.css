@@ -43,10 +43,10 @@
 .minerva-particle:nth-child(5) { top: 50%; left: 5%; animation-delay: 2s; }
 .minerva-particle:nth-child(6) { top: 60%; right: 5%; animation-delay: 2.5s; }
 
-/* Coruja Minerva - Ultra Imponente e Realista */
+/* Coruja Minerva - Ultra Imponente e Realista - Apenas Cabeça */
 .minerva-owl {
-    width: 100px;
-    height: 120px;
+    width: 80px;
+    height: 80px;
     cursor: pointer;
     position: relative;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -95,18 +95,61 @@
     animation: auraRotate 8s linear infinite;
 }
 
-/* Corpo da Coruja - Formato Realista */
-.owl-body {
+/* Cabeça da Coruja - Formato Realista */
+.owl-head {
     width: 100%;
     height: 100%;
+    background: linear-gradient(135deg, 
+        #4A3B2A 0%, 
+        #5C4A36 25%, 
+        #6B5540 50%, 
+        #7A6247 75%, 
+        #5C4A36 100%);
+    border-radius: 50% 50% 45% 45%;
+    border: 3px solid #C89B3C;
     position: relative;
+    box-shadow: 
+        inset 0 -10px 20px rgba(0, 0, 0, 0.3),
+        inset 0 8px 15px rgba(200, 155, 60, 0.2),
+        0 0 25px rgba(200, 155, 60, 0.4);
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
+/* Tufos de Penas (Orelhas) */
+.owl-tufts {
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 20px;
+    z-index: 2;
+}
+
+.tuft-left,
+.tuft-right {
+    position: absolute;
+    width: 8px;
+    height: 12px;
+    background: linear-gradient(45deg, #3E2F20, #4A3B2A);
+    border-radius: 50% 50% 0 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.tuft-left {
+    left: 20px;
+    transform: rotate(-15deg);
+}
+
+.tuft-right {
+    right: 20px;
+    transform: rotate(15deg);
+}
+
 /* Cabeça da Coruja */
-.owl-body::before {
+.owl-head::before {
     content: '';
     position: absolute;
     top: 0;
@@ -127,66 +170,6 @@
         inset 0 8px 15px rgba(200, 155, 60, 0.2),
         0 0 25px rgba(200, 155, 60, 0.4);
     z-index: 1;
-}
-
-/* Corpo da Coruja */
-.owl-body::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 55px;
-    background: linear-gradient(135deg, 
-        #3E2F20 0%, 
-        #4A3B2A 25%, 
-        #564435 50%, 
-        #624D3A 75%, 
-        #4A3B2A 100%);
-    border-radius: 45% 45% 60% 60%;
-    border: 2px solid #C89B3C;
-    box-shadow: 
-        inset 0 -8px 16px rgba(0, 0, 0, 0.3),
-        inset 0 6px 12px rgba(200, 155, 60, 0.1),
-        0 0 20px rgba(200, 155, 60, 0.3);
-}
-
-/* Tufos de Penas (Orelhas) */
-.owl-body .owl-tufts {
-    position: absolute;
-    top: -5px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 20px;
-    z-index: 2;
-}
-
-.owl-body .owl-tufts::before {
-    content: '';
-    position: absolute;
-    left: 8px;
-    top: 0;
-    width: 8px;
-    height: 18px;
-    background: linear-gradient(45deg, #6B5540, #4A3B2A);
-    border-radius: 50% 50% 0 0;
-    transform: rotate(-15deg);
-    border: 1px solid #C89B3C;
-}
-
-.owl-body .owl-tufts::after {
-    content: '';
-    position: absolute;
-    right: 8px;
-    top: 0;
-    width: 8px;
-    height: 18px;
-    background: linear-gradient(45deg, #6B5540, #4A3B2A);
-    border-radius: 50% 50% 0 0;
-    transform: rotate(15deg);
-    border: 1px solid #C89B3C;
 }
 
 /* Olhos da Coruja - Mais Expressivos e Realistas */
@@ -794,20 +777,66 @@
     color: var(--primary-color);
 }
 
-/* Animações */
-@keyframes statusPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+/* Overlay para Modal */
+.minerva-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 99998;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
 }
 
-@keyframes messageSlideIn {
+.minerva-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Modal da Minerva */
+.minerva-chat.modal-open {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    bottom: auto !important;
+    right: auto !important;
+    width: 450px !important;
+    max-width: 90vw !important;
+    max-height: 80vh !important;
+    z-index: 99999 !important;
+    animation: modalZoomIn 0.3s ease-out;
+}
+
+/* Animação de entrada do modal */
+@keyframes modalZoomIn {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translate(-50%, -50%) scale(0.7);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Evitar scroll no body quando modal está aberto */
+body.modal-open {
+    overflow: hidden;
+}
+
+/* Responsividade do modal */
+@media (max-width: 768px) {
+    .minerva-chat.modal-open {
+        width: 95vw !important;
+        height: 85vh !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
     }
 }
 
@@ -819,6 +848,20 @@
         right: 10px;
         bottom: 10px;
         border-radius: 10px;
+    }
+    
+    /* Estilos específicos para modal no mobile */
+    .minerva-chat.modal-open {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: calc(100vw - 40px);
+        height: calc(100vh - 120px);
+        max-width: none;
+        max-height: none;
+        margin: 0;
+        z-index: 10002;
     }
     
     .minerva-header {
@@ -860,5 +903,22 @@
     #minerva-input {
         font-size: 0.85rem;
         padding: 10px 12px;
+    }
+}
+
+/* Animações */
+@keyframes statusPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }

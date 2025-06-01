@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeria de Mídia - Mikael Ferreira</title>
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#0066ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Galeria Mídia">
+    <link rel="apple-touch-icon" href="../icons/icon-192.png">
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/galeria-midia.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Scripts -->
+    <script type="module" src="../assets/js/galeria-midia.js"></script>
+    <script src="../assets/js/page-control.js"></script>
+    
+    <!-- Controle de Página -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            initPageControl('galeria-midia');
+        });
+    </script>
+</head>
+<body>
+    <!-- Container de partículas -->
+    <div class="particles-container"></div>
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="gallery-header">
+        <div class="container">
+            <button class="back-btn" onclick="window.location.href='../index.html'">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            <h1><i class="fas fa-images"></i> Galeria de Mídia</h1>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="gallery-main">
+        <div class="container">
+            <!-- Filtros -->
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">
+                    <i class="fas fa-th"></i> Todos
+                </button>
+                <button class="filter-btn" data-filter="photos">
+                    <i class="fas fa-image"></i> Fotos
+                </button>
+                <button class="filter-btn" data-filter="videos">
+                    <i class="fas fa-play"></i> Vídeos
+                </button>
+            </div>
+
+            <!-- Feed de Posts -->
+            <div id="posts-feed" class="posts-feed">
+                <!-- Posts serão carregados dinamicamente -->
+            </div>
+
+            <!-- Loading mais posts -->
+            <div id="load-more" class="load-more hidden">
+                <button class="load-more-btn">
+                    <i class="fas fa-plus"></i> Carregar Mais
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal para visualização de mídia -->
+    <div id="media-modal" class="media-modal hidden">
+        <div class="modal-backdrop" onclick="closeMediaModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeMediaModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-body">
+                <!-- Conteúdo será inserido dinamicamente -->
+            </div>
+            <div class="modal-navigation">
+                <button class="nav-btn prev-btn" onclick="navigateMedia(-1)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="nav-btn next-btn" onclick="navigateMedia(1)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="gallery-footer">
+        <p>&copy; 2025 Mikael Ferreira. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>

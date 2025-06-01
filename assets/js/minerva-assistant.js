@@ -4,7 +4,7 @@ class MinervaUltraAssistant {
         this.isOpen = false;
         this.isProcessing = false;
         this.messageHistory = [];        this.knowledgeBase = this.initializeKnowledgeBase();        this.apiEndpoint = 'https://api.deepseek.com/chat/completions';
-        this.apiKey = 'sk-disabled-using-fallback'; // API com saldo insuficiente, usando fallback
+        this.apiKey = 'sk-15cb2f03125e48acbcb12a975d9b395e'; // API DeepSeek atualizada
         this.conversationCache = new Map();
         this.lastInteraction = Date.now();
         this.isActive = false;

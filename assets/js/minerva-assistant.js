@@ -1,10 +1,10 @@
-// Ultra Evolved Minerva Assistant with DeepSeek Integration
+// Ultra Evolved Minerva Assistant with Google Gemini Integration
 class MinervaUltraAssistant {
     constructor() {
         this.isOpen = false;
         this.isProcessing = false;
-        this.messageHistory = [];        this.knowledgeBase = this.initializeKnowledgeBase();        this.apiEndpoint = 'https://api.deepseek.com/chat/completions';
-        this.apiKey = 'sk-15cb2f03125e48acbcb12a975d9b395e'; // API Key atualizada
+        this.messageHistory = [];        this.knowledgeBase = this.initializeKnowledgeBase();        this.apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+        this.apiKey = 'AIzaSyDMxTyUdbZ41HgiLb-3hE4mrTZ3GnlnJuE'; // Google Gemini API Key
         this.conversationCache = new Map();
         this.lastInteraction = Date.now();
         this.isActive = false;
@@ -66,7 +66,7 @@ class MinervaUltraAssistant {
                 frontend: ["HTML5", "CSS3", "JavaScript ES6+", "Tailwind CSS", "Font Awesome"],
                 backend: ["Firebase Firestore", "Firebase Auth", "Firebase Storage"],
                 tools: ["PWA", "Google Fonts", "Phaser.js para jogos"],
-                apis: ["DeepSeek AI", "GitHub API"]
+                apis: ["Google Gemini AI", "GitHub API"]
             },
             capabilities: [
                 "Responder perguntas sobre Mikael e sua carreira",
@@ -150,7 +150,7 @@ class MinervaUltraAssistant {
                             <i class="fas fa-feather-alt"></i>
                         </div>                        <div class="welcome-message">
                             <h3>Minerva IA - Sua Assistente Ultra Inteligente</h3>
-                            <p>Olá! Sou a Minerva, sua assistente virtual powered by DeepSeek. Posso responder qualquer pergunta sobre:</p>
+                            <p>Olá! Sou a Minerva, sua assistente virtual powered by Google Gemini. Posso responder qualquer pergunta sobre:</p>
                             <ul>
                                 <li>Navegação completa do site</li>
                                 <li>Stack técnica e implementações</li>
@@ -163,7 +163,7 @@ class MinervaUltraAssistant {
                           <div class="quick-suggestions">
                             <button class="suggestion-btn premium" data-question="Explique detalhadamente como este site foi desenvolvido, incluindo arquitetura, tecnologias e decisões de design">Arquitetura Completa</button>
                             <button class="suggestion-btn premium" data-question="Quais são os projetos mais impressionantes do Mikael e o que os torna únicos?">Projetos Destacados</button>
-                            <button class="suggestion-btn premium" data-question="Como a Minerva funciona? Explique a integração com DeepSeek e IA">Sobre Minerva IA</button>
+                            <button class="suggestion-btn premium" data-question="Como a Minerva funciona? Explique a integração com Google Gemini e IA">Sobre Minerva IA</button>
                             <button class="suggestion-btn premium" data-question="Quais são as especialidades técnicas do Mikael e como ele pode agregar valor?">Perfil Profissional</button>
                             <button class="suggestion-btn premium" data-question="Mostre todas as funcionalidades avançadas deste portfolio">Recursos Avançados</button>
                             <button class="suggestion-btn premium" data-question="Como posso contactar o Mikael para oportunidades de trabalho?">Contato Business</button>
@@ -189,7 +189,7 @@ class MinervaUltraAssistant {
                     <div class="ai-indicator">
                         <span class="ai-badge">
                             <i class="fas fa-robot"></i>
-                            Powered by DeepSeek AI
+                            Powered by Google Gemini AI
                         </span>
                     </div>
                 </div>
@@ -543,8 +543,8 @@ class MinervaUltraAssistant {
             // Construir contexto
             const context = this.buildContext();
             
-            // Consultar DeepSeek API
-            const response = await this.queryDeepSeek(question, context);
+            // Consultar Google Gemini API
+            const response = await this.queryGemini(question, context);
             
             // Cache da resposta
             this.conversationCache.set(cacheKey, response);
@@ -575,8 +575,7 @@ class MinervaUltraAssistant {
             knowledgeBase: this.knowledgeBase,
             userSession: this.userSession,
             timestamp: new Date().toISOString()
-        };
-    }    async queryDeepSeek(question, context) {
+        };    }    async queryGemini(question, context) {
         try {
             const systemPrompt = `Você é Minerva, a assistente virtual ultra-inteligente do portfolio de Mikael Ferreira. Você é uma coruja sábia, conhecedora de todas as tecnologias e detalhes deste site.
 
@@ -584,7 +583,6 @@ PERSONALIDADE:
 - Inteligente, prestativa e um pouco orgulhosa (como uma coruja sábia)
 - Use linguagem técnica quando apropriado, mas explique de forma didática
 - Seja entusiasta sobre tecnologia e desenvolvimento
-- Ocasionalmente use emojis relacionados a corujas, tecnologia ou magia
 - Trate o Mikael com admiração, é um desenvolvedor talentoso
 
 INFORMAÇÕES COMPLETAS DO SITE:
@@ -603,51 +601,60 @@ INSTRUÇÕES ESPECÍFICAS:
 5. Se perguntarem sobre desenvolvimento, dê detalhes técnicos relevantes
 6. Se perguntarem sobre carreira/contrato, destaque as habilidades do Mikael e como contactá-lo
 
-Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja completa na informação.`;
+Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja completa na informação.
 
-            const response = await fetch(this.apiEndpoint, {
+PERGUNTA DO USUÁRIO: ${question}`;
+
+            const response = await fetch(`${this.apiEndpoint}?key=${this.apiKey}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiKey}`,
-                    'Accept': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: 'deepseek-chat',
-                    messages: [
-                        { role: 'system', content: systemPrompt },
-                        { role: 'user', content: question }
-                    ],
-                    max_tokens: 400,
-                    temperature: 0.7,
-                    stream: false
+                    contents: [{
+                        parts: [{
+                            text: systemPrompt
+                        }]
+                    }],
+                    generationConfig: {
+                        temperature: 0.7,
+                        topK: 40,
+                        topP: 0.95,
+                        maxOutputTokens: 400,
+                    }
                 })
             });
 
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('API Error Details:', {
+                console.error('Gemini API Error Details:', {
                     status: response.status,
                     statusText: response.statusText,
                     body: errorText
                 });
                 
                 if (response.status === 401) {
-                    throw new Error('Chave API inválida ou expirada');
+                    throw new Error('Chave API do Gemini inválida ou expirada');
                 } else if (response.status === 429) {
-                    throw new Error('Rate limit excedido, tente novamente em alguns segundos');
+                    throw new Error('Rate limit do Gemini excedido, tente novamente em alguns segundos');
                 } else if (response.status === 403) {
-                    throw new Error('Acesso negado à API');
+                    throw new Error('Acesso negado à API do Gemini');
                 } else {
-                    throw new Error(`Erro na API: ${response.status} - ${errorText}`);
+                    throw new Error(`Erro na API do Gemini: ${response.status} - ${errorText}`);
                 }
             }
 
             const data = await response.json();
-            return data.choices[0].message.content;
+            
+            // Verifica se a resposta tem o formato esperado do Gemini
+            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+                return data.candidates[0].content.parts[0].text;
+            } else {
+                throw new Error('Formato de resposta inesperado do Gemini');
+            }
             
         } catch (error) {
-            console.error('Erro completo na API:', error);
+            console.error('Erro completo na API do Gemini:', error);
             
             // Se for erro de rede ou CORS, usar fallback
             if (error.name === 'TypeError' || error.message.includes('Failed to fetch')) {
@@ -662,11 +669,11 @@ Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja co
         
         // Análise inteligente de intenções
         if (lowerQuestion.includes('site') || lowerQuestion.includes('portfolio') || lowerQuestion.includes('como foi feito') || lowerQuestion.includes('desenvolvido')) {
-            return "Este portfolio foi desenvolvido com uma arquitetura moderna e tecnologias avançadas. O site é uma SPA (Single Page Application) construída com HTML5, CSS3 e JavaScript vanilla ES6+, utilizando Firebase como backend serverless para autenticação, banco de dados Firestore e storage de arquivos.\n\nPrincipais recursos: Sistema de chat em tempo real, painel administrativo completo, PWA com cache offline, sistema de partículas interativo, gerador automático de currículo, galeria de mídia administrativa e esta assistente IA powered by DeepSeek.\n\nA interface foi inspirada no visual de League of Legends/Riot Games, com design responsivo e animações fluidas. Todo o código é otimizado para performance e SEO.";
+            return "Este portfolio foi desenvolvido com uma arquitetura moderna e tecnologias avançadas. O site é uma SPA (Single Page Application) construída com HTML5, CSS3 e JavaScript vanilla ES6+, utilizando Firebase como backend serverless para autenticação, banco de dados Firestore e storage de arquivos.\n\nPrincipais recursos: Sistema de chat em tempo real, painel administrativo completo, PWA com cache offline, sistema de partículas interativo, gerador automático de currículo, galeria de mídia administrativa e esta assistente IA powered by Google Gemini.\n\nA interface foi inspirada no visual de League of Legends/Riot Games, com design responsivo e animações fluidas. Todo o código é otimizado para performance e SEO.";
         }
         
         if (lowerQuestion.includes('tecnologia') || lowerQuestion.includes('stack') || lowerQuestion.includes('ferramentas') || lowerQuestion.includes('framework')) {
-            return "Stack técnica completa:\n\nFrontend: HTML5 semântico, CSS3 com Flexbox/Grid, JavaScript ES6+ modular, Tailwind CSS para styling consistente, Font Awesome para ícones.\n\nBackend: Firebase Firestore (NoSQL), Firebase Authentication, Firebase Storage, Firebase Hosting.\n\nFeatures avançadas: PWA com Service Worker, sistema de cache inteligente, chat em tempo real com Firestore listeners, sistema de partículas WebGL, API integration com DeepSeek AI, sistema de upload de arquivos, gerador de PDF dinâmico.\n\nFerramentas: Git para versionamento, Chrome DevTools para debug, Lighthouse para performance, Firebase Console para monitoramento.";
+            return "Stack técnica completa:\n\nFrontend: HTML5 semântico, CSS3 com Flexbox/Grid, JavaScript ES6+ modular, Tailwind CSS para styling consistente, Font Awesome para ícones.\n\nBackend: Firebase Firestore (NoSQL), Firebase Authentication, Firebase Storage, Firebase Hosting.\n\nFeatures avançadas: PWA com Service Worker, sistema de cache inteligente, chat em tempo real com Firestore listeners, sistema de partículas WebGL, API integration com Google Gemini AI, sistema de upload de arquivos, gerador de PDF dinâmico.\n\nFerramentas: Git para versionamento, Chrome DevTools para debug, Lighthouse para performance, Firebase Console para monitoramento.";
         }
         
         if (lowerQuestion.includes('projeto') || lowerQuestion.includes('trabalho') || lowerQuestion.includes('exemplo') || lowerQuestion.includes('demonstração')) {
@@ -682,7 +689,7 @@ Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja co
         }
         
         if (lowerQuestion.includes('minerva') || lowerQuestion.includes('assistente') || lowerQuestion.includes('ia') || lowerQuestion.includes('como funciona')) {
-            return "Sou Minerva, a assistente IA deste portfolio, powered by DeepSeek AI.\n\nFuncionalidades:\n- Respostas inteligentes sobre o site, projetos e tecnologias\n- Conhecimento detalhado sobre a estrutura do portfolio\n- Informações sobre o Mikael e suas especialidades\n- Orientação para navegação e uso do site\n- Respostas contextuais baseadas na página atual\n\nImplementação técnica: Integração com API DeepSeek para processamento de linguagem natural, sistema de cache inteligente para respostas rápidas, fallback offline para garantir funcionamento sempre, interface modal responsiva com animações CSS.\n\nBase de conhecimento: Tenho acesso a informações detalhadas sobre toda a arquitetura do site, projetos implementados, stack técnica utilizada e informações profissionais do Mikael.\n\nPosso responder dúvidas técnicas específicas, explicar funcionalidades e ajudar com navegação pelo portfolio.";
+            return "Sou Minerva, a assistente IA deste portfolio, powered by Google Gemini AI.\n\nFuncionalidades:\n- Respostas inteligentes sobre o site, projetos e tecnologias\n- Conhecimento detalhado sobre a estrutura do portfolio\n- Informações sobre o Mikael e suas especialidades\n- Orientação para navegação e uso do site\n- Respostas contextuais baseadas na página atual\n\nImplementação técnica: Integração com API Google Gemini para processamento de linguagem natural, sistema de cache inteligente para respostas rápidas, fallback offline para garantir funcionamento sempre, interface modal responsiva com animações CSS.\n\nBase de conhecimento: Tenho acesso a informações detalhadas sobre toda a arquitetura do site, projetos implementados, stack técnica utilizada e informações profissionais do Mikael.\n\nPosso responder dúvidas técnicas específicas, explicar funcionalidades e ajudar com navegação pelo portfolio.";
         }
         
         if (lowerQuestion.includes('navegar') || lowerQuestion.includes('como usar') || lowerQuestion.includes('menu') || lowerQuestion.includes('páginas')) {
@@ -828,7 +835,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         try {
             window.minerva = new MinervaUltraAssistant();
-            console.log('Minerva Ultra Assistant inicializada com sucesso!');
+            console.log('Minerva Ultra Assistant inicializada com sucesso! Powered by Google Gemini AI');
         } catch (error) {
             console.error('Erro ao inicializar Minerva:', error);
         }

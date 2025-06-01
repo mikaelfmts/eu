@@ -842,6 +842,11 @@ body.modal-open {
 
 /* Responsividade Mobile */
 @media (max-width: 768px) {
+    #minerva-container {
+        bottom: 20px;
+        right: 15px;
+    }
+    
     .minerva-chat {
         width: calc(100vw - 20px);
         height: calc(100vh - 100px);

@@ -2732,8 +2732,7 @@ section {
     padding: 0 1rem;
     max-width: 1200px;
     justify-items: center;
-    align-items: start;
-    place-items: center;
+    align-items: stretch;
 }
 
 .recent-media-card {

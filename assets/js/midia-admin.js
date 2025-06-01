@@ -88,20 +88,15 @@ function setupEventListeners() {
             uploadArea.style.borderColor = 'var(--border-color)';
             uploadArea.style.background = 'rgba(60, 60, 65, 0.3)';
         });
-        
-        uploadArea.addEventListener('drop', (e) => {
+          uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadArea.style.borderColor = 'var(--border-color)';
             uploadArea.style.background = 'rgba(60, 60, 65, 0.3)';
             
             const files = Array.from(e.dataTransfer.files);
             if (files.length > 0) {
-                // Simular o evento de mudança do input
-                Object.defineProperty(mediaInput, 'files', {
-                    value: e.dataTransfer.files,
-                    writable: false,
-                });
-                handleMediaUpload({ target: mediaInput });
+                // Processar arquivos diretamente sem modificar o input
+                handleDroppedFiles(files);
             }
         });
     }
@@ -124,6 +119,45 @@ function setupEventListeners() {
     const featuredForm = document.getElementById('featured-form');
     if (featuredForm) {
         featuredForm.addEventListener('submit', handleFeaturedSubmit);
+    }
+
+    // Upload de mídia em destaque
+    const featuredInput = document.getElementById('featured-input');
+    const featuredUploadArea = document.getElementById('featured-upload-area');
+    
+    if (featuredInput && featuredUploadArea) {
+        // Clique na área de upload
+        featuredUploadArea.addEventListener('click', () => {
+            featuredInput.click();
+        });
+
+        // Mudança de arquivo
+        featuredInput.addEventListener('change', handleFeaturedMediaUpload);
+        
+        // Drag and drop para mídia em destaque
+        featuredUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            featuredUploadArea.style.borderColor = 'var(--primary-color)';
+            featuredUploadArea.style.background = 'rgba(200, 170, 110, 0.15)';
+        });
+        
+        featuredUploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            featuredUploadArea.style.borderColor = 'var(--border-color)';
+            featuredUploadArea.style.background = 'rgba(200, 170, 110, 0.05)';
+        });
+        
+        featuredUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            featuredUploadArea.style.borderColor = 'var(--border-color)';
+            featuredUploadArea.style.background = 'rgba(200, 170, 110, 0.05)';
+            
+            const files = Array.from(e.dataTransfer.files);
+            if (files.length > 0) {
+                // Processar apenas o primeiro arquivo para mídia em destaque
+                handleFeaturedDroppedFile(files[0]);
+            }
+        });
     }
 }
 
@@ -758,7 +792,7 @@ async function handleFeaturedSubmit(event) {
     
     const title = document.getElementById('featured-title').value.trim();
     const description = document.getElementById('featured-description').value.trim();
-    const mediaInput = document.getElementById('featured-media');
+    const mediaInput = document.getElementById('featured-input'); // Corrigido ID
     
     if (!title || !mediaInput.files[0]) {
         showError('Título e mídia são obrigatórios');
@@ -987,3 +1021,213 @@ function validateFile(file) {
     
     return true;
 }
+
+// Função específica para processar arquivos do drag and drop
+async function handleDroppedFiles(files) {
+    const uploadContainer = document.getElementById('upload-preview');
+    
+    if (!uploadContainer) return;
+
+    if (files.length === 0) return;
+
+    // Validar arquivos antes do upload
+    const validFiles = [];
+    
+    for (const file of files) {
+        try {
+            validateFile(file);
+            validFiles.push(file);
+        } catch (error) {
+            showError(`${file.name}: ${error.message}`);
+        }
+    }
+
+    if (validFiles.length === 0) {
+        showError('Nenhum arquivo válido no arraste');
+        return;
+    }
+
+    // Mostrar loading
+    showLoading(`Preparando upload de ${validFiles.length} arquivo(s) arrastado(s)...`);
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    // Processar arquivos sequencialmente para evitar sobrecarga
+    for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+        
+        try {
+            showLoading(`Enviando ${file.name} (${i + 1}/${validFiles.length})...`);
+            
+            // Delay maior entre uploads para plano gratuito
+            if (i > 0) {
+                await delay(3000); // 3 segundos entre uploads
+            }
+            
+            const mediaItem = await uploadMediaFile(file);
+            uploadedMedia.push(mediaItem);
+            
+            // Criar preview
+            const previewElement = createMediaPreview(mediaItem);
+            uploadContainer.appendChild(previewElement);
+            
+            successCount++;
+            
+            // Feedback de progresso
+            showLoading(`Concluído: ${successCount}/${validFiles.length} arquivos`);
+            
+        } catch (error) {
+            console.error(`Erro no upload de ${file.name}:`, error);
+            errorCount++;
+            showError(`Falha no upload de ${file.name}: ${error.message}`);
+            
+            // Continuar com próximo arquivo mesmo se um falhar
+            continue;
+        }
+    }
+    
+    // Mensagem final
+    hideLoading();
+    
+    if (successCount > 0) {
+        showSuccess(`✅ ${successCount} arquivo(s) enviado(s) com sucesso via arraste!`);
+    }
+    
+    if (errorCount > 0) {
+        showError(`❌ ${errorCount} arquivo(s) falharam no upload`);
+    }
+
+    if (successCount === 0 && errorCount > 0) {
+        showError('Nenhum arquivo foi enviado com sucesso. Verifique sua conexão e tente novamente.');
+    }
+}
+
+// Função para upload de mídia em destaque via drag and drop
+async function handleFeaturedDroppedFile(file) {
+    const uploadContainer = document.getElementById('featured-upload-preview');
+    
+    if (!uploadContainer) return;
+
+    // Limpar preview anterior
+    uploadContainer.innerHTML = '';
+
+    if (!file) return;
+
+    try {
+        // Validar arquivo
+        validateFile(file);
+    } catch (error) {
+        showError(`Arquivo: ${error.message}`);
+        return;
+    }
+
+    // Mostrar loading
+    showLoading(`Preparando upload da mídia em destaque...`);
+
+    try {
+        // Fazer upload
+        const mediaItem = await uploadMediaFile(file);
+        
+        // Criar preview
+        const previewElement = createMediaPreview(mediaItem);
+        uploadContainer.appendChild(previewElement);
+        
+        // Definir mídia como enviada
+        uploadedMedia = [mediaItem];
+        
+        showSuccess('Mídia em destaque pronta para salvar');
+        
+    } catch (error) {
+        console.error('Erro no upload da mídia em destaque:', error);
+        showError('Falha no upload da mídia em destaque');
+    } finally {
+        hideLoading();
+    }
+}
+
+// Função para processar upload e preview de mídia em destaque
+async function handleFeaturedMediaUpload(event) {
+    const files = Array.from(event.target.files);
+    if (files.length > 0) {
+        await processFeaturedMediaFile(files[0]);
+    }
+}
+
+// Função principal para processar arquivo de mídia em destaque
+async function processFeaturedMediaFile(file) {
+    const previewContainer = document.getElementById('featured-preview');
+    
+    if (!previewContainer) return;
+
+    try {
+        // Validar arquivo
+        validateFile(file);
+        
+        // Mostrar loading
+        showLoading('Preparando preview da mídia em destaque...');
+        
+        // Criar preview local (sem upload ainda)
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewContainer.innerHTML = '';
+            previewContainer.classList.remove('hidden');
+            
+            let mediaElement = '';
+            if (file.type.startsWith('video/')) {
+                mediaElement = `
+                    <video class="w-full h-48 object-cover rounded-lg" controls>
+                        <source src="${e.target.result}" type="${file.type}">
+                    </video>
+                `;
+            } else {
+                mediaElement = `
+                    <img src="${e.target.result}" alt="Preview" class="w-full h-48 object-cover rounded-lg">
+                `;
+            }
+            
+            previewContainer.innerHTML = `
+                <div class="relative">
+                    ${mediaElement}
+                    <div class="absolute top-2 right-2">
+                        <button onclick="clearFeaturedPreview()" 
+                                class="bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-red-700">
+                            ×
+                        </button>
+                    </div>
+                    <div class="mt-2 p-2 bg-gray-800 rounded">
+                        <p class="text-xs text-gray-400">${file.name}</p>
+                        <p class="text-xs text-yellow-600">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                </div>
+            `;
+            
+            hideLoading();
+            showSuccess('Preview criado! Preencha o título e descrição, depois clique em "Definir como Destaque"');
+        };
+        
+        reader.readAsDataURL(file);
+        
+    } catch (error) {
+        console.error('Erro no preview:', error);
+        showError(`Erro no preview: ${error.message}`);
+        hideLoading();
+    }
+}
+
+// Função para limpar preview da mídia em destaque
+window.clearFeaturedPreview = function() {
+    const previewContainer = document.getElementById('featured-preview');
+    const featuredInput = document.getElementById('featured-input');
+    
+    if (previewContainer) {
+        previewContainer.innerHTML = '';
+        previewContainer.classList.add('hidden');
+    }
+    
+    if (featuredInput) {
+        featuredInput.value = '';
+    }
+    
+    showSuccess('Preview removido');
+};

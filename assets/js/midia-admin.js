@@ -50,8 +50,7 @@ let isAuthenticated = false;
 document.addEventListener('DOMContentLoaded', function() {
     initializeAdmin();
     setupEventListeners();
-    
-    // Configurar autenticação
+      // Configurar autenticação
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             isAuthenticated = true;
@@ -60,14 +59,9 @@ document.addEventListener('DOMContentLoaded', function() {
             loadPosts();
             loadFeaturedMedia();
         } else {
-            // Fazer login anônimo se não estiver autenticado
-            try {
-                await signInAnonymously(auth);
-                console.log('Login anônimo realizado com sucesso');
-            } catch (error) {
-                console.error('Erro no login anônimo:', error);
-                showError('Erro de autenticação - recarregue a página');
-            }
+            // Tentar login anônimo apenas quando necessário (no upload)
+            console.log('Usuário não autenticado - login será feito quando necessário');
+            isAuthenticated = false;
         }
     });
 });
@@ -301,10 +295,17 @@ async function uploadMediaFile(file) {
     try {
         // Verificar autenticação antes do upload
         if (!isAuthenticated || !auth.currentUser) {
-            console.log('Tentando fazer login anônimo...');
-            await signInAnonymously(auth);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            console.log('Login anônimo realizado com sucesso');
+            try {
+                console.log('Tentando fazer login anônimo para upload...');
+                await signInAnonymously(auth);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                console.log('Login anônimo realizado com sucesso');
+                isAuthenticated = true;
+            } catch (authError) {
+                console.error('Erro no login anônimo:', authError);
+                // Continuar sem autenticação se login anônimo falhar
+                console.log('Continuando upload sem autenticação...');
+            }
         }
         
         // Validar arquivo antes do upload

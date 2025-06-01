@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Final - Verificação CORS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+            text-align: center;
+        }
+        .container {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 8px;
+            border: 3px solid #c8aa6e;
+        }
+        button {
+            background: #c8aa6e;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+        }
+        button:hover {
+            background: #d4b974;
+        }
+        .result {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .success { background: #28a745; }
+        .error { background: #dc3545; }
+        .info { background: #17a2b8; }
+        input[type="file"] {
+            margin: 15px 0;
+            color: #fff;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Teste Final CORS</h1>
+        <p>Verificação rápida se o Firebase Storage está funcionando</p>
+        
+        <div id="step1">
+            <h3>1️⃣ Verificar Autenticação</h3>
+            <button onclick="checkAuth()">Verificar</button>
+            <div id="auth-result"></div>
+        </div>
+        
+        <div id="step2" class="hidden">
+            <h3>2️⃣ Testar Upload</h3>
+            <input type="file" id="file" accept="image/*">
+            <br>
+            <button onclick="testUpload()">Upload Teste</button>
+            <div id="upload-result"></div>
+        </div>
+        
+        <div id="instructions" class="hidden">
+            <h3>📋 Instruções</h3>
+            <div class="result info">
+                <strong>PROBLEMA DE CORS DETECTADO!</strong><br><br>
+                
+                1. Acesse o <a href="https://console.firebase.google.com/" target="_blank" style="color: #c8aa6e;">Firebase Console</a><br>
+                2. Selecione o projeto <strong>mikaelfmts</strong><br>
+                3. Vá em <strong>Storage → Rules</strong><br>
+                4. Substitua o conteúdo pelas regras do arquivo <strong>firebase-rules.txt</strong><br>
+                5. Clique em <strong>Publish</strong><br>
+                6. Teste novamente este arquivo
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { 
+            getStorage, 
+            ref, 
+            uploadBytesResumable,
+            getDownloadURL
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+        import { 
+            getAuth, 
+            onAuthStateChanged
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
+            authDomain: "mikaelfmts.firebaseapp.com",
+            projectId: "mikaelfmts",
+            storageBucket: "mikaelfmts.appspot.com",
+            messagingSenderId: "516762612351",
+            appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app);
+        const auth = getAuth(app);
+        let currentUser = null;
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+        });
+
+        window.checkAuth = function() {
+            const resultDiv = document.getElementById('auth-result');
+            const step2 = document.getElementById('step2');
+            
+            if (currentUser) {
+                resultDiv.innerHTML = `
+                    <div class="result success">
+                        ✅ AUTENTICADO<br>
+                        ID: ${currentUser.uid}
+                    </div>
+                `;
+                step2.classList.remove('hidden');
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        ❌ NÃO AUTENTICADO<br>
+                        Faça login no sistema principal
+                    </div>
+                `;
+            }
+        };
+
+        window.testUpload = async function() {
+            const fileInput = document.getElementById('file');
+            const resultDiv = document.getElementById('upload-result');
+            const instructionsDiv = document.getElementById('instructions');
+            
+            if (!fileInput.files[0]) {
+                resultDiv.innerHTML = '<div class="result error">❌ Selecione um arquivo</div>';
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            resultDiv.innerHTML = '<div class="result info">📤 Testando...</div>';
+            
+            try {
+                const testRef = ref(storage, `teste-final/${Date.now()}_${file.name}`);
+                const uploadTask = uploadBytesResumable(testRef, file);
+                
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                        resultDiv.innerHTML = `<div class="result info">📤 ${progress}%</div>`;
+                    },
+                    (error) => {
+                        console.error('Erro upload:', error);
+                        resultDiv.innerHTML = `
+                            <div class="result error">
+                                ❌ ERRO DE CORS<br>
+                                ${error.message}
+                            </div>
+                        `;
+                        instructionsDiv.classList.remove('hidden');
+                    },
+                    async () => {
+                        try {
+                            const url = await getDownloadURL(testRef);
+                            resultDiv.innerHTML = `
+                                <div class="result success">
+                                    ✅ SUCESSO!<br>
+                                    <a href="${url}" target="_blank" style="color: #fff;">Ver arquivo</a>
+                                </div>
+                            `;
+                        } catch (urlError) {
+                            resultDiv.innerHTML = `
+                                <div class="result success">
+                                    ✅ UPLOAD OK<br>
+                                    (Erro na URL: ${urlError.message})
+                                </div>
+                            `;
+                        }
+                    }
+                );
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        ❌ ERRO: ${error.message}
+                    </div>
+                `;
+                instructionsDiv.classList.remove('hidden');
+            }
+        };
+    </script>
+</body>
+</html>

@@ -6,12 +6,16 @@ async function uploadWithCORSFallback(file) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
             console.log(`Tentativa ${attempt}/${maxRetries} para ${file.name}`);
-            
-            // Verificar autenticação
+              // Verificar autenticação
             if (!auth.currentUser) {
-                console.log('Fazendo login anônimo...');
-                await signInAnonymously(auth);
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                try {
+                    console.log('Fazendo login anônimo...');
+                    await signInAnonymously(auth);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                } catch (authError) {
+                    console.warn('Login anônimo falhou, continuando sem autenticação:', authError);
+                    // Continuar sem autenticação
+                }
             }
             
             // Preparar upload

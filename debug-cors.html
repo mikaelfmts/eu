@@ -171,9 +171,7 @@
                 `;
                 log(`Erro na configuração: ${error.message}`, 'error');
             }
-        };
-
-        window.testAuth = async function() {
+        };        window.testAuth = async function() {
             const resultDiv = document.getElementById('auth-result');
             
             try {
@@ -181,18 +179,34 @@
                     throw new Error('Firebase não inicializado. Execute o teste de configuração primeiro.');
                 }
                 
-                log('Tentando login anônimo...', 'info');
-                const userCredential = await signInAnonymously(auth);
-                
-                resultDiv.innerHTML = `
-                    <div class="success">
-                        <h4>✅ Autenticação Bem-sucedida</h4>
-                        <p>User ID: ${userCredential.user.uid}</p>
-                        <p>Anônimo: ${userCredential.user.isAnonymous}</p>
-                        <p>Token válido: ${await userCredential.user.getIdToken() ? 'Sim' : 'Não'}</p>
-                    </div>
-                `;
-                log(`Login anônimo realizado: ${userCredential.user.uid}`, 'success');
+                if (currentUser) {
+                    log('Usuário já autenticado, verificando token...', 'info');
+                    const token = await currentUser.getIdToken();
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Usuário Já Autenticado</h4>
+                            <p>User ID: ${currentUser.uid}</p>
+                            <p>Anônimo: ${currentUser.isAnonymous}</p>
+                            <p>Token válido: ${token ? 'Sim' : 'Não'}</p>
+                            <p>Email: ${currentUser.email || 'Não informado'}</p>
+                        </div>
+                    `;
+                    log(`Usuário já autenticado: ${currentUser.uid}`, 'success');
+                } else {
+                    log('Tentando login anônimo...', 'info');
+                    const userCredential = await signInAnonymously(auth);
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Login Anônimo Bem-sucedido</h4>
+                            <p>User ID: ${userCredential.user.uid}</p>
+                            <p>Anônimo: ${userCredential.user.isAnonymous}</p>
+                            <p>Token válido: ${await userCredential.user.getIdToken() ? 'Sim' : 'Não'}</p>
+                        </div>
+                    `;
+                    log(`Login anônimo realizado: ${userCredential.user.uid}`, 'success');
+                }
                 
             } catch (error) {
                 resultDiv.innerHTML = `
@@ -200,6 +214,10 @@
                         <h4>❌ Erro na Autenticação</h4>
                         <p>${error.message}</p>
                         <p>Código: ${error.code}</p>
+                        ${error.code === 'auth/admin-restricted-operation' ? 
+                            '<p><strong>🚨 LOGIN ANÔNIMO DESABILITADO!</strong><br>' +
+                            'Habilite a autenticação anônima no Firebase Console:<br>' +
+                            'Authentication → Sign-in methods → Anonymous → Enable</p>' : ''}
                     </div>
                 `;
                 log(`Erro na autenticação: ${error.message}`, 'error');

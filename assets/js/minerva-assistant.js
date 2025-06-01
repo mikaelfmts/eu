@@ -278,12 +278,17 @@ class MinervaUltraAssistant {
         // Enviar mensagem
         document.getElementById('minerva-send').addEventListener('click', () => {
             this.sendMessage();
-        });
-
-        // Enter no input
+        });        // Enter no input
         document.getElementById('minerva-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 this.sendMessage();
+            }
+        });
+
+        // Tecla ESC para fechar modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.isActive) {
+                this.closeChat();
             }
         });
 
@@ -403,9 +408,7 @@ class MinervaUltraAssistant {
         
         // Ativar modo ultra visual
         this.activateUltraMode();
-    }
-
-    createOverlay() {
+    }    createOverlay() {
         // Verificar se já existe overlay
         let overlay = document.getElementById('minerva-overlay');
         if (!overlay) {
@@ -419,14 +422,21 @@ class MinervaUltraAssistant {
                 this.closeChat();
             });
         }
+        
+        // Forçar um reflow para garantir que a transição funcione
+        overlay.offsetHeight;
         overlay.classList.add('active');
         document.body.classList.add('modal-open');
-    }
-
-    removeOverlay() {
+    }removeOverlay() {
         const overlay = document.getElementById('minerva-overlay');
         if (overlay) {
             overlay.classList.remove('active');
+            // Remover o overlay após a animação
+            setTimeout(() => {
+                if (overlay && overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                }
+            }, 300);
         }
         document.body.classList.remove('modal-open');
     }

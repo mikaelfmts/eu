@@ -786,7 +786,7 @@
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(5px);
-    z-index: 99998;
+    z-index: 100000;
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
@@ -808,7 +808,7 @@
     width: 450px !important;
     max-width: 90vw !important;
     max-height: 80vh !important;
-    z-index: 99999 !important;
+    z-index: 100001 !important;
     animation: modalZoomIn 0.3s ease-out;
 }
 

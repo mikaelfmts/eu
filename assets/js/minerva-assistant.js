@@ -150,7 +150,7 @@ class MinervaUltraAssistant {
                             <i class="fas fa-feather-alt"></i>
                         </div>                        <div class="welcome-message">
                             <h3>Minerva IA - Sua Assistente Ultra Inteligente</h3>
-                            <p>Olá! Sou a Minerva, sua assistente virtual powered by Google Gemini. Posso responder qualquer pergunta sobre:</p>
+                            <p>Olá! Sou a Minerva, sua assistente virtual powered by Google Gemini & created by Mikael. Posso responder qualquer pergunta sobre:</p>
                             <ul>
                                 <li>Navegação completa do site</li>
                                 <li>Stack técnica e implementações</li>
@@ -189,7 +189,7 @@ class MinervaUltraAssistant {
                     <div class="ai-indicator">
                         <span class="ai-badge">
                             <i class="fas fa-robot"></i>
-                            Powered by Google Gemini AI
+                            Powered by Google Gemini AI | Created by Mikael
                         </span>
                     </div>
                 </div>
@@ -262,13 +262,9 @@ class MinervaUltraAssistant {
             }
         `;
         document.head.appendChild(style);
-    }
-
-    setupEventListeners() {
-        // Clique na coruja para abrir/fechar
-        document.getElementById('minerva-owl').addEventListener('click', () => {
-            this.toggleChat();
-        });
+    }    setupEventListeners() {
+        // O clique da coruja será gerenciado dentro do setupDragFunctionality
+        // para compatibilidade com drag
 
         // Fechar chat
         document.getElementById('minerva-close').addEventListener('click', () => {
@@ -317,20 +313,134 @@ class MinervaUltraAssistant {
 
         // Detectar quando o usuário fica inativo
         this.setupIdleDetection();
+        
+        // Configurar funcionalidade de drag (AssistiveTouch)
+        this.setupDragFunctionality();
     }
 
-    setupAdvancedFeatures() {
-        // Sistema de detecção de página atual
-        this.currentPage = this.detectCurrentPage();
-        
-        // Configurar cache inteligente
-        this.setupIntelligentCache();
-        
-        // Sistema de analytics da conversa
-        this.setupConversationAnalytics();
-        
-        // Configurar modo ultra quando necessário
-        this.setupUltraMode();
+    setupDragFunctionality() {
+        const container = document.getElementById('minerva-container');
+        let isDragging = false;
+        let startX, startY, initialX, initialY;
+        let clickTimeout;
+
+        // Prevenir comportamentos padrão
+        container.addEventListener('dragstart', (e) => e.preventDefault());
+        container.addEventListener('selectstart', (e) => e.preventDefault());
+
+        // Mouse events
+        container.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            startDrag(e.clientX, e.clientY);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                drag(e.clientX, e.clientY);
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                endDrag();
+            }
+        });
+
+        // Touch events para mobile
+        container.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            startDrag(touch.clientX, touch.clientY);
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                drag(touch.clientX, touch.clientY);
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            if (isDragging) {
+                endDrag();
+            }
+        });        const startDrag = (clientX, clientY) => {
+            // Detectar se é um clique ou drag
+            clickTimeout = setTimeout(() => {
+                isDragging = true;
+                container.classList.add('dragging');
+                
+                startX = clientX;
+                startY = clientY;
+                
+                const rect = container.getBoundingClientRect();
+                initialX = rect.left;
+                initialY = rect.top;
+            }, 150); // 150ms para distinguir click de drag
+        };
+
+        const drag = (clientX, clientY) => {
+            if (!isDragging) return;
+            
+            const deltaX = clientX - startX;
+            const deltaY = clientY - startY;
+            
+            let newX = initialX + deltaX;
+            let newY = initialY + deltaY;
+            
+            // Limites da tela
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            const maxX = window.innerWidth - containerWidth;
+            const maxY = window.innerHeight - containerHeight;
+            
+            newX = Math.max(0, Math.min(maxX, newX));
+            newY = Math.max(0, Math.min(maxY, newY));
+              container.style.left = newX + 'px';
+            container.style.top = newY + 'px';
+            container.style.right = 'auto';
+            container.style.bottom = 'auto';
+        };
+
+        const endDrag = () => {
+            clearTimeout(clickTimeout);
+            
+            if (!isDragging) {
+                // Foi um clique, não um drag - abrir/fechar chat
+                this.toggleChat();
+                return;
+            }
+            
+            isDragging = false;
+            container.classList.remove('dragging');
+            container.classList.add('snapping');
+            
+            // Snap para as bordas (como AssistiveTouch)
+            const rect = container.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const screenCenter = window.innerWidth / 2;
+            
+            let finalX, finalY;
+            
+            // Snap horizontal para a borda mais próxima
+            if (centerX < screenCenter) {
+                finalX = 20; // Margem da esquerda
+            } else {
+                finalX = window.innerWidth - rect.width - 20; // Margem da direita
+            }
+            
+            // Manter Y atual mas dentro dos limites
+            finalY = Math.max(20, Math.min(window.innerHeight - rect.height - 20, rect.top));
+            
+            container.style.left = finalX + 'px';
+            container.style.top = finalY + 'px';
+            
+            // Remover classe de snapping após animação
+            setTimeout(() => {
+                container.classList.remove('snapping');
+            }, 400);
+        }
     }
 
     startAmbientAnimation() {
@@ -669,7 +779,7 @@ PERGUNTA DO USUÁRIO: ${question}`;
         
         // Análise inteligente de intenções
         if (lowerQuestion.includes('site') || lowerQuestion.includes('portfolio') || lowerQuestion.includes('como foi feito') || lowerQuestion.includes('desenvolvido')) {
-            return "Este portfolio foi desenvolvido com uma arquitetura moderna e tecnologias avançadas. O site é uma SPA (Single Page Application) construída com HTML5, CSS3 e JavaScript vanilla ES6+, utilizando Firebase como backend serverless para autenticação, banco de dados Firestore e storage de arquivos.\n\nPrincipais recursos: Sistema de chat em tempo real, painel administrativo completo, PWA com cache offline, sistema de partículas interativo, gerador automático de currículo, galeria de mídia administrativa e esta assistente IA powered by Google Gemini.\n\nA interface foi inspirada no visual de League of Legends/Riot Games, com design responsivo e animações fluidas. Todo o código é otimizado para performance e SEO.";
+            return "Este portfolio foi desenvolvido com uma arquitetura moderna e tecnologias avançadas. O site é uma SPA (Single Page Application) construída com HTML5, CSS3 e JavaScript vanilla ES6+, utilizando Firebase como backend serverless para autenticação, banco de dados Firestore e storage de arquivos.\n\nPrincipais recursos: Sistema de chat em tempo real, painel administrativo completo, PWA com cache offline, sistema de partículas interativo, gerador automático de currículo, galeria de mídia administrativa e esta assistente IA powered by Google Gemini & created by Mikael.\n\nA interface foi inspirada no visual de League of Legends/Riot Games, com design responsivo e animações fluidas. Todo o código é otimizado para performance e SEO.";
         }
         
         if (lowerQuestion.includes('tecnologia') || lowerQuestion.includes('stack') || lowerQuestion.includes('ferramentas') || lowerQuestion.includes('framework')) {
@@ -689,7 +799,7 @@ PERGUNTA DO USUÁRIO: ${question}`;
         }
         
         if (lowerQuestion.includes('minerva') || lowerQuestion.includes('assistente') || lowerQuestion.includes('ia') || lowerQuestion.includes('como funciona')) {
-            return "Sou Minerva, a assistente IA deste portfolio, powered by Google Gemini AI.\n\nFuncionalidades:\n- Respostas inteligentes sobre o site, projetos e tecnologias\n- Conhecimento detalhado sobre a estrutura do portfolio\n- Informações sobre o Mikael e suas especialidades\n- Orientação para navegação e uso do site\n- Respostas contextuais baseadas na página atual\n\nImplementação técnica: Integração com API Google Gemini para processamento de linguagem natural, sistema de cache inteligente para respostas rápidas, fallback offline para garantir funcionamento sempre, interface modal responsiva com animações CSS.\n\nBase de conhecimento: Tenho acesso a informações detalhadas sobre toda a arquitetura do site, projetos implementados, stack técnica utilizada e informações profissionais do Mikael.\n\nPosso responder dúvidas técnicas específicas, explicar funcionalidades e ajudar com navegação pelo portfolio.";
+            return "Sou Minerva, a assistente IA deste portfolio, powered by Google Gemini AI & created by Mikael.\n\nFuncionalidades:\n- Respostas inteligentes sobre o site, projetos e tecnologias\n- Conhecimento detalhado sobre a estrutura do portfolio\n- Informações sobre o Mikael e suas especialidades\n- Orientação para navegação e uso do site\n- Respostas contextuais baseadas na página atual\n\nImplementação técnica: Integração com API Google Gemini para processamento de linguagem natural, sistema de cache inteligente para respostas rápidas, fallback offline para garantir funcionamento sempre, interface modal responsiva com animações CSS.\n\nBase de conhecimento: Tenho acesso a informações detalhadas sobre toda a arquitetura do site, projetos implementados, stack técnica utilizada e informações profissionais do Mikael.\n\nPosso responder dúvidas técnicas específicas, explicar funcionalidades e ajudar com navegação pelo portfolio.";
         }
         
         if (lowerQuestion.includes('navegar') || lowerQuestion.includes('como usar') || lowerQuestion.includes('menu') || lowerQuestion.includes('páginas')) {
@@ -835,7 +945,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         try {
             window.minerva = new MinervaUltraAssistant();
-            console.log('Minerva Ultra Assistant inicializada com sucesso! Powered by Google Gemini AI');
+            console.log('Minerva Ultra Assistant inicializada com sucesso! Powered by Google Gemini AI & Created by Mikael');
         } catch (error) {
             console.error('Erro ao inicializar Minerva:', error);
         }

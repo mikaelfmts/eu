@@ -316,72 +316,55 @@ class MinervaUltraAssistant {
         
         // Configurar funcionalidade de drag (AssistiveTouch)
         this.setupDragFunctionality();
-    }
-
-    setupDragFunctionality() {
+    }    setupDragFunctionality() {
         const container = document.getElementById('minerva-container');
+        const owlButton = container.querySelector('.minerva-owl');
+        
         let isDragging = false;
+        let dragStarted = false;
         let startX, startY, initialX, initialY;
-        let clickTimeout;
+        let dragThreshold = 5; // pixels de movimento necessários para começar o drag
+        let downX, downY; // posição inicial do mouse/touch
 
         // Prevenir comportamentos padrão
         container.addEventListener('dragstart', (e) => e.preventDefault());
         container.addEventListener('selectstart', (e) => e.preventDefault());
 
-        // Mouse events
-        container.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            startDrag(e.clientX, e.clientY);
-        });
+        // Funções auxiliares
+        const getDistance = (x1, y1, x2, y2) => {
+            return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+        };
 
-        document.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                drag(e.clientX, e.clientY);
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            if (isDragging) {
-                endDrag();
-            }
-        });
-
-        // Touch events para mobile
-        container.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            const touch = e.touches[0];
-            startDrag(touch.clientX, touch.clientY);
-        });
-
-        document.addEventListener('touchmove', (e) => {
-            if (isDragging) {
-                e.preventDefault();
-                const touch = e.touches[0];
-                drag(touch.clientX, touch.clientY);
-            }
-        });
-
-        document.addEventListener('touchend', () => {
-            if (isDragging) {
-                endDrag();
-            }
-        });        const startDrag = (clientX, clientY) => {
-            // Detectar se é um clique ou drag
-            clickTimeout = setTimeout(() => {
-                isDragging = true;
-                container.classList.add('dragging');
-                
-                startX = clientX;
-                startY = clientY;
-                
-                const rect = container.getBoundingClientRect();
-                initialX = rect.left;
-                initialY = rect.top;
-            }, 150); // 150ms para distinguir click de drag
+        const startDrag = (clientX, clientY) => {
+            isDragging = true;
+            dragStarted = false;
+            downX = clientX;
+            downY = clientY;
+            startX = clientX;
+            startY = clientY;
+            
+            const rect = container.getBoundingClientRect();
+            initialX = rect.left;
+            initialY = rect.top;
+            
+            // Adicionar cursor de movimento apenas quando começar o drag
+            document.body.style.cursor = 'grabbing';
         };
 
         const drag = (clientX, clientY) => {
             if (!isDragging) return;
+            
+            // Verificar se moveu o suficiente para ser considerado drag
+            const distance = getDistance(downX, downY, clientX, clientY);
+            
+            if (!dragStarted && distance < dragThreshold) {
+                return; // Ainda não é um drag, pode ser apenas um clique
+            }
+            
+            if (!dragStarted) {
+                dragStarted = true;
+                container.classList.add('dragging');
+            }
             
             const deltaX = clientX - startX;
             const deltaY = clientY - startY;
@@ -397,22 +380,26 @@ class MinervaUltraAssistant {
             
             newX = Math.max(0, Math.min(maxX, newX));
             newY = Math.max(0, Math.min(maxY, newY));
-              container.style.left = newX + 'px';
+            
+            container.style.left = newX + 'px';
             container.style.top = newY + 'px';
             container.style.right = 'auto';
             container.style.bottom = 'auto';
         };
 
         const endDrag = () => {
-            clearTimeout(clickTimeout);
+            if (!isDragging) return;
             
-            if (!isDragging) {
-                // Foi um clique, não um drag - abrir/fechar chat
+            isDragging = false;
+            document.body.style.cursor = '';
+            
+            // Se não foi um drag real (movimento insuficiente), é um clique
+            if (!dragStarted) {
                 this.toggleChat();
                 return;
             }
             
-            isDragging = false;
+            dragStarted = false;
             container.classList.remove('dragging');
             container.classList.add('snapping');
             
@@ -440,7 +427,48 @@ class MinervaUltraAssistant {
             setTimeout(() => {
                 container.classList.remove('snapping');
             }, 400);
-        }
+        };
+
+        // Mouse events
+        owlButton.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            startDrag(e.clientX, e.clientY);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                drag(e.clientX, e.clientY);
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                endDrag();
+            }
+        });
+
+        // Touch events para mobile
+        owlButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const touch = e.touches[0];
+            startDrag(touch.clientX, touch.clientY);
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                drag(touch.clientX, touch.clientY);
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            if (isDragging) {
+                endDrag();
+            }
+        });
     }
 
     startAmbientAnimation() {

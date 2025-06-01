@@ -25,7 +25,7 @@ const firebaseConfig = {
     apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
     authDomain: "mikaelfmts.firebaseapp.com",
     projectId: "mikaelfmts",
-    storageBucket: "mikaelfmts.firebasestorage.app",
+    storageBucket: "mikaelfmts.appspot.com",
     messagingSenderId: "516762612351",
     appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
 };
@@ -273,69 +273,49 @@ async function handleMediaUpload(event) {
 }
 
 async function uploadMediaFile(file) {
-    const maxRetries = 3;
-    let currentTry = 0;
-    
-    while (currentTry < maxRetries) {
-        try {
-            currentTry++;
-            
-            // Sanitizar nome do arquivo para evitar caracteres problemáticos
-            const sanitizedName = file.name
-                .replace(/[^a-zA-Z0-9.-]/g, '_')
-                .toLowerCase();
-            const timestamp = Date.now();
-            const fileName = `galeria/${timestamp}_${currentTry}_${sanitizedName}`;
-            
-            // Criar referência com path simples
-            const storageRef = ref(storage, fileName);
-            
-            // Delay progressivo entre tentativas
-            if (currentTry > 1) {
-                const delayTime = currentTry * 2000; // 2s, 4s, 6s
-                console.log(`Tentativa ${currentTry}/${maxRetries} em ${delayTime/1000}s...`);
-                await delay(delayTime);
-            }
-            
-            // Upload sem metadata adicional para evitar problemas de CORS
-            const snapshot = await uploadBytes(storageRef, file);
-            
-            // Aguardar um pouco antes de obter a URL
-            await delay(1000);
-            
-            const downloadURL = await getDownloadURL(snapshot.ref);
-            
-            return {
-                url: downloadURL,
-                type: file.type.startsWith('video') ? 'video' : 'image',
-                name: file.name,
-                size: file.size,
-                storagePath: fileName
-            };
-            
-        } catch (error) {
-            console.error(`Erro na tentativa ${currentTry}:`, error);
-            
-            // Se é a última tentativa, lance o erro
-            if (currentTry >= maxRetries) {
-                let errorMessage = 'Falha no upload após múltiplas tentativas';
-                
-                if (error.code === 'storage/unauthorized') {
-                    errorMessage = 'Erro de autorização - verifique se está logado';
-                } else if (error.code === 'storage/canceled') {
-                    errorMessage = 'Upload cancelado';
-                } else if (error.code === 'storage/unknown') {
-                    errorMessage = 'Erro de rede - verifique sua conexão';
-                } else if (error.message) {
-                    errorMessage = error.message;
-                }
-                
-                throw new Error(errorMessage);
-            }
-            
-            // Continuar para próxima tentativa
-            console.log(`Tentando novamente... (${currentTry}/${maxRetries})`);
+    try {
+        // Sanitizar nome do arquivo
+        const sanitizedName = file.name
+            .replace(/[^a-zA-Z0-9.-]/g, '_')
+            .toLowerCase();
+        const timestamp = Date.now();
+        const randomId = Math.random().toString(36).substr(2, 9);
+        const fileName = `galeria/${timestamp}_${randomId}_${sanitizedName}`;
+        
+        // Criar referência direta no Firebase Storage
+        const storageRef = ref(storage, fileName);
+        
+        // Upload direto usando Firebase SDK v9+ modular
+        const uploadTask = uploadBytes(storageRef, file, {
+            contentType: file.type
+        });
+        
+        const snapshot = await uploadTask;
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        
+        return {
+            url: downloadURL,
+            type: file.type.startsWith('video') ? 'video' : 'image',
+            name: file.name,
+            size: file.size,
+            storagePath: fileName
+        };
+        
+    } catch (error) {
+        console.error('Erro no upload:', error);
+          let errorMessage = 'Falha no upload';
+        
+        if (error.code === 'storage/unauthorized') {
+            errorMessage = 'Erro de autorização - verifique se está logado';
+        } else if (error.code === 'storage/canceled') {
+            errorMessage = 'Upload cancelado';
+        } else if (error.code === 'storage/unknown') {
+            errorMessage = 'Erro de rede - verifique sua conexão';
+        } else if (error.message) {
+            errorMessage = error.message;
         }
+        
+        throw new Error(errorMessage);
     }
 }
 

@@ -11,9 +11,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Admin Mídia">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    
-    <!-- Font Awesome -->
+      <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/minerva-styles.css">
     
     <!-- Scripts -->
     <script type="module" src="assets/js/auth.js"></script>
@@ -666,9 +666,11 @@
             }
 
             for (let i = 0; i < particleCount; i++) {
-                setTimeout(() => createParticle(), Math.random() * 5000);
-            }
+                setTimeout(() => createParticle(), Math.random() * 5000);            }
         });
     </script>
+
+    <!-- Minerva Assistant -->
+    <script type="module" src="assets/js/minerva-assistant.js"></script>
 </body>
 </html>

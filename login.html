@@ -14,9 +14,13 @@
             }
         }
     </script>
+      <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">      <style>
+    <!-- Minerva Assistant Styles -->
+    <link rel="stylesheet" href="assets/css/minerva-styles.css">
+    
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=Marcellus&display=swap');
         
         /* Estilos para o sistema de partículas */
@@ -297,9 +301,11 @@
                 setTimeout(() => {
                     particle.style.transform = `translate(${Math.random() * 200 - 100}px, ${Math.random() * 200 - 100}px) rotate(${Math.random() * 720}deg)`;
                     particle.style.opacity = '0';
-                }, (duration / 2) * 1000);
-            }
+                }, (duration / 2) * 1000);            }
         });
     </script>
+
+    <!-- Minerva Assistant -->
+    <script type="module" src="assets/js/minerva-assistant.js"></script>
 </body>
 </html>

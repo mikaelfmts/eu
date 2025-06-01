@@ -20,12 +20,12 @@
                 preflight: false,
             }
         }
-    </script>
-      <!-- Font Awesome -->
+    </script>      <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/minerva-styles.css">
       <!-- Scripts -->
     <script type="module" src="assets/js/auth.js"></script>
-    <script type="module" src="assets/js/admin.js"></script>      <style>
+    <script type="module" src="assets/js/admin.js"></script><style>
         @import url('https://fonts.googleapis.com/css2?family=Marcellus&display=swap');
         
         :root {
@@ -1368,9 +1368,11 @@
             if (isStandalone) {
                 console.log('Executando como PWA');
                 // Adicionar classe CSS para ajustes específicos de PWA
-                document.body.classList.add('pwa-mode');
-            }
+                document.body.classList.add('pwa-mode');            }
         });
     </script>
+
+    <!-- Minerva Assistant -->
+    <script type="module" src="assets/js/minerva-assistant.js"></script>
 </body>
 </html>

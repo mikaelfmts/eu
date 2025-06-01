@@ -1,0 +1,758 @@
+/* Estilos para Minerva - Assistente Virtual */
+
+/* Container Principal */
+#minerva-container {
+    position: fixed;
+    bottom: 100px; /* Acima do chat existente */
+    right: 20px;
+    z-index: 1000;
+    font-family: 'Marcellus', serif;
+}
+
+/* Coruja Minerva - Mais Imponente */
+.minerva-owl {
+    width: 80px;
+    height: 80px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 8px 25px rgba(0, 0, 0, 0.4));
+    transform-origin: center bottom;
+}
+
+.minerva-owl:hover {
+    transform: scale(1.15) translateY(-5px);
+    filter: drop-shadow(0 15px 35px rgba(0, 100, 255, 0.6)) 
+            drop-shadow(0 0 30px rgba(255, 215, 0, 0.3));
+    animation: owlGlow 2s ease-in-out infinite;
+}
+
+.minerva-owl.active {
+    transform: scale(1.25) translateY(-8px);
+    filter: drop-shadow(0 20px 40px rgba(0, 100, 255, 0.8)) 
+            drop-shadow(0 0 50px rgba(255, 215, 0, 0.5));
+    animation: owlPulse 1.5s ease-in-out infinite;
+}
+
+.minerva-owl.thinking {
+    animation: owlThinking 1.2s ease-in-out infinite, owlGlow 2s ease-in-out infinite;
+}
+
+/* Corpo da Coruja - Mais Detalhado */
+.owl-body {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, 
+        #8B4513 0%, 
+        #A0522D 25%, 
+        #CD853F 50%, 
+        #DAA520 75%, 
+        #B8860B 100%);
+    border-radius: 50% 50% 60% 60%;
+    position: relative;
+    border: 4px solid #654321;
+    box-shadow: 
+        inset 0 -15px 30px rgba(0, 0, 0, 0.3),
+        inset 0 10px 20px rgba(255, 215, 0, 0.2),
+        0 0 20px rgba(218, 165, 32, 0.4);
+    overflow: hidden;
+}
+
+.owl-body::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 40%;
+    background: linear-gradient(135deg, 
+        rgba(255, 215, 0, 0.3) 0%, 
+        transparent 50%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.owl-body::after {
+    content: '';
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 20%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(139, 69, 19, 0.6) 50%, 
+        transparent 100%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* Olhos da Coruja - Mais Expressivos */
+.owl-eyes {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 2;
+}
+
+.eye {
+    width: 22px;
+    height: 22px;
+    background: radial-gradient(circle at 30% 30%, 
+        #ffffff 0%, 
+        #f0f0f0  40%, 
+        #e0e0e0 100%);
+    border-radius: 50%;
+    border: 3px solid #333;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+        0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.eye::before {
+    content: '';
+    position: absolute;
+    top: 15%;
+    left: 20%;
+    width: 30%;
+    height: 40%;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.pupil {
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle at 30% 30%, 
+        #1a1a1a 0%, 
+        #000000 60%);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+}
+
+.pupil::after {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 25%;
+    width: 3px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+}
+
+/* Bico da Coruja - Mais Detalhado */
+.owl-beak {
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 12px solid #FF8C00;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    z-index: 2;
+}
+
+.owl-beak::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -3px;
+    width: 0;
+    height: 0;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 6px solid #FFB84D;
+}
+
+/* Asas da Coruja - Mais Dinâmicas */
+.owl-wings {
+    position: absolute;
+    top: 25px;
+    width: 100%;
+    height: 35px;
+    z-index: 1;
+}
+
+.wing {
+    position: absolute;
+    top: 0;
+    width: 20px;
+    height: 30px;
+    background: linear-gradient(45deg, 
+        #5D4037 0%, 
+        #6B4423 30%, 
+        #8B4513 60%, 
+        #A0522D 100%);
+    border-radius: 60% 20% 80% 40%;
+    border: 2px solid #4A2C20;
+    box-shadow: 
+        inset 0 2px 4px rgba(255, 215, 0, 0.2),
+        0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.wing::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    width: 60%;
+    height: 60%;
+    background: linear-gradient(45deg, 
+        rgba(218, 165, 32, 0.3) 0%, 
+        transparent 50%);
+    border-radius: 50%;
+}
+
+.left-wing {
+    left: -8px;
+    transform: rotate(-25deg);
+    transform-origin: right center;
+    animation: leftWingFlap 3s ease-in-out infinite;
+}
+
+.right-wing {
+    right: -8px;
+    transform: rotate(25deg);
+    transform-origin: left center;
+    animation: rightWingFlap 3s ease-in-out infinite;
+}
+
+/* Indicador de Pensamento - Mais Elaborado */
+.thinking-dots {
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    gap: 4px;
+    background: linear-gradient(135deg, 
+        rgba(0, 102, 255, 0.9) 0%, 
+        rgba(0, 150, 255, 0.9) 100%);
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 102, 255, 0.4);
+}
+
+.thinking-dots::before {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid rgba(0, 102, 255, 0.9);
+}
+
+.thinking-dots span {
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(135deg, 
+        #ffffff 0%, 
+        #e0e0e0 100%);
+    border-radius: 50%;
+    display: inline-block;
+    animation: advancedThinkingDots 1.6s ease-in-out infinite both;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
+.thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
+.thinking-dots span:nth-child(3) { animation-delay: 0s; }
+
+/* Chat da Minerva - Estilo Riot Games */
+.minerva-chat {
+    position: absolute;
+    bottom: 100px;
+    right: 0;
+    width: 400px;
+    max-width: 90vw;
+    height: 550px;
+    background: linear-gradient(135deg, 
+        #0A1428 0%, 
+        #1E2328 30%, 
+        #0F1419 70%, 
+        #0A0E13 100%);
+    border-radius: 20px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateY(30px) scale(0.85);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(200, 155, 60, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.minerva-chat::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(200, 155, 60, 0.4) 0%, 
+        rgba(0, 150, 255, 0.3) 50%, 
+        rgba(200, 155, 60, 0.4) 100%);
+    border-radius: 20px;
+    z-index: -1;
+    margin: -3px;
+}
+
+.minerva-chat:not(.hidden) {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+.minerva-chat.hidden {
+    display: none;
+}
+
+/* Header do Chat - Estilo Riot Games */
+.minerva-header {
+    background: linear-gradient(135deg, 
+        #C89B3C 0%, 
+        #F0E6D2 20%, 
+        #C8AA6E 40%, 
+        #463714 100%);
+    color: #0F2027;
+    padding: 18px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #C89B3C;
+    position: relative;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.minerva-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        #F0E6D2 25%, 
+        #C89B3C 50%, 
+        #F0E6D2 75%, 
+        transparent 100%);
+}
+
+.minerva-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(0, 0, 0, 0.3) 50%, 
+        transparent 100%);
+}
+
+.minerva-title {
+    font-weight: bold;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #0F2027;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.minerva-title i {
+    color: #463714;
+    filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.5));
+}
+
+.minerva-close {
+    background: linear-gradient(135deg, 
+        rgba(15, 32, 39, 0.8) 0%, 
+        rgba(15, 32, 39, 0.6) 100%);
+    border: 2px solid #C89B3C;
+    color: #F0E6D2;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.minerva-close:hover {
+    background: linear-gradient(135deg, 
+        rgba(200, 155, 60, 0.8) 0%, 
+        rgba(200, 155, 60, 0.6) 100%);
+    color: #0F2027;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(200, 155, 60, 0.4);
+}
+
+/* Área de Mensagens */
+.minerva-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+}
+
+.minerva-welcome {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.welcome-message {
+    background: linear-gradient(135deg, #2a2a4a 0%, #1e1e3a 100%);
+    color: #e0e0e0;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #3a3a5a;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.quick-suggestions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.suggestion-btn {
+    background: linear-gradient(135deg, #0066ff 0%, #004cc7 100%);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid #0052cc;
+}
+
+.suggestion-btn:hover {
+    background: linear-gradient(135deg, #0080ff 0%, #0066ff 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 102, 255, 0.3);
+}
+
+/* Mensagens */
+.minerva-message {
+    margin-bottom: 15px;
+    animation: messageSlideIn 0.3s ease;
+}
+
+.message-content {
+    padding: 12px 15px;
+    border-radius: 15px;
+    max-width: 85%;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.user-message {
+    background: linear-gradient(135deg, #0066ff 0%, #004cc7 100%);
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 5px;
+    border: 1px solid #0052cc;
+}
+
+.assistant-message {
+    background: linear-gradient(135deg, #2a2a4a 0%, #1e1e3a 100%);
+    color: #e0e0e0;
+    margin-right: auto;
+    border-bottom-left-radius: 5px;
+    border: 1px solid #3a3a5a;
+}
+
+.message-text {
+    flex: 1;
+}
+
+/* Área de Input */
+.minerva-input-area {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f0f23 100%);
+    padding: 15px;
+    border-top: 2px solid #2a2a4a;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#minerva-input {
+    flex: 1;
+    background: #2a2a4a;
+    border: 2px solid #3a3a5a;
+    border-radius: 10px;
+    padding: 12px 15px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+#minerva-input:focus {
+    border-color: #0066ff;
+    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.2);
+}
+
+#minerva-input::placeholder {
+    color: #888;
+}
+
+.minerva-send-btn {
+    background: linear-gradient(135deg, #0066ff 0%, #004cc7 100%);
+    color: white;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border: 2px solid #0052cc;
+}
+
+.minerva-send-btn:hover {
+    background: linear-gradient(135deg, #0080ff 0%, #0066ff 100%);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.4);
+}
+
+/* Animações Avançadas */
+@keyframes owlGlow {
+    0%, 100% {
+        filter: drop-shadow(0 15px 35px rgba(0, 100, 255, 0.6)) 
+                drop-shadow(0 0 30px rgba(255, 215, 0, 0.3));
+    }
+    50% {
+        filter: drop-shadow(0 20px 40px rgba(0, 100, 255, 0.8)) 
+                drop-shadow(0 0 50px rgba(255, 215, 0, 0.6));
+    }
+}
+
+@keyframes owlPulse {
+    0%, 100% {
+        transform: scale(1.25) translateY(-8px);
+    }
+    50% {
+        transform: scale(1.35) translateY(-12px);
+    }
+}
+
+@keyframes owlThinking {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    10% {
+        transform: translateY(-8px) rotate(-2deg);
+    }
+    30% {
+        transform: translateY(-12px) rotate(2deg);
+    }
+    40% {
+        transform: translateY(-15px) rotate(-1deg);
+    }
+    60% {
+        transform: translateY(-10px) rotate(1deg);
+    }
+    70% {
+        transform: translateY(-5px) rotate(-0.5deg);
+    }
+}
+
+@keyframes leftWingFlap {
+    0%, 100% {
+        transform: rotate(-25deg) scaleY(1);
+    }
+    25% {
+        transform: rotate(-35deg) scaleY(0.8);
+    }
+    50% {
+        transform: rotate(-20deg) scaleY(1.1);
+    }
+    75% {
+        transform: rotate(-30deg) scaleY(0.9);
+    }
+}
+
+@keyframes rightWingFlap {
+    0%, 100% {
+        transform: rotate(25deg) scaleY(1);
+    }
+    25% {
+        transform: rotate(35deg) scaleY(0.8);
+    }
+    50% {
+        transform: rotate(20deg) scaleY(1.1);
+    }
+    75% {
+        transform: rotate(30deg) scaleY(0.9);
+    }
+}
+
+@keyframes advancedThinkingDots {
+    0%, 80%, 100% {
+        transform: scale(0) translateY(0);
+        opacity: 0.3;
+    }
+    20% {
+        transform: scale(0.8) translateY(-2px);
+        opacity: 0.7;
+    }
+    40% {
+        transform: scale(1.2) translateY(-5px);
+        opacity: 1;
+    }
+    60% {
+        transform: scale(1) translateY(-3px);
+        opacity: 0.8;
+    }
+}
+
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes riotGlow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(200, 155, 60, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(200, 155, 60, 0.6);
+    }
+}
+
+/* Responsividade Melhorada */
+@media (max-width: 768px) {
+    #minerva-container {
+        right: 15px;
+        bottom: 120px;
+    }
+    
+    .minerva-chat {
+        width: 350px;
+        height: 500px;
+        bottom: 90px;
+        border-radius: 15px;
+    }
+    
+    .minerva-owl {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .quick-suggestions {
+        grid-template-columns: 1fr;
+    }
+    
+    .minerva-header {
+        padding: 15px 18px;
+    }
+    
+    .minerva-title {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    #minerva-container {
+        right: 10px;
+        bottom: 100px;
+    }
+    
+    .minerva-chat {
+        width: 320px;
+        height: 450px;
+        right: -10px;
+        border-radius: 12px;
+    }
+    
+    .minerva-owl {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .minerva-header {
+        padding: 12px 15px;
+    }
+    
+    .minerva-title {
+        font-size: 14px;
+    }
+    
+    .message-content {
+        font-size: 13px;
+        padding: 10px 12px;
+    }
+    
+    .thinking-dots {
+        top: -30px;
+        padding: 6px 10px;
+    }
+}
+
+/* Scrollbar personalizada */
+.minerva-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.minerva-messages::-webkit-scrollbar-track {
+    background: #1a1a2e;
+}
+
+.minerva-messages::-webkit-scrollbar-thumb {
+    background: #0066ff;
+    border-radius: 3px;
+}
+
+.minerva-messages::-webkit-scrollbar-thumb:hover {
+    background: #0080ff;
+}

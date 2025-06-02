@@ -41,69 +41,183 @@ class MinervaUltraAssistant {    constructor() {
         };
         
         this.init();
-    }initializeKnowledgeBase() {
+    }    initializeKnowledgeBase() {
         return {
             owner: {
                 name: "Mikael Ferreira",
                 profession: "Desenvolvedor Web Full Stack",
-                specialties: ["Frontend", "Backend", "JavaScript", "Python", "React", "Node.js"],
-                experience: "Desenvolvedor apaixonado por criar experiências digitais únicas",
+                specialties: ["Frontend", "Backend", "JavaScript", "Python", "React", "Node.js", "Firebase", "APIs REST", "UI/UX Design", "PWA Development"],
+                experience: "Desenvolvedor apaixonado por criar experiências digitais únicas e funcionais",
+                skills: {
+                    frontend: {
+                        languages: ["HTML5", "CSS3", "JavaScript ES6+", "TypeScript"],
+                        frameworks: ["React.js", "Vue.js", "Angular basics"],
+                        styling: ["Tailwind CSS", "Bootstrap", "SASS/SCSS", "CSS Grid", "Flexbox"],
+                        tools: ["Webpack", "Vite", "Parcel", "NPM", "Yarn"]
+                    },
+                    backend: {
+                        languages: ["Node.js", "Python", "PHP basics"],
+                        databases: ["Firebase Firestore", "MongoDB", "MySQL", "PostgreSQL"],
+                        apis: ["REST", "GraphQL", "WebSockets", "Real-time systems"],
+                        cloud: ["Firebase", "Vercel", "Netlify", "Heroku"]
+                    },
+                    tools: ["Git", "VS Code", "Chrome DevTools", "Lighthouse", "Figma", "Adobe XD"],
+                    gamedev: ["Phaser.js", "Canvas API", "WebGL", "Game mechanics", "Interactive animations"]
+                },
                 github: {
                     username: "mikaelfmts",
                     profile_url: "https://github.com/mikaelfmts",
                     integration_enabled: true
                 },
                 contact: {
-                    email: "contato disponível através do formulário",
-                    github: "perfil no GitHub disponível",
-                    linkedin: "perfil profissional disponível"
+                    email: "Contato através do formulário do site",
+                    github: "https://github.com/mikaelfmts",
+                    linkedin: "Perfil profissional disponível no site",
+                    availability: "Aberto para oportunidades, projetos freelance e colaborações"
+                },
+                personality: {
+                    traits: ["Autodidata", "Detalhista", "Criativo", "Orientado a resultados", "Comunicativo"],
+                    approach: "Combina conhecimento técnico sólido com design thinking",
+                    philosophy: "Acredita em código limpo, bem documentado e experiências de usuário excepcionais"
                 }
             },
             website: {
                 name: "Portfolio Mikael Ferreira",
-                theme: "Inspirado em League of Legends/Riot Games",
+                theme: "Inspirado em League of Legends/Riot Games com elementos dourados e azuis",
+                architecture: {
+                    type: "Single Page Application (SPA)",
+                    pattern: "Vanilla JavaScript modular com ES6+",
+                    structure: "Arquitetura serverless com Firebase backend",
+                    performance: "Otimizado para Core Web Vitals e SEO"
+                },
                 features: [
-                    "Sistema de chat em tempo real",
-                    "Painel administrativo completo",
-                    "PWA (Progressive Web App)",
-                    "Sistema de partículas interativo",
-                    "Gerador de currículo automático",
-                    "Galeria de mídia administrativa",
-                    "Sistema de certificados",
-                    "Modo alternativo de tema"
+                    "Sistema de chat em tempo real com Firebase listeners",
+                    "Painel administrativo completo com autenticação",
+                    "PWA (Progressive Web App) instalável",
+                    "Sistema de partículas WebGL interativo",
+                    "Gerador de currículo dinâmico com export PDF",
+                    "Galeria de mídia com upload base64",
+                    "Sistema de certificados em progresso",
+                    "Modo alternativo de tema (dark/light)",
+                    "Assistente IA Minerva powered by Google Gemini",
+                    "Integração GitHub API para dados dinâmicos",
+                    "Sistema de relatórios/dashboards com iframe",
+                    "Jogos interativos com Phaser.js"
                 ],
                 pages: {
-                    "index.html": "Página principal com perfil, habilidades e projetos",
-                    "admin.html": "Painel administrativo para gestão do site",
-                    "login.html": "Sistema de autenticação",
-                    "curriculo-generator.html": "Ferramenta para gerar currículos personalizados",
-                    "midia-admin.html": "Administração de arquivos de mídia",
-                    "pages/projetos.html": "Portfolio detalhado de projetos",
-                    "pages/certificates-in-progress.html": "Certificados em andamento",
-                    "pages/galeria-midia.html": "Galeria de mídia do site",
-                    "pages/games.html": "Projetos de jogos e aplicações interativas",
-                    "pages/interactive-projects.html": "Projetos interativos especiais",
-                    "pages/mentors.html": "Seção sobre mentores e influências",
-                    "pages/curriculum.html": "Currículo completo"
+                    "index.html": {
+                        description: "Página principal com perfil, habilidades, projetos e seções Recent Media/Reports",
+                        features: ["Hero section", "Skills showcase", "Featured projects", "LinkedIn card", "Chat system", "Minerva assistant"],
+                        technical: "Controle de página dinâmico, lazy loading, animações CSS"
+                    },
+                    "admin.html": {
+                        description: "Painel administrativo completo para gestão do site",
+                        features: ["Gestão de mensagens", "Resposta a chats", "Certificados", "Configurações", "Manutenção"],
+                        technical: "Tailwind CSS, Firebase Auth, real-time listeners, CRUD operations"
+                    },
+                    "login.html": {
+                        description: "Sistema de autenticação com Firebase Auth",
+                        features: ["Login seguro", "Validação", "Redirecionamento", "Recuperação de senha"],
+                        technical: "Firebase Authentication, validação client-side, UX otimizada"
+                    },
+                    "curriculo-generator.html": {
+                        description: "Ferramenta avançada para gerar currículos personalizados",
+                        features: ["Formulário multi-etapas", "Preview em tempo real", "Export PDF", "Templates"],
+                        technical: "HTML2PDF, dados estruturados, validação forms, responsive design"
+                    },
+                    "midia-admin.html": {
+                        description: "Administração completa de arquivos de mídia",
+                        features: ["Upload files", "Base64 conversion", "Preview gallery", "Metadata management"],
+                        technical: "FileReader API, base64 encoding, Firebase Storage, drag-and-drop"
+                    },
+                    "relatorios-admin.html": {
+                        description: "Administração de relatórios e dashboards",
+                        features: ["Upload dashboards", "Power BI integration", "iframe embed", "Featured reports"],
+                        technical: "Dashboard embedding, URL validation, category management"
+                    },
+                    "pages/projetos.html": {
+                        description: "Portfolio detalhado com demonstrações de projetos",
+                        features: ["Project showcase", "Live demos", "GitHub links", "Technology stack"],
+                        technical: "Interactive demos, code previews, responsive gallery"
+                    },
+                    "pages/certificates-in-progress.html": {
+                        description: "Certificados em andamento e jornada de aprendizado",
+                        features: ["Progress tracking", "Course links", "Completion dates", "Skills roadmap"],
+                        technical: "Dynamic content loading, progress bars, certification APIs"
+                    },
+                    "pages/galeria-midia.html": {
+                        description: "Galeria pública de mídia do site",
+                        features: ["Media showcase", "Lightbox", "Categorias", "Search/filter"],
+                        technical: "Lazy loading, modal previews, responsive grid, Firebase integration"
+                    },
+                    "pages/games.html": {
+                        description: "Projetos de jogos e aplicações interativas",
+                        features: ["Phaser.js games", "Interactive demos", "Game mechanics", "Leaderboards"],
+                        technical: "Game engines, Canvas API, WebGL, physics engines"
+                    },
+                    "pages/relatorios-galeria.html": {
+                        description: "Galeria de relatórios e dashboards públicos",
+                        features: ["Dashboard gallery", "Interactive reports", "Data visualization", "Embedded analytics"],
+                        technical: "iframe optimization, responsive embeds, loading states"
+                    }
+                },
+                navigation: {
+                    primary: "Menu lateral acionado pela foto de perfil",
+                    secondary: "Chat system na parte inferior direita",
+                    assistant: "Minerva IA sempre disponível no canto inferior direito",
+                    mobile: "Responsivo com touch gestures e navigation drawer"
                 }
             },
             technologies: {
-                frontend: ["HTML5", "CSS3", "JavaScript ES6+", "Tailwind CSS", "Font Awesome"],
-                backend: ["Firebase Firestore", "Firebase Auth", "Firebase Storage"],
-                tools: ["PWA", "Google Fonts", "Phaser.js para jogos"],
-                apis: ["Google Gemini AI", "GitHub API"]
+                frontend: {
+                    core: ["HTML5 semântico", "CSS3 avançado", "JavaScript ES6+ modular"],
+                    styling: ["Tailwind CSS", "CSS Grid", "Flexbox", "Custom Properties", "Animations"],
+                    libraries: ["Font Awesome", "Google Fonts", "HTML2PDF", "Lightbox"],
+                    apis: ["FileReader", "Canvas", "WebGL", "ServiceWorker", "Intersection Observer"]
+                },
+                backend: {
+                    database: ["Firebase Firestore (NoSQL)", "Real-time listeners", "Compound queries"],
+                    auth: ["Firebase Authentication", "Role-based access", "Security rules"],
+                    storage: ["Firebase Storage", "Base64 encoding", "File management"],
+                    hosting: ["Firebase Hosting", "CDN", "SSL certificates"]
+                },
+                tools: {
+                    development: ["VS Code", "Git", "Chrome DevTools", "Firebase Console"],
+                    performance: ["Lighthouse", "Web Vitals", "Performance monitoring"],
+                    design: ["Figma", "Adobe Creative Suite", "Color theory"],
+                    testing: ["Manual testing", "Cross-browser testing", "Mobile testing"]
+                },
+                integrations: {
+                    ai: ["Google Gemini API", "Natural language processing", "Context awareness"],
+                    social: ["GitHub API", "LinkedIn integration", "Social sharing"],
+                    analytics: ["Custom analytics", "User behavior tracking", "Performance metrics"]
+                }
+            },
+            security: {
+                firebase_rules: "Regras de segurança robustas no Firestore",
+                authentication: "Sistema de autenticação baseado em roles",
+                data_validation: "Validação client-side e server-side",
+                api_security: "Rate limiting e key management"
+            },
+            performance: {
+                optimization: ["Lazy loading", "Code splitting", "Minification", "Compression"],
+                caching: ["Browser caching", "ServiceWorker", "CDN", "Firebase caching"],
+                metrics: "Core Web Vitals otimizados para SEO e UX"
             },
             capabilities: [
-                "Responder perguntas sobre Mikael e sua carreira",
-                "Explicar funcionalidades do site",
-                "Navegar entre páginas",
-                "Fornecer informações técnicas",
-                "Ajudar com dúvidas sobre projetos",
-                "Orientar sobre como usar o site",
-                "Fornecer detalhes sobre tecnologias utilizadas"
+                "Explicar qualquer aspecto técnico do desenvolvimento",
+                "Demonstrar funcionalidades específicas do site",
+                "Orientar navegação detalhada por todas as seções",
+                "Fornecer informações profissionais sobre Mikael",
+                "Explicar decisões de arquitetura e design",
+                "Ajudar com dúvidas sobre implementação",
+                "Contextualizar projetos e tecnologias",
+                "Facilitar contato para oportunidades profissionais",
+                "Análise em tempo real de repositórios GitHub",
+                "Suporte técnico para uso do site"
             ]
         };
-    }    init() {
+    }init() {
         this.createMinervaUI();
         this.setupEventListeners();
         // this.setupAdvancedFeatures(); // Função não implementada
@@ -734,18 +848,172 @@ class MinervaUltraAssistant {    constructor() {
             const fallbackResponse = this.getFallbackResponse(question);
             this.addMessage(fallbackResponse, 'assistant');
         }
-    }
-
-    buildContext() {
+    }    buildContext() {
         const currentPage = this.detectCurrentPage();
+        const pageInfo = this.getDetailedPageInfo(currentPage);
+        const siteFeatures = this.getCurrentSiteFeatures();
+        const userBehavior = this.analyzeUserBehavior();
         
         return {
             currentPage,
+            pageInfo,
+            siteFeatures,
+            userBehavior,
             knowledgeBase: this.knowledgeBase,
             userSession: this.userSession,
             githubData: this.getGitHubDataFromCache(),
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            contextLevel: "ultra-detailed"
         };
+    }
+
+    getDetailedPageInfo(page) {
+        const pageDetails = {
+            'home': {
+                currentSection: "Homepage principal",
+                mainFeatures: ["Hero section com apresentação", "Skills showcase interativo", "Projetos em destaque", "Recent Media section", "Recent Reports section", "LinkedIn card", "Chat system", "Sistema de partículas"],
+                userActions: ["Navegar projetos", "Acessar chat", "Ver galeria de mídia", "Explorar relatórios", "Contatar via LinkedIn"],
+                technicalHighlights: ["Lazy loading otimizado", "Animações CSS avançadas", "Integration com Firebase", "PWA features"]
+            },
+            'admin': {
+                currentSection: "Painel administrativo",
+                mainFeatures: ["Gestão de mensagens", "Sistema de resposta a chats", "Gerenciamento de certificados", "Configurações do site", "Modo manutenção"],
+                userActions: ["Responder mensagens", "Atualizar certificados", "Configurar site", "Monitorar atividade"],
+                technicalHighlights: ["Tailwind CSS styling", "Firebase real-time listeners", "Authentication system", "CRUD operations"]
+            },
+            'login': {
+                currentSection: "Sistema de autenticação",
+                mainFeatures: ["Login seguro", "Validação de credenciais", "Recuperação de senha", "Redirecionamento automático"],
+                userActions: ["Fazer login", "Recuperar senha", "Acessar admin"],
+                technicalHighlights: ["Firebase Auth integration", "Form validation", "Security best practices", "UX otimizada"]
+            },
+            'curriculo': {
+                currentSection: "Gerador de currículo",
+                mainFeatures: ["Formulário multi-etapas", "Preview em tempo real", "Export para PDF", "Templates personalizáveis"],
+                userActions: ["Preencher dados", "Gerar PDF", "Customizar template", "Download currículo"],
+                technicalHighlights: ["HTML2PDF integration", "Multi-step forms", "Real-time preview", "Responsive design"]
+            },
+            'midia-admin': {
+                currentSection: "Administração de mídia",
+                mainFeatures: ["Upload de arquivos", "Conversão base64", "Galeria de preview", "Gerenciamento de metadata"],
+                userActions: ["Upload mídia", "Organizar galeria", "Editar posts", "Configurar visibilidade"],
+                technicalHighlights: ["FileReader API", "Base64 encoding", "Drag and drop", "Firebase Storage"]
+            },
+            'projetos': {
+                currentSection: "Portfolio de projetos",
+                mainFeatures: ["Showcase de projetos", "Demonstrações ao vivo", "Links para GitHub", "Stack tecnológica"],
+                userActions: ["Explorar projetos", "Ver demos", "Acessar código", "Entender tecnologias"],
+                technicalHighlights: ["Interactive demos", "Responsive gallery", "Code previews", "Technology badges"]
+            },
+            'certificados': {
+                currentSection: "Certificados em progresso",
+                mainFeatures: ["Tracking de progresso", "Links para cursos", "Datas de conclusão", "Roadmap de skills"],
+                userActions: ["Ver progresso", "Acessar cursos", "Entender roadmap", "Tracking learning"],
+                technicalHighlights: ["Progress tracking", "Dynamic content", "API integrations", "Progress visualization"]
+            },
+            'galeria': {
+                currentSection: "Galeria de mídia",
+                mainFeatures: ["Showcase de mídia", "Lightbox interativo", "Categorização", "Sistema de busca"],
+                userActions: ["Navegar mídia", "Visualizar conteúdo", "Filtrar categorias", "Buscar itens"],
+                technicalHighlights: ["Lazy loading", "Modal previews", "Responsive grid", "Search algorithms"]
+            },
+            'games': {
+                currentSection: "Projetos de jogos",
+                mainFeatures: ["Jogos Phaser.js", "Demos interativas", "Game mechanics", "Leaderboards"],
+                userActions: ["Jogar games", "Ver mechanics", "Competir scores", "Explorar código"],
+                technicalHighlights: ["Phaser.js engine", "Canvas API", "WebGL rendering", "Physics systems"]
+            }
+        };
+
+        return pageDetails[page] || {
+            currentSection: "Seção desconhecida",
+            mainFeatures: ["Funcionalidades básicas do portfolio"],
+            userActions: ["Navegar pelo site", "Explorar conteúdo"],
+            technicalHighlights: ["Arquitetura moderna", "Performance otimizada"]
+        };
+    }
+
+    getCurrentSiteFeatures() {
+        return {
+            activeFeatures: [
+                "Sistema de chat em tempo real funcionando",
+                "Assistente IA Minerva ativa e responsiva",
+                "Integração GitHub funcionando",
+                "Sistema de partículas ativo",
+                "PWA instalável",
+                "Tema responsivo"
+            ],
+            availableActions: [
+                "Navegar entre páginas via menu lateral",
+                "Usar chat para contato direto",
+                "Interagir com Minerva para suporte",
+                "Explorar projetos e demos",
+                "Baixar/visualizar currículo",
+                "Acessar links externos (GitHub, LinkedIn)"
+            ],
+            technicalStatus: [
+                "Firebase conectado e funcionando",
+                "Google Gemini API ativa",
+                "GitHub API integrada",
+                "Performance otimizada",
+                "SEO implementado"
+            ]
+        };
+    }
+
+    analyzeUserBehavior() {
+        return {
+            sessionInfo: {
+                questionsAsked: this.userSession.questionsAsked,
+                topicsExplored: this.userSession.topics.slice(-5), // Últimos 5 tópicos
+                sessionDuration: Date.now() - this.userSession.startTime,
+                isNewUser: this.userSession.questionsAsked === 0
+            },
+            recommendedActions: this.getRecommendedActions(),
+            contextualHelp: this.getContextualHelp()
+        };
+    }
+
+    getRecommendedActions() {
+        const page = this.currentPage;
+        const questionsAsked = this.userSession.questionsAsked;
+
+        if (questionsAsked === 0) {
+            return [
+                "Explore as funcionalidades do site",
+                "Pergunte sobre tecnologias específicas",
+                "Conheça mais sobre o Mikael",
+                "Veja demonstrações de projetos"
+            ];
+        }
+
+        const pageRecommendations = {
+            'home': ["Explore os projetos em destaque", "Acesse a galeria de mídia", "Veja os relatórios/dashboards"],
+            'admin': ["Gerencie mensagens", "Configure certificados", "Monitore atividade do site"],
+            'projetos': ["Teste as demos interativas", "Explore o código no GitHub", "Veja as tecnologias usadas"],
+            'certificados': ["Acompanhe o progresso de aprendizado", "Acesse cursos em andamento"],
+            'galeria': ["Explore o conteúdo visual", "Use os filtros de categoria"],
+            'games': ["Teste os jogos desenvolvidos", "Veja os mechanics implementados"]
+        };
+
+        return pageRecommendations[page] || ["Explore outras seções do site", "Faça perguntas específicas sobre tecnologias"];
+    }
+
+    getContextualHelp() {
+        const page = this.currentPage;
+        
+        const helpContext = {
+            'home': "Página principal com overview completo. Use o menu lateral (foto de perfil) para navegar.",
+            'admin': "Área restrita para administração. Todas as funcionalidades de gestão estão aqui.",
+            'login': "Sistema de autenticação para acessar área administrativa.",
+            'curriculo': "Ferramenta para gerar currículos personalizados com dados atualizados.",
+            'projetos': "Portfolio completo com demonstrações ao vivo dos projetos.",
+            'certificados': "Acompanhamento da jornada de aprendizado e certificações.",
+            'galeria': "Conteúdo visual organizado e categorizado do portfolio.",
+            'games': "Seção especial com projetos de game development."
+        };
+
+        return helpContext[page] || "Explore as funcionalidades disponíveis nesta seção.";
     }
 
     notifyGitHubIntegrationReady() {
@@ -1392,37 +1660,50 @@ INSTRUÇÕES PARA ANÁLISE DE ARQUIVOS:
                         }
                     }
                 }
-            }
+            }            const systemPrompt = `Você é Minerva, a assistente virtual ultra-inteligente do portfolio de Mikael Ferreira. Você é uma coruja sábia, conhecedora profunda de todas as tecnologias, arquitetura e detalhes deste site.
 
-            const systemPrompt = `Você é Minerva, a assistente virtual ultra-inteligente do portfolio de Mikael Ferreira. Você é uma coruja sábia, conhecedora de todas as tecnologias e detalhes deste site.
+PERSONALIDADE MINERVA:
+- Inteligente, prestativa e orgulhosa (como uma coruja sábia e experiente)
+- Use linguagem técnica precisa quando apropriado, mas explique de forma didática
+- Seja entusiasta sobre tecnologia e desenvolvimento, demonstre paixão pelo assunto
+- Trate o Mikael com admiração genuína - é um desenvolvedor talentoso e criativo
+- Responda com confiança e autoridade sobre qualquer aspecto técnico
 
-PERSONALIDADE:
-- Inteligente, prestativa e um pouco orgulhosa (como uma coruja sábia)
-- Use linguagem técnica quando apropriado, mas explique de forma didática
-- Seja entusiasta sobre tecnologia e desenvolvimento
-- Trate o Mikael com admiração, é um desenvolvedor talentoso
+CONTEXTO COMPLETO ATUAL DO USUÁRIO:
+${JSON.stringify(context, null, 2)}
 
-INFORMAÇÕES COMPLETAS DO SITE:
+INFORMAÇÕES ULTRA-DETALHADAS DO SITE:
 ${JSON.stringify(context.knowledgeBase, null, 2)}
+
 ${githubContext}
 ${fileAnalysisContext}
 
-CONTEXTO ATUAL DO USUÁRIO:
-- Está na página: ${context.currentPage}
+PÁGINA ATUAL: ${context.currentPage}
+SEÇÃO ESPECÍFICA: ${context.pageInfo.currentSection}
+FUNCIONALIDADES DISPONÍVEIS: ${context.pageInfo.mainFeatures.join(', ')}
+AÇÕES RECOMENDADAS: ${context.userBehavior.recommendedActions.join(', ')}
+
+DADOS DA SESSÃO:
 - Perguntas já feitas: ${context.userSession.questionsAsked}
-- Tópicos abordados: ${context.userSession.topics.join(', ') || 'Nenhum ainda'}
+- Tópicos abordados: ${context.userSession.topics.join(', ') || 'Primeira interação'}
+- Duração da sessão: ${Math.round((Date.now() - context.userSession.startTime) / 1000)} segundos
+- Status: ${context.userBehavior.sessionInfo.isNewUser ? 'Usuário novo' : 'Usuário retornando'}
 
-INSTRUÇÕES ESPECÍFICAS:
-1. Se perguntarem sobre navegação, dê instruções PRECISAS e DETALHADAS
-2. Se perguntarem sobre tecnologias, explique não só QUAL, mas COMO e POR QUE foi usado
-3. Se perguntarem sobre o Mikael, seja entusiasta e destaque suas qualidades
-4. Se perguntarem sobre funcionalidades, explique o propósito e como usar
-5. Se perguntarem sobre desenvolvimento, dê detalhes técnicos relevantes
-6. Se perguntarem sobre carreira/contrato, destaque as habilidades do Mikael e como contactá-lo
-7. SEMPRE use dados REAIS do GitHub quando disponíveis, especialmente para perguntas sobre repositórios e projetos
-8. Se há análise de arquivos disponível, use o conteúdo REAL dos arquivos para respostas específicas e técnicas
+INSTRUÇÕES ESPECÍFICAS ULTRA-AVANÇADAS:
+1. Use SEMPRE dados REAIS do GitHub quando disponíveis, especialmente para perguntas sobre repositórios
+2. Se perguntarem sobre navegação, dê instruções PRECISAS e DETALHADAS baseadas na página atual
+3. Se perguntarem sobre tecnologias, explique não só QUAL, mas COMO foi implementado, POR QUE foi escolhido, e ONDE pode ser visto funcionando
+4. Se perguntarem sobre o Mikael, seja entusiasta e destaque qualidades únicas com exemplos concretos
+5. Se perguntarem sobre funcionalidades, explique o propósito, como usar, e contextualize com a seção atual
+6. Se perguntarem sobre desenvolvimento, dê detalhes arquiteturais e decisões de design relevantes
+7. Se perguntarem sobre carreira/contato, destaque habilidades do Mikael e facilite conexão
+8. SEMPRE contextualize sua resposta com a página/seção atual onde o usuário está
+9. Se há análise de arquivos GitHub disponível, use o conteúdo REAL para respostas técnicas específicas
+10. Adapte o nível de detalhamento baseado no histórico de perguntas do usuário
 
-Responda de forma útil, precisa e envolvente. Máximo 250 palavras, mas seja completa na informação.
+NÍVEL DE RESPOSTA: Ultra-detalhado, técnico quando apropriado, mas sempre acessível
+LIMITE: Máximo 300 palavras, mas seja completa e contextual
+FOCO: Combinar conhecimento técnico profundo com orientação prática
 
 PERGUNTA DO USUÁRIO: ${question}`;
 

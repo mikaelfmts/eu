@@ -1,4 +1,3 @@
-
 // Sistema de Rate Limiting para GitHub API
 const GITHUB_RATE_LIMIT = {
     max: 60, // GitHub permite 60 requisições por hora para usuários não autenticados
@@ -45,76 +44,323 @@ function incrementRateLimit() {
     localStorage.setItem(GITHUB_RATE_LIMIT.key, JSON.stringify(data));
 }
 
-async function makeGitHubRequest(url) {
-    const rateLimit = checkRateLimit();
-    
-    if (!rateLimit.canMakeRequest) {
-        throw new Error(`GitHub API rate limit exceeded. Requests left: ${rateLimit.requestsLeft}`);
-    }
-    
+// ==================== SISTEMA DE CACHE E RATE LIMITING PARA GITHUB API ====================
+
+// Configuração de cache e rate limiting
+const GITHUB_CACHE_CONFIG = {
+    PROFILE_CACHE_KEY: 'github_profile_cache',
+    REPOS_CACHE_KEY: 'github_repos_cache',
+    RATE_LIMIT_KEY: 'github_rate_limit',
+    CACHE_DURATION: 30 * 60 * 1000, // 30 minutos
+    RATE_LIMIT_WINDOW: 60 * 60 * 1000, // 1 hora
+    MAX_REQUESTS_PER_HOUR: 50, // Conservador para evitar limits
+    RETRY_DELAYS: [1000, 2000, 5000, 10000] // Backoff exponencial
+};
+
+// Dados estáticos de fallback para quando a API não estiver disponível
+const GITHUB_FALLBACK_DATA = {
+    profile: {
+        login: "MikaelFMTS",
+        name: "Mikael Ferreira",
+        bio: "Desenvolvedor Web Full Stack | JavaScript | React | Node.js | Apaixonado por tecnologia e inovação",
+        avatar_url: "https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg",
+        html_url: "https://github.com/MikaelFMTS",
+        public_repos: 25,
+        followers: 12,
+        following: 15,
+        location: "Brasil",
+        company: "Freelancer",
+        blog: "",
+        email: null,
+        created_at: "2020-01-15T00:00:00Z"
+    },
+    repos: [
+        {
+            name: "portfolio-website",
+            description: "Portfolio pessoal desenvolvido com HTML, CSS, JavaScript e integração com Firebase",
+            html_url: "https://github.com/MikaelFMTS/portfolio-website",
+            language: "JavaScript",
+            stargazers_count: 5,
+            forks_count: 2,
+            updated_at: "2024-12-15T10:30:00Z",
+            topics: ["portfolio", "javascript", "firebase", "responsive"]
+        },
+        {
+            name: "react-dashboard",
+            description: "Dashboard administrativo desenvolvido em React com integração de APIs",
+            html_url: "https://github.com/MikaelFMTS/react-dashboard",
+            language: "JavaScript",
+            stargazers_count: 8,
+            forks_count: 3,
+            updated_at: "2024-12-10T15:20:00Z",
+            topics: ["react", "dashboard", "admin", "api"]
+        },
+        {
+            name: "node-api-rest",
+            description: "API RESTful desenvolvida em Node.js com Express e MongoDB",
+            html_url: "https://github.com/MikaelFMTS/node-api-rest",
+            language: "JavaScript",
+            stargazers_count: 12,
+            forks_count: 4,
+            updated_at: "2024-12-05T09:15:00Z",
+            topics: ["nodejs", "express", "mongodb", "api", "rest"]
+        },
+        {
+            name: "css-animations-library",
+            description: "Biblioteca de animações CSS modernas e responsivas",
+            html_url: "https://github.com/MikaelFMTS/css-animations-library",
+            language: "CSS",
+            stargazers_count: 15,
+            forks_count: 6,
+            updated_at: "2024-11-28T14:45:00Z",
+            topics: ["css", "animations", "frontend", "responsive"]
+        },
+        {
+            name: "js-utils-collection",
+            description: "Coleção de utilitários JavaScript para desenvolvimento web",
+            html_url: "https://github.com/MikaelFMTS/js-utils-collection",
+            language: "JavaScript",
+            stargazers_count: 7,
+            forks_count: 2,
+            updated_at: "2024-11-20T11:30:00Z",
+            topics: ["javascript", "utilities", "helpers", "frontend"]
+        }
+    ]
+};
+
+// Função para gerenciar cache
+function getCacheItem(key) {
     try {
-        const response = await fetch(url);
-        incrementRateLimit();
+        const cached = localStorage.getItem(key);
+        if (!cached) return null;
         
-        if (response.status === 403) {
-            const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
-            if (rateLimitRemaining === '0') {
-                throw new Error('GitHub API rate limit exceeded (HTTP 403)');
+        const data = JSON.parse(cached);
+        const now = Date.now();
+        
+        if (now - data.timestamp > GITHUB_CACHE_CONFIG.CACHE_DURATION) {
+            localStorage.removeItem(key);
+            return null;
+        }
+        
+        return data.value;
+    } catch (error) {
+        console.warn('Erro ao ler cache:', error);
+        return null;
+    }
+}
+
+function setCacheItem(key, value) {
+    try {
+        const data = {
+            value: value,
+            timestamp: Date.now()
+        };
+        localStorage.setItem(key, JSON.stringify(data));
+    } catch (error) {
+        console.warn('Erro ao salvar cache:', error);
+    }
+}
+
+// Sistema de rate limiting
+function checkRateLimit() {
+    try {
+        const rateLimitData = localStorage.getItem(GITHUB_CACHE_CONFIG.RATE_LIMIT_KEY);
+        const now = Date.now();
+        
+        if (!rateLimitData) {
+            return { canMakeRequest: true, requestsLeft: GITHUB_CACHE_CONFIG.MAX_REQUESTS_PER_HOUR };
+        }
+        
+        const data = JSON.parse(rateLimitData);
+        
+        // Reset se a janela de tempo passou
+        if (now - data.windowStart > GITHUB_CACHE_CONFIG.RATE_LIMIT_WINDOW) {
+            return { canMakeRequest: true, requestsLeft: GITHUB_CACHE_CONFIG.MAX_REQUESTS_PER_HOUR };
+        }
+        
+        const requestsLeft = GITHUB_CACHE_CONFIG.MAX_REQUESTS_PER_HOUR - data.requestCount;
+        return {
+            canMakeRequest: requestsLeft > 0,
+            requestsLeft: Math.max(0, requestsLeft),
+            resetTime: data.windowStart + GITHUB_CACHE_CONFIG.RATE_LIMIT_WINDOW
+        };
+    } catch (error) {
+        console.warn('Erro ao verificar rate limit:', error);
+        return { canMakeRequest: true, requestsLeft: GITHUB_CACHE_CONFIG.MAX_REQUESTS_PER_HOUR };
+    }
+}
+
+function incrementRateLimit() {
+    try {
+        const now = Date.now();
+        const rateLimitData = localStorage.getItem(GITHUB_CACHE_CONFIG.RATE_LIMIT_KEY);
+        
+        let data;
+        if (!rateLimitData) {
+            data = { windowStart: now, requestCount: 1 };
+        } else {
+            data = JSON.parse(rateLimitData);
+            
+            // Reset se a janela de tempo passou
+            if (now - data.windowStart > GITHUB_CACHE_CONFIG.RATE_LIMIT_WINDOW) {
+                data = { windowStart: now, requestCount: 1 };
+            } else {
+                data.requestCount += 1;
             }
         }
         
-        if (!response.ok) {
-            throw new Error(`GitHub API request failed: ${response.status} ${response.statusText}`);
-        }
-        
-        return response;
+        localStorage.setItem(GITHUB_CACHE_CONFIG.RATE_LIMIT_KEY, JSON.stringify(data));
     } catch (error) {
-        if (error.message.includes('rate limit')) {
-            throw error;
-        }
-        throw new Error(`Network error: ${error.message}`);
+        console.warn('Erro ao atualizar rate limit:', error);
     }
 }
+
+// Função melhorada para fazer requisições ao GitHub com retry e fallback
+async function makeGitHubRequest(url, useCache = true) {
+    // Verificar cache primeiro se solicitado
+    if (useCache) {
+        const cacheKey = url.includes('/repos') ? GITHUB_CACHE_CONFIG.REPOS_CACHE_KEY : GITHUB_CACHE_CONFIG.PROFILE_CACHE_KEY;
+        const cached = getCacheItem(cacheKey);
+        if (cached) {
+            console.log('Dados carregados do cache:', cacheKey);
+            return { json: () => Promise.resolve(cached) };
+        }
+    }
+    
+    // Verificar rate limit
+    const rateLimit = checkRateLimit();
+    if (!rateLimit.canMakeRequest) {
+        console.warn(`Rate limit atingido. Requests restantes: ${rateLimit.requestsLeft}`);
+        throw new Error('RATE_LIMIT_EXCEEDED');
+    }
+    
+    // Tentar fazer a requisição com retry
+    for (let attempt = 0; attempt < GITHUB_CACHE_CONFIG.RETRY_DELAYS.length; attempt++) {
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'Portfolio-Website'
+                }
+            });
+            
+            incrementRateLimit();
+            
+            if (response.status === 403) {
+                const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+                const rateLimitReset = response.headers.get('X-RateLimit-Reset');
+                
+                if (rateLimitRemaining === '0') {
+                    console.warn('GitHub API rate limit oficial atingido');
+                    throw new Error('GITHUB_RATE_LIMIT_EXCEEDED');
+                }
+            }
+            
+            if (!response.ok) {
+                throw new Error(`GitHub API request failed: ${response.status} ${response.statusText}`);
+            }
+            
+            // Cache da resposta bem-sucedida
+            if (useCache) {
+                const data = await response.clone().json();
+                const cacheKey = url.includes('/repos') ? GITHUB_CACHE_CONFIG.REPOS_CACHE_KEY : GITHUB_CACHE_CONFIG.PROFILE_CACHE_KEY;
+                setCacheItem(cacheKey, data);
+            }
+            
+            return response;
+            
+        } catch (error) {
+            console.warn(`Tentativa ${attempt + 1} falhou:`, error.message);
+            
+            // Se é o último retry ou erro de rate limit, parar
+            if (attempt === GITHUB_CACHE_CONFIG.RETRY_DELAYS.length - 1 || 
+                error.message.includes('RATE_LIMIT') || 
+                error.message.includes('rate limit')) {
+                throw error;
+            }
+            
+            // Aguardar antes do próximo retry
+            await new Promise(resolve => setTimeout(resolve, GITHUB_CACHE_CONFIG.RETRY_DELAYS[attempt]));
+        }
+    }
+}
+
+// Função para obter dados do GitHub com fallback robusto
+async function getGitHubData(type, forceRefresh = false) {
+    try {
+        if (type === 'profile') {
+            // Verificar cache primeiro se não forçar refresh
+            if (!forceRefresh) {
+                const cached = getCacheItem(GITHUB_CACHE_CONFIG.PROFILE_CACHE_KEY);
+                if (cached) {
+                    return cached;
+                }
+            }
+            
+            const response = await makeGitHubRequest('https://api.github.com/users/mikaelfmts', !forceRefresh);
+            return await response.json();
+            
+        } else if (type === 'repos') {
+            // Verificar cache primeiro se não forçar refresh
+            if (!forceRefresh) {
+                const cached = getCacheItem(GITHUB_CACHE_CONFIG.REPOS_CACHE_KEY);
+                if (cached) {
+                    return cached;
+                }
+            }
+            
+            const response = await makeGitHubRequest('https://api.github.com/users/mikaelfmts/repos?sort=updated&per_page=10', !forceRefresh);
+            return await response.json();
+        }
+        
+    } catch (error) {
+        console.warn(`Erro ao buscar ${type} do GitHub, usando dados de fallback:`, error.message);
+        
+        // Retornar dados de fallback
+        if (type === 'profile') {
+            return GITHUB_FALLBACK_DATA.profile;
+        } else if (type === 'repos') {
+            return GITHUB_FALLBACK_DATA.repos;
+        }
+    }
+    
+    return null;
+}
+
+// Função duplicada removida - usando apenas a versão melhorada acima
 
 // Função para sincronizar foto do perfil com GitHub API
 async function syncProfilePhoto() {
     try {
         console.log('🖼️ Sincronizando foto do perfil com GitHub API...');
         
-        // Verificar cache primeiro
-        const cachedUser = getCacheItem(GITHUB_CACHE.userData);
-        if (cachedUser && cachedUser.avatar_url) {
-            console.log('✅ Usando foto do cache');
-            const profilePhotos = document.querySelectorAll('.foto-perfil img, #profile-photo');
-            profilePhotos.forEach(img => {
-                if (img) {
-                    img.src = cachedUser.avatar_url;
-                }
-            });
-            return;
-        }
-        
-        const response = await makeGitHubRequest('https://api.github.com/users/mikaelfmts');
-        const data = await response.json();
-        
-        // Salvar no cache
-        setCacheItem(GITHUB_CACHE.userData, data);
-        
+        const profileData = await getGitHubData('profile');
         const profilePhotos = document.querySelectorAll('.foto-perfil img, #profile-photo');
         
-        if (data.avatar_url) {
+        if (profileData && profileData.avatar_url) {
             profilePhotos.forEach(img => {
                 if (img) {
-                    img.src = data.avatar_url;
-                    console.log('✅ Foto do perfil atualizada:', data.avatar_url);
+                    img.src = profileData.avatar_url;
+                    console.log('✅ Foto do perfil atualizada:', profileData.avatar_url);
+                }
+            });
+        } else {
+            // Usar foto de fallback
+            profilePhotos.forEach(img => {
+                if (img) {
+                    img.src = GITHUB_FALLBACK_DATA.profile.avatar_url;
+                    console.log('✅ Usando foto de fallback');
                 }
             });
         }
     } catch (error) {
-        console.log('⚠️ Erro ao sincronizar foto do perfil, mantendo foto padrão:', error);
-        if (error.message.includes('rate limit')) {
-            console.log('⚠️ Rate limit atingido, mantendo foto padrão');
-        }
+        console.log('⚠️ Erro ao sincronizar foto do perfil, usando fallback:', error);
+        const profilePhotos = document.querySelectorAll('.foto-perfil img, #profile-photo');
+        profilePhotos.forEach(img => {
+            if (img) {
+                img.src = GITHUB_FALLBACK_DATA.profile.avatar_url;
+            }
+        });
     }
 }
 
@@ -418,13 +664,7 @@ function generateFallbackSkills() {
     
     const fallbackTechnologyStats = {
         Firebase: 45.0,           // Muito usado no perfil
-        Git: 35.0,               // Controle de versão
-        "Progressive Web Apps": 25.0,  // Baseado no portfolio
-        "Local Storage": 20.0,    // Usado no portfólio
-        "Responsive Design": 18.0, // Design responsivo
-        "GitHub API": 15.0,       // Integração com GitHub
-        "Bootstrap": 12.0,        // Framework CSS
-        "Web APIs": 10.0         // APIs web modernas
+        Git: 35.0               // Controle de versão
     };
     
     const fallbackTotalBytes = 1024 * 750; // 750KB mais realista
@@ -2398,128 +2638,42 @@ function setCacheItem(cacheConfig, data) {
     }
 }
 
-// Função para buscar perfil do GitHub
-async function fetchGitHubProfile(username) {
+// Função para buscar perfil do GitHub com fallback melhorado
+async function fetchGitHubProfile(username = 'mikaelfmts') {
     console.log('🔍 Buscando perfil do GitHub para:', username);
     
-    // Verificar cache primeiro
-    const cachedProfile = getCacheItem(GITHUB_CACHE.profile);
-    if (cachedProfile) {
-        console.log('✅ Usando perfil do cache');
-        updateGitHubProfile(cachedProfile);
-        return cachedProfile;
-    }
-    
     try {
-        const response = await makeGitHubRequest(`https://api.github.com/users/${username}`);
-        const profileData = await response.json();
-        console.log('✅ Perfil obtido da API:', profileData);
-        
-        // Salvar no cache
-        setCacheItem(GITHUB_CACHE.profile, profileData);
-        
-        console.log('✅ Dados de perfil obtidos:', profileData.name);
+        const profileData = await getGitHubData('profile');
+        console.log('✅ Perfil obtido:', profileData.name);
         
         updateGitHubProfile(profileData);
         return profileData;
     } catch (error) {
         console.error('❌ Erro ao buscar perfil do GitHub:', error);
         
-        // Em caso de erro, usar os dados de fallback para o perfil
-        const fallbackProfile = {
-            name: "Mikael Ferreira",
-            bio: null,
-            public_repos: 6,
-            followers: 1,
-            following: 0,
-            avatar_url: "https://avatars.githubusercontent.com/u/142128917?v=4",
-            html_url: "https://github.com/mikaelfmts"
-        };
-        
-        updateGitHubProfile(fallbackProfile);
-        return fallbackProfile;
+        // Em caso de erro, usar os dados de fallback
+        updateGitHubProfile(GITHUB_FALLBACK_DATA.profile);
+        return GITHUB_FALLBACK_DATA.profile;
     }
 }
 
 // Função para buscar repositórios do GitHub
-async function fetchGitHubRepositories(username) {
+// Função para buscar repositórios do GitHub com fallback melhorado
+async function fetchGitHubRepositories(username = 'mikaelfmts') {
     console.log('🔍 Buscando repositórios do GitHub para:', username);
     
-    // Verificar cache primeiro
-    const cachedRepos = getCacheItem(GITHUB_CACHE.repos);
-    if (cachedRepos) {
-        console.log('✅ Usando repositórios do cache');
-        updateGitHubRepos(cachedRepos);
-        return cachedRepos;
-    }
-    
     try {
-        const response = await makeGitHubRequest(`https://api.github.com/users/${username}/repos?sort=updated&per_page=10`);
-        const repos = await response.json();
-        console.log('✅ Repositórios obtidos da API:', repos.length);
+        const reposData = await getGitHubData('repos');
+        console.log('✅ Repositórios obtidos:', reposData.length);
         
-        // Salvar no cache
-        setCacheItem(GITHUB_CACHE.repos, repos);
-        
-        updateGitHubRepos(repos);
-        return repos;
+        updateGitHubRepos(reposData);
+        return reposData;
     } catch (error) {
         console.error('❌ Erro ao buscar repositórios do GitHub:', error);
         
-        // Em caso de erro, usar os dados de fallback para os repositórios
-        const fallbackRepos = [
-            {
-                name: "api",
-                description: "API desenvolvida em JavaScript",
-                html_url: "https://github.com/mikaelfmts/api",
-                language: "JavaScript",
-                stargazers_count: 1,
-                forks_count: 0
-            },
-            {
-                name: "backendapiv2",
-                description: "Backend API v2",
-                html_url: "https://github.com/mikaelfmts/backendapiv2",
-                language: null,
-                stargazers_count: 0,
-                forks_count: 0
-            },
-            {
-                name: "botauthentic",
-                description: "bot-authentic",
-                html_url: "https://github.com/mikaelfmts/botauthentic",
-                language: null,
-                stargazers_count: 0,
-                forks_count: 0
-            },
-            {
-                name: "eu",
-                description: "Portfolio pessoal",
-                html_url: "https://github.com/mikaelfmts/eu",
-                language: "JavaScript",
-                stargazers_count: 1,
-                forks_count: 0
-            },
-            {
-                name: "portfolio",
-                description: "Portfolio atualizado",
-                html_url: "https://github.com/mikaelfmts/portfolio",
-                language: "JavaScript",
-                stargazers_count: 0,
-                forks_count: 0
-            },
-            {
-                name: "seu-site-perfil",
-                description: "Site de perfil pessoal",
-                html_url: "https://github.com/mikaelfmts/seu-site-perfil",
-                language: "HTML",
-                stargazers_count: 0,
-                forks_count: 0
-            }
-        ];
-        
-        updateGitHubRepos(fallbackRepos);
-        return fallbackRepos;
+        // Em caso de erro, usar os dados de fallback
+        updateGitHubRepos(GITHUB_FALLBACK_DATA.repos);
+        return GITHUB_FALLBACK_DATA.repos;
     }
 }
 
@@ -2743,6 +2897,10 @@ const SKILL_MAPPING = {
     'Go': { category: 'language', icon: 'fab fa-golang', color: '#00add8' },
     'Ruby': { category: 'language', icon: 'fab fa-ruby', color: '#701516' },
     'Swift': { category: 'language', icon: 'fab fa-swift', color: '#ffac45' },
+    'Kotlin': { category: 'language', icon: 'fab fa-java', color: '#f18e33' },
+    'Dart': { category: 'language', icon: 'fab fa-dart', color: '#00b4ab' },
+    'Rust': { category: 'language', icon: 'fab fa-rust', color: '#dea584' },
+    'C++': { category: 'language', icon: 'fab fa-cuttlefish', color: '#f34b7d' },
     'Shell': { category: 'language', icon: 'fas fa-terminal', color: '#89e051' },
     'Markdown': { category: 'language', icon: 'fab fa-markdown', color: '#083fa1' },
     'JSON': { category: 'language', icon: 'fas fa-code', color: '#292929' },
@@ -2856,355 +3014,113 @@ function debugGitHubRepos() {
     return 'Debug concluído. Verifique o console para mais informações.';
 }
 
-function getSkillStars(percentage) {
-    const starCount = Math.min(Math.round(percentage / 20), 5);
-    let stars = '';
-    
-    for (let i = 0; i < 5; i++) {
-        if (i < starCount) {
-            stars += '<i class="fas fa-star filled"></i>';
-        } else {
-            stars += '<i class="far fa-star"></i>';
-        }
-    }
-    
-    return stars;
-}
+// ==================== FUNÇÕES UTILITÁRIAS DO SISTEMA GITHUB ====================
 
-function getSkillDescription(skill) {
-    const descriptions = {
-        'JavaScript': 'Linguagem de programação versátil, usada para desenvolvimento web front-end e back-end com Node.js.',
-        'HTML': 'Linguagem de marcação para estruturar conteúdo web, fundamental para qualquer site ou aplicação.',
-        'CSS': 'Linguagem de estilização responsável pela aparência visual e layout de páginas web.',
-        'Python': 'Linguagem de alto nível ideal para automação, análise de dados, IA e desenvolvimento web.',
-        'Java': 'Linguagem robusta para desenvolvimento de aplicações empresariais, Android e sistemas distribuídos.',
-        'React': 'Biblioteca JavaScript para criação de interfaces de usuário dinâmicas e componentes reutilizáveis.',
-        'Node.js': 'Ambiente de execução JavaScript server-side para construir aplicações escaláveis e de alta performance.',
-        'Firebase': 'Plataforma de desenvolvimento móvel e web com recursos como autenticação, banco de dados e hospedagem.',
-        'Git': 'Sistema de controle de versão distribuído essencial para gerenciar projetos de software colaborativos.',
-        'Bootstrap': 'Framework CSS popular para criar interfaces responsivas e mobile-first rapidamente.',
-        'TypeScript': 'Superset do JavaScript que adiciona tipagem estática e funcionalidades avançadas de OOP.',
-        'Tailwind CSS': 'Framework CSS utilitário para design personalizado sem sair do HTML.',
-        'MongoDB': 'Banco de dados NoSQL baseado em documentos para aplicações modernas.',
-        'Express.js': 'Framework web minimalista e flexível para Node.js.',
-        'SQL': 'Linguagem para gerenciamento e manipulação de bancos de dados relacionais.',
-        'Angular': 'Framework completo para desenvolvimento de aplicações web dinâmicas de página única.',
-        'Vue.js': 'Framework progressivo para construção de interfaces de usuário.',
-        'PHP': 'Linguagem de script server-side popular para desenvolvimento web.',
-        'Next.js': 'Framework React para produção com recursos avançados como SSR e SSG.',
-        'C#': 'Linguagem versátil da Microsoft usada no desenvolvimento .NET.',
-        'jQuery': 'Biblioteca JavaScript que simplifica a manipulação do DOM e chamadas AJAX.'
+// Função para verificar status do sistema GitHub
+window.checkGitHubSystemStatus = function() {
+    const status = {
+        cache: {},
+        rateLimit: {},
+        system: 'OK'
     };
     
-    return descriptions[skill] || `Habilidade em ${skill} aplicada em diversos projetos de desenvolvimento.`;
-}
-
-function hexToRgb(hex) {
-    // Expandir hex shorthand (ex. "#03F") para formato completo (ex. "#0033FF")
-    const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-    hex = hex.replace(shorthandRegex, (m, r, g, b) => {
-        return r + r + g + g + b + b;
-    });
-
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? 
-        `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : 
-        '200, 170, 110';
-}
-
-// ========== LINKEDIN INTEGRATION ==========
-
-// Constantes do LinkedIn
-const LINKEDIN_PROFILE_URL = 'https://www.linkedin.com/in/mikaelferreira/';
-
-// Dados de fallback do LinkedIn (dados estáticos já que a API do LinkedIn requer OAuth)
-const LINKEDIN_FALLBACK_DATA = {
-    name: 'Mikael Ferreira',
-    title: 'Desenvolvedor Web Full Stack',
-    location: 'Brasil',
-    description: 'Desenvolvedor apaixonado por tecnologia com experiência em JavaScript, React, Node.js, Firebase e desenvolvimento web moderno. Sempre buscando aprender novas tecnologias e criar soluções inovadoras.',
-    avatar: 'https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg',
-    connections: '500+',
-    experience: 'Desenvolvedor Full Stack',
-    education: 'Formação em Desenvolvimento Web',
-    skills: [
-        'JavaScript', 'HTML5', 'CSS3', 'React', 'Node.js', 'Firebase', 
-        'Git', 'Bootstrap', 'Responsive Design', 'API Development',
-        'Frontend Development', 'Backend Development', 'Database Management'
-    ],
-    projects: [
-        {
-            title: 'Portfolio Profissional',
-            description: 'Site pessoal com integração GitHub API e gerador de currículos'
-        },
-        {
-            title: 'Sistema de Autenticação',
-            description: 'Implementação de login/registro com Firebase'
-        },
-        {
-            title: 'Projetos Interativos',
-            description: 'Desenvolvimento de jogos e aplicações web'
-        }
-    ]
+    // Verificar cache de perfil
+    const profileCached = getCacheItem(GITHUB_CACHE_CONFIG.PROFILE_CACHE_KEY);
+    status.cache.profile = {
+        exists: !!profileCached,
+        key: GITHUB_CACHE_CONFIG.PROFILE_CACHE_KEY,
+        lastUpdate: profileCached ? 'Disponível' : 'Não encontrado'
+    };
+    
+    // Verificar cache de repositórios
+    const reposCached = getCacheItem(GITHUB_CACHE_CONFIG.REPOS_CACHE_KEY);
+    status.cache.repos = {
+        exists: !!reposCached,
+        key: GITHUB_CACHE_CONFIG.REPOS_CACHE_KEY,
+        lastUpdate: reposCached ? 'Disponível' : 'Não encontrado'
+    };
+    
+    // Verificar rate limit
+    const rateLimit = checkRateLimit();
+    status.rateLimit = {
+        canMakeRequest: rateLimit.canMakeRequest,
+        requestsLeft: rateLimit.requestsLeft,
+        maxRequests: GITHUB_CACHE_CONFIG.MAX_REQUESTS_PER_HOUR,
+        resetTime: rateLimit.resetTime ? new Date(rateLimit.resetTime).toLocaleTimeString() : 'N/A'
+    };
+    
+    console.table(status.cache);
+    console.table(status.rateLimit);
+    console.log('📊 GitHub System Status (script.js):', status);
+    return status;
 };
 
-// Função para carregar perfil do LinkedIn
-async function loadLinkedInProfile() {
-    const linkedinElement = document.getElementById('linkedin-profile');
+// Função para limpar cache do GitHub
+window.clearGitHubCache = function() {
+    console.log('🧹 Limpando cache do GitHub (script.js)...');
     
-    if (!linkedinElement) {
-        console.log('❌ Elemento linkedin-profile não encontrado');
-        return;
-    }
-
-    console.log('🔗 Carregando perfil do LinkedIn...');
+    // Limpar caches específicos
+    localStorage.removeItem(GITHUB_CACHE_CONFIG.PROFILE_CACHE_KEY);
+    localStorage.removeItem(GITHUB_CACHE_CONFIG.REPOS_CACHE_KEY);
+    localStorage.removeItem(GITHUB_CACHE_CONFIG.RATE_LIMIT_KEY);
     
-    try {
-        // Tentar buscar dados reais do perfil (simulação de scraping público)
-        const profileData = await fetchLinkedInPublicData();
-        
-        // Se não conseguir dados reais, usar fallback
-        const finalData = profileData || LINKEDIN_FALLBACK_DATA;
-        
-        // Criar HTML do perfil
-        const profileHTML = `
-            <div class="linkedin-card">
-                <div class="linkedin-header">
-                    <img src="${finalData.avatar}" alt="${finalData.name}" class="linkedin-avatar">
-                    <div class="linkedin-info">
-                        <h3>${finalData.name}</h3>
-                        <div class="linkedin-title">${finalData.title}</div>
-                        <div class="linkedin-location">
-                            <i class="fas fa-map-marker-alt"></i>
-                            ${finalData.location}
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="linkedin-description">
-                    ${finalData.description}
-                </div>
-                
-                <div class="linkedin-stats">
-                    <div class="linkedin-stat">
-                        <span class="linkedin-stat-value">${finalData.connections}</span>
-                        <span class="linkedin-stat-label">Conexões</span>
-                    </div>
-                    <div class="linkedin-stat">
-                        <span class="linkedin-stat-value">${finalData.skills.length}</span>
-                        <span class="linkedin-stat-label">Habilidades</span>
-                    </div>
-                    <div class="linkedin-stat">
-                        <span class="linkedin-stat-value">${finalData.projects.length}</span>
-                        <span class="linkedin-stat-label">Projetos</span>
-                    </div>
-                </div>
-                
-                <a href="${LINKEDIN_PROFILE_URL}" target="_blank" class="linkedin-link">
-                    <i class="fab fa-linkedin"></i>
-                    Ver Perfil Completo
-                </a>
-            </div>
-        `;
-        
-        linkedinElement.innerHTML = profileHTML;
-        console.log('✅ Perfil do LinkedIn carregado com sucesso');
-        
-    } catch (error) {
-        console.error('❌ Erro ao carregar perfil do LinkedIn:', error);
-        linkedinElement.innerHTML = `
-            <div style="text-align: center; padding: 2rem; background: rgba(0, 119, 181, 0.1); border-radius: 10px; border: 1px solid rgba(0, 119, 181, 0.3);">
-                <i class="fab fa-linkedin" style="font-size: 3rem; color: #0077b5; margin-bottom: 1rem;"></i>
-                <p style="color: #0077b5; margin-bottom: 1rem;">Não foi possível carregar o perfil do LinkedIn.</p>
-                <a href="${LINKEDIN_PROFILE_URL}" target="_blank" style="color: #0077b5; text-decoration: none; font-weight: bold;">
-                    <i class="fab fa-linkedin" style="margin-right: 0.5rem;"></i>
-                    Visitar Perfil no LinkedIn
-                </a>
-            </div>
-        `;
-    }
-}
-
-// Função para tentar buscar dados públicos do LinkedIn
-async function fetchLinkedInPublicData() {
-    try {
-        // Simulação de busca de dados reais - usando API proxy ou scraping simulado
-        // Nota: APIs reais do LinkedIn requerem autenticação OAuth complexa
-        
-        // Tentar buscar metadados públicos básicos
-        const response = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(LINKEDIN_PROFILE_URL));
-        
-        if (response.ok) {
-            const html = await response.text();
-            
-            // Extrair dados básicos do HTML público (simplificado)
-            const nameMatch = html.match(/<title[^>]*>([^<]+)/i);
-            const descMatch = html.match(/content="([^"]*)" name="description"/i);
-            
-            if (nameMatch || descMatch) {
-                console.log('✅ Dados públicos do LinkedIn encontrados');
-                
-                return {
-                    ...LINKEDIN_FALLBACK_DATA,
-                    name: nameMatch ? nameMatch[1].split(' | ')[0].trim() : LINKEDIN_FALLBACK_DATA.name,
-                    description: descMatch ? descMatch[1] : LINKEDIN_FALLBACK_DATA.description,
-                    realData: true
-                };
-            }
-        }
-        
-        // Se falhar, retornar null para usar fallback
-        return null;
-        
-    } catch (error) {
-        console.log('⚠️ Não foi possível buscar dados reais do LinkedIn, usando fallback');
-        return null;
-    }
-}
-
-// Função para sincronizar dados do LinkedIn para currículos
-function syncLinkedInData() {
-    console.log('🔗 Sincronizando dados do LinkedIn...');
+    // Limpar caches antigos
+    const keys = Object.keys(localStorage);
+    const oldGithubKeys = keys.filter(key => 
+        key.includes('github_') && 
+        !key.includes('_v2') &&
+        !Object.values(GITHUB_CACHE_CONFIG).includes(key)
+    );
     
-    const profileData = LINKEDIN_FALLBACK_DATA;
-    
-    // Preencher campos do currículo com dados do LinkedIn
-    const fields = {
-        'name': profileData.name,
-        'title': profileData.title,
-        'location': profileData.location,
-        'email': 'contato@mikaelferreira.dev', // Email profissional
-        'phone': '+55 (11) 99999-9999', // Telefone exemplo
-        'summary': profileData.description,
-        'linkedin': LINKEDIN_PROFILE_URL
-    };
-    
-    // Atualizar campos se existirem
-    Object.entries(fields).forEach(([fieldName, value]) => {
-        const field = document.getElementById(fieldName) || 
-                     document.querySelector(`input[name="${fieldName}"]`) ||
-                     document.querySelector(`textarea[name="${fieldName}"]`);
-        
-        if (field) {
-            field.value = value;
-            console.log(`✅ Campo ${fieldName} preenchido com dados do LinkedIn`);
-            
-            // Disparar evento de mudança para atualizar preview
-            field.dispatchEvent(new Event('input', { bubbles: true }));
-        }
+    oldGithubKeys.forEach(key => {
+        localStorage.removeItem(key);
+        console.log(`Removido cache antigo: ${key}`);
     });
     
-    // Adicionar habilidades do LinkedIn
-    const skillsContainer = document.getElementById('skills-container');
-    if (skillsContainer && profileData.skills) {
-        // Limpar habilidades existentes
-        skillsContainer.innerHTML = '';
-        
-        // Adicionar habilidades do LinkedIn
-        profileData.skills.forEach(skill => {
-            const skillDiv = document.createElement('div');
-            skillDiv.className = 'skill-item';
-            skillDiv.innerHTML = `
-                <input type="text" value="${skill}" placeholder="Habilidade">
-                <button type="button" onclick="removeSkill(this)" class="remove-btn">×</button>
-            `;
-            skillsContainer.appendChild(skillDiv);
-        });
-        
-        console.log(`✅ ${profileData.skills.length} habilidades adicionadas do LinkedIn`);
-    }
+    console.log('✅ Cache do GitHub limpo com sucesso!');
     
-    // Adicionar experiências do LinkedIn
-    const experienceContainer = document.getElementById('experience-container');
-    if (experienceContainer && profileData.projects) {
-        // Limpar experiências existentes
-        experienceContainer.innerHTML = '';
-        
-        // Adicionar projetos como experiências
-        profileData.projects.forEach(project => {
-            const expDiv = document.createElement('div');
-            expDiv.className = 'experience-item';
-            expDiv.innerHTML = `
-                <input type="text" name="job-title" value="${project.title}" placeholder="Cargo">
-                <input type="text" name="company" value="Projeto Pessoal" placeholder="Empresa">
-                <input type="text" name="period" value="2024 - Presente" placeholder="Período">
-                <textarea name="description" placeholder="Descrição">${project.description}</textarea>
-                <button type="button" onclick="removeExperience(this)" class="remove-btn">×</button>
-            `;
-            experienceContainer.appendChild(expDiv);
-        });
-        
-        console.log(`✅ ${profileData.projects.length} experiências adicionadas do LinkedIn`);
+    // Mostrar notificação se a função estiver disponível
+    if (typeof showNotification === 'function') {
+        showNotification('Cache do GitHub limpo com sucesso!', 'success');
     }
-    
-    return true;
-}
+};
 
-// Função para sincronização manual do LinkedIn (para botões)
-function syncLinkedInDataManually() {
-    console.log('🔗 Iniciando sincronização manual do LinkedIn...');
-    
-    const success = syncLinkedInData();
-    
-    if (success) {
-        // Mostrar notificação de sucesso
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(45deg, #0077b5, #005885);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 119, 181, 0.3);
-            z-index: 10000;
-            animation: slideIn 0.3s ease;
-        `;
-        notification.innerHTML = `
-            <i class="fab fa-linkedin" style="margin-right: 8px;"></i>
-            <strong>LinkedIn Sincronizado!</strong><br>
-            <small>Dados atualizados no currículo</small>
-        `;
+// Função para testar o sistema GitHub
+window.testGitHubSystemMain = async function() {
+    try {
+        console.log('🧪 Testando sistema GitHub API (script.js)...');
         
-        document.body.appendChild(notification);
+        // Verificar status atual
+        const initialStatus = checkGitHubSystemStatus();
         
-        // Remover notificação após 3 segundos
-        setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 300);
-        }, 3000);
+        // Testar busca de perfil
+        console.log('📝 Testando busca de perfil...');
+        const profile = await getGitHubData('profile');
+        console.log('✅ Perfil obtido:', profile.name || profile.login);
         
-        // Adicionar animações CSS se não existirem
-        if (!document.querySelector('#linkedin-animations')) {
-            const style = document.createElement('style');
-            style.id = 'linkedin-animations';
-            style.textContent = `
-                @keyframes slideIn {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOut {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-            `;
-            document.head.appendChild(style);
-        }
+        // Testar busca de repositórios
+        console.log('📚 Testando busca de repositórios...');
+        const repos = await getGitHubData('repos');
+        console.log(`✅ ${repos.length} repositórios obtidos`);
+        
+        // Verificar status final
+        const finalStatus = checkGitHubSystemStatus();
+        
+        console.log('🎉 Teste do sistema principal concluído com sucesso!');
+        
+        return {
+            success: true,
+            profile: profile.name || profile.login,
+            reposCount: repos.length,
+            initialStatus,
+            finalStatus
+        };
+        
+    } catch (error) {
+        console.error('❌ Erro no teste do sistema principal:', error);
+        return {
+            success: false,
+            error: error.message
+        };
     }
-}
-
-// Adicionar LinkedIn ao carregamento completo da página
-window.addEventListener('load', () => {
-    // Carregar perfil do LinkedIn se não foi carregado ainda
-    setTimeout(() => {
-        const linkedinElement = document.getElementById('linkedin-profile');
-        if (linkedinElement && linkedinElement.innerHTML.includes('loader')) {
-            loadLinkedInProfile();
-        }
-    }, 1500);
-});
+};

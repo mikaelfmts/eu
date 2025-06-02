@@ -80,21 +80,20 @@ function showOfflinePage(pageData, pageId) {
     
     // Criar overlay de página offline
     const offlineOverlay = document.createElement('div');
-    offlineOverlay.id = 'page-offline-overlay';
-    offlineOverlay.style.cssText = `
+    offlineOverlay.id = 'page-offline-overlay';    offlineOverlay.style.cssText = `
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, #0f1419 0%, #1a1b2e 25%, #16213e 50%, #2d1b69 75%, #1a0033 100%);
+        background: linear-gradient(135deg, #010a13 0%, #0a1428 25%, #1e2328 50%, #3c3c41 75%, #091428 100%);
         background-size: 400% 400%;
         animation: gradientShift 10s ease infinite;
         z-index: 9999;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-family: 'Marcellus', 'Spiegel', serif;
         overflow: hidden;
         padding: ${isMobile ? '1rem' : '2rem'};
     `;
@@ -162,34 +161,32 @@ function showOfflinePage(pageData, pageId) {
                 border-radius: 40%;
             }
         }
-        
-        @keyframes prismGlow {
+          @keyframes prismGlow {
             0%, 100% {
                 box-shadow: 
-                    0 0 30px rgba(79, 172, 254, 0.4),
-                    0 0 60px rgba(0, 242, 254, 0.2),
+                    0 0 30px rgba(200, 170, 110, 0.4),
+                    0 0 60px rgba(255, 215, 0, 0.2),
                     0 20px 40px rgba(0, 0, 0, 0.3);
             }
             33% {
                 box-shadow: 
-                    0 0 30px rgba(255, 107, 107, 0.4),
-                    0 0 60px rgba(255, 153, 102, 0.2),
+                    0 0 30px rgba(240, 230, 210, 0.4),
+                    0 0 60px rgba(200, 170, 110, 0.2),
                     0 20px 40px rgba(0, 0, 0, 0.3);
             }
             66% {
                 box-shadow: 
-                    0 0 30px rgba(106, 176, 76, 0.4),
-                    0 0 60px rgba(129, 236, 236, 0.2),
+                    0 0 30px rgba(200, 170, 110, 0.4),
+                    0 0 60px rgba(120, 90, 40, 0.2),
                     0 20px 40px rgba(0, 0, 0, 0.3);
             }
         }
-        
-        @keyframes glowText {
+          @keyframes glowText {
             0%, 100% { 
-                text-shadow: 0 0 20px rgba(79, 172, 254, 0.5); 
+                text-shadow: 0 0 20px rgba(200, 170, 110, 0.5); 
             }
             50% { 
-                text-shadow: 0 0 30px rgba(0, 242, 254, 0.8); 
+                text-shadow: 0 0 30px rgba(255, 215, 0, 0.8); 
             }
         }
         
@@ -203,15 +200,14 @@ function showOfflinePage(pageData, pageId) {
                 transform: translateX(0);
             }
         }
-        
-        @keyframes buttonPulse {
+          @keyframes buttonPulse {
             0%, 100% {
                 transform: scale(1);
-                box-shadow: 0 8px 25px rgba(79, 172, 254, 0.3);
+                box-shadow: 0 8px 25px rgba(200, 170, 110, 0.3);
             }
             50% {
                 transform: scale(1.02);
-                box-shadow: 0 12px 35px rgba(79, 172, 254, 0.5);
+                box-shadow: 0 12px 35px rgba(200, 170, 110, 0.5);
             }
         }
         
@@ -230,21 +226,20 @@ function showOfflinePage(pageData, pageId) {
             animation: floatUp 12s linear infinite;
             opacity: 0;
         }
-        
-        .particle.blue {
-            background: linear-gradient(45deg, #4facfe, #00f2fe);
+          .particle.blue {
+            background: linear-gradient(45deg, #c8aa6e, #ffd700);
             width: 4px;
             height: 4px;
         }
         
         .particle.purple {
-            background: linear-gradient(45deg, #a855f7, #ec4899);
+            background: linear-gradient(45deg, #f0e6d2, #c8aa6e);
             width: 3px;
             height: 3px;
         }
         
         .particle.green {
-            background: linear-gradient(45deg, #10b981, #34d399);
+            background: linear-gradient(45deg, #785a28, #c8aa6e);
             width: 5px;
             height: 5px;
         }
@@ -397,10 +392,9 @@ function showOfflinePage(pageData, pageId) {
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(79, 172, 254, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(79, 172, 254, 0.03) 1px, transparent 1px);
+            height: 100%;            background-image: 
+                linear-gradient(rgba(200, 170, 110, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(200, 170, 110, 0.03) 1px, transparent 1px);
             background-size: 50px 50px;
             pointer-events: none;
             opacity: 0.5;
@@ -437,30 +431,28 @@ function showOfflinePage(pageData, pageId) {
                 pointer-events: none;
             "></div>
             
-            <!-- Ícone moderno com efeitos visuais -->
-            <div class="maintenance-icon" style="
+            <!-- Ícone moderno com efeitos visuais -->            <div class="maintenance-icon" style="
                 width: ${isMobile ? '60px' : isTablet ? '80px' : '100px'};
                 height: ${isMobile ? '60px' : isTablet ? '80px' : '100px'};
-                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #667eea 100%);
+                background: linear-gradient(135deg, #c8aa6e 0%, #ffd700 50%, #785a28 100%);
                 border-radius: 50%;
                 margin: 0 auto ${isMobile ? '1.5rem' : '2rem'};
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-size: ${isMobile ? '1.5rem' : isTablet ? '2rem' : '2.5rem'};
-                color: white;
+                color: #010a13;
                 animation: morphIcon 6s ease-in-out infinite, prismGlow 4s ease-in-out infinite;
                 position: relative;
                 z-index: 2;
                 overflow: hidden;
             ">
-                <i class="fas fa-cogs" style="position: relative; z-index: 1;"></i>
-                <!-- Efeito prisma rotativo -->
+                <i class="fas fa-cogs" style="position: relative; z-index: 1;"></i>                <!-- Efeito prisma rotativo -->
                 <div style="
                     position: absolute;
                     inset: -3px;
                     border-radius: 50%;
-                    background: conic-gradient(from 0deg, #4facfe, #00f2fe, #667eea, #f093fb, #4facfe);
+                    background: conic-gradient(from 0deg, #c8aa6e, #ffd700, #785a28, #f0e6d2, #c8aa6e);
                     animation: morphIcon 4s linear infinite reverse;
                     z-index: -1;
                     opacity: 0.8;
@@ -487,8 +479,7 @@ function showOfflinePage(pageData, pageId) {
                 color: #ffffff;
                 margin-bottom: ${isMobile ? '1rem' : '1.5rem'};
                 letter-spacing: ${isMobile ? '0.5px' : isTablet ? '1px' : '2px'};
-                text-transform: uppercase;
-                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #f093fb 100%);
+                text-transform: uppercase;                background: linear-gradient(135deg, #c8aa6e 0%, #ffd700 50%, #f0e6d2 100%);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
@@ -499,11 +490,10 @@ function showOfflinePage(pageData, pageId) {
                 Página em Manutenção
             </h1>
             
-            <!-- Linha decorativa animada -->
-            <div class="decorative-line" style="
+            <!-- Linha decorativa animada -->            <div class="decorative-line" style="
                 width: ${isMobile ? '40px' : '60px'};
                 height: 4px;
-                background: linear-gradient(90deg, #4facfe, #00f2fe, #f093fb);
+                background: linear-gradient(90deg, #c8aa6e, #ffd700, #f0e6d2);
                 margin: 0 auto ${isMobile ? '1.5rem' : '2rem'};
                 border-radius: 2px;
                 animation: slideInStagger 1s ease-out 0.5s both;
@@ -538,11 +528,10 @@ function showOfflinePage(pageData, pageId) {
             ">
                 ${message}
             </p>
-              ${maintenanceEta ? `
-                <!-- Card de previsão futurístico -->
+              ${maintenanceEta ? `                <!-- Card de previsão futurístico -->
                 <div class="eta-card" style="
-                    background: linear-gradient(135deg, rgba(79, 172, 254, 0.08), rgba(0, 242, 254, 0.08));
-                    border: 1px solid rgba(79, 172, 254, 0.15);
+                    background: linear-gradient(135deg, rgba(200, 170, 110, 0.08), rgba(255, 215, 0, 0.08));
+                    border: 1px solid rgba(200, 170, 110, 0.15);
                     border-radius: ${isMobile ? '12px' : '16px'};
                     padding: ${isMobile ? '1rem' : '1.25rem'};
                     margin: ${isMobile ? '1.5rem 0' : '2rem 0'};
@@ -561,15 +550,14 @@ function showOfflinePage(pageData, pageId) {
                         background: linear-gradient(90deg, transparent, rgba(79, 172, 254, 0.1), transparent);
                         animation: gradientShift 4s linear infinite;
                     "></div>
-                    
-                    <!-- Pontos decorativos -->
+                      <!-- Pontos decorativos -->
                     <div style="
                         position: absolute;
                         top: 10px;
                         right: 10px;
                         width: 4px;
                         height: 4px;
-                        background: #4facfe;
+                        background: #c8aa6e;
                         border-radius: 50%;
                         animation: prismGlow 2s ease-in-out infinite;
                     "></div>
@@ -579,32 +567,29 @@ function showOfflinePage(pageData, pageId) {
                         right: 20px;
                         width: 3px;
                         height: 3px;
-                        background: #00f2fe;
+                        background: #ffd700;
                         border-radius: 50%;
                         animation: prismGlow 2s ease-in-out infinite 0.5s;
                     "></div>
                     
-                    <p style="
-                        color: #4facfe;
+                    <p style="                        color: #c8aa6e;
                         font-size: ${isMobile ? '0.9rem' : '1rem'};
                         font-weight: 500;
                         margin: 0;
                         position: relative;
                         z-index: 1;
-                        font-family: 'JetBrains Mono', monospace;
+                        font-family: 'Marcellus', serif;
                         letter-spacing: 0.5px;
-                    ">
-                        <i class="fas fa-clock" style="
+                    ">                        <i class="fas fa-clock" style="
                             margin-right: 0.5rem; 
                             animation: morphIcon 3s ease-in-out infinite;
-                            color: #00f2fe;
+                            color: #ffd700;
                         "></i>
                         ${maintenanceEta}
                     </p>
                 </div>
             ` : ''}
-            
-            <!-- Indicador de status -->
+              <!-- Indicador de status -->
             <div style="
                 display: flex;
                 align-items: center;
@@ -615,48 +600,45 @@ function showOfflinePage(pageData, pageId) {
                 <div style="
                     width: 8px;
                     height: 8px;
-                    background: #ff6b6b;
+                    background: #c8aa6e;
                     border-radius: 50%;
                     margin-right: 0.5rem;
                     animation: prismGlow 1.5s ease-in-out infinite;
-                "></div>
-                <span style="
-                    color: rgba(255, 255, 255, 0.7);
+                "></div>                <span style="
+                    color: rgba(240, 230, 210, 0.7);
                     font-size: ${isMobile ? '0.8rem' : '0.85rem'};
                     font-weight: 500;
-                    font-family: 'JetBrains Mono', monospace;
+                    font-family: 'Marcellus', serif;
                     letter-spacing: 0.5px;
                     text-transform: uppercase;
                 ">
                     Sistema Offline
                 </span>
             </div>
-            
-            <!-- Botão futurístico -->
+              <!-- Botão futurístico -->
             <button class="maintenance-button" onclick="window.location.href='../index.html'" style="
-                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-                color: white;
+                background: linear-gradient(135deg, #c8aa6e 0%, #ffd700 100%);
+                color: #010a13;
                 border: none;
                 padding: ${isMobile ? '14px 20px' : '16px 32px'};
                 border-radius: ${isMobile ? '10px' : '12px'};
                 font-size: ${isMobile ? '0.9rem' : '1rem'};
                 font-weight: 600;
-                font-family: 'Inter', sans-serif;
+                font-family: 'Marcellus', serif;
                 cursor: pointer;
                 transition: all 0.3s ease;
                 position: relative;
                 overflow: hidden;
-                box-shadow: 0 8px 25px rgba(79, 172, 254, 0.3);
+                box-shadow: 0 8px 25px rgba(200, 170, 110, 0.3);
                 animation: slideInStagger 1s ease-out 1.3s both;
                 ${isMobile ? 'width: 100%; margin-top: 1.5rem;' : ''}
                 text-transform: uppercase;
-                letter-spacing: 1px;
-            " onmouseover="
+                letter-spacing: 1px;            " onmouseover="
                 this.style.transform = 'translateY(-3px) scale(1.02)';
-                this.style.boxShadow = '0 15px 40px rgba(79, 172, 254, 0.5)';
+                this.style.boxShadow = '0 15px 40px rgba(200, 170, 110, 0.5)';
             " onmouseout="
                 this.style.transform = 'translateY(0) scale(1)';
-                this.style.boxShadow = '0 8px 25px rgba(79, 172, 254, 0.3)';
+                this.style.boxShadow = '0 8px 25px rgba(200, 170, 110, 0.3)';
             " ontouchstart="
                 this.style.transform = 'translateY(-2px) scale(0.98)';
             " ontouchend="

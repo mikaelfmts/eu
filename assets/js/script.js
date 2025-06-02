@@ -933,9 +933,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 // ==================== IMPORTS DO FIREBASE ====================
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+import { db } from './firebase-config.js';
 import { 
-    getFirestore, 
     collection, 
     addDoc, 
     onSnapshot, 
@@ -948,20 +947,6 @@ import {
     disableNetwork,
     limit 
 } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
-
-// ==================== CONFIGURAÇÃO DO FIREBASE ====================
-const firebaseConfig = {
-  apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
-  authDomain: "mikaelfmts.firebaseapp.com",
-  projectId: "mikaelfmts",
-  storageBucket: "mikaelfmts.appspot.com",
-  messagingSenderId: "516762612351",
-  appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
 // Configurar cache offline
 try {
@@ -979,8 +964,6 @@ window.addEventListener('online', () => {
 window.addEventListener('offline', () => {
     console.log('Conexão perdida - modo offline');
 });
-
-console.log('Firebase inicializado com sucesso!');
 
 // ==================== EXPORTAR FUNÇÕES PARA USO GLOBAL ====================
 // Como estamos usando módulos ES6, precisamos exportar explicitamente as funções

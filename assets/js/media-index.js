@@ -1,7 +1,6 @@
 
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { db } from './firebase-config.js';
 import { 
-    getFirestore, 
     collection, 
     getDocs, 
     query, 
@@ -10,21 +9,7 @@ import {
     where,
     doc,
     getDoc
-} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-// Configuração do Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
-    authDomain: "mikaelfmts.firebaseapp.com",
-    projectId: "mikaelfmts",
-    storageBucket: "mikaelfmts.appspot.com",
-    messagingSenderId: "516762612351",
-    appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
-};
-
-// Inicializar Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+} from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {

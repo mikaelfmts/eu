@@ -42,6 +42,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 function init() {
+    console.log('🔧 Inicializando relatórios admin...');
     setupEventListeners();
     showTab('criar');
     loadReports();

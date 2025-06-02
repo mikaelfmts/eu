@@ -26,13 +26,13 @@ let isAuthenticated = false;
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🎬 DOM carregado, inicializando mídia admin...');
     
-    // Aguardar um pouco para o Firebase inicializar
-    setTimeout(() => {
-        initializeAdmin();
-        setupEventListeners();
-    }, 500);
+    // Configurar event listeners imediatamente
+    setupEventListeners();
     
-    // Configurar autenticação
+    // Mostrar primeira aba
+    switchTab('criar');
+    
+    // Configurar autenticação após setup
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             isAuthenticated = true;

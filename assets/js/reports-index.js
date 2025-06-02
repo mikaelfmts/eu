@@ -14,11 +14,20 @@ import {
 // Aguardar o DOM estar pronto
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🎯 Reports-index.js carregado');
-    setTimeout(() => {
-        loadRecentReports();
-        loadFeaturedReports();
-    }, 1000); // Aguardar um pouco para o Firebase inicializar
+    
+    // Inicializar imediatamente
+    if (db) {
+        console.log('🎯 Firebase pronto, carregando relatórios...');
+        initializeReports();
+    } else {
+        console.error('🔥 Firebase não está disponível');
+    }
 });
+
+function initializeReports() {
+    loadRecentReports();
+    loadFeaturedReports();
+}
 
 async function loadRecentReports() {
     const container = document.getElementById('recent-reports-grid');

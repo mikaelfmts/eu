@@ -1,5 +1,5 @@
 // relatorios-admin.js - Sistema de administração de relatórios
-import { auth, db, storage } from './firebase-config.js';
+import { auth, db } from './firebase-config.js';
 import { 
     collection, 
     addDoc, 
@@ -8,14 +8,13 @@ import {
     updateDoc, 
     deleteDoc, 
     getDoc,
-        setDoc,
+    setDoc,
     query, 
     orderBy, 
     serverTimestamp,
     where
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js";
 
 // Variáveis globais
 let currentUser = null;
@@ -143,33 +142,33 @@ async function uploadFile(file) {
     
     try {
         progressContainer.style.display = 'block';
+        progressBar.style.width = '20%';
+        progressPercent.textContent = '20%';
         
-        // Criar referência única no Firebase Storage
-        const timestamp = Date.now();
-        const fileName = `reports/${timestamp}_${file.name}`;
-        const storageRef = ref(storage, fileName);
+        // Converter arquivo para base64
+        const base64Data = await convertFileToBase64(file);
         
-        // Upload do arquivo
-        const uploadTask = uploadBytes(storageRef, file);
+        progressBar.style.width = '60%';
+        progressPercent.textContent = '60%';
         
-        // Simular progresso (Firebase não fornece progresso real para uploadBytes)
-        let progress = 0;
-        const progressInterval = setInterval(() => {
-            progress += 10;
-            if (progress <= 90) {
-                progressBar.style.width = progress + '%';
-                progressPercent.textContent = progress + '%';
-            }
-        }, 100);
+        // Criar documento no Firestore
+        const fileData = {
+            id: Date.now().toString(),
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            data: base64Data,
+            uploadedAt: serverTimestamp()
+        };
         
-        const snapshot = await uploadTask;
+        progressBar.style.width = '80%';
+        progressPercent.textContent = '80%';
         
-        clearInterval(progressInterval);
+        // Salvar no Firestore na coleção relatorios_files
+        const docRef = await addDoc(collection(db, 'relatorios_files'), fileData);
+        
         progressBar.style.width = '100%';
         progressPercent.textContent = '100%';
-        
-        // Obter URL de download
-        const downloadURL = await getDownloadURL(snapshot.ref);
         
         setTimeout(() => {
             progressContainer.style.display = 'none';
@@ -177,12 +176,22 @@ async function uploadFile(file) {
             progressPercent.textContent = '0%';
         }, 1000);
         
-        return downloadURL;
+        // Retornar ID do documento para usar como referência
+        return docRef.id;
         
     } catch (error) {
         progressContainer.style.display = 'none';
         throw error;
     }
+}
+
+function convertFileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 }
 
 async function handleReportSubmit(event) {

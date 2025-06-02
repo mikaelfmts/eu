@@ -13,21 +13,32 @@ import {
 
 // Aguardar o DOM estar pronto
 document.addEventListener('DOMContentLoaded', function() {
-    loadRecentReports();
-    loadFeaturedReports();
+    console.log('🎯 Reports-index.js carregado');
+    setTimeout(() => {
+        loadRecentReports();
+        loadFeaturedReports();
+    }, 1000); // Aguardar um pouco para o Firebase inicializar
 });
 
 async function loadRecentReports() {
     const container = document.getElementById('recent-reports-grid');
     const loading = document.getElementById('recent-reports-loading');
     
+    console.log('📊 Tentando carregar relatórios recentes...');
+    console.log('Container encontrado:', !!container);
+    console.log('Loading encontrado:', !!loading);
+    
     if (!container || !loading) {
-        console.log('Elementos de relatórios não encontrados:', { container, loading });
+        console.log('❌ Elementos de relatórios não encontrados:', { container: !!container, loading: !!loading });
         return;
     }
     
     try {
-        console.log('Carregando relatórios recentes...');
+        console.log('📊 Carregando relatórios recentes...');
+        
+        // Mostrar estado de carregamento
+        loading.style.display = 'block';
+        container.innerHTML = '';
         
         // Buscar relatórios recentes visíveis
         const q = query(
@@ -38,37 +49,38 @@ async function loadRecentReports() {
         );
         
         const querySnapshot = await getDocs(q);
-        console.log('Relatórios encontrados:', querySnapshot.size);
+        console.log('📊 Relatórios encontrados:', querySnapshot.size);
         
-        container.innerHTML = '';
+        // Esconder loading
+        loading.style.display = 'none';
         
         if (querySnapshot.empty) {
+            console.log('📊 Nenhum relatório encontrado');
             container.innerHTML = `
                 <div class="empty-state">
+                    <div class="empty-icon">📊</div>
                     <h3>Nenhum relatório disponível</h3>
                     <p>Os relatórios serão exibidos aqui quando adicionados.</p>
                 </div>
-            `;
-        } else {
+            `;        } else {
             querySnapshot.forEach(doc => {
                 const report = { id: doc.id, ...doc.data() };
-                console.log('Processando relatório:', report);
+                console.log('📊 Processando relatório:', report);
                 const reportElement = createRecentReportCard(report);
                 container.appendChild(reportElement);
             });
         }
         
     } catch (error) {
-        console.error('Erro ao carregar relatórios recentes:', error);
+        console.error('❌ Erro ao carregar relatórios recentes:', error);
+        loading.style.display = 'none';
         container.innerHTML = `
-            <div class="error-message">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>Erro ao carregar relatórios</p>
+            <div class="empty-state">
+                <div class="empty-icon">⚠️</div>
+                <h3>Erro ao carregar relatórios</h3>
+                <p>Tente novamente mais tarde. Detalhes: ${error.message}</p>
             </div>
         `;
-    } finally {
-        loading.style.display = 'none';
-        container.style.display = 'grid';
     }
 }
 

@@ -24,25 +24,41 @@ let isAuthenticated = false;
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
-    initializeAdmin();
-    setupEventListeners();
-      // Configurar autenticação
+    console.log('🎬 DOM carregado, inicializando mídia admin...');
+    
+    // Aguardar um pouco para o Firebase inicializar
+    setTimeout(() => {
+        initializeAdmin();
+        setupEventListeners();
+    }, 500);
+    
+    // Configurar autenticação
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             isAuthenticated = true;
-            console.log('Usuário autenticado:', user.uid);
+            console.log('🎬 Usuário autenticado:', user.uid);
             // Carregar dados após autenticação
             loadPosts();
             loadFeaturedMedia();
         } else {
-            // Tentar login anônimo apenas quando necessário (no upload)
-            console.log('Usuário não autenticado - login será feito quando necessário');
-            isAuthenticated = false;
+            // Login anônimo automático
+            try {
+                const userCredential = await signInAnonymously(auth);
+                console.log('🎬 Login anônimo realizado:', userCredential.user.uid);
+                isAuthenticated = true;
+                loadPosts();
+                loadFeaturedMedia();
+            } catch (error) {
+                console.error('❌ Erro no login anônimo:', error);
+                isAuthenticated = false;
+            }
         }
     });
 });
 
 function initializeAdmin() {
+    console.log('Inicializando admin...');
+    
     // Configurar partículas
     if (typeof createParticles === 'function') {
         createParticles();
@@ -50,13 +66,29 @@ function initializeAdmin() {
     
     // Configurar tema
     applyTheme();
+    
+    // Aguardar um pouco para garantir que o DOM está pronto
+    setTimeout(() => {
+        console.log('Mostrando primeira aba...');
+        switchTab('criar');
+        console.log('Aba inicial configurada');
+    }, 100);
 }
 
 function setupEventListeners() {
+    console.log('Configurando event listeners...');
+    
     // Alternância de abas
     const tabButtons = document.querySelectorAll('[data-tab]');
+    console.log('Botões de aba encontrados:', tabButtons.length);
     tabButtons.forEach(button => {
-        button.addEventListener('click', () => switchTab(button.dataset.tab));
+        console.log('Configurando botão:', button.dataset.tab);
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Clicou na aba:', button.dataset.tab);
+            switchTab(button.dataset.tab);
+        });
     });
 
     // Upload de mídia
@@ -120,6 +152,15 @@ function setupEventListeners() {
         });
     }
 
+    // Botão de limpar formulário
+    const clearButton = document.getElementById('clear-form');
+    if (clearButton) {
+        clearButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            clearForm();
+        });
+    }
+
     // Configurar featured media
     const featuredForm = document.getElementById('featured-form');
     if (featuredForm) {
@@ -167,6 +208,8 @@ function setupEventListeners() {
 }
 
 function switchTab(tabName) {
+    console.log('Mudando para aba:', tabName);
+    
     // Ocultar todas as abas
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.add('hidden');
@@ -174,21 +217,25 @@ function switchTab(tabName) {
 
     // Remover classe ativa de todos os botões
     document.querySelectorAll('[data-tab]').forEach(button => {
-        button.classList.remove('bg-yellow-600', 'text-white');
-        button.classList.add('bg-gray-700', 'text-gray-300');
+        button.classList.remove('active');
     });
 
     // Mostrar aba selecionada
     const selectedTab = document.getElementById(`${tabName}-tab`);
     if (selectedTab) {
         selectedTab.classList.remove('hidden');
+        console.log('Aba mostrada:', tabName);
+    } else {
+        console.error('Aba não encontrada:', `${tabName}-tab`);
     }
 
     // Ativar botão selecionado
     const selectedButton = document.querySelector(`[data-tab="${tabName}"]`);
     if (selectedButton) {
-        selectedButton.classList.remove('bg-gray-700', 'text-gray-300');
-    selectedButton.classList.add('bg-yellow-600', 'text-white');
+        selectedButton.classList.add('active');
+        console.log('Botão ativado:', tabName);
+    } else {
+        console.error('Botão não encontrado:', `[data-tab="${tabName}"]`);
     }
 }
 
@@ -1225,261 +1272,65 @@ function showNotification(message, type = 'info') {
 }
 
 function applyTheme() {
-    // Aplicar tema salvo
-    const savedTheme = localStorage.getItem('theme') || 'league';
-    document.body.classList.add(`theme-${savedTheme}`);
+    // Aplicar tema escuro
+    document.body.classList.add('dark-theme');
 }
 
-// Função auxiliar para aguardar e evitar rate limiting
-function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// Função para validar arquivo antes do upload
-function validateFile(file) {
-    const maxSize = 10 * 1024 * 1024; // 10MB para plano gratuito
-    const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    const allowedVideoTypes = ['video/mp4', 'video/webm'];
-    const allowedTypes = [...allowedImageTypes, ...allowedVideoTypes];
-    
-    if (!file) {
-        throw new Error('Arquivo não encontrado');
-    }
-    
-    if (file.size > maxSize) {
-        throw new Error(`Arquivo muito grande. Máximo: 10MB para plano gratuito. Atual: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
-    }
-    
-    if (file.size === 0) {
-        throw new Error('Arquivo vazio');
-    }
-    
-    if (!allowedTypes.includes(file.type)) {
-        throw new Error(`Tipo de arquivo não suportado: ${file.type}. Tipos aceitos: ${allowedTypes.join(', ')}`);
-    }
-    
-    // Validação adicional para vídeos
-    if (allowedVideoTypes.includes(file.type)) {
-        const videoMaxSize = 5 * 1024 * 1024; // 5MB para vídeos
-        if (file.size > videoMaxSize) {
-            throw new Error(`Vídeo muito grande. Máximo: 5MB. Atual: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+// Função para limpar formulário
+function clearForm() {
+    const form = document.getElementById('post-form');
+    if (form) {
+        form.reset();
+        uploadedMedia = [];
+        updatePreview();
+        
+        // Resetar para upload de arquivo
+        const fileRadio = document.querySelector('input[name="media-source"][value="file"]');
+        if (fileRadio) {
+            fileRadio.checked = true;
+            handleMediaSourceChange({ target: fileRadio });
         }
     }
-    
-    // Verificar nome do arquivo
-    if (file.name.length > 100) {
-        throw new Error('Nome do arquivo muito longo (máximo 100 caracteres)');
-    }
-    
-    return true;
 }
 
-// Função específica para processar arquivos do drag and drop
-async function handleDroppedFiles(files) {
-    const uploadContainer = document.getElementById('upload-preview');
+// Função para formatear data
+function formatDate(timestamp) {
+    if (!timestamp) return 'Data não disponível';
     
-    if (!uploadContainer) return;
-
-    if (files.length === 0) return;
-
-    // Validar arquivos antes do upload
-    const validFiles = [];
-    
-    for (const file of files) {
-        try {
-            validateFile(file);
-            validFiles.push(file);
-        } catch (error) {
-            showError(`${file.name}: ${error.message}`);
-        }
-    }
-
-    if (validFiles.length === 0) {
-        showError('Nenhum arquivo válido no arraste');
-        return;
-    }
-
-    // Mostrar loading
-    showLoading(`Preparando upload de ${validFiles.length} arquivo(s) arrastado(s)...`);
-
-    let successCount = 0;
-    let errorCount = 0;
-
-    // Processar arquivos sequencialmente para evitar sobrecarga
-    for (let i = 0; i < validFiles.length; i++) {
-        const file = validFiles[i];
-        
-        try {
-            showLoading(`Enviando ${file.name} (${i + 1}/${validFiles.length})...`);
-            
-            // Delay maior entre uploads para plano gratuito
-            if (i > 0) {
-                await delay(3000); // 3 segundos entre uploads
-            }
-            
-            const mediaItem = await uploadMediaFile(file);
-            uploadedMedia.push(mediaItem);
-            
-            // Criar preview
-            const previewElement = createMediaPreview(mediaItem);
-            uploadContainer.appendChild(previewElement);
-            
-            successCount++;
-            
-            // Feedback de progresso
-            showLoading(`Concluído: ${successCount}/${validFiles.length} arquivos`);
-            
-        } catch (error) {
-            console.error(`Erro no upload de ${file.name}:`, error);
-            errorCount++;
-            showError(`Falha no upload de ${file.name}: ${error.message}`);
-            
-            // Continuar com próximo arquivo mesmo se um falhar
-            continue;
-        }
+    let date;
+    if (timestamp.toDate) {
+        date = timestamp.toDate();
+    } else if (timestamp instanceof Date) {
+        date = timestamp;
+    } else {
+        date = new Date(timestamp);
     }
     
-    // Mensagem final
-    hideLoading();
-    
-    if (successCount > 0) {
-        showSuccess(`✅ ${successCount} arquivo(s) enviado(s) com sucesso via arraste!`);
-    }
-    
-    if (errorCount > 0) {
-        showError(`❌ ${errorCount} arquivo(s) falharam no upload`);
-    }
-
-    if (successCount === 0 && errorCount > 0) {
-        showError('Nenhum arquivo foi enviado com sucesso. Verifique sua conexão e tente novamente.');
-    }
+    return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 }
 
-// Função para upload de mídia em destaque via drag and drop
-async function handleFeaturedDroppedFile(file) {
-    const uploadContainer = document.getElementById('featured-upload-preview');
-    
-    if (!uploadContainer) return;
-
-    // Limpar preview anterior
-    uploadContainer.innerHTML = '';
-
-    if (!file) return;
-
-    try {
-        // Validar arquivo
-        validateFile(file);
-    } catch (error) {
-        showError(`Arquivo: ${error.message}`);
-        return;
-    }
-
-    // Mostrar loading
-    showLoading(`Preparando upload da mídia em destaque...`);
-
-    try {
-        // Fazer upload
-        const mediaItem = await uploadMediaFile(file);
-        
-        // Criar preview
-        const previewElement = createMediaPreview(mediaItem);
-        uploadContainer.appendChild(previewElement);
-        
-        // Definir mídia como enviada
-        uploadedMedia = [mediaItem];
-        
-        showSuccess('Mídia em destaque pronta para salvar');
-        
-    } catch (error) {
-        console.error('Erro no upload da mídia em destaque:', error);
-        showError('Falha no upload da mídia em destaque');
-    } finally {
-        hideLoading();
-    }
-}
-
-// Função para processar upload e preview de mídia em destaque
-async function handleFeaturedMediaUpload(event) {
-    const files = Array.from(event.target.files);
-    if (files.length > 0) {
-        await processFeaturedMediaFile(files[0]);
-    }
-}
-
-// Função principal para processar arquivo de mídia em destaque
-async function processFeaturedMediaFile(file) {
-    const previewContainer = document.getElementById('featured-preview');
-    
+// Função para atualizar preview
+function updatePreview() {
+    const previewContainer = document.getElementById('upload-preview');
     if (!previewContainer) return;
-
-    try {
-        // Validar arquivo
-        validateFile(file);
-        
-        // Mostrar loading
-        showLoading('Preparando preview da mídia em destaque...');
-        
-        // Criar preview local (sem upload ainda)
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            previewContainer.innerHTML = '';
-            previewContainer.classList.remove('hidden');
-            
-            let mediaElement = '';
-            if (file.type.startsWith('video/')) {
-                mediaElement = `
-                    <video class="w-full h-48 object-cover rounded-lg" controls>
-                        <source src="${e.target.result}" type="${file.type}">
-                    </video>
-                `;
-            } else {
-                mediaElement = `
-                    <img src="${e.target.result}" alt="Preview" class="w-full h-48 object-cover rounded-lg">
-                `;
-            }
-            
-            previewContainer.innerHTML = `
-                <div class="relative">
-                    ${mediaElement}
-                    <div class="absolute top-2 right-2">
-                        <button onclick="clearFeaturedPreview()" 
-                                class="bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-red-700">
-                            ×
-                        </button>
-                    </div>
-                    <div class="mt-2 p-2 bg-gray-800 rounded">
-                        <p class="text-xs text-gray-400">${file.name}</p>
-                        <p class="text-xs text-yellow-600">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                    </div>
-                </div>
-            `;
-            
-            hideLoading();
-            showSuccess('Preview criado! Preencha o título e descrição, depois clique em "Definir como Destaque"');
-        };
-        
-        reader.readAsDataURL(file);
-        
-    } catch (error) {
-        console.error('Erro no preview:', error);
-        showError(`Erro no preview: ${error.message}`);
-        hideLoading();
-    }
+    
+    previewContainer.innerHTML = '';
+    
+    uploadedMedia.forEach((media, index) => {
+        const previewElement = createMediaPreview(media, index);
+        previewContainer.appendChild(previewElement);
+    });
 }
 
-// Função para limpar preview da mídia em destaque
-window.clearFeaturedPreview = function() {
-    const previewContainer = document.getElementById('featured-preview');
-    const featuredInput = document.getElementById('featured-input');
-    
-    if (previewContainer) {
-        previewContainer.innerHTML = '';
-        previewContainer.classList.add('hidden');
-    }
-    
-    if (featuredInput) {
-        featuredInput.value = '';
-    }
-    
-    showSuccess('Preview removido');
-};
+// Event listeners globais
+window.editPost = editPost;
+window.deletePost = deletePost;
+window.clearForm = clearForm;
+window.removeFeaturedMedia = removeFeaturedMedia;
+window.clearFeaturedPreview = clearFeaturedPreview;

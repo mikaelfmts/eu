@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Portfolio</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e2328;
+            color: #f0e6d2;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .debug-section {
+            background: #2a2f35;
+            border: 1px solid #c8aa6e;
+            border-radius: 8px;
+            margin: 20px 0;
+            padding: 15px;
+        }
+        .debug-title {
+            color: #c8aa6e;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .status-ok { color: #10b981; }
+        .status-error { color: #ef4444; }
+        .status-warning { color: #f59e0b; }
+        .data-item {
+            background: #374151;
+            border-radius: 4px;
+            padding: 8px;
+            margin: 5px 0;
+        }
+        button {
+            background: #c8aa6e;
+            color: #1e2328;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #e4c682;
+        }
+    </style>
+</head>
+<body>
+    <h1>🐛 Debug - Sistema Portfolio</h1>
+    
+    <div class="debug-section">
+        <div class="debug-title">🔥 Firebase Status</div>
+        <div id="firebase-status">Verificando...</div>
+    </div>
+
+    <div class="debug-section">
+        <div class="debug-title">📊 Coleções do Firestore</div>
+        <div id="collections-status">Verificando...</div>
+        <button onclick="checkCollections()">Verificar Coleções</button>
+    </div>
+
+    <div class="debug-section">
+        <div class="debug-title">📄 Páginas e Scripts</div>
+        <div id="pages-status">Verificando...</div>
+        <button onclick="checkPages()">Verificar Páginas</button>
+    </div>
+
+    <div class="debug-section">
+        <div class="debug-title">🎬 Dados da Galeria de Mídia</div>
+        <div id="media-data">Verificando...</div>
+        <button onclick="loadMediaData()">Carregar Dados de Mídia</button>
+    </div>
+
+    <div class="debug-section">
+        <div class="debug-title">📊 Dados dos Relatórios</div>
+        <div id="reports-data">Verificando...</div>
+        <button onclick="loadReportsData()">Carregar Dados de Relatórios</button>
+    </div>
+
+    <script type="module">
+        import { db } from './assets/js/firebase-config.js';
+        import { 
+            collection, 
+            getDocs, 
+            doc, 
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+        // Tornar funções globalmente acessíveis
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.doc = doc;
+        window.getDoc = getDoc;
+
+        function log(elementId, message, status = 'ok') {
+            const element = document.getElementById(elementId);
+            const statusClass = `status-${status}`;
+            const timestamp = new Date().toLocaleTimeString();
+            element.innerHTML += `<div class="${statusClass}">[${timestamp}] ${message}</div>`;
+        }
+
+        window.log = log;
+
+        // Verificar Firebase
+        try {
+            document.getElementById('firebase-status').innerHTML = 
+                '<div class="status-ok">✅ Firebase inicializado com sucesso</div>';
+        } catch (error) {
+            document.getElementById('firebase-status').innerHTML = 
+                `<div class="status-error">❌ Erro no Firebase: ${error.message}</div>`;
+        }
+
+        window.checkCollections = async function() {
+            const collectionsToCheck = [
+                'galeria_media',
+                'relatorios_posts',
+                'relatorios_config',
+                'relatorios_files',
+                'site_config'
+            ];
+
+            document.getElementById('collections-status').innerHTML = '';
+
+            for (const collectionName of collectionsToCheck) {
+                try {
+                    const querySnapshot = await getDocs(collection(db, collectionName));
+                    const count = querySnapshot.size;
+                    log('collections-status', 
+                        `📁 ${collectionName}: ${count} documentos`, 
+                        count > 0 ? 'ok' : 'warning'
+                    );
+                } catch (error) {
+                    log('collections-status', 
+                        `❌ ${collectionName}: Erro - ${error.message}`, 
+                        'error'
+                    );
+                }
+            }
+        };
+
+        window.checkPages = async function() {
+            const pagesToCheck = [
+                'index.html',
+                'midia-admin.html',
+                'relatorios-admin.html',
+                'pages/galeria-midia.html',
+                'pages/relatorios-galeria.html',
+                'assets/js/firebase-config.js',
+                'assets/js/midia-admin.js',
+                'assets/js/relatorios-admin.js',
+                'assets/js/reports-index.js',
+                'assets/js/media-index.js'
+            ];
+
+            document.getElementById('pages-status').innerHTML = '';
+
+            for (const page of pagesToCheck) {
+                try {
+                    const response = await fetch(page);
+                    const status = response.ok ? 'ok' : 'error';
+                    const statusText = response.ok ? 'OK' : `Erro ${response.status}`;
+                    log('pages-status', `📄 ${page}: ${statusText}`, status);
+                } catch (error) {
+                    log('pages-status', `❌ ${page}: ${error.message}`, 'error');
+                }
+            }
+        };
+
+        window.loadMediaData = async function() {
+            document.getElementById('media-data').innerHTML = '';
+            
+            try {
+                const querySnapshot = await getDocs(collection(db, 'galeria_media'));
+                log('media-data', `📊 Total de itens de mídia: ${querySnapshot.size}`, 'ok');
+
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    log('media-data', 
+                        `🎬 ${data.title || 'Sem título'} - ${data.type || 'Tipo não especificado'} - Visível: ${data.visible ? 'Sim' : 'Não'}`, 
+                        'ok'
+                    );
+                });
+
+                if (querySnapshot.empty) {
+                    log('media-data', '⚠️ Nenhum item de mídia encontrado', 'warning');
+                }
+            } catch (error) {
+                log('media-data', `❌ Erro ao carregar mídia: ${error.message}`, 'error');
+            }
+        };
+
+        window.loadReportsData = async function() {
+            document.getElementById('reports-data').innerHTML = '';
+            
+            try {
+                const querySnapshot = await getDocs(collection(db, 'relatorios_posts'));
+                log('reports-data', `📊 Total de relatórios: ${querySnapshot.size}`, 'ok');
+
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    log('reports-data', 
+                        `📊 ${data.title || 'Sem título'} - ${data.type || 'Tipo não especificado'} - Visível: ${data.visible ? 'Sim' : 'Não'}`, 
+                        'ok'
+                    );
+                });
+
+                if (querySnapshot.empty) {
+                    log('reports-data', '⚠️ Nenhum relatório encontrado', 'warning');
+                }
+            } catch (error) {
+                log('reports-data', `❌ Erro ao carregar relatórios: ${error.message}`, 'error');
+            }
+        };
+
+        // Executar verificações iniciais
+        setTimeout(() => {
+            checkCollections();
+            loadMediaData();
+            loadReportsData();
+        }, 1000);
+    </script>
+</body>
+</html>

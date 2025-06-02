@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicializar Firestore</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #1e2328;
+            color: #f0e6d2;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #065f46; color: #d1fae5; }
+        .error { background: #991b1b; color: #fecaca; }
+        .info { background: #1e40af; color: #dbeafe; }
+        button {
+            background: #c8aa6e;
+            color: #1e2328;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #e4c682;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔥 Inicializar Coleções do Firestore</h1>
+    <p>Esta página irá criar as coleções necessárias no Firestore e adicionar dados de exemplo.</p>
+    
+    <div id="status"></div>
+    
+    <button onclick="initializeCollections()">Inicializar Coleções</button>
+    <button onclick="createSampleData()">Criar Dados de Exemplo</button>
+    <button onclick="testConnections()">Testar Conexões</button>
+
+    <script type="module">
+        import { db } from './assets/js/firebase-config.js';
+        import { 
+            collection, 
+            doc, 
+            setDoc, 
+            addDoc,
+            getDocs,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+        window.db = db;
+        window.collection = collection;
+        window.doc = doc;
+        window.setDoc = setDoc;
+        window.addDoc = addDoc;
+        window.getDocs = getDocs;
+        window.serverTimestamp = serverTimestamp;
+
+        function addStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            const item = document.createElement('div');
+            item.className = `status ${type}`;
+            item.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            statusDiv.appendChild(item);
+            statusDiv.scrollTop = statusDiv.scrollHeight;
+        }
+
+        window.addStatus = addStatus;
+
+        window.initializeCollections = async function() {
+            addStatus('🚀 Iniciando criação das coleções...', 'info');
+            
+            try {
+                // Criar configuração do site
+                await setDoc(doc(db, 'site_config', 'general'), {
+                    siteName: 'Portfolio Mikael Ferreira',
+                    description: 'Portfolio pessoal com galeria de mídia e relatórios',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
+                addStatus('✅ Coleção site_config criada', 'success');
+
+                // Criar configuração de relatórios
+                await setDoc(doc(db, 'relatorios_config', 'settings'), {
+                    maxFeatured: 6,
+                    allowedTypes: ['powerbi', 'excel', 'googlesheets', 'tableau', 'other'],
+                    autoPublish: false,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
+                addStatus('✅ Coleção relatorios_config criada', 'success');
+
+                // Testar criação de um post de relatório
+                await addDoc(collection(db, 'relatorios_posts'), {
+                    title: 'Relatório de Teste',
+                    description: 'Este é um relatório de exemplo para testar o sistema',
+                    type: 'other',
+                    isUrl: true,
+                    url: 'https://example.com',
+                    visible: true,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
+                addStatus('✅ Coleção relatorios_posts criada com exemplo', 'success');
+
+                // Testar criação de arquivo de relatório
+                await addDoc(collection(db, 'relatorios_files'), {
+                    name: 'exemplo.pdf',
+                    type: 'application/pdf',
+                    size: 1024,
+                    data: 'data:application/pdf;base64,JVBERi0xLjQ...', // Base64 exemplo
+                    createdAt: serverTimestamp()
+                });
+                addStatus('✅ Coleção relatorios_files criada com exemplo', 'success');
+
+                // Testar galeria de mídia
+                await addDoc(collection(db, 'galeria_media'), {
+                    title: 'Mídia de Teste',
+                    description: 'Esta é uma mídia de exemplo',
+                    isUrl: true,
+                    url: 'https://via.placeholder.com/400x300',
+                    type: 'image',
+                    visible: true,
+                    createdAt: serverTimestamp()
+                });
+                addStatus('✅ Coleção galeria_media testada', 'success');
+
+                addStatus('🎉 Todas as coleções foram criadas com sucesso!', 'success');
+                
+            } catch (error) {
+                addStatus(`❌ Erro ao criar coleções: ${error.message}`, 'error');
+                console.error('Erro detalhado:', error);
+            }
+        };
+
+        window.createSampleData = async function() {
+            addStatus('📊 Criando dados de exemplo...', 'info');
+            
+            try {
+                // Relatórios de exemplo
+                const sampleReports = [
+                    {
+                        title: 'Dashboard de Vendas',
+                        description: 'Análise completa das vendas trimestrais',
+                        type: 'powerbi',
+                        isUrl: true,
+                        url: 'https://app.powerbi.com/view?r=eyJrIjoiOWI4NjVlZDQtZGVkYy00NGVjLWE3ZmQtNGRiYmJjNTJmODUzIiwidCI6IjZmMmZmNzVmLTAzODgtNGE3Zi1hYjJkLTczODAwNmIwYmIzMCJ9',
+                        visible: true,
+                        featured: true,
+                        createdAt: serverTimestamp()
+                    },
+                    {
+                        title: 'Relatório Financeiro',
+                        description: 'Controle financeiro mensal',
+                        type: 'excel',
+                        isUrl: true,
+                        url: 'https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit#gid=0',
+                        visible: true,
+                        featured: false,
+                        createdAt: serverTimestamp()
+                    },
+                    {
+                        title: 'Análise de Performance',
+                        description: 'Métricas de performance do sistema',
+                        type: 'tableau',
+                        isUrl: true,
+                        url: 'https://public.tableau.com/views/RegionalSampleWorkbook/Storms',
+                        visible: true,
+                        featured: true,
+                        createdAt: serverTimestamp()
+                    }
+                ];
+
+                for (const report of sampleReports) {
+                    await addDoc(collection(db, 'relatorios_posts'), report);
+                    addStatus(`📊 Relatório criado: ${report.title}`, 'success');
+                }
+
+                // Mídia de exemplo
+                const sampleMedia = [
+                    {
+                        title: 'Projeto Portfolio',
+                        description: 'Demonstração do projeto de portfolio',
+                        isUrl: true,
+                        url: 'https://via.placeholder.com/800x600/c8aa6e/1e2328?text=Portfolio+Demo',
+                        type: 'image',
+                        visible: true,
+                        featured: true,
+                        createdAt: serverTimestamp()
+                    },
+                    {
+                        title: 'Video Tutorial',
+                        description: 'Tutorial sobre desenvolvimento web',
+                        isUrl: true,
+                        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                        type: 'video',
+                        visible: true,
+                        featured: false,
+                        createdAt: serverTimestamp()
+                    }
+                ];
+
+                for (const media of sampleMedia) {
+                    await addDoc(collection(db, 'galeria_media'), media);
+                    addStatus(`🎬 Mídia criada: ${media.title}`, 'success');
+                }
+
+                addStatus('🎉 Dados de exemplo criados com sucesso!', 'success');
+                
+            } catch (error) {
+                addStatus(`❌ Erro ao criar dados de exemplo: ${error.message}`, 'error');
+                console.error('Erro detalhado:', error);
+            }
+        };
+
+        window.testConnections = async function() {
+            addStatus('🔍 Testando conexões com as coleções...', 'info');
+            
+            const collections = [
+                'site_config',
+                'relatorios_config', 
+                'relatorios_posts',
+                'relatorios_files',
+                'galeria_media'
+            ];
+
+            try {
+                for (const collectionName of collections) {
+                    const querySnapshot = await getDocs(collection(db, collectionName));
+                    addStatus(`✅ ${collectionName}: ${querySnapshot.size} documentos`, 'success');
+                }
+                
+                addStatus('🎉 Todas as conexões testadas com sucesso!', 'success');
+                
+            } catch (error) {
+                addStatus(`❌ Erro ao testar conexões: ${error.message}`, 'error');
+                console.error('Erro detalhado:', error);
+            }
+        };
+
+        // Testar conexão inicial
+        addStatus('🔥 Firebase conectado! Pronto para inicializar.', 'success');
+    </script>
+</body>
+</html>

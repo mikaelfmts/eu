@@ -14,19 +14,30 @@ import {
     serverTimestamp,
     where
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
 // Variáveis globais
 let currentUser = null;
 let allReports = [];
 
 // Aguardar autenticação
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
+        console.log('Usuário autenticado para relatórios:', user.uid);
         init();
     } else {
-        window.location.href = 'login.html';
+        // Fazer login anônimo automático
+        try {
+            const userCredential = await signInAnonymously(auth);
+            console.log('Login anônimo realizado para relatórios:', userCredential.user.uid);
+            currentUser = userCredential.user;
+            init();
+        } catch (error) {
+            console.error('Erro no login anônimo:', error);
+            // Ainda assim tentar inicializar
+            init();
+        }
     }
 });
 
@@ -38,10 +49,15 @@ function init() {
 }
 
 function setupEventListeners() {
+    console.log('Configurando event listeners dos relatórios...');
+    
     // Tabs
     document.querySelectorAll('.tab-button').forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             const tab = button.dataset.tab;
+            console.log('Clicou na aba:', tab);
             showTab(tab);
         });
     });
@@ -86,6 +102,8 @@ function setupEventListeners() {
 }
 
 function showTab(tabName) {
+    console.log('Mudando para aba de relatórios:', tabName);
+    
     // Ocultar todas as abas
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.add('hidden');
@@ -100,12 +118,18 @@ function showTab(tabName) {
     const targetTab = document.getElementById(`${tabName}-tab`);
     if (targetTab) {
         targetTab.classList.remove('hidden');
+        console.log('Aba de relatórios mostrada:', tabName);
+    } else {
+        console.error('Aba de relatórios não encontrada:', `${tabName}-tab`);
     }
 
     // Adicionar active ao botão
     const targetButton = document.querySelector(`[data-tab="${tabName}"]`);
     if (targetButton) {
         targetButton.classList.add('active');
+        console.log('Botão de relatórios ativado:', tabName);
+    } else {
+        console.error('Botão de relatórios não encontrado:', `[data-tab="${tabName}"]`);
     }
 
     // Carregar dados específicos da aba
@@ -113,7 +137,8 @@ function showTab(tabName) {
         loadReports();
     } else if (tabName === 'destaque') {
         loadFeaturedReports();
-        loadFeaturedReportsSelect();    }
+        loadFeaturedReportsSelect();
+    }
 }
 
 function toggleSourceType(type) {

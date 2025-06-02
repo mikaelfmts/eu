@@ -1,8 +1,35 @@
-# Portfolio Mikael Ferreira
+# 🎯 Portfolio Profissional - Sistema Completo
 
 ## 📌 Visão Geral
 
-Este projeto é um site portfolio pessoal inspirado visualmente no estilo League of Legends, que apresenta habilidades, projetos e informações profissionais minhas. O site incorpora um sistema de chat em tempo real para comunicação direta com visitantes, gerenciado através de um painel administrativo.
+Um portfolio profissional moderno com sistema de galeria de mídia e dashboards/relatórios integrados ao Firebase Firestore.
+
+## ✨ Funcionalidades Implementadas
+
+### 🎬 Sistema de Galeria de Mídia
+- ✅ Upload de arquivos (imagens, vídeos) convertidos para base64
+- ✅ Suporte a URLs externas (YouTube, Vimeo, imagens)
+- ✅ Sistema de posts com título, descrição e visibilidade
+- ✅ Seção "Recent Media" na página principal
+- ✅ Painel administrativo completo (midia-admin.html)
+
+### 📊 Sistema de Relatórios/Dashboards
+- ✅ Suporte a Power BI, Excel Online, Google Sheets, Tableau Public
+- ✅ Upload de arquivos convertidos para base64
+- ✅ Suporte a URLs de dashboards externos
+- ✅ Seções "Recent Reports" e "Featured Reports" na página principal
+- ✅ Painel administrativo completo (relatorios-admin.html)
+- ✅ Visualização em iframe para dashboards interativos
+
+### 🦉 Assistente Virtual Minerva
+- ✅ Assistente IA integrado com chat interativo
+- ✅ Interface moderna com animações
+- ✅ Sistema de comandos e respostas contextuais
+
+### 🔧 Sistema de Debug
+- ✅ Página de debug (debug.html) para diagnósticos
+- ✅ Página de inicialização do Firestore (init-firestore.html)
+- ✅ Monitoramento em tempo real das coleções
 
 ## 🌟 Características Principais
 

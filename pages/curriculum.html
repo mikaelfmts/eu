@@ -360,9 +360,13 @@
     <!-- Script -->
     <script type="module" src="../assets/js/script.js"></script>
     <script type="module" src="../assets/js/page-control.js"></script>
+    <script type="module" src="../assets/js/github-rate-limit.js"></script>
     
     <!-- Script para carregar currículo do Firebase -->
     <script type="module">
+        // Importar sistema centralizado de rate limiting
+        import { gitHubAPI } from '../assets/js/github-rate-limit.js';
+        
         import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
         import { getFirestore, doc, getDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
         
@@ -387,69 +391,18 @@
         
         // GitHub API Configuration
         const GITHUB_USERNAME = 'MikaelFMTS';
-        const GITHUB_API_BASE = 'https://api.github.com';
         
-        // Cache utility functions
-        function getCacheItem(key) {
-            try {
-                const cached = localStorage.getItem(key);
-                if (!cached) return null;
-                
-                const data = JSON.parse(cached);
-                const now = Date.now();
-                
-                // Cache expires after 30 minutes
-                const expiryTime = 30 * 60 * 1000;
-                
-                if (now - data.timestamp > expiryTime) {
-                    localStorage.removeItem(key);
-                    return null;
-                }
-                
-                return data.data;
-            } catch (error) {
-                console.error(`Erro ao ler cache ${key}:`, error);
-                return null;
-            }
-        }
-        
-        function setCacheItem(key, data) {
-            try {
-                const cacheData = {
-                    data: data,
-                    timestamp: Date.now()
-                };
-                localStorage.setItem(key, JSON.stringify(cacheData));
-            } catch (error) {
-                console.error(`Erro ao salvar cache ${key}:`, error);
-            }
-        }
-        
-        // Função para sincronizar foto do GitHub
+        // Função para sincronizar foto do GitHub usando sistema centralizado
         async function syncGitHubPhoto() {
             try {
                 console.log('🖼️ Sincronizando foto do GitHub...');
                 
-                // Verificar cache primeiro
-                const cachedUser = getCacheItem('github_user_data');
-                if (cachedUser && cachedUser.avatar_url) {
-                    console.log('✅ Usando foto do cache');
-                    return cachedUser.avatar_url;
-                }
+                // Usar o sistema centralizado para requisições ao GitHub
+                const userData = await gitHubAPI.getUser(GITHUB_USERNAME);
                 
-                const response = await fetch(`${GITHUB_API_BASE}/users/${GITHUB_USERNAME}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    // Salvar no cache
-                    setCacheItem('github_user_data', data);
-                    
-                    if (data.avatar_url) {
-                        console.log('✅ Foto do GitHub sincronizada:', data.avatar_url);
-                        return data.avatar_url;
-                    }
-                } else if (response.status === 403) {
-                    console.log('⚠️ Rate limit atingido, usando foto padrão');
+                if (userData && userData.avatar_url) {
+                    console.log('✅ Foto do GitHub sincronizada:', userData.avatar_url);
+                    return userData.avatar_url;
                 }
             } catch (error) {
                 console.log('⚠️ Erro ao sincronizar foto do GitHub:', error);

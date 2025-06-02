@@ -1,52 +1,9 @@
-// Sistema de Rate Limiting para GitHub API
-const GITHUB_RATE_LIMIT = {
-    max: 60, // GitHub permite 60 requisições por hora para usuários não autenticados
-    window: 60 * 60 * 1000, // 1 hora em millisegundos
-    key: 'github_rate_limit'
-};
-
-function checkRateLimit() {
-    const now = Date.now();
-    const rateLimitData = localStorage.getItem(GITHUB_RATE_LIMIT.key);
-    
-    if (!rateLimitData) {
-        return { canMakeRequest: true, requestsLeft: GITHUB_RATE_LIMIT.max };
-    }
-    
-    const data = JSON.parse(rateLimitData);
-    const windowStart = now - GITHUB_RATE_LIMIT.window;
-    
-    // Filtrar requisições que estão dentro da janela de tempo
-    const recentRequests = data.requests.filter(timestamp => timestamp > windowStart);
-    
-    const requestsLeft = GITHUB_RATE_LIMIT.max - recentRequests.length;
-    const canMakeRequest = requestsLeft > 0;
-    
-    // Atualizar dados com requisições recentes
-    const updatedData = { requests: recentRequests, lastCleanup: now };
-    localStorage.setItem(GITHUB_RATE_LIMIT.key, JSON.stringify(updatedData));
-    
-    return { canMakeRequest, requestsLeft };
-}
-
-function incrementRateLimit() {
-    const now = Date.now();
-    const rateLimitData = localStorage.getItem(GITHUB_RATE_LIMIT.key);
-    
-    let data;
-    if (!rateLimitData) {
-        data = { requests: [], lastCleanup: now };
-    } else {
-        data = JSON.parse(rateLimitData);
-    }
-    
-    data.requests.push(now);
-    localStorage.setItem(GITHUB_RATE_LIMIT.key, JSON.stringify(data));
-}
+// Importar sistema centralizado de rate limiting
+import { gitHubAPI, GITHUB_CONFIG } from './github-rate-limit.js';
 
 // ==================== SISTEMA DE CACHE E RATE LIMITING PARA GITHUB API ====================
 
-// Configuração de cache e rate limiting
+// Configuração de cache e rate limiting (mantida para compatibilidade)
 const GITHUB_CACHE_CONFIG = {
     PROFILE_CACHE_KEY: 'github_profile_cache',
     REPOS_CACHE_KEY: 'github_repos_cache',
@@ -56,6 +13,15 @@ const GITHUB_CACHE_CONFIG = {
     MAX_REQUESTS_PER_HOUR: 50, // Conservador para evitar limits
     RETRY_DELAYS: [1000, 2000, 5000, 10000] // Backoff exponencial
 };
+
+// Usar funções do sistema centralizado
+function checkRateLimit() {
+    return gitHubAPI.rateLimit.checkRateLimit();
+}
+
+function incrementRateLimit() {
+    return gitHubAPI.rateLimit.incrementRateLimit();
+}
 
 // Dados estáticos de fallback para quando a API não estiver disponível
 const GITHUB_FALLBACK_DATA = {
@@ -215,73 +181,29 @@ function incrementRateLimit() {
     }
 }
 
-// Função melhorada para fazer requisições ao GitHub com retry e fallback
+// Função melhorada para fazer requisições ao GitHub com retry e fallback (usando sistema centralizado)
 async function makeGitHubRequest(url, useCache = true) {
-    // Verificar cache primeiro se solicitado
-    if (useCache) {
-        const cacheKey = url.includes('/repos') ? GITHUB_CACHE_CONFIG.REPOS_CACHE_KEY : GITHUB_CACHE_CONFIG.PROFILE_CACHE_KEY;
-        const cached = getCacheItem(cacheKey);
-        if (cached) {
-            console.log('Dados carregados do cache:', cacheKey);
-            return { json: () => Promise.resolve(cached) };
+    try {
+        // Extrair endpoint da URL
+        const endpoint = url.replace('https://api.github.com', '');
+        
+        // Usar sistema centralizado
+        const data = await gitHubAPI.makeRequest(endpoint, useCache);
+        
+        // Retornar no formato esperado pelo código legado
+        return { json: () => Promise.resolve(data) };
+        
+    } catch (error) {
+        console.warn('Erro na requisição GitHub (fallback para dados estáticos):', error.message);
+        
+        // Fallback para dados estáticos baseado na URL
+        if (url.includes('/users/')) {
+            return { json: () => Promise.resolve(GITHUB_FALLBACK_DATA.profile) };
+        } else if (url.includes('/repos')) {
+            return { json: () => Promise.resolve(GITHUB_FALLBACK_DATA.repositories || GITHUB_FALLBACK_DATA.repos) };
         }
-    }
-    
-    // Verificar rate limit
-    const rateLimit = checkRateLimit();
-    if (!rateLimit.canMakeRequest) {
-        console.warn(`Rate limit atingido. Requests restantes: ${rateLimit.requestsLeft}`);
-        throw new Error('RATE_LIMIT_EXCEEDED');
-    }
-    
-    // Tentar fazer a requisição com retry
-    for (let attempt = 0; attempt < GITHUB_CACHE_CONFIG.RETRY_DELAYS.length; attempt++) {
-        try {
-            const response = await fetch(url, {
-                headers: {
-                    'Accept': 'application/vnd.github.v3+json',
-                    'User-Agent': 'Portfolio-Website'
-                }
-            });
-            
-            incrementRateLimit();
-            
-            if (response.status === 403) {
-                const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
-                const rateLimitReset = response.headers.get('X-RateLimit-Reset');
-                
-                if (rateLimitRemaining === '0') {
-                    console.warn('GitHub API rate limit oficial atingido');
-                    throw new Error('GITHUB_RATE_LIMIT_EXCEEDED');
-                }
-            }
-            
-            if (!response.ok) {
-                throw new Error(`GitHub API request failed: ${response.status} ${response.statusText}`);
-            }
-            
-            // Cache da resposta bem-sucedida
-            if (useCache) {
-                const data = await response.clone().json();
-                const cacheKey = url.includes('/repos') ? GITHUB_CACHE_CONFIG.REPOS_CACHE_KEY : GITHUB_CACHE_CONFIG.PROFILE_CACHE_KEY;
-                setCacheItem(cacheKey, data);
-            }
-            
-            return response;
-            
-        } catch (error) {
-            console.warn(`Tentativa ${attempt + 1} falhou:`, error.message);
-            
-            // Se é o último retry ou erro de rate limit, parar
-            if (attempt === GITHUB_CACHE_CONFIG.RETRY_DELAYS.length - 1 || 
-                error.message.includes('RATE_LIMIT') || 
-                error.message.includes('rate limit')) {
-                throw error;
-            }
-            
-            // Aguardar antes do próximo retry
-            await new Promise(resolve => setTimeout(resolve, GITHUB_CACHE_CONFIG.RETRY_DELAYS[attempt]));
-        }
+        
+        throw error;
     }
 }
 

@@ -1,5 +1,9 @@
 // Ultra Evolved Minerva Assistant with Google Gemini Integration
-class MinervaUltraAssistant {    constructor() {
+// Importar sistema centralizado de rate limiting
+import { gitHubAPI } from './github-rate-limit.js';
+
+class MinervaUltraAssistant {
+    constructor() {
         this.isOpen = false;
         this.isProcessing = false;
         this.messageHistory = [];
@@ -18,16 +22,14 @@ class MinervaUltraAssistant {    constructor() {
             userPreferences: {},
             conversationHistory: []
         };
-          // GitHub Integration System
+        
+        // GitHub Integration System - usando sistema centralizado
         this.githubIntegration = {
             enabled: true,
             cache: new Map(),
-            fileContentCache: new Map(), // Cache específico para conteúdo de arquivos
-            rateLimit: {
-                requestsPerHour: 30, // Reduzido para 30 para incluir análise de arquivos
-                requests: [],
-                isRateLimited: false
-            },
+            fileContentCache: new Map(),
+            // Rate limiting agora gerenciado pelo sistema centralizado
+            api: gitHubAPI, // Referência ao sistema centralizado
             fileAnalysis: {
                 enabled: true,
                 maxFileSize: 500 * 1024, // 500KB máximo por arquivo

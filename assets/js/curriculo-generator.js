@@ -14,6 +14,9 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 
+// Importar sistema centralizado de rate limiting
+import { gitHubAPI } from './github-rate-limit.js';
+
 const firebaseConfig = {
     apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
     authDomain: "mikaelfmts.firebaseapp.com",

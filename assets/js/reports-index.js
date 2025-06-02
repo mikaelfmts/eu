@@ -21,9 +21,14 @@ async function loadRecentReports() {
     const container = document.getElementById('recent-reports-grid');
     const loading = document.getElementById('recent-reports-loading');
     
-    if (!container || !loading) return;
+    if (!container || !loading) {
+        console.log('Elementos de relatórios não encontrados:', { container, loading });
+        return;
+    }
     
     try {
+        console.log('Carregando relatórios recentes...');
+        
         // Buscar relatórios recentes visíveis
         const q = query(
             collection(db, 'relatorios_posts'), 
@@ -33,19 +38,21 @@ async function loadRecentReports() {
         );
         
         const querySnapshot = await getDocs(q);
+        console.log('Relatórios encontrados:', querySnapshot.size);
         
         container.innerHTML = '';
         
         if (querySnapshot.empty) {
             container.innerHTML = `
-                <div class="no-media-message">
-                    <i class="fas fa-chart-line"></i>
-                    <p>Nenhum relatório encontrado</p>
+                <div class="empty-state">
+                    <h3>Nenhum relatório disponível</h3>
+                    <p>Os relatórios serão exibidos aqui quando adicionados.</p>
                 </div>
             `;
         } else {
             querySnapshot.forEach(doc => {
                 const report = { id: doc.id, ...doc.data() };
+                console.log('Processando relatório:', report);
                 const reportElement = createRecentReportCard(report);
                 container.appendChild(reportElement);
             });
@@ -128,16 +135,24 @@ async function loadFeaturedReports() {
     const container = document.getElementById('featured-reports-container');
     const loading = document.getElementById('featured-reports-loading');
     
-    if (!container || !loading) return;
+    if (!container || !loading) {
+        console.log('Elementos de relatórios em destaque não encontrados:', { container, loading });
+        return;
+    }
     
     try {
+        console.log('Carregando relatórios em destaque...');
+        
         const docRef = doc(db, 'relatorios_config', 'featured_reports');
         const docSnap = await getDoc(docRef);
+        
+        console.log('Config de relatórios em destaque:', docSnap.exists() ? docSnap.data() : 'Não encontrado');
         
         container.innerHTML = '';
         
         if (docSnap.exists() && docSnap.data().reports && docSnap.data().reports.length > 0) {
             const featuredReports = docSnap.data().reports;
+            console.log('Relatórios em destaque encontrados:', featuredReports.length);
             
             featuredReports.forEach(report => {
                 const reportCard = createFeaturedReportCard(report);
@@ -145,9 +160,9 @@ async function loadFeaturedReports() {
             });
         } else {
             container.innerHTML = `
-                <div class="no-featured-message">
-                    <i class="fas fa-star"></i>
-                    <p>Nenhum relatório em destaque configurado</p>
+                <div class="empty-state">
+                    <h3>Nenhum relatório em destaque</h3>
+                    <p>Configure relatórios em destaque no painel administrativo.</p>
                 </div>
             `;
         }

@@ -2480,7 +2480,7 @@ const GITHUB_CACHE = {
     userData: { key: 'github_user_cache', duration: 60 * 60 * 1000 }   // 1 hora
 };
 
-function getCacheItem(cacheConfig) {
+function getConfigCacheItem(cacheConfig) {
     try {
         const cached = localStorage.getItem(cacheConfig.key);
         if (!cached) return null;
@@ -2497,7 +2497,7 @@ function getCacheItem(cacheConfig) {
     }
 }
 
-function setCacheItem(cacheConfig, data) {
+function setConfigCacheItem(cacheConfig, data) {
     try {
         const cache = { data, timestamp: Date.now() };
         localStorage.setItem(cacheConfig.key, JSON.stringify(cache));
@@ -2892,16 +2892,16 @@ window.checkGitHubSystemStatus = function() {
         system: 'OK'
     };
     
-    // Verificar cache de perfil
-    const profileCached = getCacheItem(GITHUB_CACHE_CONFIG.PROFILE_CACHE_KEY);
+    // Verificar cache de perfil usando sistema centralizado
+    const profileCached = gitHubAPI.cache.get('/users/mikaelfmts');
     status.cache.profile = {
         exists: !!profileCached,
         key: GITHUB_CACHE_CONFIG.PROFILE_CACHE_KEY,
         lastUpdate: profileCached ? 'Disponível' : 'Não encontrado'
     };
     
-    // Verificar cache de repositórios
-    const reposCached = getCacheItem(GITHUB_CACHE_CONFIG.REPOS_CACHE_KEY);
+    // Verificar cache de repositórios usando sistema centralizado
+    const reposCached = gitHubAPI.cache.get('/users/mikaelfmts/repos');
     status.cache.repos = {
         exists: !!reposCached,
         key: GITHUB_CACHE_CONFIG.REPOS_CACHE_KEY,

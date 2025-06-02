@@ -83,6 +83,134 @@ body {
     overflow-x: hidden;
 }
 
+/* ==================== ESTILOS DA SIDEBAR ==================== */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: linear-gradient(135deg, #0a1428 0%, #1e2328 100%);
+    border-right: 3px solid var(--primary-color);
+    z-index: 1000;
+    overflow-y: auto;
+    padding: 20px 0;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(30, 35, 40, 0.5);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 3px;
+}
+
+.sidebar-header {
+    text-align: center;
+    padding: 0 20px 20px;
+    border-bottom: 1px solid rgba(200, 170, 110, 0.3);
+    margin-bottom: 20px;
+}
+
+.sidebar-header h2 {
+    font-family: 'Marcellus', serif;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 0;
+}
+
+.sidebar ul li a {
+    display: flex;
+    align-items: center;
+    padding: 15px 25px;
+    color: #f0e6d2;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.sidebar ul li a:hover {
+    background: rgba(200, 170, 110, 0.1);
+    border-left-color: var(--primary-color);
+    color: var(--primary-color);
+    padding-left: 30px;
+}
+
+.sidebar ul li a.active {
+    background: rgba(200, 170, 110, 0.15);
+    border-left-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.sidebar ul li a i {
+    margin-right: 15px;
+    color: var(--primary-color);
+    width: 20px;
+    text-align: center;
+}
+
+/* Bonequinho dançante */
+.bonequinho {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: dance 2s ease-in-out infinite;
+}
+
+.bonequinho a {
+    display: block;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #f0e6d2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #0a1428;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 15px rgba(200, 170, 110, 0.4);
+    transition: all 0.3s ease;
+}
+
+.bonequinho a:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(200, 170, 110, 0.6);
+}
+
+@keyframes dance {
+    0%, 100% { transform: translateX(-50%) rotate(0deg); }
+    25% { transform: translateX(-50%) rotate(-5deg); }
+    75% { transform: translateX(-50%) rotate(5deg); }
+}
+
+/* Conteúdo principal com sidebar */
+.main-content {
+    margin-left: 280px;
+    min-height: 100vh;
+    padding: 20px;
+    background: var(--background-dark);
+}
+
 /* Menu Lateral */
 #menu-lateral {
     position: fixed;
@@ -2345,7 +2473,7 @@ section {
 
 .pixel.blue { 
     background: #0099ff; 
-    box-shadow: 0 0 10px #0099ff;
+       box-shadow: 0 0 10px #0099ff;
 }
 
 .pixel.yellow { 

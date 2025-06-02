@@ -48,13 +48,11 @@ async function loadRecentReports() {
         // Mostrar estado de carregamento
         loading.style.display = 'block';
         container.innerHTML = '';
-        
-        // Buscar relatórios recentes visíveis
+          // Buscar relatórios recentes (simplificado para evitar índice composto)
         const q = query(
             collection(db, 'relatorios_posts'), 
-            where('visible', '==', true),
             orderBy('createdAt', 'desc'), 
-            limit(6)
+            limit(10)
         );
         
         const querySnapshot = await getDocs(q);
@@ -62,8 +60,7 @@ async function loadRecentReports() {
         
         // Esconder loading
         loading.style.display = 'none';
-        
-        if (querySnapshot.empty) {
+          if (querySnapshot.empty) {
             console.log('📊 Nenhum relatório encontrado');
             container.innerHTML = `
                 <div class="empty-state">
@@ -71,13 +68,31 @@ async function loadRecentReports() {
                     <h3>Nenhum relatório disponível</h3>
                     <p>Os relatórios serão exibidos aqui quando adicionados.</p>
                 </div>
-            `;        } else {
+            `;
+        } else {
+            let visibleCount = 0;
             querySnapshot.forEach(doc => {
                 const report = { id: doc.id, ...doc.data() };
                 console.log('📊 Processando relatório:', report);
-                const reportElement = createRecentReportCard(report);
-                container.appendChild(reportElement);
+                
+                // Filtrar apenas relatórios visíveis
+                if (report.visible === true && visibleCount < 6) {
+                    const reportElement = createRecentReportCard(report);
+                    container.appendChild(reportElement);
+                    visibleCount++;
+                }
             });
+            
+            // Se nenhum relatório visível foi encontrado
+            if (visibleCount === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📊</div>
+                        <h3>Nenhum relatório disponível</h3>
+                        <p>Os relatórios serão exibidos aqui quando adicionados.</p>
+                    </div>
+                `;
+            }
         }
         
     } catch (error) {

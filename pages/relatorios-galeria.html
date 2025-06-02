@@ -410,19 +410,20 @@
             const grid = document.getElementById('reports-grid');
             const noReports = document.getElementById('no-reports');
 
-            try {
-                // Buscar todos os relatórios visíveis
+            try {                // Buscar todos os relatórios (simplificado para evitar índice composto)
                 const q = query(
                     collection(db, 'relatorios_posts'), 
-                    where('visible', '==', true),
                     orderBy('createdAt', 'desc')
                 );
                 
                 const querySnapshot = await getDocs(q);
-                
-                allReports = [];
+                  allReports = [];
                 querySnapshot.forEach(doc => {
-                    allReports.push({ id: doc.id, ...doc.data() });
+                    const reportData = { id: doc.id, ...doc.data() };
+                    // Filtrar apenas relatórios visíveis
+                    if (reportData.visible === true) {
+                        allReports.push(reportData);
+                    }
                 });
 
                 if (allReports.length === 0) {

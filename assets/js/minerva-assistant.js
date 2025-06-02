@@ -1200,7 +1200,9 @@ class MinervaUltraAssistant {    constructor() {
             console.log(`⚠️ Minerva: Erro ao buscar documentação de ${repoName}:`, error.message);
             return null;
         }
-    }    async analyzeProjectDependencies(repoName) {
+    }
+
+    async analyzeProjectDependencies(repoName) {
         try {
             const packageContent = await this.getFileContent(repoName, 'package.json');
             if (packageContent) {

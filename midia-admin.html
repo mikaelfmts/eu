@@ -480,12 +480,26 @@
                     </label>
                     <textarea id="post-description" name="description" rows="4" class="form-input"
                               placeholder="Descreva o conteúdo do post"></textarea>
-                </div>
-
-                <div class="form-group">
+                </div>                <div class="form-group">
                     <label class="form-label">
                         Mídia do Post
                     </label>
+                    
+                    <!-- Escolha do tipo de mídia -->
+                    <div style="display: flex; gap: 2rem; margin-bottom: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-light); cursor: pointer;">
+                            <input type="radio" name="media-source" value="file" checked style="accent-color: var(--primary-color);">
+                            <i class="fas fa-upload"></i>
+                            Upload de Arquivo
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-light); cursor: pointer;">
+                            <input type="radio" name="media-source" value="url" style="accent-color: var(--primary-color);">
+                            <i class="fas fa-link"></i>
+                            Link/URL
+                        </label>
+                    </div>
+                    
+                    <!-- Área de upload de arquivos -->
                     <div id="upload-area" class="upload-area" style="padding: 2rem; text-align: center; border-radius: 0.5rem; cursor: pointer; border: 2px dashed var(--border-color); background: rgba(60, 60, 65, 0.3);">
                         <i class="fas fa-cloud-upload-alt" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem; display: block;"></i>
                         <p style="color: var(--text-light); margin-bottom: 0.5rem;">Arraste arquivos aqui ou clique para selecionar</p>
@@ -493,8 +507,22 @@
                         <input type="file" id="media-files" multiple accept="image/*,video/*" style="display: none;">
                     </div>
                     
+                    <!-- Área de URLs -->
+                    <div id="url-area" class="hidden" style="padding: 1rem; border-radius: 0.5rem; border: 2px solid var(--border-color); background: rgba(60, 60, 65, 0.3);">
+                        <div style="margin-bottom: 1rem;">
+                            <input type="url" id="media-url" placeholder="https://exemplo.com/imagem.jpg ou https://youtube.com/watch?v=..." 
+                                   style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; background: var(--background-dark); color: var(--text-light);">
+                        </div>
+                        <button type="button" id="add-url-media" class="btn" style="background: var(--primary-color); color: var(--background-dark);">
+                            <i class="fas fa-plus"></i> Adicionar Mídia por URL
+                        </button>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem; margin-bottom: 0;">
+                            Suporta: Imagens (JPG, PNG, GIF), YouTube, Vimeo, etc.
+                        </p>
+                    </div>
+                    
                     <div id="upload-preview" class="grid grid-cols-3 gap-4" style="margin-top: 1rem;"></div>
-                </div>                <button type="submit" class="btn w-full" style="background: var(--primary-color); color: var(--background-dark); padding: 0.75rem;">
+                </div><button type="submit" class="btn w-full" style="background: var(--primary-color); color: var(--background-dark); padding: 0.75rem;">
                     <i class="fas fa-save"></i>Criar Post
                 </button>
                 

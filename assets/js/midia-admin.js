@@ -1,6 +1,5 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { auth, db } from './firebase-config.js';
 import { 
-    getFirestore, 
     collection, 
     addDoc, 
     getDocs, 
@@ -12,27 +11,11 @@ import {
     serverTimestamp,
     setDoc,
     getDoc
-} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-// Storage removido - usando apenas Firestore
+} from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 import { 
-    getAuth, 
     signInAnonymously, 
     onAuthStateChanged 
-} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-
-// Configuração do Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
-    authDomain: "mikaelfmts.firebaseapp.com",
-    projectId: "mikaelfmts",
-    messagingSenderId: "516762612351",
-    appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
-};
-
-// Inicializar Firebase - apenas Firestore
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+} from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 
 // Estado da aplicação
 let currentPost = null;
@@ -111,12 +94,22 @@ function setupEventListeners() {
                 handleDroppedFiles(files);
             }
         });
-    }
-
-    // Formulário de post
+    }    // Formulário de post
     const postForm = document.getElementById('post-form');
     if (postForm) {
         postForm.addEventListener('submit', handlePostSubmit);
+    }
+
+    // Radio buttons para escolha de mídia (arquivo vs URL)
+    const mediaSourceRadios = document.querySelectorAll('input[name="media-source"]');
+    mediaSourceRadios.forEach(radio => {
+        radio.addEventListener('change', handleMediaSourceChange);
+    });
+
+    // Botão para adicionar mídia por URL
+    const addUrlButton = document.getElementById('add-url-media');
+    if (addUrlButton) {
+        addUrlButton.addEventListener('click', handleAddUrlMedia);
     }
 
     // Botão de voltar
@@ -195,8 +188,106 @@ function switchTab(tabName) {
     const selectedButton = document.querySelector(`[data-tab="${tabName}"]`);
     if (selectedButton) {
         selectedButton.classList.remove('bg-gray-700', 'text-gray-300');
-        selectedButton.classList.add('bg-yellow-600', 'text-white');
+    selectedButton.classList.add('bg-yellow-600', 'text-white');
     }
+}
+
+// Função para alternar entre upload de arquivo e URL
+function handleMediaSourceChange(event) {
+    const uploadArea = document.getElementById('upload-area');
+    const urlArea = document.getElementById('url-area');
+    
+    if (event.target.value === 'file') {
+        uploadArea.classList.remove('hidden');
+        urlArea.classList.add('hidden');
+    } else {
+        uploadArea.classList.add('hidden');
+        urlArea.classList.remove('hidden');
+    }
+}
+
+// Função para adicionar mídia por URL
+async function handleAddUrlMedia() {
+    const urlInput = document.getElementById('media-url');
+    const url = urlInput.value.trim();
+    
+    if (!url) {
+        alert('Por favor, insira uma URL válida.');
+        return;
+    }
+    
+    try {
+        // Criar objeto de mídia similar ao upload de arquivo
+        const mediaItem = {
+            id: Date.now().toString(),
+            name: extractFilenameFromUrl(url),
+            type: detectMediaType(url),
+            url: url,
+            isUrl: true,
+            data: null // URLs não precisam de dados base64
+        };
+        
+        // Adicionar à lista de mídias
+        uploadedMedia.push(mediaItem);
+        
+        // Atualizar preview
+        addMediaToPreview(mediaItem);
+        
+        // Limpar input
+        urlInput.value = '';
+        
+        console.log('Mídia adicionada por URL:', mediaItem);
+        
+    } catch (error) {
+        console.error('Erro ao adicionar mídia por URL:', error);
+        alert('Erro ao processar a URL. Verifique se ela é válida.');
+    }
+}
+
+// Função auxiliar para extrair nome do arquivo da URL
+function extractFilenameFromUrl(url) {
+    try {
+        const urlObj = new URL(url);
+        const pathname = urlObj.pathname;
+        const filename = pathname.split('/').pop();
+        
+        // Se não há nome de arquivo, usar domínio
+        if (!filename || filename === '') {
+            return urlObj.hostname;
+        }
+        
+        return filename;
+    } catch {
+        return 'Mídia externa';
+    }
+}
+
+// Função auxiliar para detectar tipo de mídia da URL
+function detectMediaType(url) {
+    const lowerUrl = url.toLowerCase();
+    
+    // YouTube
+    if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) {
+        return 'video/youtube';
+    }
+    
+    // Vimeo
+    if (lowerUrl.includes('vimeo.com')) {
+        return 'video/vimeo';
+    }
+    
+    // Extensões de imagem
+    if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/)) {
+        return 'image/url';
+    }
+    
+    // Extensões de vídeo
+    if (lowerUrl.match(/\.(mp4|webm|ogg|avi|mov)(\?|$)/)) {
+        return 'video/url';
+    }
+    
+    // Default
+    return 'url/unknown';
 }
 
 async function handleMediaUpload(event) {
@@ -429,20 +520,87 @@ function createMediaPreview(mediaItem) {
     div.className = 'relative bg-gray-800 rounded-lg overflow-hidden border border-yellow-600';
     
     let mediaElement;
-    if (mediaItem.type === 'video') {
+    
+    // URLs do YouTube
+    if (mediaItem.type === 'video/youtube') {
+        const videoId = extractYouTubeId(mediaItem.url);
+        mediaElement = `
+            <div class="w-full h-32 bg-gray-900 flex items-center justify-center">
+                <div class="text-center">
+                    <i class="fab fa-youtube text-red-500 text-2xl mb-1"></i>
+                    <p class="text-xs text-gray-400">YouTube Video</p>
+                </div>
+            </div>
+        `;
+    }
+    // URLs do Vimeo
+    else if (mediaItem.type === 'video/vimeo') {
+        mediaElement = `
+            <div class="w-full h-32 bg-gray-900 flex items-center justify-center">
+                <div class="text-center">
+                    <i class="fab fa-vimeo text-blue-500 text-2xl mb-1"></i>
+                    <p class="text-xs text-gray-400">Vimeo Video</p>
+                </div>
+            </div>
+        `;
+    }
+    // URLs de imagem
+    else if (mediaItem.type === 'image/url') {
+        mediaElement = `
+            <img src="${mediaItem.url}" alt="Preview" class="w-full h-32 object-cover" 
+                 onerror="this.parentElement.innerHTML='<div class=&quot;w-full h-32 bg-gray-900 flex items-center justify-center&quot;><div class=&quot;text-center&quot;><i class=&quot;fas fa-image text-gray-500 text-2xl mb-1&quot;></i><p class=&quot;text-xs text-gray-400&quot;>Imagem Externa</p></div></div>'">
+        `;
+    }
+    // URLs de vídeo
+    else if (mediaItem.type === 'video/url') {
+        mediaElement = `
+            <video class="w-full h-32 object-cover" controls>
+                <source src="${mediaItem.url}" type="video/mp4">
+                <div class="w-full h-32 bg-gray-900 flex items-center justify-center">
+                    <div class="text-center">
+                        <i class="fas fa-video text-gray-500 text-2xl mb-1"></i>
+                        <p class="text-xs text-gray-400">Vídeo Externo</p>
+                    </div>
+                </div>
+            </video>
+        `;
+    }
+    // URLs desconhecidas
+    else if (mediaItem.type === 'url/unknown') {
+        mediaElement = `
+            <div class="w-full h-32 bg-gray-900 flex items-center justify-center">
+                <div class="text-center">
+                    <i class="fas fa-link text-gray-500 text-2xl mb-1"></i>
+                    <p class="text-xs text-gray-400">Link Externo</p>
+                </div>
+            </div>
+        `;
+    }
+    // Arquivos tradicionais (vídeo local)
+    else if (mediaItem.type === 'video') {
         mediaElement = `
             <video class="w-full h-32 object-cover" controls>
                 <source src="${mediaItem.url}" type="video/mp4">
             </video>
         `;
-    } else {
+    }
+    // Arquivos tradicionais (imagem local)
+    else {
         mediaElement = `
             <img src="${mediaItem.url}" alt="Preview" class="w-full h-32 object-cover">
         `;
     }
     
+    // Adicionar indicador de URL externa
+    const urlIndicator = mediaItem.isUrl ? `
+        <div class="absolute top-2 left-2">
+            <span class="bg-blue-600 text-white text-xs px-2 py-1 rounded">URL</span>
+        </div>
+    ` : '';
+    
     div.innerHTML = `
         ${mediaElement}
+        ${urlIndicator}
         <div class="absolute top-2 right-2">
             <button onclick="removeMediaItem('${mediaItem.url}')" 
                     class="bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-700">
@@ -456,6 +614,22 @@ function createMediaPreview(mediaItem) {
     `;
     
     return div;
+}
+
+// Função auxiliar para extrair ID do YouTube
+function extractYouTubeId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
+
+// Função para adicionar mídia ao preview
+function addMediaToPreview(mediaItem) {
+    const container = document.getElementById('upload-preview');
+    if (!container) return;
+    
+    const preview = createMediaPreview(mediaItem);
+    container.appendChild(preview);
 }
 
 window.removeMediaItem = function(url) {

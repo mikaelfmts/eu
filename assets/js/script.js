@@ -1,5 +1,8 @@
 // ==================== SISTEMA DE CACHE E RATE LIMITING PARA GITHUB API ====================
 
+// Importar sistema centralizado de rate limiting
+import { gitHubAPI } from './github-rate-limit.js';
+
 // Configuração de cache e rate limiting (mantida para compatibilidade)
 const GITHUB_CACHE_CONFIG = {
     PROFILE_CACHE_KEY: 'github_profile_cache',

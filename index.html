@@ -18,6 +18,7 @@
     
     <!-- Estilos -->
     <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/reports-styles.css">
     <link rel="stylesheet" href="assets/css/minerva-styles.css">
 
     <!-- Font Awesome para os ícones -->
@@ -26,6 +27,7 @@
     <!-- Script Principal como Módulo -->
     <script type="module" src="assets/js/script.js"></script>
     <script type="module" src="assets/js/media-index.js"></script>
+    <script type="module" src="assets/js/reports-index.js"></script>
     <script type="module" src="assets/js/minerva-assistant.js"></script>
     <script src="assets/js/page-control.js"></script>
     
@@ -100,6 +102,46 @@
             React <i class="fab fa-react"></i>
         </h2>
     </header>
+
+    <!-- Seção de Relatórios Recentes -->
+    <section id="recent-reports" class="media-section">
+        <div class="container">
+            <h2 class="section-title">
+                <i class="fas fa-chart-line"></i>
+                Recent Reports
+            </h2>
+            <div id="recent-reports-loading" class="loading-indicator">
+                <div class="loader"></div>
+                <p>Carregando relatórios recentes...</p>
+            </div>
+            <div id="recent-reports-grid" class="recent-media-grid">
+                <!-- Relatórios recentes serão carregados aqui -->
+            </div>
+            <div class="view-all-link">
+                <a href="pages/relatorios-galeria.html" class="btn-view-all">
+                    <i class="fas fa-external-link-alt"></i>
+                    Ver Todos os Relatórios
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Relatórios em Destaque -->
+    <section id="featured-reports" class="media-section">
+        <div class="container">
+            <h2 class="section-title">
+                <i class="fas fa-star"></i>
+                Featured Reports
+            </h2>
+            <div id="featured-reports-loading" class="loading-indicator">
+                <div class="loader"></div>
+                <p>Carregando relatórios em destaque...</p>
+            </div>
+            <div id="featured-reports-container" class="featured-media-container">
+                <!-- Relatórios em destaque serão carregados aqui -->
+            </div>
+        </div>
+    </section>
 
     <!-- Seção de Posts Recentes da Galeria -->
     <section id="recent-media" class="media-section">

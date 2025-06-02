@@ -511,7 +511,19 @@
                 };
                 
                 // Tentar obter foto do cache primeiro
-                const cachedUser = getCacheItem('github_user_data');
+                let cachedUser = null;
+                try {
+                    const cached = localStorage.getItem('github_user_data');
+                    if (cached) {
+                        const parsedCache = JSON.parse(cached);
+                        if (parsedCache && parsedCache.timestamp && (Date.now() - parsedCache.timestamp < 30 * 60 * 1000)) {
+                            cachedUser = parsedCache.data;
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Erro ao acessar cache:', error);
+                }
+                
                 if (cachedUser && cachedUser.avatar_url) {
                     console.log('✅ Usando foto do cache');
                     applyPhoto(cachedUser.avatar_url);
@@ -949,24 +961,6 @@
             <a href="https://github.com/mikaelfmts" target="_blank" class="social-btn github">
                 <i class="fab fa-github"></i>
             </a>
-        </div>
-    </section>
-
-    <!-- GitHub Profile Section -->
-    <section id="github-profile-section" style="margin: 3rem 0; padding: 2rem;">
-        <h2 style="text-align: center; color: #f7fafc; font-size: 2.5rem; margin-bottom: 2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">Meu Perfil GitHub</h2>
-        <div id="github-profile" class="github-profile-container" style="max-width: 800px; margin: 0 auto;">
-            <!-- O conteúdo será preenchido pelo JavaScript -->
-            <div class="loader" style="margin: 2rem auto; display: block;"></div>
-        </div>
-    </section>
-
-    <!-- GitHub Repos Section -->
-    <section id="github-repos-section" style="margin: 3rem 0; padding: 2rem;">
-        <h2 style="text-align: center; color: #f7fafc; font-size: 2.5rem; margin-bottom: 2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">Meus Repositórios GitHub</h2>
-        <div id="github-repos" class="github-repos-container" style="max-width: 1200px; margin: 0 auto;">
-            <!-- O conteúdo será preenchido pelo JavaScript -->
-            <div class="loader" style="margin: 2rem auto; display: block;"></div>
         </div>
     </section>
 

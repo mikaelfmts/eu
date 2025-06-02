@@ -579,8 +579,10 @@ async function analyzeSkillsFromRepos(username) {
     try {
         // Buscar repositórios do usuário
         const repos = await getGitHubData('repos');
-        if (!repos || repos.length === 0) {
-            console.warn('❌ Nenhum repositório encontrado para análise');
+        
+        // Verificar se repos é um array válido
+        if (!repos || !Array.isArray(repos) || repos.length === 0) {
+            console.warn('❌ Nenhum repositório encontrado para análise ou dados inválidos');
             generateFallbackSkills();
             return;
         }
@@ -1346,6 +1348,31 @@ function debugGitHubRepos() {
     console.log('Rate limit info:', rateLimit);
     
     console.log('=== FIM DEBUG ===');
+}
+
+// Função para limpar cache de skills
+function clearSkillsCache() {
+    console.log('🧹 Limpando cache de skills...');
+    
+    try {
+        // Limpar cache relacionado a skills/habilidades
+        localStorage.removeItem('github_skills_cache');
+        localStorage.removeItem('skills_analysis_cache');
+        localStorage.removeItem(GITHUB_CACHE_CONFIG.REPOS_CACHE_KEY);
+        localStorage.removeItem(GITHUB_CACHE_CONFIG.PROFILE_CACHE_KEY);
+        
+        console.log('✅ Cache de skills limpo com sucesso');
+        
+        // Mostrar notificação se a função existir
+        if (typeof showNotification === 'function') {
+            showNotification('Cache limpo! Recarregando página...', 'success');
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('❌ Erro ao limpar cache:', error);
+        return false;
+    }
 }
 
 // Expor funções de debug globalmente

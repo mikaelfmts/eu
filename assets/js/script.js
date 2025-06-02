@@ -1,6 +1,3 @@
-// Importar sistema centralizado de rate limiting
-import { gitHubAPI, GITHUB_CONFIG } from './github-rate-limit.js';
-
 // ==================== SISTEMA DE CACHE E RATE LIMITING PARA GITHUB API ====================
 
 // Configuração de cache e rate limiting (mantida para compatibilidade)
@@ -418,6 +415,55 @@ window.addEventListener('load', () => {
         ensureReposDisplay(); // Garantir que os repos sejam exibidos
     }, 500); // Aumentei o tempo de 100ms para 500ms
 });
+
+// Função para garantir que os repositórios sejam exibidos
+function ensureReposDisplay() {
+    const reposElement = document.getElementById('github-repos');
+    
+    if (!reposElement) {
+        console.warn('⚠️ Elemento github-repos não encontrado');
+        return;
+    }
+    
+    // Se o elemento está vazio ou só tem loading, tentar recarregar
+    if (!reposElement.innerHTML.trim() || reposElement.innerHTML.includes('Carregando')) {
+        console.log('🔄 Tentando recarregar repositórios...');
+        
+        // Verificar se há dados em cache
+        const cachedRepos = getCacheItem(GITHUB_CACHE_CONFIG.REPOS_CACHE_KEY);
+        
+        if (cachedRepos && cachedRepos.length > 0) {
+            console.log('📦 Usando dados do cache para repositórios');
+            displayRepositories(cachedRepos);
+        } else {
+            console.log('🌐 Fazendo nova requisição para repositórios');
+            // Se não há cache, fazer nova requisição
+            fetchGitHubRepositories().then(repos => {
+                if (repos && repos.length > 0) {
+                    displayRepositories(repos);
+                }
+            }).catch(error => {
+                console.error('❌ Erro ao buscar repositórios:', error);
+            });
+        }
+    }
+    
+    // Remover classe de loading se ainda estiver presente
+    reposElement.classList.remove('loading');
+}
+
+// Função para exibir repositórios
+function displayRepositories(repos) {
+    console.log('🎨 Exibindo repositórios:', repos);
+    
+    if (!Array.isArray(repos) || repos.length === 0) {
+        console.warn('❌ Dados de repositórios inválidos para exibição');
+        return;
+    }
+    
+    // Usar a função existente updateGitHubRepos que já tem a estilização premium
+    updateGitHubRepos(repos);
+}
 
 // Função para buscar dados do GitHub
 async function fetchGitHubData() {
@@ -1276,6 +1322,31 @@ window.toggleChat = toggleChat;
 window.setUserName = setUserName;
 window.sendMessage = sendMessage;
 window.toggleTheme = toggleTheme;
+
+// Função de debug para repositórios GitHub
+function debugGitHubRepos() {
+    console.log('=== DEBUG GITHUB REPOS ===');
+    
+    // Verificar se o elemento existe
+    const reposElement = document.getElementById('github-repos');
+    console.log('Elemento github-repos:', reposElement);
+    
+    if (reposElement) {
+        console.log('HTML atual:', reposElement.innerHTML);
+        console.log('Classes:', reposElement.className);
+        console.log('Estilo display:', window.getComputedStyle(reposElement).display);
+    }
+    
+    // Verificar cache
+    const cachedRepos = getCacheItem(GITHUB_CACHE_CONFIG.REPOS_CACHE_KEY);
+    console.log('Cache de repos:', cachedRepos);
+    
+    // Verificar rate limit
+    const rateLimit = localStorage.getItem(GITHUB_CACHE_CONFIG.RATE_LIMIT_KEY);
+    console.log('Rate limit info:', rateLimit);
+    
+    console.log('=== FIM DEBUG ===');
+}
 
 // Expor funções de debug globalmente
 window.debugGitHubRepos = debugGitHubRepos;

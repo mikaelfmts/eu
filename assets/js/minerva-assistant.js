@@ -106,7 +106,7 @@ class MinervaUltraAssistant {    constructor() {
     }    init() {
         this.createMinervaUI();
         this.setupEventListeners();
-        this.setupAdvancedFeatures();
+        // this.setupAdvancedFeatures(); // Função não implementada
         this.startAmbientAnimation();
           // Inicializar dados do GitHub de forma assíncrona
         this.enrichKnowledgeWithGitHub()

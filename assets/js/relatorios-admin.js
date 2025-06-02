@@ -1,5 +1,5 @@
 // relatorios-admin.js - Sistema de administração de relatórios
-import { auth, db } from './firebase-config.js';
+import { auth, db, storage } from './firebase-config.js';
 import { 
     collection, 
     addDoc, 
@@ -8,13 +8,14 @@ import {
     updateDoc, 
     deleteDoc, 
     getDoc,
-    setDoc,
+        setDoc,
     query, 
     orderBy, 
     serverTimestamp,
     where
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js";
 
 // Variáveis globais
 let currentUser = null;
@@ -43,6 +44,14 @@ function setupEventListeners() {
         button.addEventListener('click', () => {
             const tab = button.dataset.tab;
             showTab(tab);
+        });
+    });
+
+    // Controle de origem do relatório (URL vs Arquivo)
+    const sourceRadios = document.querySelectorAll('input[name="source-type"]');
+    sourceRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            toggleSourceType(e.target.value);
         });
     });
 
@@ -105,37 +114,134 @@ function showTab(tabName) {
         loadReports();
     } else if (tabName === 'destaque') {
         loadFeaturedReports();
-        loadFeaturedReportsSelect();
+        loadFeaturedReportsSelect();    }
+}
+
+function toggleSourceType(type) {
+    const urlSection = document.getElementById('url-section');
+    const fileSection = document.getElementById('file-section');
+    const urlInput = document.getElementById('report-url');
+    const fileInput = document.getElementById('report-file');
+
+    if (type === 'url') {
+        urlSection.style.display = 'block';
+        fileSection.style.display = 'none';
+        urlInput.required = true;
+        fileInput.required = false;
+    } else {
+        urlSection.style.display = 'none';
+        fileSection.style.display = 'block';
+        urlInput.required = false;
+        fileInput.required = true;
+    }
+}
+
+async function uploadFile(file) {
+    const progressContainer = document.getElementById('upload-progress');
+    const progressBar = document.getElementById('upload-bar');
+    const progressPercent = document.getElementById('upload-percent');
+    
+    try {
+        progressContainer.style.display = 'block';
+        
+        // Criar referência única no Firebase Storage
+        const timestamp = Date.now();
+        const fileName = `reports/${timestamp}_${file.name}`;
+        const storageRef = ref(storage, fileName);
+        
+        // Upload do arquivo
+        const uploadTask = uploadBytes(storageRef, file);
+        
+        // Simular progresso (Firebase não fornece progresso real para uploadBytes)
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += 10;
+            if (progress <= 90) {
+                progressBar.style.width = progress + '%';
+                progressPercent.textContent = progress + '%';
+            }
+        }, 100);
+        
+        const snapshot = await uploadTask;
+        
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        progressPercent.textContent = '100%';
+        
+        // Obter URL de download
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        
+        setTimeout(() => {
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+            progressPercent.textContent = '0%';
+        }, 1000);
+        
+        return downloadURL;
+        
+    } catch (error) {
+        progressContainer.style.display = 'none';
+        throw error;
     }
 }
 
 async function handleReportSubmit(event) {
     event.preventDefault();
     
-    const formData = new FormData(event.target);
-    const reportData = {
-        title: formData.get('title').trim(),
-        description: formData.get('description').trim(),
-        type: formData.get('type'),
-        embedUrl: formData.get('embedUrl').trim(),
-        visible: formData.get('visible') === 'on',
-        createdAt: serverTimestamp(),
-        createdBy: currentUser.uid
-    };
-
-    if (!reportData.title || !reportData.type || !reportData.embedUrl) {
-        showError('Título, tipo e URL são obrigatórios');
-        return;
-    }
-
-    showLoading('Criando relatório...');
-
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>Criando...';
+    submitButton.disabled = true;
+    
     try {
+        const formData = new FormData(event.target);
+        const sourceType = document.querySelector('input[name="source-type"]:checked').value;
+        
+        let embedUrl = '';
+        
+        if (sourceType === 'url') {
+            embedUrl = formData.get('embedUrl').trim();
+            if (!embedUrl) {
+                throw new Error('URL do relatório é obrigatória');
+            }
+        } else {
+            const file = formData.get('file');
+            if (!file || file.size === 0) {
+                throw new Error('Arquivo é obrigatório');
+            }
+            
+            // Validar tamanho do arquivo (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                throw new Error('Arquivo muito grande. Máximo permitido: 10MB');
+            }
+            
+            // Upload do arquivo
+            embedUrl = await uploadFile(file);
+        }
+        
+        const reportData = {
+            title: formData.get('title').trim(),
+            description: formData.get('description').trim(),
+            type: formData.get('type'),
+            embedUrl: embedUrl,
+            sourceType: sourceType,
+            visible: formData.get('visible') === 'on',
+            createdAt: serverTimestamp(),
+            createdBy: currentUser.uid        };
+
+        if (!reportData.title || !reportData.type || !reportData.embedUrl) {
+            throw new Error('Título, tipo e origem do relatório são obrigatórios');
+        }
+
         await addDoc(collection(db, 'relatorios_posts'), reportData);
         showSuccess('Relatório criado com sucesso!');
         
         // Limpar formulário
         event.target.reset();
+        
+        // Resetar para URL como padrão
+        document.querySelector('input[name="source-type"][value="url"]').checked = true;
+        toggleSourceType('url');
         
         // Recarregar lista se estiver na aba de gerenciar
         if (!document.getElementById('gerenciar-tab').classList.contains('hidden')) {
@@ -144,9 +250,10 @@ async function handleReportSubmit(event) {
         
     } catch (error) {
         console.error('Erro ao criar relatório:', error);
-        showError('Erro ao criar relatório');
+        showError(error.message || 'Erro ao criar relatório');
     } finally {
-        hideLoading();
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
     }
 }
 

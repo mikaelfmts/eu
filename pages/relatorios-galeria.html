@@ -198,8 +198,7 @@
             margin-bottom: 1rem;
             opacity: 0.5;
         }
-        
-        @media (max-width: 768px) {
+          @media (max-width: 768px) {
             .reports-gallery-title {
                 font-size: 2rem;
             }
@@ -211,6 +210,92 @@
             .reports-grid {
                 grid-template-columns: 1fr;
                 gap: 1rem;
+            }
+        }
+
+        /* Modal styles */
+        .report-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .report-modal-content {
+            background: var(--background-dark);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            width: 95vw;
+            height: 90vh;
+            max-width: 1200px;
+            max-height: 800px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .report-modal-header {
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(30, 35, 40, 0.9), rgba(60, 60, 65, 0.8));
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .report-modal-header h2 {
+            color: var(--primary-color);
+            font-family: 'Marcellus', serif;
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .report-modal-close {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .report-modal-close:hover {
+            background: #b91c1c;
+            transform: scale(1.05);
+        }
+
+        .report-modal-body {
+            flex: 1;
+            position: relative;
+        }
+
+        .report-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        @media (max-width: 768px) {
+            .report-modal-content {
+                width: 98vw;
+                height: 95vh;
+            }
+            
+            .report-modal-header h2 {
+                font-size: 1rem;
             }
         }
     </style>
@@ -454,27 +539,45 @@
                 const filteredReports = allReports.filter(report => report.type === type);
                 renderReports(filteredReports);
             }
-        }
-
-        // Função global para abrir relatórios
+        }        // Função global para abrir relatórios
         window.openReport = function(report) {
             // Criar modal para exibir o relatório
             const modal = document.createElement('div');
             modal.className = 'report-modal';
+            
+            let iframeContent = '';
+            
+            // Verificar se é arquivo uploadado ou URL externa
+            if (report.sourceType === 'file') {
+                // Para arquivos PDF, usar visualizador do navegador
+                if (report.embedUrl.includes('.pdf')) {
+                    iframeContent = `<iframe src="${report.embedUrl}" frameborder="0" class="report-iframe"></iframe>`;
+                } else {
+                    // Para outros tipos de arquivo, abrir em nova aba
+                    window.open(report.embedUrl, '_blank');
+                    return;
+                }
+            } else {
+                // URL externa
+                iframeContent = `<iframe src="${report.embedUrl}" frameborder="0" allowfullscreen class="report-iframe"></iframe>`;
+            }
+            
             modal.innerHTML = `
                 <div class="report-modal-content">
                     <div class="report-modal-header">
                         <h2>${report.title}</h2>
-                        <button class="report-modal-close" onclick="closeReportModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button onclick="window.open('${report.embedUrl}', '_blank')" 
+                                    style="background: var(--primary-color); color: #1e2328; border: none; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer;">
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
+                            <button class="report-modal-close" onclick="closeReportModal()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="report-modal-body">
-                        <iframe src="${report.embedUrl}" 
-                                frameborder="0" 
-                                allowfullscreen 
-                                class="report-iframe">
-                        </iframe>
+                        ${iframeContent}
                     </div>
                 </div>
             `;

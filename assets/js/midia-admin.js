@@ -1193,6 +1193,79 @@ window.removeFeaturedMedia = async function(index) {
     }
 };
 
+async function handleFeaturedMediaUpload(event) {
+    const files = Array.from(event.target.files);
+    const uploadContainer = document.getElementById('featured-preview');
+    
+    if (!uploadContainer) return;
+
+    // Limpar preview anterior
+    uploadContainer.innerHTML = '';
+    uploadContainer.classList.remove('hidden');
+    
+    if (files.length === 0) return;
+
+    // Validar arquivos antes do upload
+    const validFiles = [];
+    
+    for (const file of files) {
+        try {
+            validateFile(file);
+            validFiles.push(file);
+        } catch (error) {
+            showError(`${file.name}: ${error.message}`);
+        }
+    }
+
+    if (validFiles.length === 0) {
+        showError('Nenhum arquivo válido selecionado');
+        return;
+    }
+
+    // Mostrar loading
+    showLoading(`Preparando upload de mídia em destaque...`);
+
+    try {
+        const file = validFiles[0]; // Pegamos apenas o primeiro arquivo para mídia em destaque
+        
+        showLoading(`Enviando ${file.name}...`);
+        
+        const mediaItem = await uploadMediaFile(file);
+        
+        // Criar preview
+        const previewElement = createMediaPreview(mediaItem);
+        uploadContainer.appendChild(previewElement);
+        
+        // Armazenar referência para uso posterior
+        featuredMediaItem = mediaItem;
+        
+        hideLoading();
+        showSuccess(`✅ Mídia em destaque enviada com sucesso!`);
+        
+    } catch (error) {
+        console.error(`Erro no upload da mídia em destaque:`, error);
+        showError(`Falha no upload: ${error.message}`);
+        hideLoading();
+    }
+}
+
+function clearFeaturedPreview() {
+    const uploadContainer = document.getElementById('featured-preview');
+    if (uploadContainer) {
+        uploadContainer.innerHTML = '';
+        uploadContainer.classList.add('hidden');
+    }
+    
+    // Limpar input de arquivo
+    const featuredInput = document.getElementById('featured-input');
+    if (featuredInput) {
+        featuredInput.value = '';
+    }
+    
+    // Resetar variável que armazena a mídia em destaque
+    featuredMediaItem = null;
+}
+
 // Funções utilitárias
 function showLoading(message = 'Carregando...') {
     console.log('Loading:', message);

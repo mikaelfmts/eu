@@ -16,10 +16,17 @@ async function checkPageStatus(pageId, redirectPath = '../index.html') {
     
     try {
         // Importar Firebase dinamicamente
-        const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js');
+        const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js');
         const { getFirestore, doc, onSnapshot } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
         
-        const app = initializeApp(pageControlFirebaseConfig);
+        // Verificar se o app já foi inicializado
+        let app;
+        const existingApps = getApps();
+        if (existingApps.length > 0) {
+            app = existingApps[0];
+        } else {
+            app = initializeApp(pageControlFirebaseConfig);
+        }
         const db = getFirestore(app);
         
         const pageControlRef = doc(db, 'configuracoes', 'controle-paginas');
@@ -708,10 +715,17 @@ function showOfflinePage(pageData, pageId) {
 async function checkMaintenanceStatus() {
     try {
         // Importar Firebase dinamicamente
-        const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js');
+        const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js');
         const { getFirestore, doc, onSnapshot } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
         
-        const app = initializeApp(pageControlFirebaseConfig);
+        // Verificar se o app já foi inicializado
+        let app;
+        const existingApps = getApps();
+        if (existingApps.length > 0) {
+            app = existingApps[0];
+        } else {
+            app = initializeApp(pageControlFirebaseConfig);
+        }
         const db = getFirestore(app);
         
         const maintenanceRef = doc(db, 'configuracoes', 'manutencao');
@@ -754,11 +768,16 @@ function checkMaintenanceFromLocal() {
 function initPageControl(pageId) {
     console.log(`Inicializando controle para página: ${pageId}`);
     
-    // Verificar manutenção geral primeiro
-    checkMaintenanceStatus();
-    
-    // Depois verificar status específico da página
-    checkPageStatus(pageId);
+    // Aplicar delay para garantir carregamento da página
+    setTimeout(() => {
+        // Verificar manutenção geral primeiro
+        checkMaintenanceStatus();
+        
+        // Depois verificar status específico da página
+        setTimeout(() => {
+            checkPageStatus(pageId);
+        }, 500);
+    }, 1000);
 }
 
 // Exportar função principal

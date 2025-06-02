@@ -298,23 +298,23 @@
         }
     </style>
 </head>
-<body>
-    <!-- Navegação Lateral -->
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <h2 style="font-family: 'Marcellus', serif; color: var(--primary-color); font-size: 1.5rem; letter-spacing: 2px;">NAVEGAÇÃO</h2>
-            <div style="width: 50px; height: 3px; background: linear-gradient(90deg, transparent, var(--primary-color), transparent); margin: 0.5rem auto;"></div>
-        </div>
+<body>    <!-- Foto do Usuário (Aciona o Menu) -->
+    <div class="foto-perfil" onclick="toggleMenu()">
+        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
+    </div>
+
+    <!-- Menu Lateral Oculto -->
+    <nav id="menu-lateral" class="menu-fechado">
         <ul>
-            <li><a href="../index.html"><i class="fas fa-home" style="margin-right: 15px; color: var(--primary-color);"></i> Home</a></li>
-            <li><a href="curriculum.html"><i class="fas fa-scroll" style="margin-right: 15px; color: var(--primary-color);"></i> Curriculum</a></li>
-            <li><a href="projetos.html"><i class="fas fa-code-branch" style="margin-right: 15px; color: var(--primary-color);"></i> All Uploaded Projects</a></li>
-            <li><a href="mentors.html"><i class="fas fa-users" style="margin-right: 15px; color: var(--primary-color);"></i> Mentors</a></li>
-            <li><a href="certificates-in-progress.html"><i class="fas fa-certificate" style="margin-right: 15px; color: var(--primary-color);"></i> Certificates in progress</a></li>
-            <li><a href="interactive-projects.html"><i class="fas fa-project-diagram" style="margin-right: 15px; color: var(--primary-color);"></i> Interactive Projects</a></li>
-            <li><a href="galeria-midia.html"><i class="fas fa-images" style="margin-right: 15px; color: var(--primary-color);"></i> Media Gallery</a></li>
-            <li><a href="relatorios-galeria.html"><i class="fas fa-chart-line" style="margin-right: 15px; color: var(--primary-color);"></i> Reports Gallery</a></li>
-            <li><a href="games.html"><i class="fas fa-gamepad" style="margin-right: 15px; color: var(--primary-color);"></i> Games</a></li>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="curriculum.html"><i class="fas fa-scroll"></i> Curriculum</a></li>
+            <li><a href="projetos.html"><i class="fas fa-code-branch"></i> All Uploaded Projects</a></li>
+            <li><a href="mentors.html"><i class="fas fa-users"></i> Mentors</a></li>
+            <li><a href="certificates-in-progress.html"><i class="fas fa-certificate"></i> Certificates in progress</a></li>
+            <li><a href="interactive-projects.html"><i class="fas fa-project-diagram"></i> Interactive Projects</a></li>
+            <li><a href="galeria-midia.html"><i class="fas fa-images"></i> Media Gallery</a></li>
+            <li><a href="relatorios-galeria.html"><i class="fas fa-chart-line"></i> Reports Gallery</a></li>
+            <li><a href="games.html"><i class="fas fa-gamepad"></i> Games</a></li>
         </ul>
 
         <!-- Bonequinho Dançante -->
@@ -323,12 +323,9 @@
                 <i class="fas fa-user-alt"></i>
             </a>
         </div>
-    </nav>
-
-    <!-- Conteúdo Principal -->
-    <div class="main-content">
-        <div class="reports-gallery-container">
-            <!-- Cabeçalho -->
+    </nav>    <!-- Conteúdo Principal -->
+    <main class="reports-gallery-container">
+        <!-- Cabeçalho -->
             <div class="reports-gallery-header">
                 <h1 class="reports-gallery-title">
                     <i class="fas fa-chart-line"></i>
@@ -600,12 +597,33 @@
                 modal.remove();
                 document.body.style.overflow = 'auto';
             }
-        };
-
-        // Fechar modal com ESC
+        };        // Fechar modal com ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeReportModal();
+            }
+        });        // Função para controlar o menu lateral
+        function toggleMenu() {
+            const menu = document.getElementById('menu-lateral');
+            menu.classList.toggle('menu-aberto');
+            menu.classList.toggle('menu-fechado');
+        }
+
+        // Fechar menu ao clicar fora
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('menu-lateral');
+            const fotoProfile = document.querySelector('.foto-perfil');
+            
+            if (!menu.contains(e.target) && !fotoProfile.contains(e.target)) {
+                menu.classList.remove('menu-aberto');
+                menu.classList.add('menu-fechado');
+            }
+        });
+
+        // Inicializar controle de página
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof initPageControl === 'function') {
+                initPageControl('relatorios-galeria');
             }
         });
     </script>

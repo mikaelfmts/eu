@@ -762,6 +762,9 @@
     </style>
 </head>
 <body>
+    <!-- Container de partículas -->
+    <div class="particles-container"></div>
+    
     <!-- Foto do Usuário (Agora Aciona o Menu) -->
     <div class="foto-perfil" onclick="toggleMenu()">
         <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
@@ -769,18 +772,16 @@
 
      <!-- Menu Lateral Oculto -->
     <nav id="menu-lateral" class="menu-fechado">
-        <div class="menu-header" style="padding: 1.5rem; text-align: center; margin-bottom: 1rem; border-bottom: 1px solid rgba(200, 170, 110, 0.2);">
-            <h2 style="font-family: 'Marcellus', serif; color: var(--primary-color); font-size: 1.5rem; letter-spacing: 2px;">NAVEGAÇÃO</h2>
-            <div style="width: 50px; height: 3px; background: linear-gradient(90deg, transparent, var(--primary-color), transparent); margin: 0.5rem auto;"></div>
-        </div>
         <ul>
-            <li><a href="../index.html"><i class="fas fa-home" style="margin-right: 15px; color: var(--primary-color);"></i> Home</a></li>
-            <li><a href="curriculum.html"><i class="fas fa-scroll" style="margin-right: 15px; color: var(--primary-color);"></i> Curriculum</a></li>
-            <li><a href="projetos.html"><i class="fas fa-code-branch" style="margin-right: 15px; color: var(--primary-color);"></i> All Uploaded Projects</a></li>
-            <li><a href="mentors.html"><i class="fas fa-users" style="margin-right: 15px; color: var(--primary-color);"></i> Mentors</a></li>
-            <li><a href="certificates-in-progress.html"><i class="fas fa-certificate" style="margin-right: 15px; color: var(--primary-color);"></i> Certificates in progress</a></li>
-            <li><a href="interactive-projects.html"><i class="fas fa-project-diagram" style="margin-right: 15px; color: var(--primary-color);"></i> Interactive Projects</a></li>
-            <li><a href="games.html"><i class="fas fa-gamepad" style="margin-right: 15px; color: var(--primary-color);"></i> Games</a></li>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="curriculum.html"><i class="fas fa-scroll"></i> Curriculum</a></li>
+            <li><a href="projetos.html"><i class="fas fa-code-branch"></i> All Uploaded Projects</a></li>
+            <li><a href="mentors.html"><i class="fas fa-users"></i> Mentors</a></li>
+            <li><a href="certificates-in-progress.html"><i class="fas fa-certificate"></i> Certificates in progress</a></li>
+            <li><a href="interactive-projects.html"><i class="fas fa-project-diagram"></i> Interactive Projects</a></li>
+            <li><a href="galeria-midia.html"><i class="fas fa-images"></i> Media Gallery</a></li>
+            <li><a href="relatorios-galeria.html"><i class="fas fa-chart-line"></i> Reports Gallery</a></li>
+            <li><a href="games.html"><i class="fas fa-gamepad"></i> Games</a></li>
         </ul>
 
         <!-- Bonequinho Dançante -->
@@ -895,6 +896,79 @@
 
         // Sincronizar foto do perfil ao carregar a página
         document.addEventListener('DOMContentLoaded', syncProfilePhoto);
+    </script>
+
+    <!-- Sistema de Partículas -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const particlesContainer = document.querySelector('.particles-container');
+            
+            // Função para criar partículas
+            function createParticle() {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Tipos de partículas com cores temáticas
+                const types = ['golden', 'light', 'dark'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                particle.classList.add(type);
+                
+                // Tamanho aleatório
+                const size = Math.random() * 4 + 2;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                
+                // Posição horizontal aleatória
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.bottom = '-10px';
+                
+                // Animação de movimento
+                const duration = Math.random() * 15000 + 10000; // 10-25 segundos
+                const drift = (Math.random() - 0.5) * 100; // deriva horizontal
+                
+                particle.style.animationDuration = duration + 'ms';
+                particle.style.setProperty('--drift', drift + 'px');
+                
+                particlesContainer.appendChild(particle);
+                
+                // Remover partícula após animação
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, duration);
+            }
+            
+            // Criar partículas em intervalos
+            setInterval(createParticle, 300);
+            
+            // CSS para animação das partículas
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes floatUp {
+                    0% {
+                        transform: translateY(0) translateX(0) rotate(0deg);
+                        opacity: 0;
+                    }
+                    10% {
+                        opacity: 1;
+                    }
+                    90% {
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translateY(-100vh) translateX(var(--drift, 0)) rotate(360deg);
+                        opacity: 0;
+                    }
+                }
+                
+                .particle {
+                    animation: floatUp linear;
+                    position: absolute;
+                }
+            `;
+            document.head.appendChild(style);
+        });
     </script>
 
     <!-- Minerva Assistant -->

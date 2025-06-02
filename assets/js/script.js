@@ -195,6 +195,52 @@ async function getGitHubData(type, forceRefresh = false) {
     return null;
 }
 
+// Função para buscar dados do perfil do GitHub
+async function fetchGitHubProfile(username) {
+    console.log(`👤 Buscando perfil do GitHub para: ${username}`);
+    
+    try {
+        const profileData = await getGitHubData('profile');
+        
+        if (profileData) {
+            console.log('✅ Perfil obtido com sucesso:', profileData.name || profileData.login);
+            updateGitHubProfile(profileData);
+        } else {
+            console.warn('⚠️ Nenhum dado de perfil encontrado');
+            // Usar dados de fallback
+            updateGitHubProfile(GITHUB_FALLBACK_DATA.profile);
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro ao buscar perfil:', error);
+        // Usar dados de fallback em caso de erro
+        updateGitHubProfile(GITHUB_FALLBACK_DATA.profile);
+    }
+}
+
+// Função para buscar repositórios do GitHub
+async function fetchGitHubRepositories(username) {
+    console.log(`📚 Buscando repositórios do GitHub para: ${username}`);
+    
+    try {
+        const repos = await getGitHubData('repos');
+        
+        if (repos && Array.isArray(repos)) {
+            console.log(`✅ ${repos.length} repositórios obtidos com sucesso`);
+            updateGitHubRepos(repos);
+        } else {
+            console.warn('⚠️ Nenhum repositório encontrado');
+            // Usar dados de fallback
+            updateGitHubRepos(GITHUB_FALLBACK_DATA.repos);
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro ao buscar repositórios:', error);
+        // Usar dados de fallback em caso de erro
+        updateGitHubRepos(GITHUB_FALLBACK_DATA.repos);
+    }
+}
+
 // Função duplicada removida - usando apenas a versão melhorada acima
 
 // Função para sincronizar foto do perfil com GitHub API
@@ -441,6 +487,155 @@ async function fetchGitHubData() {
     }, 2000);
 }
 
+// Função para obter dados do cache de skills
+function getFromCache() {
+    try {
+        const cacheKey = 'github-skills-cache';
+        const cached = localStorage.getItem(cacheKey);
+        if (!cached) return null;
+        
+        const data = JSON.parse(cached);
+        const now = Date.now();
+        
+        // Cache válido por 1 hora (3600000 ms)
+        if (now - data.timestamp > 3600000) {
+            localStorage.removeItem(cacheKey);
+            return null;
+        }
+        
+        console.log('📂 Cache de skills encontrado e válido');
+        return data.skills;
+    } catch (error) {
+        console.warn('⚠️ Erro ao ler cache de skills:', error);
+        return null;
+    }
+}
+
+// Função para salvar dados no cache de skills
+function saveToCache(skillsData) {
+    try {
+        const cacheKey = 'github-skills-cache';
+        const data = {
+            skills: skillsData,
+            timestamp: Date.now()
+        };
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+        console.log('💾 Skills salvas no cache com sucesso');
+    } catch (error) {
+        console.warn('⚠️ Erro ao salvar cache de skills:', error);
+    }
+}
+
+// Função para analisar habilidades a partir dos repositórios
+async function analyzeSkillsFromRepos(username) {
+    console.log(`🔍 Analisando habilidades dos repositórios de ${username}...`);
+    
+    try {
+        // Buscar repositórios do usuário
+        const repos = await getGitHubData('repos');
+        if (!repos || repos.length === 0) {
+            console.warn('❌ Nenhum repositório encontrado para análise');
+            generateFallbackSkills();
+            return;
+        }
+        
+        console.log(`📚 Encontrados ${repos.length} repositórios para análise`);
+        
+        // Inicializar contadores
+        const languageStats = {};
+        const technologyStats = {
+            'Firebase': 0,
+            'Git': 15, // Base para controle de versão
+            'GitHub': 10, // Base para hospedagem
+            'VS Code': 8, // Editor padrão
+            'API REST': 5 // Base para desenvolvimento web
+        };
+        let totalBytes = 0;
+        
+        // Analisar cada repositório
+        for (const repo of repos) {
+            // Analisar linguagem principal
+            if (repo.language) {
+                languageStats[repo.language] = (languageStats[repo.language] || 0) + (repo.size || 1024);
+                totalBytes += (repo.size || 1024);
+                
+                // Inferir tecnologias baseadas na linguagem
+                if (repo.language === 'JavaScript') {
+                    technologyStats['Node.js'] = (technologyStats['Node.js'] || 0) + 10;
+                    technologyStats['HTML'] = (technologyStats['HTML'] || 0) + 8;
+                    technologyStats['CSS'] = (technologyStats['CSS'] || 0) + 8;
+                } else if (repo.language === 'Python') {
+                    technologyStats['Flask'] = (technologyStats['Flask'] || 0) + 5;
+                    technologyStats['Django'] = (technologyStats['Django'] || 0) + 3;
+                } else if (repo.language === 'HTML') {
+                    technologyStats['CSS'] = (technologyStats['CSS'] || 0) + 10;
+                    technologyStats['Bootstrap'] = (technologyStats['Bootstrap'] || 0) + 5;
+                }
+            }
+            
+            // Analisar nome e descrição para inferir tecnologias
+            const repoText = `${repo.name} ${repo.description || ''}`.toLowerCase();
+            
+            if (repoText.includes('firebase')) technologyStats['Firebase'] += 15;
+            if (repoText.includes('react')) technologyStats['React'] = (technologyStats['React'] || 0) + 12;
+            if (repoText.includes('vue')) technologyStats['Vue.js'] = (technologyStats['Vue.js'] || 0) + 12;
+            if (repoText.includes('angular')) technologyStats['Angular'] = (technologyStats['Angular'] || 0) + 12;
+            if (repoText.includes('node')) technologyStats['Node.js'] = (technologyStats['Node.js'] || 0) + 10;
+            if (repoText.includes('api')) technologyStats['API REST'] += 8;
+            if (repoText.includes('portfolio') || repoText.includes('site')) {
+                technologyStats['HTML'] = (technologyStats['HTML'] || 0) + 10;
+                technologyStats['CSS'] = (technologyStats['CSS'] || 0) + 10;
+                technologyStats['JavaScript'] = (technologyStats['JavaScript'] || 0) + 10;
+            }
+            if (repoText.includes('bot')) {
+                technologyStats['Node.js'] = (technologyStats['Node.js'] || 0) + 8;
+                technologyStats['API REST'] += 5;
+            }
+            if (repoText.includes('backend')) {
+                technologyStats['Node.js'] = (technologyStats['Node.js'] || 0) + 12;
+                technologyStats['API REST'] += 10;
+                technologyStats['Express.js'] = (technologyStats['Express.js'] || 0) + 8;
+            }
+        }
+        
+        // Garantir que JavaScript esteja presente se houver repos JS
+        if (languageStats['JavaScript'] && !technologyStats['JavaScript']) {
+            languageStats['JavaScript'] = languageStats['JavaScript'] || totalBytes * 0.4;
+        }
+        
+        // Se não houver dados suficientes, usar fallback
+        if (Object.keys(languageStats).length === 0 && totalBytes === 0) {
+            console.log('⚠️ Dados insuficientes da API, usando habilidades de fallback');
+            generateFallbackSkills();
+            return;
+        }
+        
+        // Garantir um total mínimo de bytes
+        if (totalBytes < 50000) {
+            totalBytes = 150000; // 150KB mínimo
+        }
+        
+        console.log('📊 Estatísticas analisadas:');
+        console.log('- Linguagens:', languageStats);
+        console.log('- Tecnologias:', technologyStats);
+        console.log('- Total bytes:', totalBytes);
+        
+        // Gerar cartões de habilidades
+        createSkillCards(languageStats, technologyStats, totalBytes, false);
+        
+        // Salvar no cache
+        saveToCache({ languageStats, technologyStats, totalBytes });
+        
+        console.log('✅ Análise de habilidades concluída com sucesso!');
+        
+    } catch (error) {
+        console.error('❌ Erro ao analisar habilidades dos repositórios:', error);
+        console.log('🔄 Fallback para habilidades padrão...');
+        generateFallbackSkills();
+    }
+}
+
+// Função para usar dados de fallback
 function useFallbackData() {
     console.log('📊 Iniciando useFallbackData com dados REAIS do mikaelfmts...');
     
@@ -1433,7 +1628,7 @@ function toggleChat() {
 
 // Detectar dispositivo móvel para desativar efeitos pesados
 function isMobile() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    return /Android|webOS|iPhone|iPad|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
 if (isMobile()) {
@@ -1729,7 +1924,7 @@ function initCalculator() {
     }
 
     function handleBackspace() {
-        if (calculator.displayValue.length > 1) {
+               if (calculator.displayValue.length > 1) {
             calculator.displayValue = calculator.displayValue.slice(0, -1);
         } else {
             calculator.displayValue = '0';
@@ -1951,7 +2146,7 @@ function initSnakeGame() {
             case 2: // Médio
                 speed = 130;
                 break;
-            case 3: // Difícil
+                       case 3: // Difícil
                 speed = 80;
                 break;
         }
@@ -2464,426 +2659,6 @@ function initCodeEditor() {
 
 // ==================== SISTEMA DE ANÁLISE DE SKILLS AUTOMÁTICO ====================
 
-// Função para formatar bytes
-function formatBytes(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-}
-
-// Cache para GitHub API
-const GITHUB_CACHE = {
-    profile: { key: 'github_profile_cache', duration: 60 * 60 * 1000 }, // 1 hora
-    repos: { key: 'github_repos_cache', duration: 30 * 60 * 1000 },    // 30 minutos
-    userData: { key: 'github_user_cache', duration: 60 * 60 * 1000 }   // 1 hora
-};
-
-function getConfigCacheItem(cacheConfig) {
-    try {
-        const cached = localStorage.getItem(cacheConfig.key);
-        if (!cached) return null;
-        
-        const { data, timestamp } = JSON.parse(cached);
-        if (Date.now() - timestamp > cacheConfig.duration) {
-            localStorage.removeItem(cacheConfig.key);
-            return null;
-        }
-        
-        return data;
-    } catch {
-        return null;
-    }
-}
-
-function setConfigCacheItem(cacheConfig, data) {
-    try {
-        const cache = { data, timestamp: Date.now() };
-        localStorage.setItem(cacheConfig.key, JSON.stringify(cache));
-    } catch (error) {
-        console.warn('Erro ao salvar cache:', error);
-    }
-}
-
-// Função para buscar perfil do GitHub com fallback melhorado
-async function fetchGitHubProfile(username = 'mikaelfmts') {
-    console.log('🔍 Buscando perfil do GitHub para:', username);
-    
-    try {
-        const profileData = await getGitHubData('profile');
-        console.log('✅ Perfil obtido:', profileData.name);
-        
-        updateGitHubProfile(profileData);
-        return profileData;
-    } catch (error) {
-        console.error('❌ Erro ao buscar perfil do GitHub:', error);
-        
-        // Em caso de erro, usar os dados de fallback
-        updateGitHubProfile(GITHUB_FALLBACK_DATA.profile);
-        return GITHUB_FALLBACK_DATA.profile;
-    }
-}
-
-// Função para buscar repositórios do GitHub
-// Função para buscar repositórios do GitHub com fallback melhorado
-async function fetchGitHubRepositories(username = 'mikaelfmts') {
-    console.log('🔍 Buscando repositórios do GitHub para:', username);
-    
-    try {
-        const reposData = await getGitHubData('repos');
-        console.log('✅ Repositórios obtidos:', reposData.length);
-        
-        updateGitHubRepos(reposData);
-        return reposData;
-    } catch (error) {
-        console.error('❌ Erro ao buscar repositórios do GitHub:', error);
-        
-        // Em caso de erro, usar os dados de fallback
-        updateGitHubRepos(GITHUB_FALLBACK_DATA.repos);
-        return GITHUB_FALLBACK_DATA.repos;
-    }
-}
-
-// Função para analisar habilidades dos repositórios do GitHub
-async function analyzeSkillsFromRepos(username) {
-    console.log('🧪 Iniciando análise de habilidades técnicas...');
-    try {
-        // Buscar repositórios (ou usar os que já foram obtidos)
-        const repos = await fetchGitHubRepositories(username);
-        
-        if (!repos || repos.length === 0) {
-            throw new Error('Nenhum repositório encontrado para análise');
-        }
-        
-        // Estatísticas de linguagens e tecnologias
-        const languageStats = {};
-        const technologyStats = {};
-        let totalBytes = 0;
-        
-        // Para cada repositório, obtemos as linguagens usadas
-        await Promise.all(repos.map(async (repo) => {
-            try {
-                // Se o repo já tem uma linguagem definida, podemos usar
-                if (repo.language) {
-                    // Incrementar a contagem desta linguagem
-                    languageStats[repo.language] = (languageStats[repo.language] || 0) + 1000; // peso arbitrário
-                    totalBytes += 1000;
-                }
-                
-                // Tentar obter estatísticas detalhadas de linguagens
-                const langResponse = await makeGitHubRequest(`https://api.github.com/repos/${username}/${repo.name}/languages`);
-                
-                const languages = await langResponse.json();
-                
-                // Adicionar bytes de cada linguagem
-                Object.entries(languages).forEach(([lang, bytes]) => {
-                    languageStats[lang] = (languageStats[lang] || 0) + bytes;
-                    totalBytes += bytes;
-                });
-                
-                // Analisar descrição e nome para tecnologias
-                const repoText = (repo.description || '') + ' ' + repo.name;
-                
-                // Lista de tecnologias para detectar
-                const techKeywords = {
-                    'React': ['react', 'jsx', 'tsx', 'reactjs'],
-                    'Node.js': ['node', 'nodejs', 'express', 'npm'],
-                    'Firebase': ['firebase', 'firestore', 'realtime database'],
-                    'Database': ['sql', 'mysql', 'postgresql', 'mongodb', 'database', 'db'],
-                    'API': ['api', 'rest', 'graphql', 'endpoint'],
-                    'Web': ['web', 'website', 'site', 'landing'],
-                    'UI/UX': ['ui', 'ux', 'interface', 'design', 'responsive'],
-                    'Bootstrap': ['bootstrap', 'responsive'],
-                    'Authentication': ['auth', 'login', 'jwt', 'token'],
-                    'Local Storage': ['storage', 'localstorage', 'sessionstorage'],
-                    'Mobile': ['mobile', 'responsive', 'app'],
-                    'Git': ['git', 'github', 'versão', 'version'],
-                    'Frontend': ['frontend', 'front-end', 'client'],
-                    'Backend': ['backend', 'back-end', 'server', 'servidor'],
-                    'Full Stack': ['fullstack', 'full-stack', 'full stack'],
-                    'Progressive Web Apps': ['pwa', 'progressive', 'offline'],
-                    'Responsive Design': ['responsive', 'mobile-first', 'adaptativo'],
-                    'GitHub API': ['github api', 'api do github'],
-                    'Web APIs': ['api', 'fetch', 'ajax', 'xmlhttprequest']
-                };
-                
-                // Procurar por tecnologias no texto
-                Object.entries(techKeywords).forEach(([tech, keywords]) => {
-                    keywords.forEach(keyword => {
-                        if (repoText.toLowerCase().includes(keyword.toLowerCase())) {
-                            technologyStats[tech] = (technologyStats[tech] || 0) + 10;
-                        }
-                    });
-                });
-                
-                // Verificar arquivo package.json para dependências
-                try {
-                    const contentResponse = await makeGitHubRequest(`https://api.github.com/repos/${username}/${repo.name}/contents/package.json`);
-                    
-                    const data = await contentResponse.json();
-                    // Converter conteúdo de base64
-                    const content = atob(data.content);
-                    const packageJson = JSON.parse(content);
-                        
-                    // Analisar dependências
-                    const dependencies = { 
-                        ...(packageJson.dependencies || {}), 
-                        ...(packageJson.devDependencies || {}) 
-                    };
-                    
-                    // Mapear dependências para tecnologias
-                    const depToTech = {
-                        'react': 'React',
-                        'react-dom': 'React',
-                        'vue': 'Vue.js',
-                        'angular': 'Angular',
-                        'express': 'Node.js',
-                        'firebase': 'Firebase',
-                        'bootstrap': 'Bootstrap',
-                        'tailwindcss': 'Tailwind CSS',
-                        'axios': 'API',
-                        'mongoose': 'MongoDB',
-                        'sequelize': 'SQL',
-                        'redux': 'React',
-                        'next': 'Next.js',
-                        'webpack': 'Web Development',
-                        'jest': 'Testing',
-                        'typescript': 'TypeScript'
-                    };
-                    
-                    // Incrementar pontuação para cada dependência
-                    Object.keys(dependencies).forEach(dep => {
-                        const tech = depToTech[dep] || 'JavaScript';
-                        technologyStats[tech] = (technologyStats[tech] || 0) + 15;
-                    });
-                } catch (e) {
-                    console.log(`Não foi possível analisar package.json de ${repo.name}:`, e);
-                }
-                
-            } catch (repoError) {
-                console.warn(`Erro ao analisar repo ${repo.name}:`, repoError);
-            }
-        }));
-        
-        // Garantir que pelo menos algumas tecnologias estão presentes
-        const guaranteedTechs = ['JavaScript', 'HTML', 'CSS', 'Git', 'Web Development'];
-        guaranteedTechs.forEach(tech => {
-            if (!technologyStats[tech]) {
-                technologyStats[tech] = 25; // valor base
-            }
-        });
-        
-        console.log('✅ Análise finalizada!', {
-            linguagens: Object.keys(languageStats).length,
-            tecnologias: Object.keys(technologyStats).length,
-            totalBytes
-        });
-        
-        // Armazenar dados
-        const skillsData = { languageStats, technologyStats, totalBytes };
-        
-        // Gerar cards de skills
-        createSkillCards(languageStats, technologyStats, totalBytes);
-        
-        // Salvar no cache para próximos acessos
-        saveToCache(skillsData);
-        
-        return skillsData;
-    } catch (error) {
-        console.error('❌ Erro na análise de habilidades:', error);
-        
-        // Em caso de falha, usar dados de fallback
-        generateFallbackSkills();
-        
-        return null;
-    }
-}
-
-// Função para salvar dados no cache
-function saveToCache(data) {
-    try {
-        // Adicionar timestamp para controle de expiração
-        const cacheData = {
-            ...data,
-            timestamp: Date.now()
-        };
-        
-        localStorage.setItem('github-skills-cache', JSON.stringify(cacheData));
-        console.log('💾 Dados salvos no cache local');
-    } catch (error) {
-        console.warn('⚠️ Erro ao salvar no cache:', error);
-    }
-}
-
-// Função para obter dados do cache
-function getFromCache() {
-    try {
-        const cachedData = localStorage.getItem('github-skills-cache');
-        
-        if (!cachedData) return null;
-        
-        const data = JSON.parse(cachedData);
-        const cacheAge = Date.now() - (data.timestamp || 0);
-        const cacheExpiry = 60 * 60 * 1000; // 1 hora
-        
-        if (cacheAge > cacheExpiry) {
-            console.log('🕒 Cache expirado, buscando novos dados...');
-            return null;
-        }
-        
-        console.log('🔄 Cache válido encontrado, idade:', Math.round(cacheAge / 1000 / 60), 'minutos');
-        return data;
-    } catch (error) {
-        console.warn('⚠️ Erro ao ler cache:', error);
-        return null;
-    }
-}
-
-// Função para limpar cache de skills (usada pelo botão)
-function clearSkillsCache() {
-    try {
-        localStorage.removeItem('github-skills-cache');
-        console.log('🧹 Cache de skills limpo com sucesso!');
-        alert('Cache de skills limpo! Os dados serão atualizados na próxima visualização da página.');
-    } catch (error) {
-        console.warn('⚠️ Erro ao limpar cache:', error);
-    }
-}
-
-// Mapeamento de skills para ícones e cores
-const SKILL_MAPPING = {
-    'JavaScript': { category: 'language', icon: 'fab fa-js', color: '#f7df1e' },
-    'TypeScript': { category: 'language', icon: 'fab fa-js', color: '#007acc' },
-    'HTML': { category: 'language', icon: 'fab fa-html5', color: '#e34c26' },
-    'CSS': { category: 'language', icon: 'fab fa-css3-alt', color: '#264de4' },
-    'SCSS': { category: 'language', icon: 'fab fa-sass', color: '#cd6799' },
-    'Python': { category: 'language', icon: 'fab fa-python', color: '#3572a5' },
-    'Java': { category: 'language', icon: 'fab fa-java', color: '#b07219' },
-    'C#': { category: 'language', icon: 'fab fa-microsoft', color: '#178600' },
-    'PHP': { category: 'language', icon: 'fab fa-php', color: '#4f5d95' },
-    'Go': { category: 'language', icon: 'fab fa-golang', color: '#00add8' },
-    'Ruby': { category: 'language', icon: 'fab fa-ruby', color: '#701516' },
-    'Swift': { category: 'language', icon: 'fab fa-swift', color: '#ffac45' },
-    'Kotlin': { category: 'language', icon: 'fab fa-java', color: '#f18e33' },
-    'Dart': { category: 'language', icon: 'fab fa-dart', color: '#00b4ab' },
-    'Rust': { category: 'language', icon: 'fab fa-rust', color: '#dea584' },
-    'C++': { category: 'language', icon: 'fab fa-cuttlefish', color: '#f34b7d' },
-    'Shell': { category: 'language', icon: 'fas fa-terminal', color: '#89e051' },
-    'Markdown': { category: 'language', icon: 'fab fa-markdown', color: '#083fa1' },
-    'JSON': { category: 'language', icon: 'fas fa-code', color: '#292929' },
-    'React': { category: 'framework', icon: 'fab fa-react', color: '#61dafb' },
-    'Vue.js': { category: 'framework', icon: 'fab fa-vuejs', color: '#4fc08d' },
-    'Angular': { category: 'framework', icon: 'fab fa-angular', color: '#dd0031' },
-    'Node.js': { category: 'language', icon: 'fab fa-node-js', color: '#026e00' },
-    'Firebase': { category: 'platform', icon: 'fas fa-fire', color: '#ffca28' },
-    'MongoDB': { category: 'database', icon: 'fas fa-database', color: '#4db33d' },
-    'SQL': { category: 'database', icon: 'fas fa-database', color: '#4479a1' },
-    'Git': { category: 'tool', icon: 'fab fa-git-alt', color: '#f05032' },
-    'Bootstrap': { category: 'framework', icon: 'fab fa-bootstrap', color: '#7952b3' },
-    'jQuery': { category: 'library', icon: 'fas fa-code', color: '#0769ad' },
-    'Webpack': { category: 'tool', icon: 'fas fa-cogs', color: '#8dd6f9' },
-    'Redux': { category: 'library', icon: 'fas fa-project-diagram', color: '#764abc' },
-    'API': { category: 'concept', icon: 'fas fa-plug', color: '#009688' },
-    'GraphQL': { category: 'language', icon: 'fas fa-project-diagram', color: '#e535ab' },
-    'Docker': { category: 'tool', icon: 'fab fa-docker', color: '#0db7ed' },
-    'AWS': { category: 'platform', icon: 'fab fa-aws', color: '#ff9900' },
-    'Backend': { category: 'concept', icon: 'fas fa-server', color: '#6c757d' },
-    'Frontend': { category: 'concept', icon: 'fas fa-desktop', color: '#fd7e14' },
-    'Database': { category: 'concept', icon: 'fas fa-database', color: '#4db33d' },
-    'Authentication': { category: 'concept', icon: 'fas fa-user-shield', color: '#6f42c1' },
-    'Local Storage': { category: 'concept', icon: 'fas fa-hdd', color: '#17a2b8' },
-    'Web': { category: 'concept', icon: 'fas fa-globe', color: '#007bff' },
-    'UI/UX': { category: 'concept', icon: 'fas fa-paint-brush', color: '#fd7e14' },
-    'Mobile': { category: 'concept', icon: 'fas fa-mobile-alt', color: '#20c997' },
-    'Full Stack': { category: 'concept', icon: 'fas fa-layer-group', color: '#6f42c1' },
-    'Progressive Web Apps': { category: 'concept', icon: 'fas fa-mobile-alt', color: '#6610f2' },
-    'Web Development': { category: 'concept', icon: 'fas fa-laptop-code', color: '#0dcaf0' },
-    'Testing': { category: 'concept', icon: 'fas fa-vial', color: '#d63384' },
-    'TypeScript': { category: 'language', icon: 'fab fa-js', color: '#007acc' },
-    'Next.js': { category: 'framework', icon: 'fab fa-react', color: '#000000' },
-    'Responsive Design': { category: 'concept', icon: 'fas fa-desktop', color: '#fd7e14' },
-    'GitHub API': { category: 'api', icon: 'fab fa-github', color: '#181717' },
-    'Web APIs': { category: 'api', icon: 'fas fa-plug', color: '#009688' },
-    'Tailwind CSS': { category: 'framework', icon: 'fab fa-css3-alt', color: '#06b6d4' }
-};
-
-// Função para garantir que os repos sejam exibidos corretamente
-function ensureReposDisplay() {
-    const reposElement = document.getElementById('github-repos');
-    
-    // Verificar se estamos na página de projetos
-    const isProjectsPage = document.location.pathname.includes('projetos.html');
-    
-    if (isProjectsPage) {
-        console.log('📋 Detectada página de projetos, garantindo que os repositórios sejam carregados...');
-        
-        // Se não houver elemento de repos na página, tentar criar
-        if (!reposElement) {
-            const projectsContainer = document.querySelector('main') || document.body;
-            
-            if (projectsContainer) {
-                console.log('🔍 Criando container de repositórios na página de projetos...');
-                
-                const reposContainer = document.createElement('div');
-                reposContainer.id = 'github-repos';
-                reposContainer.className = 'github-repos-container';
-                reposContainer.innerHTML = `
-                    <div class="loader"></div>
-                    <p>Carregando repositórios GitHub...</p>
-                `;
-                
-                projectsContainer.appendChild(reposContainer);
-                
-                // Buscar repos novamente
-                setTimeout(() => {
-                    const username = "mikaelfmts";
-                    fetchGitHubRepositories(username);
-                }, 500);
-            }
-        }
-        // Se o elemento já existir e tiver um loader, tentar buscar os repos novamente
-        else if (reposElement.innerHTML.includes('loader')) {
-            console.log('🔄 Container de repositórios encontrado com loader, tentando buscar dados...');
-            
-            // Atualizar o loader com um estilo melhor
-            if (!reposElement.querySelector('p')) {
-                const loaderText = document.createElement('p');
-                loaderText.textContent = 'Carregando repositórios GitHub...';
-                reposElement.appendChild(loaderText);
-            }
-            
-            // Verificar se temos dados em cache ou usar fallback
-            const username = "mikaelfmts";
-            fetchGitHubRepositories(username).catch(() => {
-                console.log('❌ Falha ao buscar dados, usando fallback...');
-                useFallbackData();
-            });
-        }
-    }
-}
-
-// Função para debug dos repositórios (pode ser chamada pelo console)
-function debugGitHubRepos() {
-    console.log('🔍 Debug iniciado para github-repos');
-    
-    const reposElement = document.getElementById('github-repos');
-    console.log('Elemento encontrado:', !!reposElement);
-    
-    if (reposElement) {
-        console.log('HTML atual:', reposElement.innerHTML);
-        console.log('Possui loader?', reposElement.innerHTML.includes('loader'));
-        console.log('Conteúdo visível?', getComputedStyle(reposElement).display !== 'none');
-    }
-    
-    // Forçar busca de dados
-    ensureReposDisplay();
-    
-    return 'Debug concluído. Verifique o console para mais informações.';
-}
-
-// ==================== FUNÇÕES UTILITÁRIAS DO SISTEMA GITHUB ====================
-
 // Função para verificar status do sistema GitHub
 window.checkGitHubSystemStatus = function() {
     const status = {
@@ -2952,6 +2727,125 @@ window.clearGitHubCache = function() {
         showNotification('Cache do GitHub limpo com sucesso!', 'success');
     }
 };
+
+// ===== FUNÇÕES UTILITÁRIAS PARA SKILLS =====
+
+// Função para obter descrição das habilidades
+function getSkillDescription(skill) {
+    const descriptions = {
+        // Linguagens de Programação
+        'JavaScript': 'Linguagem versátil para desenvolvimento web frontend e backend, essencial para aplicações modernas.',
+        'HTML': 'Linguagem de marcação fundamental para estruturação de páginas web e aplicações.',
+        'CSS': 'Linguagem de estilização para design responsivo e interfaces atrativas.',
+        'Python': 'Linguagem poderosa para desenvolvimento backend, automação e análise de dados.',
+        'Java': 'Linguagem robusta para aplicações enterprise e desenvolvimento backend escalável.',
+        'TypeScript': 'Superset do JavaScript que adiciona tipagem estática para projetos mais robustos.',
+        'PHP': 'Linguagem server-side amplamente utilizada para desenvolvimento web.',
+        'C#': 'Linguagem da Microsoft para desenvolvimento de aplicações robustas.',
+        'C++': 'Linguagem de alto desempenho para sistemas e aplicações críticas.',
+        'SQL': 'Linguagem para gerenciamento e consulta de bancos de dados relacionais.',
+        
+        // Frameworks e Bibliotecas
+        'React': 'Biblioteca JavaScript para criação de interfaces de usuário dinâmicas e componentes reutilizáveis.',
+        'Vue.js': 'Framework progressivo para desenvolvimento de interfaces modernas e reativas.',
+        'Angular': 'Framework completo para aplicações web complexas e escaláveis.',
+        'Node.js': 'Runtime JavaScript para desenvolvimento backend eficiente e escalável.',
+        'Express.js': 'Framework minimalista para criação de APIs e servidores web com Node.js.',
+        'Django': 'Framework Python robusto para desenvolvimento web rápido e seguro.',
+        'Flask': 'Micro-framework Python flexível para aplicações web leves.',
+        'Spring': 'Framework Java enterprise para desenvolvimento de aplicações robustas.',
+        'Laravel': 'Framework PHP elegante para desenvolvimento web moderno.',
+        'Bootstrap': 'Framework CSS para desenvolvimento responsivo e design consistente.',
+        'Tailwind CSS': 'Framework CSS utility-first para design customizado e eficiente.',
+        
+        // Tecnologias e Ferramentas
+        'Firebase': 'Plataforma completa para desenvolvimento de aplicações com backend gerenciado.',
+        'MongoDB': 'Banco de dados NoSQL flexível para aplicações modernas.',
+        'MySQL': 'Sistema de gerenciamento de banco de dados relacional confiável.',
+        'PostgreSQL': 'Banco de dados relacional avançado com recursos robustos.',
+        'Git': 'Sistema de controle de versão distribuído essencial para desenvolvimento colaborativo.',
+        'Docker': 'Plataforma de containerização para deployment e desenvolvimento consistente.',
+        'AWS': 'Plataforma de computação em nuvem líder para hospedagem e serviços escaláveis.',
+        'Azure': 'Plataforma de nuvem da Microsoft para soluções empresariais.',
+        'Google Cloud': 'Plataforma de nuvem do Google com serviços avançados de IA e dados.',
+        'Kubernetes': 'Orquestrador de containers para aplicações distribuídas.',
+        'Linux': 'Sistema operacional robusto para servidores e desenvolvimento.',
+        'Nginx': 'Servidor web de alta performance para aplicações modernas.',
+        'Apache': 'Servidor web confiável e amplamente utilizado.',
+        
+        // Ferramentas de Desenvolvimento
+        'VS Code': 'Editor de código moderno com extensões poderosas para desenvolvimento eficiente.',
+        'Webpack': 'Bundler de módulos para otimização de aplicações JavaScript.',
+        'Babel': 'Transpilador JavaScript para compatibilidade com diferentes navegadores.',
+        'ESLint': 'Ferramenta de linting para manter código JavaScript limpo e consistente.',
+        'Jest': 'Framework de testes JavaScript para garantir qualidade do código.',
+        'Cypress': 'Ferramenta de testes end-to-end para aplicações web.',
+        'Postman': 'Plataforma para desenvolvimento e teste de APIs.',
+        'Figma': 'Ferramenta de design colaborativo para prototipagem de interfaces.',
+        
+        // Metodologias e Práticas
+        'API REST': 'Arquitetura para desenvolvimento de APIs escaláveis e padronizadas.',
+        'GraphQL': 'Linguagem de consulta para APIs mais eficientes e flexíveis.',
+        'DevOps': 'Práticas para integração entre desenvolvimento e operações.',
+        'CI/CD': 'Integração e entrega contínua para deployment automatizado.',
+        'Agile': 'Metodologia ágil para desenvolvimento de software eficiente.',
+        'Scrum': 'Framework ágil para gerenciamento de projetos de software.',
+        
+        // Tecnologias Emergentes
+        'Machine Learning': 'Inteligência artificial para análise de dados e automação.',
+        'Blockchain': 'Tecnologia distribuída para aplicações descentralizadas.',
+        'IoT': 'Internet das Coisas para conectividade de dispositivos.',
+        'PWA': 'Progressive Web Apps para experiências web nativas.',
+        'WebAssembly': 'Tecnologia para execução de código de alta performance na web.',
+        
+        // Default para skills não mapeadas
+        'default': 'Tecnologia versátil utilizada no desenvolvimento de soluções modernas.'
+    };
+    
+    return descriptions[skill] || descriptions['default'];
+}
+
+// Função para gerar estrelas baseadas na porcentagem
+function getSkillStars(percentage) {
+    const stars = Math.ceil(percentage / 20); // 1-5 estrelas
+    let starsHTML = '';
+    
+    for (let i = 1; i <= 5; i++) {
+        if (i <= stars) {
+            starsHTML += '<i class="fas fa-star"></i>';
+        } else {
+            starsHTML += '<i class="far fa-star"></i>';
+        }
+    }
+    
+    return starsHTML;
+}
+
+// Função para converter hex para RGB
+function hexToRgb(hex) {
+    // Remove o # se presente
+    hex = hex.replace('#', '');
+    
+    // Converte para RGB
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    
+    return `${r}, ${g}, ${b}`;
+}
+
+// Função para formatar bytes em formato legível
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// ===== FUNÇÕES DE TESTE =====
 
 // Função para testar o sistema GitHub
 window.testGitHubSystemMain = async function() {

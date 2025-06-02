@@ -620,9 +620,37 @@
                 
                 container.appendChild(particle);
             }
-        }
+        }        createParticles();
+    </script>
 
-        createParticles();
+    <!-- Script de inicialização -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Garantir que o toggle de origem funcione mesmo se o módulo principal falhar
+            const sourceRadios = document.querySelectorAll('input[name="source-type"]');
+            if (sourceRadios.length > 0) {
+                sourceRadios.forEach(radio => {
+                    radio.addEventListener('change', function(e) {
+                        const urlSection = document.getElementById('url-section');
+                        const fileSection = document.getElementById('file-section');
+                        const urlInput = document.getElementById('report-url');
+                        const fileInput = document.getElementById('report-file');
+
+                        if (e.target.value === 'url') {
+                            urlSection.style.display = 'block';
+                            fileSection.style.display = 'none';
+                            urlInput.required = true;
+                            fileInput.required = false;
+                        } else {
+                            urlSection.style.display = 'none';
+                            fileSection.style.display = 'block';
+                            urlInput.required = false;
+                            fileInput.required = true;
+                        }
+                    });
+                });
+            }
+        });
     </script>
 
     <!-- Minerva Assistant -->

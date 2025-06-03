@@ -119,11 +119,51 @@ async function loadRecentMedia() {
                     container.appendChild(postElement);
                 }
             });
-            
-            // Inicializar os controles de vídeo após adicionar os cards
-            if (typeof initializeVideoControls === 'function') {
-                initializeVideoControls();
-            }
+              // Inicializar os controles de vídeo após adicionar os cards
+            setTimeout(() => {
+                // Simples e direto - sem complicação
+                document.querySelectorAll('.video-play-button').forEach(btn => {
+                    const video = btn.parentElement.querySelector('video');
+                    if (video) {
+                        btn.onclick = (e) => {
+                            e.stopPropagation();
+                            if (video.paused) {
+                                video.play().then(() => btn.style.display = 'none');
+                            } else {
+                                video.pause();
+                                btn.style.display = 'flex';
+                            }
+                        };
+                        video.onclick = (e) => {
+                            e.stopPropagation();
+                            if (video.paused) {
+                                video.play().then(() => btn.style.display = 'none');
+                            } else {
+                                video.pause();
+                                btn.style.display = 'flex';
+                            }
+                        };
+                    }
+                });
+                
+                document.querySelectorAll('.youtube-thumbnail').forEach(thumb => {
+                    thumb.onclick = (e) => {
+                        e.stopPropagation();
+                        const id = thumb.dataset.youtubeId;
+                        if (id) {
+                            const iframe = document.createElement('iframe');
+                            iframe.style.width = '100%';
+                            iframe.style.height = '100%';
+                            iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+                            iframe.frameBorder = '0';
+                            iframe.allow = 'autoplay';
+                            iframe.allowFullscreen = true;
+                            thumb.parentElement.innerHTML = '';
+                            thumb.parentElement.appendChild(iframe);
+                        }
+                    };
+                });
+            }, 500);
         }
         
     } catch (error) {
@@ -224,52 +264,61 @@ function createRecentMediaCard(post) {
                 </span>
             </div>
         </div>
-    `;
-      // Adicionar controladores de reprodução para os vídeos
+    `;    // Adicionar controladores de reprodução SIMPLES
     const videoPlayButton = card.querySelector('.video-play-button');
-    const youtubePlayButton = card.querySelector('.youtube-thumbnail');
+    const youtubeContainer = card.querySelector('.youtube-thumbnail');
     const video = card.querySelector('video');
     
-    if (videoPlayButton && video) {
-        // Para vídeos normais
+    // Vídeos normais - FUNCIONAMENTO SIMPLES
+    if (video && videoPlayButton) {
         videoPlayButton.addEventListener('click', (e) => {
-            e.stopPropagation(); // Evitar navegação para galeria
+            e.stopPropagation();
             
             if (video.paused) {
-                video.play();
-                videoPlayButton.classList.add('playing');
+                video.play().then(() => {
+                    videoPlayButton.style.display = 'none';
+                }).catch(err => console.log('Erro ao reproduzir:', err));
             } else {
                 video.pause();
-                videoPlayButton.classList.remove('playing');
+                videoPlayButton.style.display = 'flex';
             }
         });
         
-        // Quando o vídeo acaba, mostrar o botão play novamente
         video.addEventListener('ended', () => {
-            videoPlayButton.classList.remove('playing');
+            videoPlayButton.style.display = 'flex';
+        });
+        
+        video.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (video.paused) {
+                video.play().then(() => {
+                    videoPlayButton.style.display = 'none';
+                });
+            } else {
+                video.pause();
+                videoPlayButton.style.display = 'flex';
+            }
         });
     }
     
-    if (youtubePlayButton) {
-        // Para vídeos do YouTube
-        youtubePlayButton.addEventListener('click', (e) => {
-            e.stopPropagation(); // Evitar navegação para galeria
+    // YouTube - FUNCIONAMENTO SIMPLES
+    if (youtubeContainer) {
+        youtubeContainer.addEventListener('click', (e) => {
+            e.stopPropagation();
             
-            const youtubeID = youtubePlayButton.dataset.youtubeId;
-            
+            const youtubeID = youtubeContainer.dataset.youtubeId;
             if (youtubeID) {
-                // Substituir a thumbnail por um iframe que reproduz automaticamente
+                const container = youtubeContainer.closest('.youtube-container');
                 const iframe = document.createElement('iframe');
-                iframe.width = '100%';
-                iframe.height = '100%';
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
                 iframe.src = `https://www.youtube.com/embed/${youtubeID}?autoplay=1`;
-                iframe.title = 'YouTube video';
                 iframe.frameBorder = '0';
-                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                iframe.allow = 'autoplay; encrypted-media';
                 iframe.allowFullscreen = true;
                 
-                // Substituir o container da thumbnail pelo iframe
-                youtubePlayButton.parentNode.replaceChild(iframe, youtubePlayButton);
+                container.innerHTML = '';
+                container.appendChild(iframe);
             }
         });
     }

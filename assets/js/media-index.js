@@ -10,6 +10,9 @@ import {
     getDoc
 } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
+// Importar os ajudantes de vídeo
+import { safePlayVideo, isVideo } from './video-helpers.js';
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
     loadRecentMedia();
@@ -412,20 +415,28 @@ function setupVideoHandlers() {
             e.preventDefault();
             e.stopPropagation();
             
-            // Se o vídeo estiver pausado, reproduzir
-            if (video.paused) {
-                video.play().catch(err => {
-                    console.log('Erro ao reproduzir vídeo:', err);
-                    // Fallback: tentar carregar o vídeo
-                    video.load();
-                    setTimeout(() => {
-                        video.play().catch(() => {
-                            console.log('Vídeo não pode ser reproduzido automaticamente');
-                        });
-                    }, 100);
-                });
-            } else {
-                video.pause();
+            // Usar a flag para evitar reproduções sobrepostas
+            if (!video._isPlayingHandled) {
+                video._isPlayingHandled = true;
+                
+                if (video.paused) {
+                    // Usar o helper de reprodução segura
+                    safePlayVideo(video)
+                        .then(() => {
+                            // Sucesso - o vídeo está reproduzindo
+                            videoContainer.classList.add('playing');
+                        })
+                        .catch(err => {
+                            console.warn('Não foi possível reproduzir o vídeo:', err.message);
+                        })
+                        .finally(() => {
+                            video._isPlayingHandled = false;
+                        });                } else {
+                    // Pausar o vídeo
+                    video.pause();
+                    videoContainer.classList.remove('playing');
+                    video._isPlayingHandled = false;
+                }
             }
         }
     });
@@ -433,12 +444,17 @@ function setupVideoHandlers() {
 
 // Funções auxiliares para detecção de vídeo usando o novo sistema
 function isVideoFile(url, mimeType) {
-    if (!window.videoProcessor) {
-        console.warn('VideoProcessor não está disponível, usando detecção básica');
-        return basicVideoDetection(url, mimeType);
+    // Tentar usar o VideoProcessor se disponível
+    try {
+        if (window.videoProcessor) {
+            return window.videoProcessor.isVideo(url, mimeType);
+        }
+    } catch (e) {
+        console.warn('Erro ao usar VideoProcessor:', e.message);
     }
     
-    return window.videoProcessor.isVideo(url, mimeType);
+    console.warn('VideoProcessor não está disponível, usando detecção básica');
+    return basicVideoDetection(url, mimeType);
 }
 
 // Fallback para detecção básica de vídeo (caso o VideoProcessor não esteja carregado)

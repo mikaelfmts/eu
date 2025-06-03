@@ -13,6 +13,9 @@ import {
     getDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// Importar os ajudantes de vídeo
+import { safePlayVideo, safeLoadVideo, isVideo } from './video-helpers.js';
+
 // Configuração do Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
@@ -56,7 +59,9 @@ class GaleriaMidia {
                 }, 300);
             }, 1000);
         }
-    }    async loadPosts(loadMore = false) {
+    }
+    
+    async loadPosts(loadMore = false) {
         try {
             let q;
             if (loadMore && this.lastDoc) {
@@ -75,12 +80,16 @@ class GaleriaMidia {
             }
 
             const querySnapshot = await getDocs(q);
-            const newPosts = [];            // Carregar posts e suas mídias
+            const newPosts = [];
+            
+            // Carregar posts e suas mídias
             for (const postDoc of querySnapshot.docs) {
                 const postData = {
                     id: postDoc.id,
                     ...postDoc.data()
-                };// Se o post tem referências de mídia, carregar do galeria_media
+                };
+                
+                // Se o post tem referências de mídia, carregar do galeria_media
                 if (postData.mediaIds && postData.mediaIds.length > 0) {
                     const mediaPromises = postData.mediaIds.map(async (mediaId) => {
                         try {
@@ -148,7 +157,9 @@ class GaleriaMidia {
 
         const postsHTML = posts.map(post => this.createPostHTML(post)).join('');
         postsContainer.innerHTML = postsHTML;
-    }    createPostHTML(post) {
+    }
+    
+    createPostHTML(post) {
         const date = new Date(post.timestamp?.toDate ? post.timestamp.toDate() : post.timestamp);
         const formattedDate = date.toLocaleDateString('pt-BR', {
             day: '2-digit',
@@ -160,10 +171,13 @@ class GaleriaMidia {
 
         const firstMedia = post.media && post.media[0];
         const mediaType = firstMedia?.type || 'image';
-        const mediaCount = post.media?.length || 0;        let mediaHTML = '';
+        const mediaCount = post.media?.length || 0;
+        
+        let mediaHTML = '';
         if (firstMedia) {
-            const isVideo = this.isVideoFile(firstMedia.url, mediaType);
-              if (isVideo) {
+            const isVideoMedia = this.isVideoFile(firstMedia.url, mediaType);
+            
+            if (isVideoMedia) {
                 // Usar o novo sistema de processamento de vídeos
                 if (window.videoProcessor) {
                     const videoInfo = window.videoProcessor.processVideoUrl(firstMedia.url, mediaType);
@@ -213,7 +227,7 @@ class GaleriaMidia {
                         </div>
                     `;
                 }
-            }else {
+            } else {
                 // Para imagens
                 mediaHTML = `
                     <img src="${firstMedia.url}" alt="${post.title}" loading="lazy"
@@ -285,7 +299,9 @@ class GaleriaMidia {
     applyFilter(filter, clearContainer = true) {
         this.currentFilter = filter;
         
-        let filtered = this.posts;        if (filter === 'photos') {
+        let filtered = this.posts;
+        
+        if (filter === 'photos') {
             filtered = this.posts.filter(post => 
                 post.media && post.media.some(media => {
                     return !this.isVideoFile(media.url, media.type);
@@ -337,7 +353,9 @@ class GaleriaMidia {
         const modal = document.getElementById('media-modal');
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
-    }    closeMediaModal() {
+    }
+    
+    closeMediaModal() {
         const modal = document.getElementById('media-modal');
         modal.classList.add('hidden');
         document.body.style.overflow = 'auto';
@@ -352,7 +370,9 @@ class GaleriaMidia {
                 console.error('Erro ao pausar vídeo:', e);
             }
         });
-    }    updateModalContent() {
+    }
+    
+    updateModalContent() {
         const modalBody = document.querySelector('.modal-body');
         const media = this.currentPostMedia[this.currentMediaIndex];
         
@@ -362,8 +382,9 @@ class GaleriaMidia {
         const mediaType = media.type || '';
         
         try {
-            const isVideo = this.isVideoFile(media.url, mediaType);
-              if (isVideo) {
+            const isVideoMedia = this.isVideoFile(media.url, mediaType);
+            
+            if (isVideoMedia) {
                 // Usar o novo sistema de processamento de vídeos
                 if (window.videoProcessor) {
                     const videoInfo = window.videoProcessor.processVideoUrl(media.url, mediaType);
@@ -394,7 +415,7 @@ class GaleriaMidia {
                         </div>
                     `;
                 }
-            }else {
+            } else {
                 // Imagem
                 mediaHTML = `<img src="${media.url}" alt="Mídia" loading="lazy" style="max-width: 100%; max-height: 80vh; object-fit: contain;">`;
             }
@@ -425,90 +446,17 @@ class GaleriaMidia {
             this.currentMediaIndex = newIndex;
             this.updateModalContent();
         }
-    }    showError(message) {
+    }
+    
+    showError(message) {
         console.error(message);
         // Aqui você pode implementar um sistema de notificações
-    }    // Método para detectar se um arquivo é vídeo usando o novo sistema
-    isVideoFile(url, mimeType) {
-        if (!window.videoProcessor) {
-            console.warn('VideoProcessor não está disponível, usando detecção básica');
-            return this.basicVideoDetection(url, mimeType);
-        }
-        
-        return window.videoProcessor.isVideo(url, mimeType);
     }
-
-    // Fallback para detecção básica de vídeo
-    basicVideoDetection(url, mimeType) {
-        if (!url) return false;
-        
-        // Verificar MIME type primeiro
-        if (mimeType && (mimeType.startsWith('video/') || mimeType.toLowerCase() === 'video')) {
-            return true;
-        }
-        
-        // Verificar plataformas de vídeo conhecidas
-        const lowerUrl = url.toLowerCase();
-        if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be') || 
-            lowerUrl.includes('vimeo.com') || lowerUrl.includes('drive.google.com')) {
-            return true;
-        }
-        
-        // Verificar extensões de vídeo
-        const videoExtensions = /\.(mp4|webm|ogg|avi|mov|mkv|wmv|flv|m4v|3gp)(\?|#|$)/i;
-        return videoExtensions.test(url) || url.startsWith('data:video/');
-    }    // Remove - função movida para o VideoProcessor// Método para detectar e processar diferentes tipos de links de vídeo
-    processVideoUrl(url, mediaType) {
-        if (!url) return null;
-        
-        try {
-            // Detectar YouTube
-            const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-            const youtubeMatch = url.match(youtubeRegex);
-            if (youtubeMatch) {
-                return {
-                    type: 'youtube',
-                    id: youtubeMatch[1],
-                    embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=0&controls=1`,
-                    thumbnailUrl: `https://img.youtube.com/vi/${youtubeMatch[1]}/maxresdefault.jpg`
-                };
-            }
-            
-            // Detectar Google Drive
-            const driveRegex = /drive\.google\.com\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/;
-            const driveMatch = url.match(driveRegex);
-            if (driveMatch) {
-                return {
-                    type: 'drive',
-                    id: driveMatch[1],
-                    embedUrl: `https://drive.google.com/file/d/${driveMatch[1]}/preview`
-                };
-            }
-            
-            // Detectar Vimeo
-            const vimeoRegex = /(?:vimeo\.com\/)([0-9]+)/;
-            const vimeoMatch = url.match(vimeoRegex);
-            if (vimeoMatch) {
-                return {
-                    type: 'vimeo',
-                    id: vimeoMatch[1],
-                    embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=0&controls=1`
-                };
-            }
-            
-            // Para URLs diretos de vídeo
-            if (this.isVideoFile(url, mediaType)) {
-                return {
-                    type: 'direct',
-                    directUrl: url
-                };
-            }
-            
-            return null;
-        } catch (error) {
-            console.error('Erro ao processar URL de vídeo:', error);
-            return null;
-        }
+    
+    // Método para detectar se um arquivo é vídeo usando o sistema helper
+    isVideoFile(url, mimeType) {
+        // Usar o helper importado
+        return isVideo(url, mimeType);
     }
 }
 
@@ -534,20 +482,29 @@ function setupVideoHandlers() {
         if (video && videoContainer) {
             e.preventDefault();
             
-            // Se o vídeo estiver pausado, reproduzir
-            if (video.paused) {
-                video.play().catch(err => {
-                    console.log('Erro ao reproduzir vídeo:', err);
-                    // Fallback: tentar carregar o vídeo
-                    video.load();
-                    setTimeout(() => {
-                        video.play().catch(() => {
-                            console.log('Vídeo não pode ser reproduzido automaticamente');
+            // Usar a flag para evitar reproduções sobrepostas
+            if (!video._isPlayingHandled) {
+                video._isPlayingHandled = true;
+                
+                if (video.paused) {
+                    // Usar o helper de reprodução segura
+                    safePlayVideo(video)
+                        .then(() => {
+                            // Sucesso - o vídeo está reproduzindo
+                            videoContainer.classList.add('playing');
+                        })
+                        .catch(err => {
+                            console.warn('Não foi possível reproduzir o vídeo:', err.message);
+                        })
+                        .finally(() => {
+                            video._isPlayingHandled = false;
                         });
-                    }, 100);
-                });
-            } else {
-                video.pause();
+                } else {
+                    // Pausar o vídeo
+                    video.pause();
+                    videoContainer.classList.remove('playing');
+                    video._isPlayingHandled = false;
+                }
             }
         }
     });

@@ -3198,41 +3198,6 @@ section {
     margin: 0 auto;
 }
 
-/* Estilos específicos para o Plyr */
-.plyr--video {
-    border-radius: 8px;
-    overflow: hidden;
-    background: #0a1428;
-}
-
-.plyr__control--overlaid {
-    background: rgba(200, 170, 110, 0.9);
-}
-
-.plyr--full-ui input[type=range] {
-    color: #c8aa6e;
-}
-
-.plyr__control.plyr__tab-focus,
-.plyr__control:hover,
-.plyr__control[aria-expanded=true] {
-    background: #c8aa6e;
-    color: #0a1428;
-}
-
-.plyr__menu__container {
-    background: #1e2328;
-    border: 1px solid #3c3c41;
-}
-
-.plyr__menu__container label.plyr__control:hover {
-    background: #c8aa6e;
-}
-
-.plyr--video .plyr__controls {
-    background: linear-gradient(transparent, rgba(10, 20, 40, 0.8));
-}
-
 .video-container {
     position: relative;
     width: 100%;
@@ -3240,108 +3205,46 @@ section {
     overflow: hidden;
 }
 
-.video-play-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
+/* Estilos para vídeos nativos */
+video {
     width: 100%;
     height: 100%;
-    background: rgba(10, 20, 40, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #0a1428;
+}
+
+video::-webkit-media-controls {
+    border-radius: 8px;
+}
+
+video::-webkit-media-controls-panel {
+    background: linear-gradient(transparent, rgba(10, 20, 40, 0.8));
+}
+
+video::-webkit-media-controls-play-button:hover,
+video::-webkit-media-controls-mute-button:hover,
+video::-webkit-media-controls-fullscreen-button:hover {
+    background: rgba(200, 170, 110, 0.2);
+    border-radius: 4px;
+}
+
+/* Estilo para thumbnail/poster de vídeo */
+video[poster] {
+    background-size: cover;
+    background-position: center;
+}
+
+.post-video-thumbnail {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
     cursor: pointer;
-    z-index: 2;
-    transition: all 0.3s ease;
-}
-
-.video-play-overlay:hover {
-    background: rgba(10, 20, 40, 0.3);
-}
-
-.video-play-overlay i {
-    font-size: 3rem;
-    color: rgba(200, 170, 110, 0.9);
-    background: rgba(10, 20, 40, 0.5);
-    border-radius: 50%;
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     transition: transform 0.3s ease;
 }
 
-.video-play-overlay:hover i {
-    transform: scale(1.1);
-}
-
-.video-preview-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.video-play-button {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(10, 20, 40, 0.7);
-    color: #c8aa6e;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.8;
-    transition: all 0.3s ease;
-}
-
-.video-play-button i {
-    font-size: 1.5rem;
-}
-
-.video-download-link {
-    color: #c8aa6e;
-    text-decoration: underline;
-    font-weight: bold;
-}
-
-/* Estilos para os fallbacks de vídeo */
-.video-fallback {
-    margin-top: 1rem;
-    text-align: center;
-}
-
-.video-fallback p {
-    margin-bottom: 0.75rem;
-    color: #f0e6d2;
-    font-weight: bold;
-}
-
-.video-download-link, 
-.video-convert-link {
-    display: inline-block;
-    margin: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: rgba(200, 170, 110, 0.2);
-    color: #c8aa6e;
-    border-radius: 4px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: all 0.3s ease;
-}
-
-.video-download-link:hover, 
-.video-convert-link:hover {
-    background: rgba(200, 170, 110, 0.3);
-    color: #f0e6d2;
-}
-
-.video-fallback-container {
-    margin-top: 1rem;
-    width: 100%;
+.post-video-thumbnail:hover {
+    transform: scale(1.02);
 }
 

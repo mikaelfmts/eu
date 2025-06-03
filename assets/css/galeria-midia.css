@@ -417,28 +417,6 @@
     background: rgba(10, 20, 40, 0.8);
 }
 
-/* Estilos para o player Plyr */
-.plyr--video {
-    border-radius: 8px;
-    overflow: hidden;
-    background: #0a1428;
-}
-
-.plyr__control--overlaid {
-    background: rgba(200, 170, 110, 0.9);
-}
-
-.plyr--full-ui input[type=range] {
-    color: #c8aa6e;
-}
-
-.plyr__control.plyr__tab-focus,
-.plyr__control:hover,
-.plyr__control[aria-expanded=true] {
-    background: #c8aa6e;
-    color: #0a1428;
-}
-
 /* Estilo para o botão de download de vídeo */
 .video-download-link {
     display: inline-block;

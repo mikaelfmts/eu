@@ -1,4 +1,3 @@
-
 import { db } from './firebase-config.js';
 import { 
     collection, 
@@ -15,35 +14,7 @@ import {
 document.addEventListener('DOMContentLoaded', function() {
     loadRecentMedia();
     loadFeaturedMedia();
-    
-    // Configuração global para o Plyr
-    window.initVideoPlayers = function() {
-        const videoElements = document.querySelectorAll('.plyr__video');
-        if (videoElements.length > 0) {
-            videoElements.forEach(video => {
-                if (!video.plyrInstance) {
-                    video.plyrInstance = new Plyr(video, {
-                        controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
-                        autoplay: false,
-                        muted: true,
-                        loadSprite: false,
-                        blankVideo: '',
-                        previewThumbnails: { enabled: false }
-                    });
-                }
-            });
-        }
-    };
-    
-    // Observar mudanças no DOM para inicializar novos players
-    const observer = new MutationObserver(function(mutations) {
-        window.initVideoPlayers();
-    });
-    
-    observer.observe(document.body, { 
-        childList: true, 
-        subtree: true 
-    });
+    setupVideoHandlers();
 });
 
 async function loadRecentMedia() {
@@ -106,18 +77,16 @@ function createRecentMediaCard(post) {
     if (firstMedia) {
         // Melhor detecção de tipo de mídia
         const isVideo = isVideoFile(firstMedia.url, firstMedia.type);
-        
-        if (isVideo) {
-            const videoMimeType = getVideoMimeType(firstMedia.url, firstMedia.type);
-            const videoId = 'recent-video-' + Math.random().toString(36).substring(2, 10);
+          if (isVideo) {
             mediaElement = `
                 <div class="video-preview-container">
-                    <video id="${videoId}" class="media-preview plyr__video" muted preload="none" playsinline
-                           data-poster="${firstMedia.thumbnail || ''}"
+                    <video class="media-preview" muted preload="metadata" playsinline
+                           poster="${firstMedia.thumbnail || ''}"
                            onloadstart="this.style.opacity='1'"
                            onerror="this.parentNode.innerHTML='<div class=&quot;media-preview-placeholder video-error&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><span>Erro no vídeo</span></div>';">
-                        <source src="${firstMedia.url}" type="${videoMimeType}">
                         <source src="${firstMedia.url}" type="video/mp4">
+                        <source src="${firstMedia.url}" type="video/webm">
+                        <source src="${firstMedia.url}">
                         Seu navegador não suporta vídeo.
                     </video>
                     <div class="video-play-button">
@@ -221,22 +190,19 @@ function createFeaturedMediaCard(media) {
       const mediaType = media.type || '';
     const isVideo = isVideoFile(media.url, mediaType);
     
-    let mediaElement = '';
-    if (isVideo) {
-        const videoMimeType = getVideoMimeType(media.url, mediaType);
-        const videoId = 'featured-video-' + Math.random().toString(36).substring(2, 10);
+    let mediaElement = '';    if (isVideo) {
         mediaElement = `
             <div class="video-container">
-                <video id="${videoId}" class="featured-media-content plyr__video" preload="none" playsinline
-                       data-poster="${media.thumbnail || ''}"
+                <video class="featured-media-content" preload="metadata" playsinline
+                       poster="${media.thumbnail || ''}"
                        onloadstart="this.style.opacity='1'"
                        onerror="this.parentNode.innerHTML='<div class=&quot;featured-media-placeholder video-error&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><p>Erro ao carregar vídeo</p></div>';">
-                    <source src="${media.url}" type="${videoMimeType}">
                     <source src="${media.url}" type="video/mp4">
                     <source src="${media.url}" type="video/webm">
+                    <source src="${media.url}">
                     Seu navegador não suporta vídeos.
                 </video>
-                <div class="video-play-overlay" onclick="this.style.display='none'; document.getElementById('${videoId}').play();">
+                <div class="video-play-overlay" onclick="this.style.display='none'; this.previousElementSibling.play();">
                     <i class="fas fa-play"></i>
                 </div>
             </div>
@@ -282,9 +248,7 @@ window.openFeaturedModal = function(url, type, title, description) {
     // Criar modal
     const modal = document.createElement('div');
     modal.className = 'featured-modal';
-    
-    const isVid = isVideoFile(url, type);
-    const videoId = isVid ? 'modal-video-' + Math.random().toString(36).substring(2, 10) : '';
+      const isVid = isVideoFile(url, type);
     
     modal.innerHTML = `
         <div class="featured-modal-content">
@@ -297,15 +261,13 @@ window.openFeaturedModal = function(url, type, title, description) {
             <div class="featured-modal-body">
                 ${isVid ? 
                     `<div class="video-container">
-                        <video id="${videoId}" controls preload="none" playsinline class="featured-modal-media plyr__video"
-                                onerror="this.parentNode.innerHTML='<div class=&quot;video-error-message&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><p>Erro ao carregar vídeo</p><div class=&quot;video-fallback&quot;><p>Tente uma das alternativas:</p><a href=&quot;${url}&quot; target=&quot;_blank&quot; class=&quot;video-download-link&quot;>Baixar vídeo</a> <a href=&quot;javascript:void(0);&quot; onclick=&quot;document.getElementById(\'${videoId}-fallback\').innerHTML=\'<iframe src=//video.goo.gl/c/embed?url=\'+encodeURIComponent(\'${url}\')+\'&type=.mp4\' allowfullscreen style=width:100%;height:300px;border:0;></iframe>\'&quot; class=&quot;video-convert-link&quot;>Converter & Assistir Online</a></div></div>';">
-                            <source src="${url}" type="${getVideoMimeType(url, type)}">
+                        <video controls preload="metadata" playsinline class="featured-modal-media"
+                                onerror="this.parentNode.innerHTML='<div class=&quot;video-error-message&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><p>Erro ao carregar vídeo</p><div class=&quot;video-fallback&quot;><p>Tente baixar o arquivo:</p><a href=&quot;${url}&quot; target=&quot;_blank&quot; class=&quot;video-download-link&quot;>Baixar vídeo</a></div></div>';">
                             <source src="${url}" type="video/mp4">
                             <source src="${url}" type="video/webm">
-                            <source src="${url}" type="video/ogg">
+                            <source src="${url}">
                             Seu navegador não suporta a reprodução deste vídeo.
                         </video>
-                        <div id="${videoId}-fallback" class="video-fallback-container"></div>
                     </div>` :
                     `<img src="${url}" alt="${title}" class="featured-modal-media">`
                 }
@@ -313,42 +275,12 @@ window.openFeaturedModal = function(url, type, title, description) {
             </div>
         </div>
         <div class="featured-modal-backdrop" onclick="closeFeaturedModal()"></div>
-    `;
-    
+    `;    
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
     
     // Adicionar evento de teclado
     document.addEventListener('keydown', handleModalKeydown);
-    
-    // Inicializar o player Plyr para vídeos
-    if (isVid) {
-        setTimeout(() => {
-            const videoElement = document.getElementById(videoId);
-            if (videoElement) {
-                try {
-                    new Plyr(videoElement, {
-                        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
-                        autoplay: false,
-                        muted: false,
-                        loadSprite: false,
-                        iconUrl: 'https://cdn.plyr.io/3.7.8/plyr.svg',
-                        blankVideo: '',
-                        i18n: {
-                            restart: 'Reiniciar',
-                            play: 'Reproduzir',
-                            pause: 'Pausar',
-                            mute: 'Silenciar',
-                            unmute: 'Ativar som',
-                            enterFullscreen: 'Tela cheia',
-                            exitFullscreen: 'Sair da tela cheia'
-                        }
-                    });
-                } catch (e) {
-                    console.error('Erro ao inicializar Plyr:', e);
-                }
-            }
-        }, 100);    }
 };
 
 window.closeFeaturedModal = function() {
@@ -359,22 +291,11 @@ window.closeFeaturedModal = function() {
         if (videoElement) {
             try {
                 videoElement.pause();
-                // Se tiver uma instância do Plyr associada
-                if (videoElement.plyrInstance) {
-                    videoElement.plyrInstance.destroy();
-                }
+                videoElement.currentTime = 0;
             } catch (e) {
                 console.error('Erro ao pausar vídeo:', e);
             }
         }
-        
-        // Limpar qualquer iframe que possa estar sendo usado como fallback
-        const iframes = modal.querySelectorAll('iframe');
-        iframes.forEach(iframe => {
-            try {
-                iframe.src = '';
-            } catch (e) {}
-        });
         
         modal.remove();
         document.body.style.overflow = '';
@@ -386,6 +307,35 @@ function handleModalKeydown(event) {
     if (event.key === 'Escape') {
         closeFeaturedModal();
     }
+}
+
+// Handler específico para vídeos na página principal
+function setupVideoHandlers() {
+    document.addEventListener('click', function(e) {
+        const videoContainer = e.target.closest('.video-container, .video-preview-container');
+        const video = videoContainer?.querySelector('video');
+        
+        if (video && videoContainer && !e.target.closest('.btn-view-featured')) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Se o vídeo estiver pausado, reproduzir
+            if (video.paused) {
+                video.play().catch(err => {
+                    console.log('Erro ao reproduzir vídeo:', err);
+                    // Fallback: tentar carregar o vídeo
+                    video.load();
+                    setTimeout(() => {
+                        video.play().catch(() => {
+                            console.log('Vídeo não pode ser reproduzido automaticamente');
+                        });
+                    }, 100);
+                });
+            } else {
+                video.pause();
+            }
+        }
+    });
 }
 
 // Funções auxiliares para detecção de vídeo

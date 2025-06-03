@@ -164,19 +164,15 @@ class GaleriaMidia {
 
         let mediaHTML = '';
         if (firstMedia) {        // Melhor detecção de vídeo com mais formatos
-        const isVideo = this.isVideoFile(firstMedia.url, mediaType);
-
-        if (isVideo) {
-                const videoMimeType = this.getVideoMimeType(firstMedia.url, mediaType);
-                const videoId = 'thumbnail-video-' + Math.random().toString(36).substring(2, 10);
+        const isVideo = this.isVideoFile(firstMedia.url, mediaType);        if (isVideo) {
                 mediaHTML = `
                     <div class="video-container">
-                        <video id="${videoId}" preload="none" muted playsinline class="post-video-thumbnail"
-                               data-poster="${firstMedia.thumbnail || ''}"
+                        <video preload="metadata" muted playsinline class="post-video-thumbnail"
+                               poster="${firstMedia.thumbnail || ''}"
                                onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;media-placeholder video-error&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><span>Erro ao carregar vídeo</span></div>';">
-                            <source src="${firstMedia.url}" type="${videoMimeType}">
                             <source src="${firstMedia.url}" type="video/mp4">
                             <source src="${firstMedia.url}" type="video/webm">
+                            <source src="${firstMedia.url}">
                             Seu navegador não suporta a reprodução de vídeos.
                         </video>
                         <div class="media-indicator">
@@ -318,11 +314,6 @@ class GaleriaMidia {
             try {
                 video.pause();
                 video.currentTime = 0;
-                
-                // Destroy Plyr instances if they exist
-                if (video.plyrInstance) {
-                    video.plyrInstance.destroy();
-                }
             } catch (e) {
                 console.error('Erro ao pausar vídeo:', e);
             }
@@ -333,31 +324,20 @@ class GaleriaMidia {
         
         if (!media) return;
             
-        // Pausa qualquer vídeo anterior
-        const oldVideo = modalBody.querySelector('video');
-        if (oldVideo && oldVideo.plyrInstance) {
-            try {
-                oldVideo.plyrInstance.destroy();
-            } catch (e) {}
-        }
-        
         let mediaHTML = '';
         const mediaType = media.type || '';
         const isVideo = this.isVideoFile(media.url, mediaType);
 
         if (isVideo) {
-            const videoMimeType = this.getVideoMimeType(media.url, mediaType);
-            const videoId = 'modal-video-' + Math.random().toString(36).substring(2, 10);
             mediaHTML = `
                 <div class="video-container">
-                    <video id="${videoId}" controls preload="none" playsinline class="plyr__video"
-                           data-poster="${media.thumbnail || ''}"
+                    <video controls preload="metadata" playsinline
+                           poster="${media.thumbnail || ''}"
                            onloadstart="this.style.opacity='1'"
                            onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;video-error-message&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><p>Erro ao carregar vídeo</p><small>Formato não suportado ou arquivo corrompido</small><p><a href=&quot;${media.url}&quot; class=&quot;video-download-link&quot; target=&quot;_blank&quot;>Baixar vídeo</a></p></div>';">
-                        <source src="${media.url}" type="${videoMimeType}">
                         <source src="${media.url}" type="video/mp4">
                         <source src="${media.url}" type="video/webm">
-                        <source src="${media.url}" type="video/ogg">
+                        <source src="${media.url}">
                         Seu navegador não suporta a reprodução de vídeos. <a href="${media.url}" target="_blank">Clique aqui para baixar o vídeo</a>.
                     </video>
                 </div>
@@ -462,36 +442,42 @@ window.navigateMedia = function(direction) {
     if (window.galeriaApp) {
         window.galeriaApp.navigateMedia(direction);
     }
-};   // Inicializar quando o DOM estiver carregado
+};
+
+// Handler específico para vídeos
+function setupVideoHandlers() {
+    document.addEventListener('click', function(e) {
+        const videoContainer = e.target.closest('.video-container');
+        const video = videoContainer?.querySelector('video');
+        
+        if (video && videoContainer) {
+            e.preventDefault();
+            
+            // Se o vídeo estiver pausado, reproduzir
+            if (video.paused) {
+                video.play().catch(err => {
+                    console.log('Erro ao reproduzir vídeo:', err);
+                    // Fallback: tentar carregar o vídeo
+                    video.load();
+                    setTimeout(() => {
+                        video.play().catch(() => {
+                            console.log('Vídeo não pode ser reproduzido automaticamente');
+                        });
+                    }, 100);
+                });
+            } else {
+                video.pause();
+            }
+        }
+    });
+}
+
+// Inicializar handlers de vídeo
+document.addEventListener('DOMContentLoaded', setupVideoHandlers);
+
+// Inicializar quando o DOM estiver carregado
 let galeriaApp;
 document.addEventListener('DOMContentLoaded', () => {
     galeriaApp = new GaleriaMidia();
     window.galeriaApp = galeriaApp;
-    
-    // Inicializador global de players Plyr
-    window.initVideoPlayers = function() {
-        const videoElements = document.querySelectorAll('.plyr__video');
-        videoElements.forEach(video => {
-            if (!video.plyrInstance && !video.classList.contains('plyr--setup')) {
-                try {
-                    const player = new Plyr(video, {
-                        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
-                        autoplay: false,
-                        loadSprite: false,
-                        iconUrl: 'https://cdn.plyr.io/3.7.8/plyr.svg',
-                        blankVideo: '',
-                        previewThumbnails: { enabled: false }
-                    });
-                    video.plyrInstance = player;
-                } catch (e) {
-                    console.error('Erro ao inicializar player:', e);
-                }
-            }
-        });
-    };
-    
-    // Inicializar os players
-    setTimeout(() => {
-        window.initVideoPlayers();
-    }, 1000);
 });

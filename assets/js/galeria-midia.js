@@ -165,11 +165,17 @@ class GaleriaMidia {
         const mediaCount = post.media?.length || 0;
 
         let mediaHTML = '';
-        if (firstMedia) {
-            if (mediaType.startsWith('video/')) {
+        if (firstMedia) {        // Melhor detecção de vídeo
+        const isVideo = mediaType && (
+            mediaType.startsWith('video/') || 
+            mediaType === 'video' ||
+            /\.(mp4|webm|ogg|avi|mov)$/i.test(firstMedia.url)
+        );
+
+        if (isVideo) {
                 mediaHTML = `
                     <video preload="metadata" muted>
-                        <source src="${firstMedia.url}" type="${mediaType}">
+                        <source src="${firstMedia.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
                     </video>
                     <div class="media-indicator">
                         <i class="fas fa-play"></i>
@@ -177,7 +183,8 @@ class GaleriaMidia {
                 `;
             } else {
                 mediaHTML = `
-                    <img src="${firstMedia.url}" alt="${post.title}" loading="lazy">
+                    <img src="${firstMedia.url}" alt="${post.title}" loading="lazy"
+                         onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;media-placeholder&quot;><i class=&quot;fas fa-image&quot;></i></div>';">
                     <div class="media-indicator">
                         <i class="fas fa-image"></i>
                     </div>
@@ -246,18 +253,23 @@ class GaleriaMidia {
         this.currentFilter = filter;
         
         let filtered = this.posts;
-        
-        if (filter === 'photos') {
+          if (filter === 'photos') {
             filtered = this.posts.filter(post => 
-                post.media && post.media.some(media => 
-                    media.type && media.type.startsWith('image/')
-                )
+                post.media && post.media.some(media => {
+                    const type = media.type || '';
+                    return type.startsWith('image/') || 
+                           (!type.startsWith('video/') && type !== 'video' && 
+                            !/\.(mp4|webm|ogg|avi|mov)$/i.test(media.url));
+                })
             );
         } else if (filter === 'videos') {
             filtered = this.posts.filter(post => 
-                post.media && post.media.some(media => 
-                    media.type && media.type.startsWith('video/')
-                )
+                post.media && post.media.some(media => {
+                    const type = media.type || '';
+                    return type.startsWith('video/') || 
+                           type === 'video' ||
+                           /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url);
+                })
             );
         }
 
@@ -318,13 +330,16 @@ class GaleriaMidia {
         const modalBody = document.querySelector('.modal-body');
         const media = this.currentPostMedia[this.currentMediaIndex];
         
-        if (!media) return;
+        if (!media) return;        let mediaHTML = '';
+        const mediaType = media.type || '';
+        const isVideo = mediaType.startsWith('video/') || 
+                       mediaType === 'video' ||
+                       /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url);
 
-        let mediaHTML = '';
-        if (media.type && media.type.startsWith('video/')) {
+        if (isVideo) {
             mediaHTML = `
                 <video controls autoplay muted>
-                    <source src="${media.url}" type="${media.type}">
+                    <source src="${media.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
                     Seu navegador não suporta vídeos.
                 </video>
             `;

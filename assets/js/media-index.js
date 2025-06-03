@@ -74,18 +74,26 @@ function createRecentMediaCard(post) {
     // Usar primeira mídia como preview
     const firstMedia = post.media && post.media.length > 0 ? post.media[0] : null;
     const mediaCount = post.media ? post.media.length : 0;
-    
-    let mediaElement = '';
+      let mediaElement = '';
     if (firstMedia) {
-        if (firstMedia.type === 'video') {
+        // Melhor detecção de tipo de mídia
+        const isVideo = firstMedia.type && (
+            firstMedia.type.startsWith('video/') || 
+            firstMedia.type === 'video' ||
+            /\.(mp4|webm|ogg|avi|mov)(\?|$)/i.test(firstMedia.url)
+        );
+        
+        if (isVideo) {
             mediaElement = `
-                <video class="media-preview" muted>
+                <video class="media-preview" muted preload="metadata">
                     <source src="${firstMedia.url}" type="video/mp4">
+                    Seu navegador não suporta vídeo.
                 </video>
             `;
         } else {
             mediaElement = `
-                <img src="${firstMedia.url}" alt="${post.title}" class="media-preview">
+                <img src="${firstMedia.url}" alt="${post.title}" class="media-preview"
+                     onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;media-preview-placeholder&quot;><i class=&quot;fas fa-image&quot;></i></div>';">
             `;
         }
     } else {
@@ -176,16 +184,22 @@ function createFeaturedMediaCard(media) {
     const card = document.createElement('div');
     card.className = 'featured-media-card';
     
+    const mediaType = media.type || '';
+    const isVideo = mediaType.startsWith('video/') || 
+                   mediaType === 'video' ||
+                   /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url);
+    
     let mediaElement = '';
-    if (media.type === 'video') {
+    if (isVideo) {
         mediaElement = `
-            <video class="featured-media-content" controls muted>
-                <source src="${media.url}" type="video/mp4">
+            <video class="featured-media-content" controls muted preload="metadata">
+                <source src="${media.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
             </video>
         `;
     } else {
         mediaElement = `
-            <img src="${media.url}" alt="${media.title}" class="featured-media-content">
+            <img src="${media.url}" alt="${media.title}" class="featured-media-content"
+                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;featured-media-placeholder&quot;><i class=&quot;fas fa-image&quot;></i></div>';">
         `;
     }
     

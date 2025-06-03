@@ -26,6 +26,7 @@ function delay(ms) {
 let currentPost = null;
 let uploadedMedia = [];
 let isAuthenticated = false;
+let featuredMediaItem = null; // Variável para armazenar mídia em destaque selecionada
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
@@ -1150,11 +1151,16 @@ function createFeaturedMediaElement(media, index) {
     const div = document.createElement('div');
     div.className = 'bg-gray-800 rounded-lg border border-yellow-600 overflow-hidden';
     
+    const mediaType = media.type || '';
+    const isVideo = mediaType.startsWith('video/') || 
+                   mediaType === 'video' ||
+                   /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url);
+    
     let mediaElement;
-    if (media.type === 'video') {
+    if (isVideo) {
         mediaElement = `
-            <video class="w-full h-32 object-cover" controls>
-                <source src="${media.url}" type="video/mp4">
+            <video class="w-full h-32 object-cover" controls preload="metadata">
+                <source src="${media.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
             </video>
         `;
     } else {
@@ -1183,18 +1189,27 @@ async function handleFeaturedSubmit(event) {
     
     const title = document.getElementById('featured-title').value.trim();
     const description = document.getElementById('featured-description').value.trim();
-    const mediaInput = document.getElementById('featured-input'); // Corrigido ID
     
-    if (!title || !mediaInput.files[0]) {
-        showError('Título e mídia são obrigatórios');
+    if (!title) {
+        showError('Título é obrigatório');
+        return;
+    }
+    
+    // Verificar se temos mídia selecionada (arquivo ou URL)
+    if (!featuredMediaItem) {
+        showError('Selecione uma mídia para destaque');
         return;
     }
     
     showLoading('Configurando mídia em destaque...');
     
     try {
-        // Upload da mídia
-        const mediaItem = await uploadMediaFile(mediaInput.files[0]);
+        let mediaItem = featuredMediaItem;
+        
+        // Se for upload de arquivo, precisamos fazer upload
+        if (mediaItem.source === 'file' && mediaItem.file) {
+            mediaItem = await uploadMediaFile(mediaItem.file);
+        }
         
         // Buscar configuração atual
         const docRef = doc(db, 'site_config', 'featured_media');
@@ -1207,7 +1222,9 @@ async function handleFeaturedSubmit(event) {
         
         // Adicionar nova mídia
         const newMedia = {
-            ...mediaItem,
+            url: mediaItem.url,
+            type: mediaItem.type,
+            name: mediaItem.name,
             title,
             description,
             addedAt: new Date().toISOString()
@@ -1225,6 +1242,14 @@ async function handleFeaturedSubmit(event) {
         
         // Limpar formulário
         document.getElementById('featured-form').reset();
+        clearFeaturedPreview();
+        
+        // Resetar para upload de arquivo
+        const fileRadio = document.querySelector('input[name="featured-media-type"][value="file"]');
+        if (fileRadio) {
+            fileRadio.checked = true;
+            handleFeaturedMediaTypeChange({ target: fileRadio });
+        }
         
         // Recarregar lista
         loadFeaturedMedia();
@@ -1310,29 +1335,32 @@ async function handleFeaturedMediaUpload(event) {
         return;
     }
 
-    // Mostrar loading
-    showLoading(`Preparando upload de mídia em destaque...`);
-
     try {
         const file = validFiles[0]; // Pegamos apenas o primeiro arquivo para mídia em destaque
         
-        showLoading(`Enviando ${file.name}...`);
+        showLoading(`Preparando mídia em destaque...`);
         
-        const mediaItem = await uploadMediaFile(file);
+        // Criar objeto de mídia temporário para preview
+        const mediaItem = {
+            file: file,
+            url: URL.createObjectURL(file),
+            type: file.type,
+            name: file.name,
+            source: 'file'
+        };
         
-        // Criar preview
-        const previewElement = createMediaPreview(mediaItem);
-        uploadContainer.appendChild(previewElement);
+        // Mostrar preview
+        showFeaturedPreview(mediaItem);
         
         // Armazenar referência para uso posterior
         featuredMediaItem = mediaItem;
         
         hideLoading();
-        showSuccess(`✅ Mídia em destaque enviada com sucesso!`);
+        showSuccess(`✅ Mídia selecionada com sucesso!`);
         
     } catch (error) {
-        console.error(`Erro no upload da mídia em destaque:`, error);
-        showError(`Falha no upload: ${error.message}`);
+        console.error(`Erro ao processar mídia em destaque:`, error);
+        showError(`Falha ao processar arquivo: ${error.message}`);
         hideLoading();
     }
 }
@@ -1512,7 +1540,7 @@ function handleAddFeaturedUrlMedia() {
     const url = urlInput.value.trim();
     
     if (!url) {
-        alert('Por favor, insira uma URL válida.');
+        showError('Por favor, insira uma URL válida.');
         return;
     }
     
@@ -1520,7 +1548,7 @@ function handleAddFeaturedUrlMedia() {
     try {
         new URL(url);
     } catch {
-        alert('Por favor, insira uma URL válida.');
+        showError('Por favor, insira uma URL válida.');
         return;
     }
     
@@ -1545,9 +1573,13 @@ function handleAddFeaturedUrlMedia() {
     // Mostrar preview
     showFeaturedPreview(mediaItem);
     
+    // Armazenar referência para uso posterior
+    featuredMediaItem = mediaItem;
+    
     // Limpar input
     urlInput.value = '';
     
+    showSuccess('✅ URL adicionada com sucesso!');
     console.log('Mídia em destaque adicionada via URL:', mediaItem);
 }
 

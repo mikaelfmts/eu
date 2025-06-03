@@ -1,521 +1,649 @@
-// Galeria de Mídia JavaScript
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+// Importar as dependências do Firebase
+import { db } from '../assets/js/firebase-config.js';
 import { 
-    getFirestore, 
     collection, 
     getDocs, 
-    orderBy, 
     query, 
+    orderBy, 
     limit, 
     startAfter, 
     where,
     doc,
     getDoc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+} from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
-// Importar os ajudantes de vídeo
-import { safePlayVideo, safeLoadVideo, isVideo } from './video-helpers.js';
+// Importar classes e funções relacionadas a vídeos
+import { VideoProcessor } from '../assets/js/video-system.js';
+import { safePlayVideo, isVideo } from '../assets/js/video-helpers.js';
 
-// Configuração do Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
-    authDomain: "mikaelfmts.firebaseapp.com",
-    projectId: "mikaelfmts",
-    storageBucket: "mikaelfmts.appspot.com",
-    messagingSenderId: "516762612351",
-    appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
-};
+// Variáveis de controle
+let lastVisible = null;
+let currentFilter = 'all';
+let isLoading = false;
+let currentMediaList = [];
+let currentMediaIndex = 0;
+let videoProcessor = null;
 
-// Inicializar Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-class GaleriaMidia {
-    constructor() {
-        this.posts = [];
-        this.filteredPosts = [];
-        this.currentFilter = 'all';
-        this.lastDoc = null;
-        this.postsPerPage = 6;
-        this.currentMediaIndex = 0;
-        this.currentPostMedia = [];
-        
-        this.init();
-    }
-
-    async init() {
-        await this.loadPosts();
-        this.setupEventListeners();
-        this.hideLoadingScreen();
-    }
-
-    hideLoadingScreen() {
-        const loadingScreen = document.getElementById('loading-screen');
-        if (loadingScreen) {
-            setTimeout(() => {
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                }, 300);
-            }, 1000);
-        }
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+    // Garantir que o VideoProcessor está disponível
+    if (window.VideoProcessor) {
+        videoProcessor = new VideoProcessor();
+    } else if (typeof VideoProcessor !== 'undefined') {
+        videoProcessor = new VideoProcessor();
     }
     
-    async loadPosts(loadMore = false) {
-        try {
-            let q;
-            if (loadMore && this.lastDoc) {
-                q = query(
-                    collection(db, 'galeria_posts'),
-                    orderBy('createdAt', 'desc'),
-                    startAfter(this.lastDoc),
-                    limit(this.postsPerPage)
-                );
-            } else {
-                q = query(
-                    collection(db, 'galeria_posts'),
-                    orderBy('createdAt', 'desc'),
-                    limit(this.postsPerPage)
-                );
-            }
-
-            const querySnapshot = await getDocs(q);
-            const newPosts = [];
-            
-            // Carregar posts e suas mídias
-            for (const postDoc of querySnapshot.docs) {
-                const postData = {
-                    id: postDoc.id,
-                    ...postDoc.data()
-                };
-                
-                // Se o post tem referências de mídia, carregar do galeria_media
-                if (postData.mediaIds && postData.mediaIds.length > 0) {
-                    const mediaPromises = postData.mediaIds.map(async (mediaId) => {
-                        try {
-                            const mediaDocRef = doc(db, 'galeria_media', mediaId);
-                            const mediaDoc = await getDoc(mediaDocRef);
-                            if (mediaDoc.exists()) {
-                                return {
-                                    id: mediaId,
-                                    url: mediaDoc.data().data, // Base64 data
-                                    type: mediaDoc.data().type,
-                                    name: mediaDoc.data().name
-                                };
-                            }
-                        } catch (error) {
-                            console.error('Erro ao carregar mídia:', error);
-                            return null;
-                        }
-                    });
-                    
-                    const mediaResults = await Promise.all(mediaPromises);
-                    postData.media = mediaResults.filter(media => media !== null);
-                } else if (postData.media) {
-                    // Manter compatibilidade com posts antigos que já têm URLs diretas
-                    postData.media = postData.media;
-                } else {
-                    postData.media = [];
-                }
-
-                newPosts.push(postData);
-            }
-
-            if (loadMore) {
-                this.posts = [...this.posts, ...newPosts];
-            } else {
-                this.posts = newPosts;
-            }
-
-            // Atualizar lastDoc para paginação
-            if (querySnapshot.docs.length > 0) {
-                this.lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
-            }
-
-            this.applyFilter(this.currentFilter, !loadMore);
-            this.updateLoadMoreButton(querySnapshot.docs.length === this.postsPerPage);
-
-        } catch (error) {
-            console.error('Erro ao carregar posts:', error);
-            this.showError('Erro ao carregar posts');
-        }
-    }
-
-    renderPosts(posts) {
-        const postsContainer = document.getElementById('posts-feed');
-        
-        if (!posts || posts.length === 0) {
-            postsContainer.innerHTML = `
-                <div class="no-posts" style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #c8aa6e;">
-                    <i class="fas fa-images" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                    <h3>Nenhum post encontrado</h3>
-                    <p>Não há posts para exibir no momento.</p>
-                </div>
-            `;
-            return;
-        }
-
-        const postsHTML = posts.map(post => this.createPostHTML(post)).join('');
-        postsContainer.innerHTML = postsHTML;
-    }
+    // Inicializar componentes
+    setupFilterButtons();
+    loadInitialPosts();
+    setupLoadMoreButton();
+    setupKeyboardNavigation();
     
-    createPostHTML(post) {
-        const date = new Date(post.timestamp?.toDate ? post.timestamp.toDate() : post.timestamp);
-        const formattedDate = date.toLocaleDateString('pt-BR', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+    // Definir funções para uso global
+    window.openMediaModal = openMediaModal;
+    window.closeMediaModal = closeMediaModal;
+    window.navigateMedia = navigateMedia;
+    window.initVideoPlayers = initVideoPlayers;
+});
 
-        const firstMedia = post.media && post.media[0];
-        const mediaType = firstMedia?.type || 'image';
-        const mediaCount = post.media?.length || 0;
-        
-        let mediaHTML = '';
-        if (firstMedia) {
-            const isVideoMedia = this.isVideoFile(firstMedia.url, mediaType);
+/**
+ * Configura os botões de filtro
+ */
+function setupFilterButtons() {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.getAttribute('data-filter');
             
-            if (isVideoMedia) {
-                // Usar o novo sistema de processamento de vídeos
-                if (window.videoProcessor) {
-                    const videoInfo = window.videoProcessor.processVideoUrl(firstMedia.url, mediaType);
-                    
-                    if (videoInfo) {
-                        if (videoInfo.thumbnailUrl) {
-                            // Usar thumbnail do YouTube
-                            mediaHTML = `
-                                <img src="${videoInfo.thumbnailUrl}" 
-                                     alt="${post.title}" 
-                                     loading="lazy"
-                                     onerror="this.src=''; this.style.display='none'; this.parentElement.innerHTML='${window.videoProcessor.generatePlaceholderThumbnail(videoInfo).replace(/'/g, '\\\'')}';">
-                                <div class="media-indicator">
-                                    <i class="fas fa-play"></i>
-                                </div>
-                            `;
-                        } else {
-                            // Usar placeholder personalizado baseado na plataforma
-                            mediaHTML = `
-                                ${window.videoProcessor.generatePlaceholderThumbnail(videoInfo, {showPlayButton: false})}
-                                <div class="media-indicator">
-                                    <i class="fas fa-play"></i>
-                                </div>
-                            `;
-                        }
-                    } else {
-                        // Fallback para vídeos não processáveis
-                        mediaHTML = `
-                            <div class="media-placeholder">
-                                <i class="fas fa-video" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                                <span>Vídeo</span>
-                            </div>
-                            <div class="media-indicator">
-                                <i class="fas fa-play"></i>
-                            </div>
-                        `;
-                    }
-                } else {
-                    // Fallback se o VideoProcessor não estiver disponível
-                    mediaHTML = `
-                        <div class="media-placeholder">
-                            <i class="fas fa-play" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                            <span>Vídeo</span>
-                        </div>
-                        <div class="media-indicator">
-                            <i class="fas fa-play"></i>
-                        </div>
-                    `;
-                }
-            } else {
-                // Para imagens
-                mediaHTML = `
-                    <img src="${firstMedia.url}" alt="${post.title}" loading="lazy"
-                         onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;media-placeholder&quot;><i class=&quot;fas fa-image&quot;></i><span>Imagem</span></div>';">
-                    <div class="media-indicator">
-                        <i class="fas fa-image"></i>
-                    </div>
-                `;
-            }
-
-            if (mediaCount > 1) {
-                mediaHTML += `<div class="media-count">${mediaCount} itens</div>`;
-            }
-        }
-
-        return `
-            <article class="post-card" data-post-id="${post.id}" onclick="galeriaApp.openPost('${post.id}')">
-                <div class="post-header">
-                    <h3 class="post-title">${post.title}</h3>
-                    <time class="post-date">${formattedDate}</time>
-                </div>
-                ${firstMedia ? `<div class="post-media">${mediaHTML}</div>` : ''}
-                <div class="post-description">
-                    ${post.description}
-                </div>
-            </article>
-        `;
-    }
-
-    setupEventListeners() {
-        // Filtros
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const filter = e.target.dataset.filter;
-                this.setActiveFilter(e.target);
-                this.applyFilter(filter);
-            });
-        });
-
-        // Load More
-        const loadMoreBtn = document.querySelector('.load-more-btn');
-        if (loadMoreBtn) {
-            loadMoreBtn.addEventListener('click', () => {
-                this.loadPosts(true);
-            });
-        }
-
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (document.getElementById('media-modal').classList.contains('hidden')) return;
+            // Atualizar estilo dos botões
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
             
-            if (e.key === 'Escape') {
-                this.closeMediaModal();
-            } else if (e.key === 'ArrowLeft') {
-                this.navigateMedia(-1);
-            } else if (e.key === 'ArrowRight') {
-                this.navigateMedia(1);
-            }
+            // Aplicar filtro
+            currentFilter = filter;
+            resetPosts();
+            loadInitialPosts();
         });
-    }
+    });
+}
 
-    setActiveFilter(activeBtn) {
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        activeBtn.classList.add('active');
-    }
+/**
+ * Reseta o estado dos posts para carregar novos
+ */
+function resetPosts() {
+    lastVisible = null;
+    document.getElementById('posts-feed').innerHTML = '';
+    document.getElementById('load-more').classList.add('hidden');
+}
 
-    applyFilter(filter, clearContainer = true) {
-        this.currentFilter = filter;
+/**
+ * Carrega os posts iniciais
+ */
+async function loadInitialPosts() {
+    const container = document.getElementById('posts-feed');
+    showLoading(container);
+    
+    try {
+        // Criar consulta baseada no filtro
+        let postsQuery = createFilteredQuery();
         
-        let filtered = this.posts;
+        const querySnapshot = await getDocs(postsQuery);
         
-        if (filter === 'photos') {
-            filtered = this.posts.filter(post => 
-                post.media && post.media.some(media => {
-                    return !this.isVideoFile(media.url, media.type);
-                })
-            );
-        } else if (filter === 'videos') {
-            filtered = this.posts.filter(post => 
-                post.media && post.media.some(media => {
-                    return this.isVideoFile(media.url, media.type);
-                })
-            );
-        }
-
-        this.filteredPosts = filtered;
-        
-        if (clearContainer) {
-            this.renderPosts(filtered);
+        if (querySnapshot.empty) {
+            container.innerHTML = createEmptyMessage();
         } else {
-            // Append new posts
-            const postsContainer = document.getElementById('posts-feed');
-            const newPosts = filtered.slice(postsContainer.children.length);
-            newPosts.forEach(post => {
-                postsContainer.innerHTML += this.createPostHTML(post);
+            container.innerHTML = '';
+            
+            querySnapshot.forEach(doc => {
+                const post = { id: doc.id, ...doc.data() };
+                const postElement = createPostCard(post);
+                container.appendChild(postElement);
             });
-        }
-    }
-
-    updateLoadMoreButton(hasMore) {
-        const loadMoreContainer = document.getElementById('load-more');
-        if (hasMore && this.filteredPosts.length >= this.postsPerPage) {
-            loadMoreContainer.classList.remove('hidden');
-        } else {
-            loadMoreContainer.classList.add('hidden');
-        }
-    }
-
-    openPost(postId) {
-        const post = this.posts.find(p => p.id === postId);
-        if (!post || !post.media || post.media.length === 0) return;
-
-        this.currentPostMedia = post.media;
-        this.currentMediaIndex = 0;
-        
-        this.showMediaModal();
-        this.updateModalContent();
-    }
-
-    showMediaModal() {
-        const modal = document.getElementById('media-modal');
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-    
-    closeMediaModal() {
-        const modal = document.getElementById('media-modal');
-        modal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        
-        // Pause any playing videos
-        const videos = modal.querySelectorAll('video');
-        videos.forEach(video => {
-            try {
-                video.pause();
-                video.currentTime = 0;
-            } catch (e) {
-                console.error('Erro ao pausar vídeo:', e);
-            }
-        });
-    }
-    
-    updateModalContent() {
-        const modalBody = document.querySelector('.modal-body');
-        const media = this.currentPostMedia[this.currentMediaIndex];
-        
-        if (!media) return;
             
-        let mediaHTML = '';
-        const mediaType = media.type || '';
-        
-        try {
-            const isVideoMedia = this.isVideoFile(media.url, mediaType);
+            // Guardar o último post para paginação
+            lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
             
-            if (isVideoMedia) {
-                // Usar o novo sistema de processamento de vídeos
-                if (window.videoProcessor) {
-                    const videoInfo = window.videoProcessor.processVideoUrl(media.url, mediaType);
-                    
-                    if (videoInfo) {
-                        mediaHTML = window.videoProcessor.generateVideoHtml(videoInfo, {
-                            width: '100%',
-                            height: '400px',
-                            controls: true,
-                            showFallback: true,
-                            className: 'modal-video'
-                        });
-                    } else {
-                        mediaHTML = window.videoProcessor.generateErrorHtml('Formato de vídeo não suportado', media.url);
-                    }
-                } else {
-                    // Fallback se o VideoProcessor não estiver disponível
-                    mediaHTML = `
-                        <div class="video-container">
-                            <video controls preload="metadata" playsinline
-                                   style="max-width: 100%; max-height: 80vh;"
-                                   onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=&quot;text-align: center; padding: 2rem; color: #c8aa6e;&quot;><i class=&quot;fas fa-exclamation-triangle&quot; style=&quot;font-size: 2rem; margin-bottom: 1rem;&quot;></i><p>Erro ao carregar vídeo</p><a href=&quot;${media.url}&quot; target=&quot;_blank&quot; style=&quot;color: #c8aa6e;&quot;>Baixar vídeo</a></div>';">
-                                <source src="${media.url}" type="video/mp4">
-                                <source src="${media.url}" type="video/webm">
-                                <source src="${media.url}">
-                                Seu navegador não suporta a reprodução de vídeos. <a href="${media.url}" target="_blank" style="color: #c8aa6e;">Clique aqui para baixar o vídeo</a>.
-                            </video>
-                        </div>
-                    `;
-                }
-            } else {
-                // Imagem
-                mediaHTML = `<img src="${media.url}" alt="Mídia" loading="lazy" style="max-width: 100%; max-height: 80vh; object-fit: contain;">`;
+            // Mostrar botão "Carregar mais" se houver mais de 10 posts
+            if (querySnapshot.docs.length >= 10) {
+                document.getElementById('load-more').classList.remove('hidden');
             }
-        } catch (error) {
-            console.error('Erro ao processar mídia:', error);
-            mediaHTML = `
-                <div style="text-align: center; padding: 2rem; color: #c8aa6e;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                    <p>Erro ao carregar mídia</p>
-                </div>
-            `;
         }
-
-        modalBody.innerHTML = mediaHTML;
-
-        // Update navigation buttons
-        const prevBtn = document.querySelector('.prev-btn');
-        const nextBtn = document.querySelector('.next-btn');
-        
-        if (prevBtn) prevBtn.style.display = this.currentMediaIndex > 0 ? 'block' : 'none';
-        if (nextBtn) nextBtn.style.display = this.currentMediaIndex < this.currentPostMedia.length - 1 ? 'block' : 'none';
-    }
-
-    navigateMedia(direction) {
-        const newIndex = this.currentMediaIndex + direction;
-        
-        if (newIndex >= 0 && newIndex < this.currentPostMedia.length) {
-            this.currentMediaIndex = newIndex;
-            this.updateModalContent();
-        }
-    }
-    
-    showError(message) {
-        console.error(message);
-        // Aqui você pode implementar um sistema de notificações
-    }
-    
-    // Método para detectar se um arquivo é vídeo usando o sistema helper
-    isVideoFile(url, mimeType) {
-        // Usar o helper importado
-        return isVideo(url, mimeType);
+    } catch (error) {
+        console.error('Erro ao carregar posts:', error);
+        container.innerHTML = createErrorMessage('Não foi possível carregar os posts');
+    } finally {
+        hideLoading();
     }
 }
 
-// Funções globais para eventos inline
-window.closeMediaModal = function() {
-    if (window.galeriaApp) {
-        window.galeriaApp.closeMediaModal();
+/**
+ * Cria a consulta filtrada com base no filtro atual
+ */
+function createFilteredQuery() {
+    // Base da consulta
+    let baseQuery;
+    
+    if (currentFilter === 'all') {
+        // Todos os posts
+        baseQuery = query(
+            collection(db, 'galeria_posts'), 
+            where('visible', '==', true),
+            orderBy('createdAt', 'desc'),
+            limit(10)
+        );
+    } else if (currentFilter === 'photos') {
+        // Apenas fotos
+        baseQuery = query(
+            collection(db, 'galeria_posts'),
+            where('visible', '==', true),
+            where('contentType', '==', 'photo'),
+            orderBy('createdAt', 'desc'),
+            limit(10)
+        );
+    } else if (currentFilter === 'videos') {
+        // Apenas vídeos
+        baseQuery = query(
+            collection(db, 'galeria_posts'),
+            where('visible', '==', true),
+            where('contentType', '==', 'video'),
+            orderBy('createdAt', 'desc'),
+            limit(10)
+        );
     }
-};
-
-window.navigateMedia = function(direction) {
-    if (window.galeriaApp) {
-        window.galeriaApp.navigateMedia(direction);
+    
+    // Adicionar ponto de início para paginação
+    if (lastVisible) {
+        baseQuery = query(
+            baseQuery,
+            startAfter(lastVisible)
+        );
     }
-};
+    
+    return baseQuery;
+}
 
-// Handler específico para vídeos
-function setupVideoHandlers() {
-    document.addEventListener('click', function(e) {
-        const videoContainer = e.target.closest('.video-container');
-        const video = videoContainer?.querySelector('video');
+/**
+ * Configura o botão de carregar mais
+ */
+function setupLoadMoreButton() {
+    const loadMoreButton = document.querySelector('.load-more-btn');
+    if (!loadMoreButton) return;
+    
+    loadMoreButton.addEventListener('click', async () => {
+        if (isLoading) return;
         
-        if (video && videoContainer) {
-            e.preventDefault();
+        isLoading = true;
+        loadMoreButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Carregando...';
+        
+        try {
+            // Criar consulta baseada no último item visível
+            let postsQuery = createFilteredQuery();
             
-            // Usar a flag para evitar reproduções sobrepostas
-            if (!video._isPlayingHandled) {
-                video._isPlayingHandled = true;
-                
-                if (video.paused) {
-                    // Usar o helper de reprodução segura
-                    safePlayVideo(video)
-                        .then(() => {
-                            // Sucesso - o vídeo está reproduzindo
-                            videoContainer.classList.add('playing');
-                        })
-                        .catch(err => {
-                            console.warn('Não foi possível reproduzir o vídeo:', err.message);
-                        })
-                        .finally(() => {
-                            video._isPlayingHandled = false;
-                        });
-                } else {
-                    // Pausar o vídeo
-                    video.pause();
-                    videoContainer.classList.remove('playing');
-                    video._isPlayingHandled = false;
-                }
+            const querySnapshot = await getDocs(postsQuery);
+            const container = document.getElementById('posts-feed');
+            
+            if (querySnapshot.empty) {
+                document.getElementById('load-more').classList.add('hidden');
+                return;
             }
+            
+            // Adicionar novos posts
+            querySnapshot.forEach(doc => {
+                const post = { id: doc.id, ...doc.data() };
+                const postElement = createPostCard(post);
+                container.appendChild(postElement);
+            });
+            
+            // Atualizar o último visível
+            lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+            
+            // Esconder botão se não houver mais posts
+            if (querySnapshot.docs.length < 10) {
+                document.getElementById('load-more').classList.add('hidden');
+            }
+        } catch (error) {
+            console.error('Erro ao carregar mais posts:', error);
+        } finally {
+            isLoading = false;
+            loadMoreButton.innerHTML = '<i class="fas fa-plus"></i> Carregar Mais';
         }
     });
 }
 
-// Inicializar handlers de vídeo
-document.addEventListener('DOMContentLoaded', setupVideoHandlers);
+/**
+ * Cria um card de post para a galeria
+ */
+function createPostCard(post) {
+    const card = document.createElement('div');
+    card.className = 'post-card';
+    card.dataset.postId = post.id;
+    
+    // Formatar data
+    const createdAt = post.createdAt && post.createdAt.toDate ? 
+        post.createdAt.toDate().toLocaleDateString('pt-BR') : 
+        'Data não disponível';
+    
+    // Verificar se há mídia disponível
+    const mediaCount = post.media ? post.media.length : 0;
+    const firstMedia = mediaCount > 0 ? post.media[0] : null;
+    
+    // Criar elemento de visualização de mídia
+    let mediaElement;
+    if (firstMedia) {
+        if (isVideoContent(firstMedia)) {
+            // É um vídeo
+            mediaElement = createVideoPreview(firstMedia);
+        } else {
+            // É uma imagem
+            mediaElement = `
+                <img src="${firstMedia.url}" alt="${post.title}" 
+                     onerror="this.src='../assets/images/placeholder.jpg';">
+            `;
+        }
+    } else {
+        // Sem mídia
+        mediaElement = `
+            <div class="media-placeholder">
+                <i class="fas fa-image"></i>
+                <span>Sem mídia disponível</span>
+            </div>
+        `;
+    }
+    
+    // Estrutura do card
+    card.innerHTML = `
+        <div class="post-header">
+            <h3 class="post-title">${post.title}</h3>
+            <div class="post-date"><i class="fas fa-calendar"></i> ${createdAt}</div>
+        </div>
+        <div class="post-media">
+            ${mediaElement}
+            <div class="media-count">
+                <i class="fas fa-${mediaCount > 1 ? 'images' : (isVideoContent(firstMedia) ? 'video' : 'image')}"></i>
+                ${mediaCount}
+            </div>
+        </div>
+        <div class="post-description">${post.description || ''}</div>
+    `;
+    
+    // Adicionar evento de clique
+    card.addEventListener('click', () => {
+        openMediaModal(post);
+    });
+    
+    return card;
+}
 
-// Inicializar quando o DOM estiver carregado
-let galeriaApp;
-document.addEventListener('DOMContentLoaded', () => {
-    galeriaApp = new GaleriaMidia();
-    window.galeriaApp = galeriaApp;
-});
+/**
+ * Verifica se um objeto de mídia é um vídeo
+ */
+function isVideoContent(media) {
+    if (!media) return false;
+    
+    // Usar videoProcessor se disponível
+    if (videoProcessor) {
+        return videoProcessor.isVideo(media.url, media.type);
+    }
+    
+    // Alternativa básica
+    return media.type?.startsWith('video/') || 
+           media.url?.includes('youtube.com') || 
+           media.url?.includes('youtu.be') ||
+           media.url?.includes('vimeo.com');
+}
+
+/**
+ * Cria uma prévia de vídeo
+ */
+function createVideoPreview(media) {
+    // Usar o videoProcessor se disponível
+    if (videoProcessor) {
+        const videoInfo = videoProcessor.processVideoUrl(media.url, media.type);
+        
+        // Se processou corretamente
+        if (videoInfo) {
+            if (videoInfo.thumbnailUrl) {
+                // Usar thumbnail para vídeos integrados (YouTube, etc)
+                return `
+                    <div class="video-preview-container">
+                        <img src="${videoInfo.thumbnailUrl}" alt="Prévia do vídeo" 
+                             onerror="this.parentNode.innerHTML='${videoProcessor.generatePlaceholderThumbnail(videoInfo, {showPlayButton: true}).replace(/'/g, '\\\'')}';">
+                        <div class="video-play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Usar placeholder gerado pelo VideoProcessor
+                return videoProcessor.generatePlaceholderThumbnail(videoInfo, {
+                    showPlayButton: true
+                });
+            }
+        }
+    }
+    
+    // Fallback para preview básico
+    return `
+        <div class="video-preview-container">
+            <div class="media-placeholder video-placeholder">
+                <i class="fas fa-play-circle"></i>
+                <span>Vídeo</span>
+            </div>
+            <div class="video-play-button">
+                <i class="fas fa-play"></i>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Abre o modal para visualização de mídia
+ */
+function openMediaModal(post) {
+    const modal = document.getElementById('media-modal');
+    const modalBody = modal.querySelector('.modal-body');
+    
+    if (!post || !post.media || post.media.length === 0) {
+        modalBody.innerHTML = createErrorMessage('Nenhuma mídia disponível');
+        modal.classList.remove('hidden');
+        return;
+    }
+    
+    // Salvar lista de mídia e índice atual
+    currentMediaList = post.media;
+    currentMediaIndex = 0;
+    
+    // Carregar a primeira mídia
+    loadMediaIntoModal(post.media[0]);
+    
+    // Mostrar modal
+    modal.classList.remove('hidden');
+    
+    // Atualizar botões de navegação
+    updateNavigationButtons();
+}
+
+/**
+ * Carrega uma mídia no modal
+ */
+function loadMediaIntoModal(media) {
+    const modalBody = document.querySelector('#media-modal .modal-body');
+    
+    if (isVideoContent(media)) {
+        // Usar o videoProcessor para gerar HTML
+        if (videoProcessor) {
+            const videoInfo = videoProcessor.processVideoUrl(media.url, media.type);
+            if (videoInfo) {
+                modalBody.innerHTML = videoProcessor.generateVideoHtml(videoInfo, {
+                    width: '100%',
+                    height: '70vh',
+                    controls: true,
+                    autoplay: false,
+                    className: 'modal-video',
+                    showFallback: true
+                });
+            } else {
+                // Fallback para vídeos não processáveis
+                modalBody.innerHTML = `
+                    <div class="video-error-container">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Erro ao processar vídeo</h3>
+                        <p>Não foi possível processar este vídeo.</p>
+                        <div class="error-actions">
+                            <a href="${media.url}" target="_blank" class="error-btn">
+                                <i class="fas fa-external-link-alt"></i> Abrir em nova aba
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+        } else {
+            // Vídeo direto simples
+            modalBody.innerHTML = `
+                <div class="video-container direct-video-container">
+                    <video controls playsinline src="${media.url}" class="modal-media-content"></video>
+                </div>
+            `;
+        }
+    } else {
+        // Imagem
+        modalBody.innerHTML = `
+            <img src="${media.url}" alt="${media.title || ''}" class="modal-media-content"
+                 onerror="this.src='../assets/images/placeholder.jpg';">
+        `;
+    }
+    
+    // Inicializar players de vídeo
+    if (window.initVideoPlayers) {
+        setTimeout(window.initVideoPlayers, 300);
+    }
+}
+
+/**
+ * Fecha o modal de mídia
+ */
+function closeMediaModal() {
+    const modal = document.getElementById('media-modal');
+    const modalBody = modal.querySelector('.modal-body');
+    
+    // Pausar qualquer vídeo que esteja sendo reproduzido
+    const videoElements = modalBody.querySelectorAll('video');
+    videoElements.forEach(video => {
+        if (video && !video.paused) {
+            video.pause();
+        }
+    });
+    
+    // Esconder modal
+    modal.classList.add('hidden');
+    
+    // Limpar conteúdo após transição
+    setTimeout(() => {
+        modalBody.innerHTML = '';
+    }, 300);
+}
+
+/**
+ * Navega entre mídias no modal
+ */
+function navigateMedia(direction) {
+    if (!currentMediaList || currentMediaList.length <= 1) return;
+    
+    // Calcular novo índice
+    const newIndex = currentMediaIndex + direction;
+    
+    // Validar limites
+    if (newIndex < 0 || newIndex >= currentMediaList.length) return;
+    
+    currentMediaIndex = newIndex;
+    
+    // Carregar nova mídia
+    loadMediaIntoModal(currentMediaList[currentMediaIndex]);
+    
+    // Atualizar botões de navegação
+    updateNavigationButtons();
+}
+
+/**
+ * Atualiza a visibilidade dos botões de navegação
+ */
+function updateNavigationButtons() {
+    const prevBtn = document.querySelector('.prev-btn');
+    const nextBtn = document.querySelector('.next-btn');
+    
+    if (!currentMediaList || currentMediaList.length <= 1) {
+        // Esconder ambos os botões se houver apenas uma mídia
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        return;
+    }
+    
+    // Mostrar/esconder botão anterior
+    if (prevBtn) {
+        prevBtn.style.display = currentMediaIndex > 0 ? 'flex' : 'none';
+    }
+    
+    // Mostrar/esconder botão próximo
+    if (nextBtn) {
+        nextBtn.style.display = currentMediaIndex < currentMediaList.length - 1 ? 'flex' : 'none';
+    }
+}
+
+/**
+ * Configura navegação por teclado para o modal
+ */
+function setupKeyboardNavigation() {
+    document.addEventListener('keydown', function(event) {
+        // Verificar se o modal está aberto
+        const modal = document.getElementById('media-modal');
+        if (modal.classList.contains('hidden')) return;
+        
+        // ESC fecha o modal
+        if (event.key === 'Escape') {
+            closeMediaModal();
+        }
+        // Setas navegam entre mídias
+        else if (event.key === 'ArrowLeft') {
+            navigateMedia(-1);
+        }
+        else if (event.key === 'ArrowRight') {
+            navigateMedia(1);
+        }
+    });
+}
+
+/**
+ * Inicializa players de vídeo na página
+ */
+function initVideoPlayers() {
+    // Selecionar todos os vídeos na página
+    const videoElements = document.querySelectorAll('video');
+    
+    videoElements.forEach(video => {
+        // Configurar eventos básicos
+        video.addEventListener('error', function(e) {
+            console.error('Erro no vídeo:', e);
+            
+            // Substituir por mensagem de erro
+            const container = this.closest('.video-container, .video-preview-container');
+            if (container) {
+                container.innerHTML = `
+                    <div class="video-error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Não foi possível carregar o vídeo</p>
+                        <small>O vídeo pode não estar mais disponível ou o formato não é suportado pelo seu navegador.</small>
+                    </div>
+                `;
+            }
+        });
+        
+        // Cliques para vídeos
+        const container = video.closest('.video-container, .video-preview-container');
+        if (container) {
+            container.addEventListener('click', function(e) {
+                if (e.target.closest('a')) return; // Ignorar cliques em links
+                
+                // Toggle play/pause
+                if (video.paused) {
+                    safePlayVideo(video)
+                        .then(() => {
+                            container.classList.add('playing');
+                        })
+                        .catch(err => {
+                            console.warn('Erro ao reproduzir vídeo:', err);
+                        });
+                } else {
+                    video.pause();
+                    container.classList.remove('playing');
+                }
+            });
+        }
+        
+        // Configurar eventos de carregamento
+        video.addEventListener('loadstart', function() {
+            this.style.opacity = '0.6';
+            
+            // Adicionar indicador de carregamento
+            const container = this.closest('.video-container, .video-preview-container');
+            if (container && !container.querySelector('.video-loading')) {
+                const loader = document.createElement('div');
+                loader.className = 'video-loading';
+                loader.innerHTML = '<div class="video-loading-spinner"></div>';
+                container.appendChild(loader);
+            }
+        });
+        
+        video.addEventListener('canplay', function() {
+            this.style.opacity = '1';
+            
+            // Remover indicador de carregamento
+            const container = this.closest('.video-container, .video-preview-container');
+            if (container) {
+                const loader = container.querySelector('.video-loading');
+                if (loader) loader.remove();
+            }
+        });
+    });
+    
+    console.log(`${videoElements.length} players de vídeo inicializados`);
+}
+
+// Funções auxiliares
+function showLoading(container) {
+    container.innerHTML = `
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Carregando posts...</p>
+        </div>
+    `;
+    isLoading = true;
+}
+
+function hideLoading() {
+    isLoading = false;
+}
+
+function createEmptyMessage() {
+    if (currentFilter === 'photos') {
+        return `
+            <div class="empty-message">
+                <i class="fas fa-image"></i>
+                <h3>Nenhuma foto encontrada</h3>
+                <p>Não existem fotos disponíveis nesta galeria no momento.</p>
+            </div>
+        `;
+    } else if (currentFilter === 'videos') {
+        return `
+            <div class="empty-message">
+                <i class="fas fa-video"></i>
+                <h3>Nenhum vídeo encontrado</h3>
+                <p>Não existem vídeos disponíveis nesta galeria no momento.</p>
+            </div>
+        `;
+    } else {
+        return `
+            <div class="empty-message">
+                <i class="fas fa-images"></i>
+                <h3>Galeria vazia</h3>
+                <p>Não existem posts disponíveis nesta galeria no momento.</p>
+            </div>
+        `;
+    }
+}
+
+function createErrorMessage(message) {
+    return `
+        <div class="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Erro</h3>
+            <p>${message}</p>
+        </div>
+    `;
+}
+
+// Exportar funções para uso global
+window.openMediaModal = openMediaModal;
+window.closeMediaModal = closeMediaModal;
+window.navigateMedia = navigateMedia;
+window.initVideoPlayers = initVideoPlayers;

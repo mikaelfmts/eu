@@ -323,79 +323,190 @@ window.openFeaturedModal = function(url, type, title, description) {
         existingModal.remove();
     }
     
+    // Decodificar parâmetros para lidar com caracteres especiais
+    const decodedUrl = decodeURIComponent(url || '');
+    const decodedType = decodeURIComponent(type || '');
+    const decodedTitle = decodeURIComponent(title || 'Mídia em Destaque');
+    const decodedDescription = decodeURIComponent(description || '');
+    
     // Criar modal
     const modal = document.createElement('div');
-    modal.className = 'featured-modal';      const isVid = isVideoFile(url, type);
+    modal.className = 'featured-modal';
     
-    modal.innerHTML = `
-        <div class="featured-modal-content">
-            <div class="featured-modal-header">
-                <h2>${title}</h2>
-                <button class="featured-modal-close" onclick="closeFeaturedModal()">
-                    <i class="fas fa-times"></i>
-                </button>
+    // Verificar se é um vídeo
+    const isVid = isVideoFile(decodedUrl, decodedType);
+    
+    // Usar o template literal com uma função para garantir segurança na geração do HTML
+    const createModalContent = () => {
+        const header = `
+            <div class="featured-modal-content">
+                <div class="featured-modal-header">
+                    <h2>${escapeHtml(decodedTitle)}</h2>
+                    <button class="featured-modal-close" onclick="closeFeaturedModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="featured-modal-body">
+        `;
+        
+        let mediaContent = '';
+        
+        // Gerar conteúdo de mídia com base no tipo
+        if (isVid && window.videoProcessor) {
+            const videoInfo = window.videoProcessor.processVideoUrl(decodedUrl, decodedType);
+            if (videoInfo) {
+                mediaContent = window.videoProcessor.generateVideoHtml(videoInfo, {
+                    width: '100%',
+                    height: '400px',
+                    controls: true,
+                    className: 'featured-modal-media video-modal-player'
+                });
+            } else {
+                mediaContent = `
+                    <div class="video-error-container">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Erro ao processar vídeo</h3>
+                        <p>Não foi possível processar este vídeo.</p>
+                        <div class="error-actions">
+                            <a href="${escapeHtml(decodedUrl)}" target="_blank" class="error-btn">
+                                <i class="fas fa-external-link-alt"></i> Abrir vídeo original
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+        } else if (isVid) {
+            // Fallback para vídeo básico quando o VideoProcessor não está disponível
+            mediaContent = `
+                <div class="video-container direct-video-container">
+                    <video 
+                        controls 
+                        preload="metadata" 
+                        playsinline 
+                        class="featured-modal-media video-modal-player"
+                        src="${escapeHtml(decodedUrl)}">
+                        <source src="${escapeHtml(decodedUrl)}" type="video/mp4">
+                        <source src="${escapeHtml(decodedUrl)}" type="video/webm">
+                        <source src="${escapeHtml(decodedUrl)}">
+                        Seu navegador não suporta a reprodução deste vídeo.
+                    </video>
+                    <div class="video-error-fallback hidden">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Erro ao carregar vídeo</p>
+                        <div class="video-fallback">
+                            <p>Tente acessar diretamente:</p>
+                            <a href="${escapeHtml(decodedUrl)}" target="_blank">Abrir vídeo</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Imagem
+            mediaContent = `
+                <img 
+                    src="${escapeHtml(decodedUrl)}" 
+                    alt="${escapeHtml(decodedTitle)}" 
+                    class="featured-modal-media"
+                    onerror="this.onerror=null; this.src='assets/images/placeholder.jpg';"
+                >
+            `;
+        }
+        
+        const footer = `
+                    <p class="featured-modal-description">${escapeHtml(decodedDescription)}</p>
+                </div>
             </div>
-            <div class="featured-modal-body">
-                ${isVid && window.videoProcessor ? 
-                    (() => {
-                        const videoInfo = window.videoProcessor.processVideoUrl(url, type);
-                        return videoInfo ? 
-                            window.videoProcessor.generateVideoHtml(videoInfo, {
-                                width: '100%',
-                                height: '400px',
-                                controls: true,
-                                className: 'featured-modal-media'
-                            }) : 
-                            `<div class="video-error-message">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <p>Erro ao processar vídeo</p>
-                                <div class="video-fallback">
-                                    <p>Tente acessar diretamente:</p>
-                                    <a href="${url}" target="_blank" class="video-download-link">Abrir vídeo</a>
-                                </div>
-                            </div>`;
-                    })() :
-                    isVid ? 
-                    `<div class="video-container">
-                        <video controls preload="metadata" playsinline class="featured-modal-media"
-                                onerror="this.parentNode.innerHTML='<div class=&quot;video-error-message&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><p>Erro ao carregar vídeo</p><div class=&quot;video-fallback&quot;><p>Tente baixar o arquivo:</p><a href=&quot;${url}&quot; target=&quot;_blank&quot; class=&quot;video-download-link&quot;>Baixar vídeo</a></div></div>';">
-                            <source src="${url}" type="video/mp4">
-                            <source src="${url}" type="video/webm">
-                            <source src="${url}">
-                            Seu navegador não suporta a reprodução deste vídeo.
-                        </video>
-                    </div>` :
-                    `<img src="${url}" alt="${title}" class="featured-modal-media">`
-                }
-                <p class="featured-modal-description">${description}</p>
-            </div>
-        </div>
-        <div class="featured-modal-backdrop" onclick="closeFeaturedModal()"></div>
-    `;
+            <div class="featured-modal-backdrop" onclick="closeFeaturedModal()"></div>
+        `;
+        
+        return header + mediaContent + footer;
+    };
+    
+    // Definir o conteúdo do modal
+    modal.innerHTML = createModalContent();
+    
+    // Adicionar ao DOM
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
     
     // Adicionar evento de teclado
     document.addEventListener('keydown', handleModalKeydown);
+    
+    // Adicionar classe para animação após um pequeno delay
+    setTimeout(() => {
+        modal.classList.add('active');
+    }, 10);
+    
+    // Inicializar players de vídeo
+    if (window.initVideoPlayers) {
+        setTimeout(window.initVideoPlayers, 300);
+    }
+    
+    // Adicionar tratamento de erros para vídeos
+    const videoElements = modal.querySelectorAll('video');
+    videoElements.forEach(video => {
+        video.addEventListener('error', function() {
+            const errorFallback = this.parentElement.querySelector('.video-error-fallback');
+            if (errorFallback) {
+                errorFallback.classList.remove('hidden');
+            }
+            this.style.display = 'none';
+        });
+    });
 };
+
+// Função auxiliar para escapar HTML
+function escapeHtml(unsafe) {
+    if (typeof unsafe !== 'string') return '';
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
 window.closeFeaturedModal = function() {
     const modal = document.querySelector('.featured-modal');
     if (modal) {
-        // Pausa qualquer vídeo que esteja sendo reproduzido
-        const videoElement = modal.querySelector('video');
-        if (videoElement) {
-            try {
-                videoElement.pause();
-                videoElement.currentTime = 0;
-            } catch (e) {
-                console.error('Erro ao pausar vídeo:', e);
-            }
-        }
+        // Primeiro remover a classe 'active' para iniciar a animação de saída
+        modal.classList.remove('active');
         
-        modal.remove();
-        document.body.style.overflow = '';
-        document.removeEventListener('keydown', handleModalKeydown);
+        // Pausar qualquer vídeo que esteja sendo reproduzido
+        const videoElements = modal.querySelectorAll('video');
+        videoElements.forEach(videoElement => {
+            if (videoElement) {
+                try {
+                    videoElement.pause();
+                    videoElement.currentTime = 0;
+                } catch (e) {
+                    console.error('Erro ao pausar vídeo:', e);
+                }
+            }
+        });
+        
+        // Pausar também vídeos em iframe (YouTube, Vimeo)
+        const iframes = modal.querySelectorAll('iframe');
+        iframes.forEach(iframe => {
+            try {
+                // Tentar pausar com mensagem postMessage
+                const src = iframe.src;
+                if (src.includes('youtube.com')) {
+                    iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                } else if (src.includes('vimeo.com')) {
+                    iframe.contentWindow.postMessage('{"method":"pause"}', '*');
+                }
+            } catch (e) {
+                console.warn('Não foi possível pausar iframe:', e);
+            }
+        });
+        
+        // Aguardar a animação terminar antes de remover o modal
+        setTimeout(() => {
+            modal.remove();
+            document.body.style.overflow = '';
+            document.removeEventListener('keydown', handleModalKeydown);
+        }, 300); // 300ms é a duração da transição
     }
 };
 

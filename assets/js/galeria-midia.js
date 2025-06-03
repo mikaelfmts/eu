@@ -148,9 +148,7 @@ class GaleriaMidia {
 
         const postsHTML = posts.map(post => this.createPostHTML(post)).join('');
         postsContainer.innerHTML = postsHTML;
-    }
-
-    createPostHTML(post) {
+    }    createPostHTML(post) {
         const date = new Date(post.timestamp?.toDate ? post.timestamp.toDate() : post.timestamp);
         const formattedDate = date.toLocaleDateString('pt-BR', {
             day: '2-digit',
@@ -170,15 +168,20 @@ class GaleriaMidia {
 
         if (isVideo) {
                 const videoMimeType = this.getVideoMimeType(firstMedia.url, mediaType);
+                const videoId = 'thumbnail-video-' + Math.random().toString(36).substring(2, 10);
                 mediaHTML = `
-                    <video preload="metadata" muted playsinline 
-                           onloadstart="this.style.opacity='1'" 
-                           onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;media-placeholder video-error&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><span>Erro ao carregar vídeo</span></div>';">
-                        <source src="${firstMedia.url}" type="${videoMimeType}">
-                        Seu navegador não suporta a reprodução de vídeos.
-                    </video>
-                    <div class="media-indicator">
-                        <i class="fas fa-play"></i>
+                    <div class="video-container">
+                        <video id="${videoId}" preload="none" muted playsinline class="post-video-thumbnail"
+                               data-poster="${firstMedia.thumbnail || ''}"
+                               onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;media-placeholder video-error&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><span>Erro ao carregar vídeo</span></div>';">
+                            <source src="${firstMedia.url}" type="${videoMimeType}">
+                            <source src="${firstMedia.url}" type="video/mp4">
+                            <source src="${firstMedia.url}" type="video/webm">
+                            Seu navegador não suporta a reprodução de vídeos.
+                        </video>
+                        <div class="media-indicator">
+                            <i class="fas fa-play"></i>
+                        </div>
                     </div>
                 `;
             }else {
@@ -304,9 +307,7 @@ class GaleriaMidia {
         const modal = document.getElementById('media-modal');
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
-    }
-
-    closeMediaModal() {
+    }    closeMediaModal() {
         const modal = document.getElementById('media-modal');
         modal.classList.add('hidden');
         document.body.style.overflow = 'auto';
@@ -314,31 +315,52 @@ class GaleriaMidia {
         // Pause any playing videos
         const videos = modal.querySelectorAll('video');
         videos.forEach(video => {
-            video.pause();
-            video.currentTime = 0;
+            try {
+                video.pause();
+                video.currentTime = 0;
+                
+                // Destroy Plyr instances if they exist
+                if (video.plyrInstance) {
+                    video.plyrInstance.destroy();
+                }
+            } catch (e) {
+                console.error('Erro ao pausar vídeo:', e);
+            }
         });
-    }
-
-    updateModalContent() {
+    }updateModalContent() {
         const modalBody = document.querySelector('.modal-body');
         const media = this.currentPostMedia[this.currentMediaIndex];
         
-        if (!media) return;        let mediaHTML = '';
+        if (!media) return;
+            
+        // Pausa qualquer vídeo anterior
+        const oldVideo = modalBody.querySelector('video');
+        if (oldVideo && oldVideo.plyrInstance) {
+            try {
+                oldVideo.plyrInstance.destroy();
+            } catch (e) {}
+        }
+        
+        let mediaHTML = '';
         const mediaType = media.type || '';
         const isVideo = this.isVideoFile(media.url, mediaType);
 
         if (isVideo) {
             const videoMimeType = this.getVideoMimeType(media.url, mediaType);
+            const videoId = 'modal-video-' + Math.random().toString(36).substring(2, 10);
             mediaHTML = `
-                <video controls preload="metadata" playsinline 
-                       onloadstart="this.style.opacity='1'"
-                       oncanplay="this.style.opacity='1'"
-                       onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;video-error-message&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><p>Erro ao carregar vídeo</p><small>Formato não suportado ou arquivo corrompido</small></div>';">
-                    <source src="${media.url}" type="${videoMimeType}">
-                    <source src="${media.url}" type="video/mp4">
-                    <source src="${media.url}" type="video/webm">
-                    Seu navegador não suporta a reprodução de vídeos. <a href="${media.url}" target="_blank">Clique aqui para baixar o vídeo</a>.
-                </video>
+                <div class="video-container">
+                    <video id="${videoId}" controls preload="none" playsinline class="plyr__video"
+                           data-poster="${media.thumbnail || ''}"
+                           onloadstart="this.style.opacity='1'"
+                           onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;video-error-message&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><p>Erro ao carregar vídeo</p><small>Formato não suportado ou arquivo corrompido</small><p><a href=&quot;${media.url}&quot; class=&quot;video-download-link&quot; target=&quot;_blank&quot;>Baixar vídeo</a></p></div>';">
+                        <source src="${media.url}" type="${videoMimeType}">
+                        <source src="${media.url}" type="video/mp4">
+                        <source src="${media.url}" type="video/webm">
+                        <source src="${media.url}" type="video/ogg">
+                        Seu navegador não suporta a reprodução de vídeos. <a href="${media.url}" target="_blank">Clique aqui para baixar o vídeo</a>.
+                    </video>
+                </div>
             `;
         }else {
             mediaHTML = `<img src="${media.url}" alt="Mídia" loading="lazy">`;
@@ -440,11 +462,36 @@ window.navigateMedia = function(direction) {
     if (window.galeriaApp) {
         window.galeriaApp.navigateMedia(direction);
     }
-};
-
-// Inicializar quando o DOM estiver carregado
+};   // Inicializar quando o DOM estiver carregado
 let galeriaApp;
 document.addEventListener('DOMContentLoaded', () => {
     galeriaApp = new GaleriaMidia();
     window.galeriaApp = galeriaApp;
+    
+    // Inicializador global de players Plyr
+    window.initVideoPlayers = function() {
+        const videoElements = document.querySelectorAll('.plyr__video');
+        videoElements.forEach(video => {
+            if (!video.plyrInstance && !video.classList.contains('plyr--setup')) {
+                try {
+                    const player = new Plyr(video, {
+                        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+                        autoplay: false,
+                        loadSprite: false,
+                        iconUrl: 'https://cdn.plyr.io/3.7.8/plyr.svg',
+                        blankVideo: '',
+                        previewThumbnails: { enabled: false }
+                    });
+                    video.plyrInstance = player;
+                } catch (e) {
+                    console.error('Erro ao inicializar player:', e);
+                }
+            }
+        });
+    };
+    
+    // Inicializar os players
+    setTimeout(() => {
+        window.initVideoPlayers();
+    }, 1000);
 });

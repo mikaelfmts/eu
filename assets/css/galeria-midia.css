@@ -416,3 +416,51 @@
 .modal-body video[preload="metadata"] {
     background: rgba(10, 20, 40, 0.8);
 }
+
+/* Estilos para o player Plyr */
+.plyr--video {
+    border-radius: 8px;
+    overflow: hidden;
+    background: #0a1428;
+}
+
+.plyr__control--overlaid {
+    background: rgba(200, 170, 110, 0.9);
+}
+
+.plyr--full-ui input[type=range] {
+    color: #c8aa6e;
+}
+
+.plyr__control.plyr__tab-focus,
+.plyr__control:hover,
+.plyr__control[aria-expanded=true] {
+    background: #c8aa6e;
+    color: #0a1428;
+}
+
+/* Estilo para o botão de download de vídeo */
+.video-download-link {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(200, 170, 110, 0.2);
+    color: #c8aa6e;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.video-download-link:hover {
+    background: rgba(200, 170, 110, 0.3);
+    color: #f0e6d2;
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #0a1428;
+}

@@ -38,11 +38,10 @@ class GaleriaMidia {
         this.currentPostMedia = [];
         
         this.init();
-    }
-
-    async init() {
+    }    async init() {
         await this.loadPosts();
         this.setupEventListeners();
+        this.setupVideoInteractions();
         this.hideLoadingScreen();
     }
 
@@ -136,9 +135,7 @@ class GaleriaMidia {
             console.error('Erro ao carregar posts:', error);
             this.showError('Erro ao carregar posts');
         }
-    }
-
-    renderPosts(posts) {
+    }    renderPosts(posts) {
         const postsContainer = document.getElementById('posts-feed');
         
         if (!posts || posts.length === 0) {
@@ -154,6 +151,9 @@ class GaleriaMidia {
 
         const postsHTML = posts.map(post => this.createPostHTML(post)).join('');
         postsContainer.innerHTML = postsHTML;
+        
+        // Otimizar vídeos após renderizar
+        setTimeout(() => this.optimizeVideoLoading(), 100);
     }
 
     // Método para detectar se o arquivo é um vídeo
@@ -336,17 +336,8 @@ class GaleriaMidia {
         
         this.showMediaModal();
         this.updateModalContent();
-    }
-
-    showMediaModal() {
-        const modal = document.getElementById('media-modal');
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        
-        // Adicionar animação de entrada
-        requestAnimationFrame(() => {
-            modal.style.opacity = '1';
-        });
+    }    showMediaModal() {
+        this.showModalWithLoading();
     }
 
     closeMediaModal() {
@@ -374,9 +365,7 @@ class GaleriaMidia {
         if (!media) return;
 
         let mediaHTML = '';
-        const isVideo = this.isVideoFile(media);
-
-        if (isVideo) {
+        const isVideo = this.isVideoFile(media);        if (isVideo) {
             mediaHTML = `
                 <video controls autoplay muted playsinline>
                     <source src="${media.url}" type="${this.getVideoMimeType(media)}">
@@ -388,6 +377,28 @@ class GaleriaMidia {
         }
 
         modalBody.innerHTML = mediaHTML;
+
+        // Configurar vídeo se existir
+        const video = modalBody.querySelector('video');
+        if (video) {
+            video.addEventListener('loadeddata', () => {
+                modalBody.classList.remove('loading');
+                video.volume = 0.5; // Volume baixo no modal
+                video.muted = false; // Permitir som no modal
+            });
+            
+            video.addEventListener('error', () => {
+                modalBody.innerHTML = `
+                    <div class="media-placeholder">
+                        <i class="fas fa-video-slash"></i>
+                        <p>Erro ao carregar vídeo</p>
+                    </div>
+                `;
+                modalBody.classList.remove('loading');
+            });
+        } else {
+            modalBody.classList.remove('loading');
+        }
 
         // Update navigation buttons
         const prevBtn = document.querySelector('.prev-btn');
@@ -409,6 +420,108 @@ class GaleriaMidia {
     showError(message) {
         console.error(message);
         // Aqui você pode implementar um sistema de notificações
+    }
+
+    // Método para pausar todos os vídeos nos cards
+    pauseAllCardVideos() {
+        document.querySelectorAll('.post-media video').forEach(video => {
+            video.pause();
+            video.currentTime = 0;
+        });
+    }
+
+    // Método para configurar comportamento dos vídeos nos cards
+    setupVideoInteractions() {
+        // Pausar vídeos quando sair de hover
+        document.addEventListener('mouseleave', () => {
+            this.pauseAllCardVideos();
+        });
+
+        // Configurar eventos para vídeos nos cards
+        document.addEventListener('mouseenter', (e) => {
+            if (e.target.tagName === 'VIDEO' && e.target.closest('.post-media')) {
+                // Reproduzir vídeo no hover com delay
+                setTimeout(() => {
+                    if (e.target.matches(':hover')) {
+                        e.target.play().catch(() => {
+                            // Ignorar erros de autoplay
+                        });
+                    }
+                }, 300);
+            }
+        });
+
+        document.addEventListener('mouseleave', (e) => {
+            if (e.target.tagName === 'VIDEO' && e.target.closest('.post-media')) {
+                e.target.pause();
+                e.target.currentTime = 0;
+            }
+        });
+    }
+
+    // Método para melhorar o carregamento do modal
+    showModalWithLoading() {
+        const modal = document.getElementById('media-modal');
+        const modalBody = document.querySelector('.modal-body');
+        
+        // Mostrar loading
+        modalBody.innerHTML = '<div class="video-loading">Carregando...</div>';
+        modalBody.classList.add('loading');
+        
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        
+        // Remover loading após conteúdo carregar
+        setTimeout(() => {
+            modalBody.classList.remove('loading');
+        }, 500);
+    }
+
+    // Método para tratar erros de vídeo
+    handleVideoError(videoElement) {
+        videoElement.style.display = 'none';
+        const parent = videoElement.closest('.post-media') || videoElement.parentElement;
+        if (parent) {
+            parent.innerHTML = `
+                <div class="media-placeholder">
+                    <i class="fas fa-video-slash"></i>
+                    <p style="margin-top: 1rem; font-size: 1rem;">Erro ao carregar vídeo</p>
+                </div>
+            `;
+        }
+    }
+
+    // Método para otimizar carregamento de vídeos
+    optimizeVideoLoading() {
+        // Configurar Intersection Observer para vídeos
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const video = entry.target;
+                if (entry.isIntersecting) {
+                    // Preload quando entrar na viewport
+                    video.preload = 'metadata';
+                } else {
+                    // Pausar quando sair da viewport
+                    video.pause();
+                    video.currentTime = 0;
+                }
+            });
+        }, {
+            rootMargin: '50px'
+        });
+
+        // Observar todos os vídeos
+        document.querySelectorAll('.post-media video').forEach(video => {
+            videoObserver.observe(video);
+            
+            // Adicionar tratamento de erro
+            video.addEventListener('error', () => this.handleVideoError(video));
+            video.addEventListener('loadedmetadata', () => {
+                // Garantir que o vídeo está mudo
+                video.muted = true;
+                video.volume = 0;
+            });
+        });
     }
 }
 

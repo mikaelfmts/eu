@@ -402,24 +402,36 @@ function extractFilenameFromUrl(url) {
 function detectMediaType(url) {
     const lowerUrl = url.toLowerCase();
     
-    // YouTube
-    if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) {
-        return 'video/youtube';
-    }
-    
-    // Vimeo
-    if (lowerUrl.includes('vimeo.com')) {
-        return 'video/vimeo';
+    // Usar o VideoProcessor se disponível
+    if (window.videoProcessor) {
+        if (window.videoProcessor.isVideo(url)) {
+            const videoInfo = window.videoProcessor.processVideoUrl(url);
+            if (videoInfo) {
+                return `video/${videoInfo.platform}`;
+            }
+            return 'video/url';
+        }
+    } else {
+        // Fallback para detecção básica
+        // YouTube
+        if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) {
+            return 'video/youtube';
+        }
+        
+        // Vimeo
+        if (lowerUrl.includes('vimeo.com')) {
+            return 'video/vimeo';
+        }
+        
+        // Extensões de vídeo
+        if (lowerUrl.match(/\.(mp4|webm|ogg|avi|mov)(\?|$)/)) {
+            return 'video/url';
+        }
     }
     
     // Extensões de imagem
     if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/)) {
         return 'image/url';
-    }
-    
-    // Extensões de vídeo
-    if (lowerUrl.match(/\.(mp4|webm|ogg|avi|mov)(\?|$)/)) {
-        return 'video/url';
     }
     
     // Default
@@ -657,8 +669,42 @@ function createMediaPreview(mediaItem) {
     
     let mediaElement;
     
-    // URLs do YouTube
-    if (mediaItem.type === 'video/youtube') {
+    // Usar VideoProcessor para processamento de vídeos
+    if (window.videoProcessor && window.videoProcessor.isVideo(mediaItem.url, mediaItem.type)) {
+        const videoInfo = window.videoProcessor.processVideoUrl(mediaItem.url, mediaItem.type);
+        
+        if (videoInfo) {
+            if (videoInfo.thumbnailUrl) {
+                // Usar thumbnail real (YouTube, etc.)
+                mediaElement = `
+                    <div class="w-full h-32 relative">
+                        <img src="${videoInfo.thumbnailUrl}" alt="Preview" class="w-full h-32 object-cover"
+                             onerror="this.parentNode.innerHTML='${window.videoProcessor.generatePlaceholderThumbnail(videoInfo, {className: 'w-full h-32 flex items-center justify-center bg-gray-900'}).replace(/'/g, '\\\'')}';">
+                        <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                            <i class="fas fa-play text-white text-xl"></i>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Usar placeholder personalizado
+                mediaElement = window.videoProcessor.generatePlaceholderThumbnail(videoInfo, {
+                    className: 'w-full h-32 flex items-center justify-center bg-gray-900'
+                });
+            }
+        } else {
+            // Fallback para vídeos não processáveis
+            mediaElement = `
+                <div class="w-full h-32 bg-gray-900 flex items-center justify-center">
+                    <div class="text-center">
+                        <i class="fas fa-video text-gray-500 text-2xl mb-1"></i>
+                        <p class="text-xs text-gray-400">Vídeo</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    // URLs do YouTube (fallback)
+    else if (mediaItem.type === 'video/youtube') {
         const videoId = extractYouTubeId(mediaItem.url);
         mediaElement = `
             <div class="w-full h-32 bg-gray-900 flex items-center justify-center">
@@ -669,7 +715,7 @@ function createMediaPreview(mediaItem) {
             </div>
         `;
     }
-    // URLs do Vimeo
+    // URLs do Vimeo (fallback)
     else if (mediaItem.type === 'video/vimeo') {
         mediaElement = `
             <div class="w-full h-32 bg-gray-900 flex items-center justify-center">
@@ -687,7 +733,7 @@ function createMediaPreview(mediaItem) {
                  onerror="this.parentElement.innerHTML='<div class=&quot;w-full h-32 bg-gray-900 flex items-center justify-center&quot;><div class=&quot;text-center&quot;><i class=&quot;fas fa-image text-gray-500 text-2xl mb-1&quot;></i><p class=&quot;text-xs text-gray-400&quot;>Imagem Externa</p></div></div>'">
         `;
     }
-    // URLs de vídeo
+    // URLs de vídeo (fallback)
     else if (mediaItem.type === 'video/url') {
         mediaElement = `
             <video class="w-full h-32 object-cover" controls>
@@ -1552,20 +1598,48 @@ function handleAddFeaturedUrlMedia() {
         return;
     }
     
-    // Detectar tipo de mídia baseado na extensão
-    const extension = url.split('.').pop().toLowerCase();
-    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
-    const videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mov'];
-    
+    // Usar VideoProcessor para detectar tipo de mídia
     let mediaType = 'image';
-    if (videoExtensions.includes(extension)) {
-        mediaType = 'video';
+    let detectedType = 'url/unknown';
+    
+    if (window.videoProcessor && window.videoProcessor.isVideo(url)) {
+        const videoInfo = window.videoProcessor.processVideoUrl(url);
+        if (videoInfo) {
+            mediaType = 'video';
+            detectedType = `video/${videoInfo.platform}`;
+        } else {
+            mediaType = 'video';
+            detectedType = 'video/url';
+        }
+    } else {
+        // Fallback para detecção básica
+        const extension = url.split('.').pop().toLowerCase();
+        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+        const videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mov'];
+        
+        if (videoExtensions.includes(extension)) {
+            mediaType = 'video';
+            detectedType = 'video/url';
+        } else if (imageExtensions.includes(extension)) {
+            mediaType = 'image';
+            detectedType = 'image/url';
+        }
+        
+        // Verificação adicional para plataformas de vídeo
+        const lowerUrl = url.toLowerCase();
+        if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) {
+            mediaType = 'video';
+            detectedType = 'video/youtube';
+        } else if (lowerUrl.includes('vimeo.com')) {
+            mediaType = 'video';
+            detectedType = 'video/vimeo';
+        }
     }
     
     // Criar objeto de mídia
     const mediaItem = {
         url: url,
-        type: mediaType,
+        type: detectedType,
         name: url.split('/').pop() || 'Mídia via URL',
         source: 'url'
     };
@@ -1600,7 +1674,67 @@ function showFeaturedPreview(mediaItem) {
         position: relative;
     `;
 
-    if (mediaItem.type === 'video') {
+    // Usar VideoProcessor para detectar e processar vídeos
+    const isVideo = window.videoProcessor ? window.videoProcessor.isVideo(mediaItem.url, mediaItem.type) : 
+                    mediaItem.type && mediaItem.type.includes('video');
+
+    if (isVideo && window.videoProcessor) {
+        const videoInfo = window.videoProcessor.processVideoUrl(mediaItem.url, mediaItem.type);
+        
+        if (videoInfo) {
+            if (videoInfo.thumbnailUrl) {
+                // Usar thumbnail real (YouTube, etc.)
+                previewElement.innerHTML = `
+                    <img src="${videoInfo.thumbnailUrl}" alt="${mediaItem.name}" 
+                         style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 4px; margin-bottom: 0.5rem;"
+                         onerror="this.parentNode.innerHTML='${window.videoProcessor.generatePlaceholderThumbnail(videoInfo, {className: 'featured-preview-placeholder'}).replace(/'/g, '\\\'')}' + this.parentNode.querySelector('p').outerHTML + this.parentNode.querySelector('button').outerHTML;">
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-play" style="color: white; margin-left: 2px;"></i>
+                    </div>
+                    <p style="color: var(--text-light); font-size: 0.875rem; margin: 0;">
+                        <strong>Vídeo (${videoInfo.platform}):</strong> ${mediaItem.name}
+                    </p>
+                    <button type="button" onclick="clearFeaturedPreview()" 
+                            style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                        ×
+                    </button>
+                `;
+            } else {
+                // Usar placeholder personalizado
+                previewElement.innerHTML = `
+                    ${window.videoProcessor.generatePlaceholderThumbnail(videoInfo, {
+                        className: 'featured-preview-placeholder',
+                        style: 'width: 100%; max-height: 200px; border-radius: 4px; margin-bottom: 0.5rem;'
+                    })}
+                    <p style="color: var(--text-light); font-size: 0.875rem; margin: 0;">
+                        <strong>Vídeo (${videoInfo.platform}):</strong> ${mediaItem.name}
+                    </p>
+                    <button type="button" onclick="clearFeaturedPreview()" 
+                            style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                        ×
+                    </button>
+                `;
+            }
+        } else {
+            // Fallback para vídeos não processáveis
+            previewElement.innerHTML = `
+                <div style="width: 100%; max-height: 200px; background: rgba(60, 60, 65, 0.5); border-radius: 4px; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--text-light);">
+                    <div style="text-align: center;">
+                        <i class="fas fa-video" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <p>Vídeo Externo</p>
+                    </div>
+                </div>
+                <p style="color: var(--text-light); font-size: 0.875rem; margin: 0;">
+                    <strong>Vídeo:</strong> ${mediaItem.name}
+                </p>
+                <button type="button" onclick="clearFeaturedPreview()" 
+                        style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                    ×
+                </button>
+            `;
+        }
+    } else if (isVideo) {
+        // Fallback se VideoProcessor não estiver disponível
         previewElement.innerHTML = `
             <video controls style="width: 100%; max-height: 200px; border-radius: 4px; margin-bottom: 0.5rem;">
                 <source src="${mediaItem.url}" type="video/mp4">
@@ -1615,6 +1749,7 @@ function showFeaturedPreview(mediaItem) {
             </button>
         `;
     } else {
+        // Imagem
         previewElement.innerHTML = `
             <img src="${mediaItem.url}" alt="${mediaItem.name}" 
                  style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 4px; margin-bottom: 0.5rem;"

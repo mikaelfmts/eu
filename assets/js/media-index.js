@@ -76,24 +76,61 @@ function createRecentMediaCard(post) {
     const mediaCount = post.media ? post.media.length : 0;    let mediaElement = '';
     if (firstMedia) {
         // Melhor detecção de tipo de mídia
-        const isVideo = isVideoFile(firstMedia.url, firstMedia.type);
-          if (isVideo) {
-            mediaElement = `
-                <div class="video-preview-container">
-                    <video class="media-preview" muted preload="metadata" playsinline
-                           poster="${firstMedia.thumbnail || ''}"
-                           onloadstart="this.style.opacity='1'"
-                           onerror="this.parentNode.innerHTML='<div class=&quot;media-preview-placeholder video-error&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><span>Erro no vídeo</span></div>';">
-                        <source src="${firstMedia.url}" type="video/mp4">
-                        <source src="${firstMedia.url}" type="video/webm">
-                        <source src="${firstMedia.url}">
-                        Seu navegador não suporta vídeo.
-                    </video>
-                    <div class="video-play-button">
-                        <i class="fas fa-play"></i>
+        const isVideo = isVideoFile(firstMedia.url, firstMedia.type);        if (isVideo) {
+            // Usar o novo sistema de processamento de vídeos
+            if (window.videoProcessor) {
+                const videoInfo = window.videoProcessor.processVideoUrl(firstMedia.url, firstMedia.type);
+                
+                if (videoInfo) {
+                    if (videoInfo.thumbnailUrl) {
+                        // Usar thumbnail do YouTube ou outra plataforma
+                        mediaElement = `
+                            <div class="video-preview-container">
+                                <img src="${videoInfo.thumbnailUrl}" alt="${post.title}" class="media-preview"
+                                     onerror="this.parentNode.innerHTML='${window.videoProcessor.generatePlaceholderThumbnail(videoInfo, {showPlayButton: true}).replace(/'/g, '\\\'')}';">
+                                <div class="video-play-button">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // Usar placeholder personalizado
+                        mediaElement = `
+                            <div class="video-preview-container">
+                                ${window.videoProcessor.generatePlaceholderThumbnail(videoInfo, {showPlayButton: true})}
+                            </div>
+                        `;
+                    }
+                } else {
+                    // Fallback para vídeos não processáveis
+                    mediaElement = `
+                        <div class="video-preview-container">
+                            <div class="media-preview-placeholder video-error">
+                                <i class="fas fa-video"></i>
+                                <span>Vídeo</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                // Fallback se o VideoProcessor não estiver disponível
+                mediaElement = `
+                    <div class="video-preview-container">
+                        <video class="media-preview" muted preload="metadata" playsinline
+                               poster="${firstMedia.thumbnail || ''}"
+                               onloadstart="this.style.opacity='1'"
+                               onerror="this.parentNode.innerHTML='<div class=&quot;media-preview-placeholder video-error&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><span>Erro no vídeo</span></div>';">
+                            <source src="${firstMedia.url}" type="video/mp4">
+                            <source src="${firstMedia.url}" type="video/webm">
+                            <source src="${firstMedia.url}">
+                            Seu navegador não suporta vídeo.
+                        </video>
+                        <div class="video-play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
         }else {
             mediaElement = `
                 <img src="${firstMedia.url}" alt="${post.title}" class="media-preview"
@@ -191,22 +228,60 @@ function createFeaturedMediaCard(media) {
     const isVideo = isVideoFile(media.url, mediaType);
     
     let mediaElement = '';    if (isVideo) {
-        mediaElement = `
-            <div class="video-container">
-                <video class="featured-media-content" preload="metadata" playsinline
-                       poster="${media.thumbnail || ''}"
-                       onloadstart="this.style.opacity='1'"
-                       onerror="this.parentNode.innerHTML='<div class=&quot;featured-media-placeholder video-error&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><p>Erro ao carregar vídeo</p></div>';">
-                    <source src="${media.url}" type="video/mp4">
-                    <source src="${media.url}" type="video/webm">
-                    <source src="${media.url}">
-                    Seu navegador não suporta vídeos.
-                </video>
-                <div class="video-play-overlay" onclick="this.style.display='none'; this.previousElementSibling.play();">
-                    <i class="fas fa-play"></i>
+        // Usar o novo sistema de processamento de vídeos
+        if (window.videoProcessor) {
+            const videoInfo = window.videoProcessor.processVideoUrl(media.url, media.type);
+            
+            if (videoInfo) {
+                if (videoInfo.thumbnailUrl) {
+                    // Usar thumbnail do YouTube ou outra plataforma  
+                    mediaElement = `
+                        <div class="video-container">
+                            <img src="${videoInfo.thumbnailUrl}" alt="${media.title}" class="featured-media-content"
+                                 onerror="this.parentNode.innerHTML='${window.videoProcessor.generatePlaceholderThumbnail(videoInfo, {showPlayButton: true}).replace(/'/g, '\\\'')}';">
+                            <div class="video-play-overlay" onclick="this.style.display='none'; this.previousElementSibling.play();">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Usar placeholder personalizado
+                    mediaElement = `
+                        <div class="video-container">
+                            ${window.videoProcessor.generatePlaceholderThumbnail(videoInfo, {showPlayButton: true})}
+                        </div>
+                    `;
+                }
+            } else {
+                // Fallback para vídeos não processáveis
+                mediaElement = `
+                    <div class="video-container">
+                        <div class="featured-media-placeholder video-error">
+                            <i class="fas fa-video"></i>
+                            <p>Vídeo</p>
+                        </div>
+                    </div>
+                `;
+            }
+        } else {
+            // Fallback se o VideoProcessor não estiver disponível
+            mediaElement = `
+                <div class="video-container">
+                    <video class="featured-media-content" preload="metadata" playsinline
+                           poster="${media.thumbnail || ''}"
+                           onloadstart="this.style.opacity='1'"
+                           onerror="this.parentNode.innerHTML='<div class=&quot;featured-media-placeholder video-error&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><p>Erro ao carregar vídeo</p></div>';">
+                        <source src="${media.url}" type="video/mp4">
+                        <source src="${media.url}" type="video/webm">
+                        <source src="${media.url}">
+                        Seu navegador não suporta vídeos.
+                    </video>
+                    <div class="video-play-overlay" onclick="this.style.display='none'; this.previousElementSibling.play();">
+                        <i class="fas fa-play"></i>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+        }
     }else {
         mediaElement = `
             <img src="${media.url}" alt="${media.title}" class="featured-media-content"
@@ -247,8 +322,7 @@ window.openFeaturedModal = function(url, type, title, description) {
     
     // Criar modal
     const modal = document.createElement('div');
-    modal.className = 'featured-modal';
-      const isVid = isVideoFile(url, type);
+    modal.className = 'featured-modal';      const isVid = isVideoFile(url, type);
     
     modal.innerHTML = `
         <div class="featured-modal-content">
@@ -259,7 +333,26 @@ window.openFeaturedModal = function(url, type, title, description) {
                 </button>
             </div>
             <div class="featured-modal-body">
-                ${isVid ? 
+                ${isVid && window.videoProcessor ? 
+                    (() => {
+                        const videoInfo = window.videoProcessor.processVideoUrl(url, type);
+                        return videoInfo ? 
+                            window.videoProcessor.generateVideoHtml(videoInfo, {
+                                width: '100%',
+                                height: '400px',
+                                controls: true,
+                                className: 'featured-modal-media'
+                            }) : 
+                            `<div class="video-error-message">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p>Erro ao processar vídeo</p>
+                                <div class="video-fallback">
+                                    <p>Tente acessar diretamente:</p>
+                                    <a href="${url}" target="_blank" class="video-download-link">Abrir vídeo</a>
+                                </div>
+                            </div>`;
+                    })() :
+                    isVid ? 
                     `<div class="video-container">
                         <video controls preload="metadata" playsinline class="featured-modal-media"
                                 onerror="this.parentNode.innerHTML='<div class=&quot;video-error-message&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><p>Erro ao carregar vídeo</p><div class=&quot;video-fallback&quot;><p>Tente baixar o arquivo:</p><a href=&quot;${url}&quot; target=&quot;_blank&quot; class=&quot;video-download-link&quot;>Baixar vídeo</a></div></div>';">
@@ -275,7 +368,7 @@ window.openFeaturedModal = function(url, type, title, description) {
             </div>
         </div>
         <div class="featured-modal-backdrop" onclick="closeFeaturedModal()"></div>
-    `;    
+    `;
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
     
@@ -338,32 +431,35 @@ function setupVideoHandlers() {
     });
 }
 
-// Funções auxiliares para detecção de vídeo
+// Funções auxiliares para detecção de vídeo usando o novo sistema
 function isVideoFile(url, mimeType) {
+    if (!window.videoProcessor) {
+        console.warn('VideoProcessor não está disponível, usando detecção básica');
+        return basicVideoDetection(url, mimeType);
+    }
+    
+    return window.videoProcessor.isVideo(url, mimeType);
+}
+
+// Fallback para detecção básica de vídeo (caso o VideoProcessor não esteja carregado)
+function basicVideoDetection(url, mimeType) {
     if (!url) return false;
     
     // Verificar MIME type primeiro
-    if (mimeType && mimeType.startsWith('video/')) {
+    if (mimeType && (mimeType.startsWith('video/') || mimeType.toLowerCase() === 'video')) {
         return true;
     }
     
-    // Verificar por palavras-chave no tipo
-    if (mimeType === 'video' || mimeType === 'Video') {
+    // Verificar plataformas de vídeo conhecidas
+    const lowerUrl = url.toLowerCase();
+    if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be') || 
+        lowerUrl.includes('vimeo.com') || lowerUrl.includes('drive.google.com')) {
         return true;
     }
     
-    // Verificar extensão do arquivo na URL
+    // Verificar extensões de vídeo
     const videoExtensions = /\.(mp4|webm|ogg|avi|mov|mkv|wmv|flv|m4v|3gp)(\?|#|$)/i;
-    if (videoExtensions.test(url)) {
-        return true;
-    }
-    
-    // Verificar se é um data URL de vídeo
-    if (url.startsWith('data:video/')) {
-        return true;
-    }
-    
-    return false;
+    return videoExtensions.test(url) || url.startsWith('data:video/');
 }
 
 function getVideoMimeType(url, originalMimeType) {

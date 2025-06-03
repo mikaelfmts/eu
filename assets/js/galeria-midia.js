@@ -163,46 +163,46 @@ class GaleriaMidia {
         const mediaCount = post.media?.length || 0;        let mediaHTML = '';
         if (firstMedia) {
             const isVideo = this.isVideoFile(firstMedia.url, mediaType);
-            
-            if (isVideo) {
-                // Para vídeos, vamos usar uma abordagem simples
-                const videoInfo = this.processVideoUrl(firstMedia.url, mediaType);
-                
-                if (videoInfo && videoInfo.type === 'youtube' && videoInfo.thumbnailUrl) {
-                    // YouTube com thumbnail
-                    mediaHTML = `
-                        <img src="${videoInfo.thumbnailUrl}" 
-                             alt="${post.title}" 
-                             loading="lazy"
-                             onerror="this.src=''; this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;media-placeholder&quot;><i class=&quot;fas fa-play&quot;></i><span>Vídeo do YouTube</span></div>';">
-                        <div class="media-indicator">
-                            <i class="fas fa-play"></i>
-                        </div>
-                    `;
-                } else if (videoInfo && videoInfo.type === 'drive') {
-                    // Google Drive
-                    mediaHTML = `
-                        <div class="media-placeholder" style="background: rgba(66, 133, 244, 0.1); color: #4285f4;">
-                            <i class="fab fa-google-drive" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                            <span>Vídeo do Google Drive</span>
-                        </div>
-                        <div class="media-indicator">
-                            <i class="fas fa-play"></i>
-                        </div>
-                    `;
-                } else if (videoInfo && videoInfo.type === 'vimeo') {
-                    // Vimeo
-                    mediaHTML = `
-                        <div class="media-placeholder" style="background: rgba(26, 183, 234, 0.1); color: #1ab7ea;">
-                            <i class="fab fa-vimeo" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                            <span>Vídeo do Vimeo</span>
-                        </div>
-                        <div class="media-indicator">
-                            <i class="fas fa-play"></i>
-                        </div>
-                    `;
+              if (isVideo) {
+                // Usar o novo sistema de processamento de vídeos
+                if (window.videoProcessor) {
+                    const videoInfo = window.videoProcessor.processVideoUrl(firstMedia.url, mediaType);
+                    
+                    if (videoInfo) {
+                        if (videoInfo.thumbnailUrl) {
+                            // Usar thumbnail do YouTube
+                            mediaHTML = `
+                                <img src="${videoInfo.thumbnailUrl}" 
+                                     alt="${post.title}" 
+                                     loading="lazy"
+                                     onerror="this.src=''; this.style.display='none'; this.parentElement.innerHTML='${window.videoProcessor.generatePlaceholderThumbnail(videoInfo).replace(/'/g, '\\\'')}';">
+                                <div class="media-indicator">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                            `;
+                        } else {
+                            // Usar placeholder personalizado baseado na plataforma
+                            mediaHTML = `
+                                ${window.videoProcessor.generatePlaceholderThumbnail(videoInfo, {showPlayButton: false})}
+                                <div class="media-indicator">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        // Fallback para vídeos não processáveis
+                        mediaHTML = `
+                            <div class="media-placeholder">
+                                <i class="fas fa-video" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                                <span>Vídeo</span>
+                            </div>
+                            <div class="media-indicator">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        `;
+                    }
                 } else {
-                    // Vídeo direto ou fallback
+                    // Fallback se o VideoProcessor não estiver disponível
                     mediaHTML = `
                         <div class="media-placeholder">
                             <i class="fas fa-play" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
@@ -213,7 +213,7 @@ class GaleriaMidia {
                         </div>
                     `;
                 }
-            } else {
+            }else {
                 // Para imagens
                 mediaHTML = `
                     <img src="${firstMedia.url}" alt="${post.title}" loading="lazy"
@@ -363,36 +363,24 @@ class GaleriaMidia {
         
         try {
             const isVideo = this.isVideoFile(media.url, mediaType);
-            
-            if (isVideo) {
-                const videoInfo = this.processVideoUrl(media.url, mediaType);
-                
-                if (videoInfo && (videoInfo.type === 'youtube' || videoInfo.type === 'vimeo' || videoInfo.type === 'drive')) {
-                    // Vídeos embedded
-                    mediaHTML = `
-                        <div class="video-container">
-                            <iframe src="${videoInfo.embedUrl}" 
-                                    frameborder="0" 
-                                    allowfullscreen
-                                    allow="autoplay; encrypted-media"
-                                    class="modal-video-iframe"
-                                    style="width: 100%; height: 400px;">
-                            </iframe>
-                        </div>
-                    `;
+              if (isVideo) {
+                // Usar o novo sistema de processamento de vídeos
+                if (window.videoProcessor) {
+                    const videoInfo = window.videoProcessor.processVideoUrl(media.url, mediaType);
                     
-                    if (videoInfo.type === 'drive') {
-                        mediaHTML += `
-                            <div class="video-fallback" style="margin-top: 1rem; padding: 1rem; background: rgba(200, 170, 110, 0.1); border-radius: 4px; text-align: center;">
-                                <p style="margin-bottom: 0.5rem; color: #c8aa6e;">Caso o vídeo não carregue:</p>
-                                <a href="${media.url}" target="_blank" style="color: #c8aa6e; text-decoration: none;">
-                                    <i class="fas fa-external-link-alt"></i> Abrir no Google Drive
-                                </a>
-                            </div>
-                        `;
+                    if (videoInfo) {
+                        mediaHTML = window.videoProcessor.generateVideoHtml(videoInfo, {
+                            width: '100%',
+                            height: '400px',
+                            controls: true,
+                            showFallback: true,
+                            className: 'modal-video'
+                        });
+                    } else {
+                        mediaHTML = window.videoProcessor.generateErrorHtml('Formato de vídeo não suportado', media.url);
                     }
                 } else {
-                    // Vídeo direto
+                    // Fallback se o VideoProcessor não estiver disponível
                     mediaHTML = `
                         <div class="video-container">
                             <video controls preload="metadata" playsinline
@@ -406,7 +394,7 @@ class GaleriaMidia {
                         </div>
                     `;
                 }
-            } else {
+            }else {
                 // Imagem
                 mediaHTML = `<img src="${media.url}" alt="Mídia" loading="lazy" style="max-width: 100%; max-height: 80vh; object-fit: contain;">`;
             }
@@ -440,73 +428,36 @@ class GaleriaMidia {
     }    showError(message) {
         console.error(message);
         // Aqui você pode implementar um sistema de notificações
-    }    // Método para detectar se um arquivo é vídeo de forma mais robusta
+    }    // Método para detectar se um arquivo é vídeo usando o novo sistema
     isVideoFile(url, mimeType) {
+        if (!window.videoProcessor) {
+            console.warn('VideoProcessor não está disponível, usando detecção básica');
+            return this.basicVideoDetection(url, mimeType);
+        }
+        
+        return window.videoProcessor.isVideo(url, mimeType);
+    }
+
+    // Fallback para detecção básica de vídeo
+    basicVideoDetection(url, mimeType) {
         if (!url) return false;
         
         // Verificar MIME type primeiro
-        if (mimeType && mimeType.startsWith('video/')) {
+        if (mimeType && (mimeType.startsWith('video/') || mimeType.toLowerCase() === 'video')) {
             return true;
         }
         
-        // Verificar por palavras-chave no tipo
-        if (mimeType === 'video' || mimeType === 'Video') {
+        // Verificar plataformas de vídeo conhecidas
+        const lowerUrl = url.toLowerCase();
+        if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be') || 
+            lowerUrl.includes('vimeo.com') || lowerUrl.includes('drive.google.com')) {
             return true;
         }
         
-        // Verificar URLs de serviços de vídeo
-        if (url.includes('youtube.com') || url.includes('youtu.be') || 
-            url.includes('drive.google.com') || url.includes('vimeo.com')) {
-            return true;
-        }
-        
-        // Verificar extensão do arquivo na URL
+        // Verificar extensões de vídeo
         const videoExtensions = /\.(mp4|webm|ogg|avi|mov|mkv|wmv|flv|m4v|3gp)(\?|#|$)/i;
-        if (videoExtensions.test(url)) {
-            return true;
-        }
-        
-        // Verificar se é um data URL de vídeo
-        if (url.startsWith('data:video/')) {
-            return true;
-        }
-        
-        return false;
-    }
-
-    // Método para obter o MIME type correto do vídeo
-    getVideoMimeType(url, originalMimeType) {
-        // Se já temos um MIME type válido, usar ele
-        if (originalMimeType && originalMimeType.startsWith('video/')) {
-            return originalMimeType;
-        }
-        
-        // Detectar por extensão
-        if (/\.mp4(\?|#|$)/i.test(url)) {
-            return 'video/mp4';
-        } else if (/\.webm(\?|#|$)/i.test(url)) {
-            return 'video/webm';
-        } else if (/\.ogg(\?|#|$)/i.test(url)) {
-            return 'video/ogg';
-        } else if (/\.avi(\?|#|$)/i.test(url)) {
-            return 'video/avi';
-        } else if (/\.mov(\?|#|$)/i.test(url)) {
-            return 'video/quicktime';
-        } else if (/\.mkv(\?|#|$)/i.test(url)) {
-            return 'video/x-matroska';
-        } else if (/\.wmv(\?|#|$)/i.test(url)) {
-            return 'video/x-ms-wmv';
-        } else if (/\.flv(\?|#|$)/i.test(url)) {
-            return 'video/x-flv';
-        } else if (/\.m4v(\?|#|$)/i.test(url)) {
-            return 'video/mp4';
-        } else if (/\.3gp(\?|#|$)/i.test(url)) {
-            return 'video/3gpp';
-        }
-        
-        // Fallback para MP4 se não conseguir detectar
-        return 'video/mp4';
-   }    // Método para detectar e processar diferentes tipos de links de vídeo
+        return videoExtensions.test(url) || url.startsWith('data:video/');
+    }    // Remove - função movida para o VideoProcessor// Método para detectar e processar diferentes tipos de links de vídeo
     processVideoUrl(url, mediaType) {
         if (!url) return null;
         

@@ -759,6 +759,26 @@ function extractYouTubeId(url) {
     return (match && match[2].length === 11) ? match[2] : null;
 }
 
+// Função para extrair ID do YouTube de uma URL
+function extractYouTubeID(url) {
+    if (!url) return null;
+    
+    // Padrões de URL do YouTube
+    const patterns = [
+        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/i,
+        /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([^?]+)/i,
+        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?]+)/i,
+        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/v\/([^?]+)/i
+    ];
+    
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match) return match[1];
+    }
+    
+    return null;
+}
+
 // Função para adicionar mídia ao preview
 function addMediaToPreview(mediaItem) {
     const container = document.getElementById('upload-preview');
@@ -1152,31 +1172,12 @@ function createFeaturedMediaElement(media, index) {
     div.className = 'bg-gray-800 rounded-lg border border-yellow-600 overflow-hidden';
     
     const mediaType = media.type || '';
+    const isVideo = mediaType.startsWith('video/') || 
+                   mediaType === 'video' ||
+                   /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url);
     
     let mediaElement;
-    if (mediaType === 'video/youtube') {
-        mediaElement = `
-            <div class="w-full h-32 relative">
-                <iframe width="100%" height="100%" 
-                    src="${media.url}?enablejsapi=1&modestbranding=1" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
-            </div>
-        `;
-    } else if (mediaType === 'video/vimeo') {
-        mediaElement = `
-            <div class="w-full h-32 relative">
-                <iframe width="100%" height="100%" 
-                    src="${media.url}" 
-                    frameborder="0" 
-                    allow="autoplay; fullscreen; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
-            </div>
-        `;
-    } else if (mediaType.startsWith('video/') || mediaType === 'video') {
+    if (isVideo) {
         mediaElement = `
             <video class="w-full h-32 object-cover" controls preload="metadata">
                 <source src="${media.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
@@ -1571,37 +1572,44 @@ function handleAddFeaturedUrlMedia() {
         return;
     }
     
-    // Detectar tipo de mídia baseado na URL
-    let mediaType = 'image';
-    let embedUrl = url;
+    // Verificar se é URL do YouTube
+    const youtubeID = extractYouTubeID(url);
+    if (youtubeID) {
+        // É um vídeo do YouTube
+        const mediaItem = {
+            url: url,
+            type: 'video/youtube',
+            youtubeID: youtubeID,
+            name: 'Vídeo do YouTube',
+            source: 'url'
+        };
+        
+        // Mostrar preview
+        showFeaturedPreview(mediaItem);
+        
+        // Armazenar referência
+        featuredMediaItem = mediaItem;
+        
+        // Limpar input
+        urlInput.value = '';
+        
+        showSuccess('✅ Vídeo do YouTube adicionado com sucesso!');
+        return;
+    }
     
-    // YouTube URLs
-    if (url.includes('youtube.com/watch') || url.includes('youtu.be/')) {
-        mediaType = 'video/youtube';
-        const videoId = extractYouTubeId(url);
-        if (videoId) {
-            embedUrl = `https://www.youtube.com/embed/${videoId}`;
-        }
-    }
-    // Vimeo URLs
-    else if (url.includes('vimeo.com/')) {
-        mediaType = 'video/vimeo';
-        const videoId = url.split('/').pop();
-        embedUrl = `https://player.vimeo.com/video/${videoId}`;
-    }
-    // Arquivos de vídeo diretos
-    else if (/\.(mp4|webm|ogg|avi|mov)$/i.test(url)) {
-        mediaType = 'video/mp4';
-    }
-    // Arquivos de imagem
-    else if (/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(url)) {
-        mediaType = 'image';
+    // Detectar tipo de mídia baseado na extensão
+    const extension = url.split('.').pop().toLowerCase();
+    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+    const videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mov'];
+    
+    let mediaType = 'image';
+    if (videoExtensions.includes(extension)) {
+        mediaType = 'video';
     }
     
     // Criar objeto de mídia
     const mediaItem = {
-        url: embedUrl,
-        originalUrl: url,
+        url: url,
         type: mediaType,
         name: url.split('/').pop() || 'Mídia via URL',
         source: 'url'
@@ -1618,13 +1626,6 @@ function handleAddFeaturedUrlMedia() {
     
     showSuccess('✅ URL adicionada com sucesso!');
     console.log('Mídia em destaque adicionada via URL:', mediaItem);
-}
-
-// Função para extrair ID do YouTube
-function extractYouTubeId(url) {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
 }
 
 // Função para mostrar preview da mídia em destaque
@@ -1644,46 +1645,31 @@ function showFeaturedPreview(mediaItem) {
         position: relative;
     `;
 
-    if (mediaItem.type === 'video/youtube') {
+    if (mediaItem.type === 'video/youtube' && mediaItem.youtubeID) {
+        // Preview de vídeo do YouTube
         previewElement.innerHTML = `
-            <div style="width: 100%; height: 200px; border-radius: 4px; margin-bottom: 0.5rem; overflow: hidden;">
-                <iframe width="100%" height="100%" 
-                    src="${mediaItem.url}?enablejsapi=1&modestbranding=1" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
-            </div>
+            <iframe 
+                width="100%" 
+                height="200" 
+                src="https://www.youtube.com/embed/${mediaItem.youtubeID}?rel=0" 
+                title="YouTube video" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+                style="border-radius: 4px; margin-bottom: 0.5rem;"
+            ></iframe>
             <p style="color: var(--text-light); font-size: 0.875rem; margin: 0;">
-                <strong>YouTube:</strong> ${mediaItem.name}
+                <strong>Vídeo do YouTube:</strong> ${mediaItem.name}
             </p>
             <button type="button" onclick="clearFeaturedPreview()" 
                     style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;">
                 ×
             </button>
         `;
-    } else if (mediaItem.type === 'video/vimeo') {
-        previewElement.innerHTML = `
-            <div style="width: 100%; height: 200px; border-radius: 4px; margin-bottom: 0.5rem; overflow: hidden;">
-                <iframe width="100%" height="100%" 
-                    src="${mediaItem.url}" 
-                    frameborder="0" 
-                    allow="autoplay; fullscreen; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
-            </div>
-            <p style="color: var(--text-light); font-size: 0.875rem; margin: 0;">
-                <strong>Vimeo:</strong> ${mediaItem.name}
-            </p>
-            <button type="button" onclick="clearFeaturedPreview()" 
-                    style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;">
-                ×
-            </button>
-        `;
-    } else if (mediaItem.type === 'video/mp4' || mediaItem.type.startsWith('video/')) {
+    } else if (mediaItem.type === 'video') {
         previewElement.innerHTML = `
             <video controls style="width: 100%; max-height: 200px; border-radius: 4px; margin-bottom: 0.5rem;">
-                <source src="${mediaItem.url}" type="${mediaItem.type}">
+                <source src="${mediaItem.url}" type="video/mp4">
                 Seu navegador não suporta vídeo.
             </video>
             <p style="color: var(--text-light); font-size: 0.875rem; margin: 0;">

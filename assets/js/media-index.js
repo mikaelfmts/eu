@@ -10,10 +10,79 @@ import {
     getDoc
 } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
+// Função para extrair ID do YouTube de uma URL
+function extractYouTubeID(url) {
+    if (!url) return null;
+    
+    // Padrões de URL do YouTube
+    const patterns = [
+        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/i,
+        /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([^?]+)/i,
+        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?]+)/i,
+        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/v\/([^?]+)/i
+    ];
+    
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match) return match[1];
+    }
+    
+    return null;
+}
+
+// Sistema de autoplay com scroll para vídeos em destaque
+function setupFeaturedVideoAutoplay() {
+    // Encontrar todos os vídeos em destaque
+    const featuredVideos = document.querySelectorAll('.featured-media-content');
+    
+    // Configurar o Intersection Observer
+    const videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            // Verificar se é um elemento de vídeo válido
+            if (entry.target.tagName === 'VIDEO') {
+                if (entry.isIntersecting) {
+                    // Vídeo está visível na tela
+                    entry.target.play().catch(e => console.log('Erro ao reproduzir vídeo:', e));
+                } else {
+                    // Vídeo está fora da tela
+                    entry.target.pause();
+                }
+            } else if (entry.target.tagName === 'IFRAME' && entry.target.src.includes('youtube')) {
+                // Manipular iframes do YouTube
+                if (entry.isIntersecting) {
+                    // YouTube está visível na tela, adicionar parâmetro de autoplay
+                    const currentSrc = entry.target.src;
+                    if (!currentSrc.includes('autoplay=1')) {
+                        entry.target.src = currentSrc.includes('?') 
+                            ? `${currentSrc}&autoplay=1&mute=1` 
+                            : `${currentSrc}?autoplay=1&mute=1`;
+                    }
+                } else {
+                    // YouTube está fora da tela, pausar (recarregar sem autoplay)
+                    const currentSrc = entry.target.src.replace(/[?&]autoplay=1/, '');
+                    if (entry.target.src !== currentSrc) {
+                        entry.target.src = currentSrc;
+                    }
+                }
+            }
+        });
+    }, {
+        threshold: 0.5 // 50% do vídeo deve estar visível
+    });
+    
+    // Observar cada vídeo
+    featuredVideos.forEach(video => {
+        videoObserver.observe(video);
+    });
+}
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
     loadRecentMedia();
-    loadFeaturedMedia();
+    loadFeaturedMedia().then(() => {
+        // Configurar autoplay com scroll para vídeos em destaque após carregamento
+        setupFeaturedVideoAutoplay();
+    });
 });
 
 async function loadRecentMedia() {
@@ -156,11 +225,6 @@ async function loadFeaturedMedia() {
                 const mediaCard = createFeaturedMediaCard(media);
                 container.appendChild(mediaCard);
             });
-            
-            // Inicializar autoplay após carregar as mídias
-            setTimeout(() => {
-                initFeaturedVideoAutoplay();
-            }, 1000);
         } else {
             container.innerHTML = `
                 <div class="no-featured-message">
@@ -187,36 +251,32 @@ async function loadFeaturedMedia() {
 function createFeaturedMediaCard(media) {
     const card = document.createElement('div');
     card.className = 'featured-media-card';
-    card.setAttribute('data-media-type', media.type);
+    
+    // Verificar se é um vídeo do YouTube
+    const youtubeID = media.youtubeID || (media.type === 'video/youtube' ? extractYouTubeID(media.url) : null);
     
     const mediaType = media.type || '';
+    const isVideo = mediaType.startsWith('video/') || 
+                   mediaType === 'video' ||
+                   /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url);
     
     let mediaElement = '';
-    if (mediaType === 'video/youtube') {
+    
+    if (youtubeID) {
+        // É um vídeo do YouTube
         mediaElement = `
-            <div class="featured-media-content youtube-container" data-video-url="${media.url}">
-                <iframe width="100%" height="100%" 
-                    src="${media.url}?enablejsapi=1&autoplay=0&mute=1&modestbranding=1" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
-            </div>
+            <iframe 
+                class="featured-media-content youtube-embed" 
+                src="https://www.youtube.com/embed/${youtubeID}?rel=0&mute=1" 
+                title="YouTube video" 
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+            ></iframe>
         `;
-    } else if (mediaType === 'video/vimeo') {
+    } else if (isVideo) {
         mediaElement = `
-            <div class="featured-media-content vimeo-container" data-video-url="${media.url}">
-                <iframe width="100%" height="100%" 
-                    src="${media.url}?autoplay=0&muted=1" 
-                    frameborder="0" 
-                    allow="autoplay; fullscreen; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
-            </div>
-        `;
-    } else if (mediaType.startsWith('video/') || mediaType === 'video') {
-        mediaElement = `
-            <video class="featured-media-content video-player" controls muted preload="metadata" data-video-url="${media.url}">
+            <video class="featured-media-content" controls muted preload="metadata" playsinline loop>
                 <source src="${media.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
             </video>
         `;
@@ -240,7 +300,7 @@ function createFeaturedMediaCard(media) {
         <div class="featured-info">
             <h3 class="featured-title">${media.title}</h3>
             <p class="featured-description">${media.description}</p>
-            <button class="btn-view-featured" onclick="openFeaturedModal('${media.url}', '${media.type}', '${media.title}', '${media.description}')">
+            <button class="btn-view-featured" onclick="openFeaturedModal('${media.url}', '${youtubeID ? 'video/youtube' : media.type}', '${media.title}', '${media.description}', '${youtubeID || ''}')">
                 <i class="fas fa-expand"></i>
                 Ver em Tela Cheia
             </button>
@@ -251,10 +311,38 @@ function createFeaturedMediaCard(media) {
 }
 
 // Função global para abrir modal de mídia em destaque
-window.openFeaturedModal = function(url, type, title, description) {
+window.openFeaturedModal = function(url, type, title, description, youtubeID) {
     // Criar modal
     const modal = document.createElement('div');
     modal.className = 'featured-modal';
+    
+    // Determinar qual tipo de mídia mostrar
+    let mediaContent;
+    
+    if (type === 'video/youtube' && youtubeID) {
+        // YouTube
+        mediaContent = `
+            <iframe 
+                class="featured-modal-media" 
+                src="https://www.youtube.com/embed/${youtubeID}?rel=0&autoplay=1" 
+                title="YouTube video" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+            ></iframe>
+        `;
+    } else if (type === 'video' || type.startsWith('video/')) {
+        // Vídeo normal
+        mediaContent = `
+            <video controls autoplay class="featured-modal-media">
+                <source src="${url}" type="${type.startsWith('video/') ? type : 'video/mp4'}">
+            </video>
+        `;
+    } else {
+        // Imagem padrão
+        mediaContent = `<img src="${url}" alt="${title}" class="featured-modal-media">`;
+    }
+    
     modal.innerHTML = `
         <div class="featured-modal-content">
             <div class="featured-modal-header">
@@ -264,12 +352,7 @@ window.openFeaturedModal = function(url, type, title, description) {
                 </button>
             </div>
             <div class="featured-modal-body">
-                ${type === 'video' ? 
-                    `<video controls autoplay class="featured-modal-media">
-                        <source src="${url}" type="video/mp4">
-                    </video>` :
-                    `<img src="${url}" alt="${title}" class="featured-modal-media">`
-                }
+                ${mediaContent}
                 <p class="featured-modal-description">${description}</p>
             </div>
         </div>
@@ -297,94 +380,3 @@ function handleModalKeydown(event) {
         closeFeaturedModal();
     }
 }
-
-// Sistema de autoplay com scroll para vídeos em destaque
-let featuredVideoObserver;
-
-function initFeaturedVideoAutoplay() {
-    if (!window.IntersectionObserver) return;
-    
-    // Configurar o observer para detectar quando vídeos entram/saem da tela
-    featuredVideoObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            const card = entry.target;
-            const mediaType = card.getAttribute('data-media-type');
-            
-            if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-                // Vídeo está visível (mais de 50% na tela)
-                playFeaturedVideo(card, mediaType);
-            } else {
-                // Vídeo saiu da tela ou está pouco visível
-                pauseFeaturedVideo(card, mediaType);
-            }
-        });
-    }, {
-        threshold: [0.25, 0.5, 0.75], // Múltiplos thresholds para melhor controle
-        rootMargin: '0px 0px -10% 0px' // Margem inferior para começar a pausar um pouco antes
-    });
-    
-    // Observar todos os cards de mídia em destaque
-    observeFeaturedVideos();
-}
-
-function observeFeaturedVideos() {
-    const featuredCards = document.querySelectorAll('.featured-media-card');
-    featuredCards.forEach(card => {
-        const mediaType = card.getAttribute('data-media-type');
-        if (mediaType && (mediaType.includes('video') || mediaType === 'video/youtube' || mediaType === 'video/vimeo')) {
-            featuredVideoObserver.observe(card);
-        }
-    });
-}
-
-function playFeaturedVideo(card, mediaType) {
-    try {
-        if (mediaType === 'video/youtube') {
-            const iframe = card.querySelector('iframe');
-            if (iframe) {
-                // Para YouTube, enviamos comando via postMessage
-                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-            }
-        } else if (mediaType === 'video/vimeo') {
-            const iframe = card.querySelector('iframe');
-            if (iframe) {
-                // Para Vimeo, enviamos comando via postMessage
-                iframe.contentWindow.postMessage('{"method":"play"}', '*');
-            }
-        } else if (mediaType.startsWith('video/') || mediaType === 'video') {
-            const video = card.querySelector('video');
-            if (video) {
-                video.muted = true; // Garantir que está mutado para autoplay
-                video.play().catch(e => console.log('Autoplay bloqueado:', e));
-            }
-        }
-    } catch (error) {
-        console.log('Erro ao reproduzir vídeo:', error);
-    }
-}
-
-function pauseFeaturedVideo(card, mediaType) {
-    try {
-        if (mediaType === 'video/youtube') {
-            const iframe = card.querySelector('iframe');
-            if (iframe) {
-                iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-            }
-        } else if (mediaType === 'video/vimeo') {
-            const iframe = card.querySelector('iframe');
-            if (iframe) {
-                iframe.contentWindow.postMessage('{"method":"pause"}', '*');
-            }
-        } else if (mediaType.startsWith('video/') || mediaType === 'video') {
-            const video = card.querySelector('video');
-            if (video) {
-                video.pause();
-            }
-        }
-    } catch (error) {
-        console.log('Erro ao pausar vídeo:', error);
-    }
-}
-
-// Iniciar autoplay com scroll quando o DOM estiver totalmente carregado
-document.addEventListener('DOMContentLoaded', initFeaturedVideoAutoplay);

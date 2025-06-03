@@ -17,6 +17,11 @@ import {
     onAuthStateChanged 
 } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 
+// Função utilitária
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // Estado da aplicação
 let currentPost = null;
 let uploadedMedia = [];
@@ -192,8 +197,7 @@ function setupEventListeners() {
             featuredUploadArea.style.borderColor = 'var(--border-color)';
             featuredUploadArea.style.background = 'rgba(200, 170, 110, 0.05)';
         });
-        
-        featuredUploadArea.addEventListener('drop', (e) => {
+          featuredUploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
             featuredUploadArea.style.borderColor = 'var(--border-color)';
             featuredUploadArea.style.background = 'rgba(200, 170, 110, 0.05)';
@@ -204,6 +208,18 @@ function setupEventListeners() {
                 handleFeaturedDroppedFile(files[0]);
             }
         });
+    }
+
+    // Radio buttons para mídia em destaque (arquivo vs URL)
+    const featuredMediaTypeRadios = document.querySelectorAll('input[name="featured-media-type"]');
+    featuredMediaTypeRadios.forEach(radio => {
+        radio.addEventListener('change', handleFeaturedMediaTypeChange);
+    });
+
+    // Botão para adicionar mídia em destaque por URL
+    const addFeaturedUrlButton = document.getElementById('add-featured-url');
+    if (addFeaturedUrlButton) {
+        addFeaturedUrlButton.addEventListener('click', handleAddFeaturedUrlMedia);
     }
 }
 
@@ -237,6 +253,78 @@ function switchTab(tabName) {
     } else {
         console.error('Botão não encontrado:', `[data-tab="${tabName}"]`);
     }
+}
+
+// Função para validar arquivo
+function validateFile(file) {
+    // Validação de tamanho (50MB geral, 100MB para vídeos)
+    const maxSizeGeneral = 50 * 1024 * 1024; // 50MB
+    const maxSizeVideo = 100 * 1024 * 1024; // 100MB
+    
+    const isVideo = file.type.startsWith('video/');
+    const maxSize = isVideo ? maxSizeVideo : maxSizeGeneral;
+    
+    if (file.size > maxSize) {
+        const sizeMB = (maxSize / (1024 * 1024)).toFixed(0);
+        throw new Error(`Arquivo muito grande. Tamanho máximo: ${sizeMB}MB`);
+    }
+    
+    // Validação de tamanho mínimo (para detectar arquivos corrompidos)
+    const minSize = 100; // 100 bytes
+    if (file.size < minSize) {
+        throw new Error('Arquivo muito pequeno ou corrompido');
+    }
+    
+    // Tipos de arquivo permitidos
+    const allowedImageTypes = [
+        'image/jpeg',
+        'image/jpg', 
+        'image/png',
+        'image/gif',
+        'image/webp',
+        'image/bmp',
+        'image/svg+xml'
+    ];
+    
+    const allowedVideoTypes = [
+        'video/mp4',
+        'video/webm',
+        'video/ogg',
+        'video/quicktime', // .mov
+        'video/x-msvideo', // .avi
+        'video/x-ms-wmv'   // .wmv
+    ];
+    
+    const allowedTypes = [...allowedImageTypes, ...allowedVideoTypes];
+    
+    if (!allowedTypes.includes(file.type)) {
+        throw new Error('Tipo de arquivo não suportado. Use imagens (JPG, PNG, GIF, WebP) ou vídeos (MP4, WebM, OGG)');
+    }
+    
+    // Validação de extensão (segurança adicional)
+    const fileName = file.name.toLowerCase();
+    const allowedExtensions = [
+        '.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg',
+        '.mp4', '.webm', '.ogg', '.mov', '.avi', '.wmv'
+    ];
+    
+    const hasValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+    if (!hasValidExtension) {
+        throw new Error('Extensão de arquivo não permitida');
+    }
+    
+    // Validação do nome do arquivo
+    if (file.name.length > 255) {
+        throw new Error('Nome do arquivo muito longo (máximo 255 caracteres)');
+    }
+    
+    // Caracteres perigosos no nome do arquivo
+    const dangerousChars = /[<>:"/\\|?*\x00-\x1f]/;
+    if (dangerousChars.test(file.name)) {
+        throw new Error('Nome do arquivo contém caracteres não permitidos');
+    }
+    
+    return true;
 }
 
 // Função para alternar entre upload de arquivo e URL
@@ -1401,9 +1489,125 @@ function updatePreview() {
     });
 }
 
+// Função para alternar entre upload de arquivo e URL para mídia em destaque
+function handleFeaturedMediaTypeChange(event) {
+    const fileSection = document.getElementById('featured-file-section');
+    const urlSection = document.getElementById('featured-url-section');
+    
+    if (event.target.value === 'file') {
+        fileSection.classList.remove('hidden');
+        urlSection.classList.add('hidden');
+    } else {
+        fileSection.classList.add('hidden');
+        urlSection.classList.remove('hidden');
+    }
+    
+    // Limpar preview ao alternar
+    clearFeaturedPreview();
+}
+
+// Função para adicionar mídia em destaque via URL
+function handleAddFeaturedUrlMedia() {
+    const urlInput = document.getElementById('featured-url-input');
+    const url = urlInput.value.trim();
+    
+    if (!url) {
+        alert('Por favor, insira uma URL válida.');
+        return;
+    }
+    
+    // Validar se é uma URL válida
+    try {
+        new URL(url);
+    } catch {
+        alert('Por favor, insira uma URL válida.');
+        return;
+    }
+    
+    // Detectar tipo de mídia baseado na extensão
+    const extension = url.split('.').pop().toLowerCase();
+    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+    const videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mov'];
+    
+    let mediaType = 'image';
+    if (videoExtensions.includes(extension)) {
+        mediaType = 'video';
+    }
+    
+    // Criar objeto de mídia
+    const mediaItem = {
+        url: url,
+        type: mediaType,
+        name: url.split('/').pop() || 'Mídia via URL',
+        source: 'url'
+    };
+    
+    // Mostrar preview
+    showFeaturedPreview(mediaItem);
+    
+    // Limpar input
+    urlInput.value = '';
+    
+    console.log('Mídia em destaque adicionada via URL:', mediaItem);
+}
+
+// Função para mostrar preview da mídia em destaque
+function showFeaturedPreview(mediaItem) {
+    const uploadContainer = document.getElementById('featured-preview');
+    if (!uploadContainer) return;
+
+    uploadContainer.innerHTML = '';
+    uploadContainer.classList.remove('hidden');
+
+    const previewElement = document.createElement('div');
+    previewElement.style.cssText = `
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: rgba(60, 60, 65, 0.3);
+        position: relative;
+    `;
+
+    if (mediaItem.type === 'video') {
+        previewElement.innerHTML = `
+            <video controls style="width: 100%; max-height: 200px; border-radius: 4px; margin-bottom: 0.5rem;">
+                <source src="${mediaItem.url}" type="video/mp4">
+                Seu navegador não suporta vídeo.
+            </video>
+            <p style="color: var(--text-light); font-size: 0.875rem; margin: 0;">
+                <strong>Vídeo:</strong> ${mediaItem.name}
+            </p>
+            <button type="button" onclick="clearFeaturedPreview()" 
+                    style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                ×
+            </button>
+        `;
+    } else {
+        previewElement.innerHTML = `
+            <img src="${mediaItem.url}" alt="${mediaItem.name}" 
+                 style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 4px; margin-bottom: 0.5rem;"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div style="display: none; padding: 2rem; text-align: center; color: var(--text-light); background: rgba(220, 38, 38, 0.1); border-radius: 4px; margin-bottom: 0.5rem;">
+                ⚠️ Erro ao carregar imagem
+            </div>
+            <p style="color: var(--text-light); font-size: 0.875rem; margin: 0;">
+                <strong>Imagem:</strong> ${mediaItem.name}
+            </p>
+            <button type="button" onclick="clearFeaturedPreview()" 
+                    style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                ×
+            </button>
+        `;
+    }
+
+    uploadContainer.appendChild(previewElement);
+}
+
 // Event listeners globais
 window.editPost = editPost;
 window.deletePost = deletePost;
 window.clearForm = clearForm;
 window.removeFeaturedMedia = removeFeaturedMedia;
 window.clearFeaturedPreview = clearFeaturedPreview;
+window.handleFeaturedMediaTypeChange = handleFeaturedMediaTypeChange;
+window.handleAddFeaturedUrlMedia = handleAddFeaturedUrlMedia;

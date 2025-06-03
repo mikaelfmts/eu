@@ -448,14 +448,16 @@
         </div>
     </header>    <!-- Main Content -->
     <div class="container" style="padding: 2rem 1rem;">
-        <!-- Navigation Tabs -->
-        <div style="margin-bottom: 2rem;">
+        <!-- Navigation Tabs -->        <div style="margin-bottom: 2rem;">
             <nav class="tab-nav" style="background: rgba(60, 60, 65, 0.8); padding: 0.25rem; border-radius: 0.5rem;">
                 <button class="tab-button active" data-tab="criar">
                     <i class="fas fa-plus"></i>Criar Post
                 </button>
                 <button class="tab-button" data-tab="gerenciar">
                     <i class="fas fa-list"></i>Gerenciar Posts
+                </button>
+                <button class="tab-button" data-tab="videos">
+                    <i class="fas fa-video"></i>Sistema de Vídeos
                 </button>
                 <button class="tab-button" data-tab="destaque">
                     <i class="fas fa-star"></i>Mídia em Destaque
@@ -564,6 +566,170 @@
                     <i class="fas fa-images" style="font-size: 3rem; color: var(--border-color); margin-bottom: 1rem; display: block;"></i>
                     <p>Nenhum post encontrado</p>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Sistema de Vídeos Tab -->
+        <div id="videos-tab" class="tab-content hidden">
+            <h2 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1.5rem; color: var(--primary-color);">
+                <i class="fas fa-video" style="margin-right: 0.5rem;"></i>Sistema de Vídeos
+            </h2>
+            
+            <div class="form-group">
+                <div id="video-tabs" class="tab-nav" style="background: rgba(60, 60, 65, 0.8); padding: 0.25rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                    <button class="tab-button active" data-video-tab="upload">
+                        <i class="fas fa-upload"></i> Upload de Vídeo
+                    </button>
+                    <button class="tab-button" data-video-tab="youtube">
+                        <i class="fab fa-youtube"></i> YouTube
+                    </button>
+                    <button class="tab-button" data-video-tab="vimeo">
+                        <i class="fab fa-vimeo-v"></i> Vimeo
+                    </button>
+                    <button class="tab-button" data-video-tab="other">
+                        <i class="fas fa-link"></i> Outro Link
+                    </button>
+                </div>
+                
+                <!-- Upload Video Tab -->
+                <div id="upload-video-tab" class="video-tab-content">
+                    <div class="form-group">
+                        <label class="form-label">Título do Vídeo</label>
+                        <input type="text" id="video-title-upload" class="form-input" placeholder="Digite um título para o vídeo">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Upload de Vídeo</label>
+                        <div id="video-upload-area" class="upload-area" style="padding: 2rem; text-align: center; border: 2px dashed var(--primary-color); border-radius: 8px; cursor: pointer; background: rgba(200, 170, 110, 0.05);">
+                            <i class="fas fa-file-video" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                            <p style="color: var(--text-light); font-weight: 600;">Clique ou arraste para fazer upload</p>
+                            <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.5rem;">Formatos aceitos: mp4, webm, mov (max 100MB)</p>
+                            <input type="file" id="video-file" accept="video/*" style="display: none;">
+                        </div>
+                    </div>
+                    
+                    <div id="video-preview-container" style="display: none; margin-top: 1rem;">
+                        <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--primary-color);">Preview:</h3>
+                        <video id="video-preview" controls style="width: 100%; border-radius: 8px; max-height: 300px;"></video>
+                    </div>
+                    
+                    <div id="upload-video-progress" style="margin-top: 1rem; display: none;">
+                        <div class="progress-bar">
+                            <div id="upload-progress-fill" class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <p id="upload-status" style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.5rem; text-align: center;">Preparando upload...</p>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+                        <button id="save-uploaded-video" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Salvar Vídeo
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- YouTube Tab -->
+                <div id="youtube-video-tab" class="video-tab-content hidden">
+                    <div class="form-group">
+                        <label class="form-label">Título do Vídeo</label>
+                        <input type="text" id="video-title-youtube" class="form-input" placeholder="Digite um título para o vídeo">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Link do YouTube</label>
+                        <input type="text" id="youtube-url" class="form-input" placeholder="Cole o link do vídeo do YouTube">
+                        <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.5rem;">
+                            Exemplo: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+                        </p>
+                    </div>
+                    
+                    <div id="youtube-preview-container" style="display: none; margin-top: 1rem;">
+                        <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--primary-color);">Preview:</h3>
+                        <div id="youtube-preview" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 8px;">
+                            <iframe id="youtube-iframe" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; border-radius: 8px;" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+                        <button id="preview-youtube" class="btn" style="background: #FF0000; color: white; margin-right: 0.5rem;">
+                            <i class="fab fa-youtube"></i> Gerar Preview
+                        </button>
+                        <button id="save-youtube-video" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Salvar Vídeo
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Vimeo Tab -->
+                <div id="vimeo-video-tab" class="video-tab-content hidden">
+                    <div class="form-group">
+                        <label class="form-label">Título do Vídeo</label>
+                        <input type="text" id="video-title-vimeo" class="form-input" placeholder="Digite um título para o vídeo">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Link do Vimeo</label>
+                        <input type="text" id="vimeo-url" class="form-input" placeholder="Cole o link do vídeo do Vimeo">
+                        <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.5rem;">
+                            Exemplo: https://vimeo.com/123456789
+                        </p>
+                    </div>
+                    
+                    <div id="vimeo-preview-container" style="display: none; margin-top: 1rem;">
+                        <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--primary-color);">Preview:</h3>
+                        <div id="vimeo-preview" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 8px;">
+                            <iframe id="vimeo-iframe" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; border-radius: 8px;" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+                        <button id="preview-vimeo" class="btn" style="background: #1AB7EA; color: white; margin-right: 0.5rem;">
+                            <i class="fab fa-vimeo-v"></i> Gerar Preview
+                        </button>
+                        <button id="save-vimeo-video" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Salvar Vídeo
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Other Video Link Tab -->
+                <div id="other-video-tab" class="video-tab-content hidden">
+                    <div class="form-group">
+                        <label class="form-label">Título do Vídeo</label>
+                        <input type="text" id="video-title-other" class="form-input" placeholder="Digite um título para o vídeo">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Link Direto do Vídeo</label>
+                        <input type="text" id="other-video-url" class="form-input" placeholder="Cole o link direto para o vídeo">
+                        <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.5rem;">
+                            Exemplo: https://exemplo.com/video.mp4
+                        </p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Link da Miniatura (opcional)</label>
+                        <input type="text" id="other-thumbnail-url" class="form-input" placeholder="Cole o link para a miniatura do vídeo">
+                    </div>
+                    
+                    <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+                        <button id="save-other-video" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Salvar Vídeo
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <hr style="border-color: var(--border-color); margin: 2rem 0;">
+            
+            <h3 style="font-size: 1.1rem; font-weight: bold; margin-bottom: 1rem; color: var(--primary-color);">
+                <i class="fas fa-film"></i> Vídeos Salvos
+            </h3>
+            
+            <div id="videos-container" class="grid grid-cols-3 gap-4" style="margin-top: 1rem;">
+                <!-- Vídeos serão carregados dinamicamente -->
+                <p id="no-videos-message" class="text-center text-white py-8" style="grid-column: span 3;">
+                    Nenhum vídeo encontrado. Adicione um novo vídeo!
+                </p>
             </div>
         </div>
 

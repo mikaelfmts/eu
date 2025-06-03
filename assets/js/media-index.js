@@ -1,4 +1,3 @@
-
 import { db } from './firebase-config.js';
 import { 
     collection, 
@@ -15,6 +14,7 @@ import {
 document.addEventListener('DOMContentLoaded', function() {
     loadRecentMedia();
     loadFeaturedMedia();
+    loadRecentVideos(); // Adicionar carregamento de vídeos recentes
 });
 
 async function loadRecentMedia() {
@@ -64,6 +64,189 @@ async function loadRecentMedia() {
     } finally {
         loading.style.display = 'none';
         container.style.display = 'grid';
+    }
+}
+
+// Nova função para carregar vídeos recentes
+async function loadRecentVideos() {
+    const container = document.getElementById('recent-videos-grid');
+    const loading = document.getElementById('recent-videos-loading');
+    
+    if (!container || !loading) return;
+    
+    try {
+        // Buscar vídeos recentes
+        const q = query(
+            collection(db, 'videos'), 
+            orderBy('uploadedAt', 'desc'), 
+            limit(4)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        
+        container.innerHTML = '';
+        
+        if (querySnapshot.empty) {
+            container.innerHTML = `
+                <div class="no-media-message">
+                    <i class="fas fa-video"></i>
+                    <p>Nenhum vídeo encontrado</p>
+                </div>
+            `;
+        } else {
+            querySnapshot.forEach(doc => {
+                const video = { id: doc.id, ...doc.data() };
+                const videoElement = createVideoCard(video);
+                container.appendChild(videoElement);
+            });
+        }
+        
+    } catch (error) {
+        console.error('Erro ao carregar vídeos recentes:', error);
+        container.innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Erro ao carregar vídeos</p>
+            </div>
+        `;
+    } finally {
+        loading.style.display = 'none';
+        container.style.display = 'grid';
+    }
+}
+
+function createVideoCard(video) {
+    const card = document.createElement('div');
+    card.className = 'video-card';
+    
+    // Determinar fonte da miniatura e tipo de vídeo
+    let thumbnailUrl = '';
+    let videoUrl = '';
+    let videoTitle = video.title || 'Vídeo sem título';
+    let platformIcon = '';
+    
+    if (video.platform === 'youtube') {
+        thumbnailUrl = video.thumbnailUrl || `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`;
+        videoUrl = `https://www.youtube.com/watch?v=${video.videoId}`;
+        platformIcon = '<i class="fab fa-youtube" style="color: #FF0000;"></i>';
+    } else if (video.platform === 'vimeo') {
+        thumbnailUrl = video.thumbnailUrl;
+        videoUrl = `https://vimeo.com/${video.videoId}`;
+        platformIcon = '<i class="fab fa-vimeo-v" style="color: #1AB7EA;"></i>';
+    } else if (video.url) {
+        thumbnailUrl = video.thumbnailUrl || '';
+        videoUrl = video.url;
+        platformIcon = '<i class="fas fa-play-circle"></i>';
+    } else if (video.data) {
+        thumbnailUrl = video.thumbnailData;
+        videoUrl = video.data;
+        platformIcon = '<i class="fas fa-film"></i>';
+    }
+    
+    const uploadDate = video.uploadedAt && video.uploadedAt.toDate ? 
+        video.uploadedAt.toDate().toLocaleDateString('pt-BR') : 
+        'Data não disponível';
+    
+    card.innerHTML = `
+        <div class="video-thumbnail-container">
+            <img src="${thumbnailUrl}" alt="${videoTitle}" class="video-thumbnail"
+                onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;video-thumbnail-placeholder&quot;><i class=&quot;fas fa-film&quot;></i></div>';">
+            <div class="video-play-overlay">
+                <i class="fas fa-play"></i>
+            </div>
+            <div class="video-platform-badge">
+                ${platformIcon}
+            </div>
+        </div>
+        <div class="video-info">
+            <h3 class="video-title">${videoTitle}</h3>
+            <div class="video-meta">
+                <span class="video-date">
+                    <i class="fas fa-calendar"></i>
+                    ${uploadDate}
+                </span>
+            </div>
+        </div>
+    `;
+    
+    // Adicionar evento de clique para reproduzir o vídeo
+    card.addEventListener('click', () => {
+        openVideoModal(video);
+    });
+    
+    return card;
+}
+
+function openVideoModal(video) {
+    // Criar modal para visualização do vídeo
+    const modal = document.createElement('div');
+    modal.className = 'video-modal';
+    
+    let videoPlayer = '';
+    
+    if (video.platform === 'youtube') {
+        videoPlayer = `
+            <iframe src="https://www.youtube.com/embed/${video.videoId}?autoplay=1" 
+                    frameborder="0" 
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+            </iframe>
+        `;
+    } else if (video.platform === 'vimeo') {
+        videoPlayer = `
+            <iframe src="https://player.vimeo.com/video/${video.videoId}?autoplay=1" 
+                    frameborder="0" 
+                    allowfullscreen
+                    allow="autoplay; fullscreen; picture-in-picture">
+            </iframe>
+        `;
+    } else if (video.url || video.data) {
+        const source = video.url || video.data;
+        videoPlayer = `
+            <video controls autoplay>
+                <source src="${source}" type="video/mp4">
+                Seu navegador não suporta vídeos.
+            </video>
+        `;
+    }
+    
+    modal.innerHTML = `
+        <div class="video-modal-content">
+            <div class="video-modal-header">
+                <h2>${video.title || 'Vídeo'}</h2>
+                <button class="video-modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="video-modal-body">
+                ${videoPlayer}
+            </div>
+        </div>
+        <div class="video-modal-backdrop"></div>
+    `;
+    
+    // Adicionar ao DOM
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    // Event listener para fechar
+    const closeBtn = modal.querySelector('.video-modal-close');
+    const backdrop = modal.querySelector('.video-modal-backdrop');
+    
+    closeBtn.addEventListener('click', closeVideoModal);
+    backdrop.addEventListener('click', closeVideoModal);
+    document.addEventListener('keydown', handleVideoKeydown);
+    
+    function closeVideoModal() {
+        document.body.removeChild(modal);
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', handleVideoKeydown);
+    }
+    
+    function handleVideoKeydown(event) {
+        if (event.key === 'Escape') {
+            closeVideoModal();
+        }
     }
 }
 

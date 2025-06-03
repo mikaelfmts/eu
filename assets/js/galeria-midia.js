@@ -38,11 +38,33 @@ class GaleriaMidia {
         this.currentPostMedia = [];
         
         this.init();
-    }    async init() {
+    }
+
+    async init() {
         await this.loadPosts();
         this.setupEventListeners();
-        this.setupVideoInteractions();
         this.hideLoadingScreen();
+        
+        // Verificar se há um filtro na URL
+        this.checkUrlFilter();
+    }
+    
+    // Verificar se há um filtro na URL
+    checkUrlFilter() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const filter = urlParams.get('filter');
+        
+        if (filter) {
+            const validFilters = ['all', 'photos', 'videos'];
+            if (validFilters.includes(filter)) {
+                // Encontrar o botão correto para o filtro
+                const filterBtn = document.querySelector(`.filter-btn[data-filter="${filter}"]`);
+                if (filterBtn) {
+                    this.setActiveFilter(filterBtn);
+                    this.applyFilter(filter);
+                }
+            }
+        }
     }
 
     hideLoadingScreen() {
@@ -59,83 +81,176 @@ class GaleriaMidia {
 
     async loadPosts(loadMore = false) {
         try {
+            // Mostrar indicador de carregamento
+            this.showLoadingIndicator();
+            
+            // Carregar posts
+            const postsRef = collection(db, 'galeria_posts');
+            
             let q;
-            if (loadMore && this.lastDoc) {
+            if (!this.lastDoc) {
                 q = query(
-                    collection(db, 'galeria_posts'),
-                    orderBy('createdAt', 'desc'),
-                    startAfter(this.lastDoc),
+                    postsRef, 
+                    where('visible', '==', true), 
+                    orderBy('createdAt', 'desc'), 
                     limit(this.postsPerPage)
                 );
             } else {
                 q = query(
-                    collection(db, 'galeria_posts'),
-                    orderBy('createdAt', 'desc'),
+                    postsRef, 
+                    where('visible', '==', true), 
+                    orderBy('createdAt', 'desc'), 
+                    startAfter(this.lastDoc), 
                     limit(this.postsPerPage)
                 );
             }
-
+            
             const querySnapshot = await getDocs(q);
-            const newPosts = [];
-
-            // Carregar posts e suas mídias
-            for (const postDoc of querySnapshot.docs) {
-                const postData = {
-                    id: postDoc.id,
-                    ...postDoc.data()
+            
+            // Se não houver mais posts, ocultar o botão de carregar mais
+            if (querySnapshot.empty && this.lastDoc) {
+                document.getElementById('load-more').classList.add('hidden');
+                this.hideLoadingIndicator();
+                return;
+            }
+            
+            // Atualizar o último documento
+            this.lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
+            
+            const loadedPosts = [];
+            
+            // Processar posts
+            for (const doc of querySnapshot.docs) {
+                const postData = doc.data();
+                const post = {
+                    id: doc.id,
+                    title: postData.title || 'Sem título',
+                    description: postData.description || '',
+                    media: [],
+                    timestamp: postData.createdAt.toDate()
                 };
-
-                // Se o post tem referências de mídia, carregar do galeria_media
+                
+                // Processar mídia do post
                 if (postData.mediaIds && postData.mediaIds.length > 0) {
-                    const mediaPromises = postData.mediaIds.map(async (mediaId) => {
-                        try {
-                            const mediaDocRef = doc(db, 'galeria_media', mediaId);
-                            const mediaDoc = await getDoc(mediaDocRef);
-                            if (mediaDoc.exists()) {
-                                return {
-                                    id: mediaId,
-                                    url: mediaDoc.data().data, // Base64 data
-                                    type: mediaDoc.data().type,
-                                    name: mediaDoc.data().name
-                                };
-                            }
-                        } catch (error) {
-                            console.error('Erro ao carregar mídia:', error);
-                            return null;
+                    for (const mediaId of postData.mediaIds) {
+                        const mediaDoc = await getDoc(doc(db, 'galeria_media', mediaId));
+                        if (mediaDoc.exists()) {
+                            const mediaData = mediaDoc.data();
+                            post.media.push(mediaData);
                         }
-                    });
-                    
-                    const mediaResults = await Promise.all(mediaPromises);
-                    postData.media = mediaResults.filter(media => media !== null);
-                } else if (postData.media) {
-                    // Manter compatibilidade com posts antigos que já têm URLs diretas
-                    postData.media = postData.media;
-                } else {
-                    postData.media = [];
+                    }
+                } else if (postData.media && postData.media.length > 0) {
+                    // Para compatibilidade com dados antigos
+                    post.media = postData.media;
                 }
-
-                newPosts.push(postData);
+                
+                loadedPosts.push(post);
             }
-
-            if (loadMore) {
-                this.posts = [...this.posts, ...newPosts];
-            } else {
-                this.posts = newPosts;
-            }
-
-            // Atualizar lastDoc para paginação
-            if (querySnapshot.docs.length > 0) {
-                this.lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
-            }
-
+            
+            // Adicionar posts à lista
+            this.posts = [...this.posts, ...loadedPosts];
+            
+            // Carregar vídeos separadamente
+            const videos = await this.loadVideos();
+            
+            // Converter vídeos para formato compatível com posts
+            const videoPosts = videos.map(video => {
+                let thumbnailUrl = '';
+                let videoUrl = '';
+                
+                // Determinar a fonte da miniatura com base no tipo de vídeo
+                if (video.platform === 'youtube') {
+                    thumbnailUrl = video.thumbnailUrl || `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`;
+                    videoUrl = `https://www.youtube.com/embed/${video.videoId}`;
+                } else if (video.platform === 'vimeo') {
+                    thumbnailUrl = video.thumbnailUrl;
+                    videoUrl = `https://player.vimeo.com/video/${video.videoId}`;
+                } else if (video.url && video.thumbnailUrl) {
+                    thumbnailUrl = video.thumbnailUrl;
+                    videoUrl = video.url;
+                } else if (video.thumbnailData) {
+                    thumbnailUrl = video.thumbnailData;
+                    videoUrl = video.data;
+                }
+                
+                return {
+                    id: video.id,
+                    title: video.title || 'Vídeo sem título',
+                    description: video.description || '',
+                    media: [{
+                        id: video.id,
+                        type: 'video',
+                        thumbnail: thumbnailUrl,
+                        url: videoUrl,
+                        platform: video.platform || 'other',
+                        videoId: video.videoId || ''
+                    }],
+                    timestamp: video.uploadedAt.toDate(),
+                    isVideo: true
+                };
+            });
+            
+            // Adicionar vídeos à lista de posts
+            this.posts = [...this.posts, ...videoPosts];
+            
+            // Ordenar por data (mais recente primeiro)
+            this.posts.sort((a, b) => b.timestamp - a.timestamp);
+            
+            // Aplicar filtro atual
             this.applyFilter(this.currentFilter, !loadMore);
-            this.updateLoadMoreButton(querySnapshot.docs.length === this.postsPerPage);
-
+            
+            // Mostrar botão de carregar mais se houver mais posts
+            if (querySnapshot.size >= this.postsPerPage) {
+                document.getElementById('load-more').classList.remove('hidden');
+            } else {
+                document.getElementById('load-more').classList.add('hidden');
+            }
+            
+            // Ocultar indicador de carregamento
+            this.hideLoadingIndicator();
         } catch (error) {
             console.error('Erro ao carregar posts:', error);
-            this.showError('Erro ao carregar posts');
+            this.hideLoadingIndicator();
+            
+            // Mostrar mensagem de erro
+            const postsContainer = document.getElementById('posts-feed');
+            postsContainer.innerHTML = `
+                <div class="no-posts" style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #c8aa6e;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                    <h3>Erro ao carregar posts</h3>
+                    <p>Ocorreu um erro ao carregar os posts. Por favor, tente novamente mais tarde.</p>
+                </div>
+            `;
         }
-    }    renderPosts(posts) {
+    }
+    
+    // Adicionar carregamento de vídeos do Firestore
+    async loadVideos() {
+        try {
+            const videosRef = collection(db, 'videos');
+            const q = query(videosRef, orderBy('uploadedAt', 'desc'));
+            const querySnapshot = await getDocs(q);
+            
+            let videos = [];
+            
+            querySnapshot.forEach((doc) => {
+                const videoData = doc.data();
+                videos.push({
+                    id: doc.id,
+                    ...videoData,
+                    mediaType: 'video',
+                    timestamp: videoData.uploadedAt.toDate()
+                });
+            });
+            
+            return videos;
+        } catch (error) {
+            console.error('Erro ao carregar vídeos:', error);
+            return [];
+        }
+    }
+
+    renderPosts(posts) {
         const postsContainer = document.getElementById('posts-feed');
         
         if (!posts || posts.length === 0) {
@@ -143,7 +258,7 @@ class GaleriaMidia {
                 <div class="no-posts" style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #c8aa6e;">
                     <i class="fas fa-images" style="font-size: 3rem; margin-bottom: 1rem;"></i>
                     <h3>Nenhum post encontrado</h3>
-                    <p>Não há posts para exibir no momento.</p>
+                    <p>Não há posts para exibir com o filtro atual.</p>
                 </div>
             `;
             return;
@@ -151,39 +266,6 @@ class GaleriaMidia {
 
         const postsHTML = posts.map(post => this.createPostHTML(post)).join('');
         postsContainer.innerHTML = postsHTML;
-        
-        // Otimizar vídeos após renderizar
-        setTimeout(() => this.optimizeVideoLoading(), 100);
-    }
-
-    // Método para detectar se o arquivo é um vídeo
-    isVideoFile(media) {
-        if (!media) return false;
-        
-        const type = media.type || '';
-        const url = media.url || '';
-        
-        return type.startsWith('video/') || 
-               type === 'video' ||
-               /\.(mp4|webm|ogg|avi|mov|m4v|3gp|flv)$/i.test(url);
-    }
-
-    // Método para obter o tipo MIME correto do vídeo
-    getVideoMimeType(media) {
-        const type = media.type || '';
-        const url = media.url || '';
-        
-        if (type.startsWith('video/')) {
-            return type;
-        }
-        
-        if (url.includes('.mp4')) return 'video/mp4';
-        if (url.includes('.webm')) return 'video/webm';
-        if (url.includes('.ogg')) return 'video/ogg';
-        if (url.includes('.avi')) return 'video/x-msvideo';
-        if (url.includes('.mov')) return 'video/quicktime';
-        
-        return 'video/mp4'; // fallback
     }
 
     createPostHTML(post) {
@@ -197,27 +279,57 @@ class GaleriaMidia {
         });
 
         const firstMedia = post.media && post.media[0];
+        const mediaType = firstMedia?.type || 'image';
         const mediaCount = post.media?.length || 0;
 
         let mediaHTML = '';
         if (firstMedia) {
             // Melhor detecção de vídeo
-            const isVideo = this.isVideoFile(firstMedia);
+            const isVideo = mediaType && (
+                mediaType.startsWith('video/') || 
+                mediaType === 'video' ||
+                /\.(mp4|webm|ogg|avi|mov)$/i.test(firstMedia.url)
+            );
+            
+            // Detectar plataforma de vídeo
+            let platformBadge = '';
+            if (isVideo) {
+                if (firstMedia.platform === 'youtube') {
+                    platformBadge = '<span class="platform-badge youtube"><i class="fab fa-youtube"></i></span>';
+                } else if (firstMedia.platform === 'vimeo') {
+                    platformBadge = '<span class="platform-badge vimeo"><i class="fab fa-vimeo-v"></i></span>';
+                }
+            }
 
             if (isVideo) {
-                mediaHTML = `
-                    <video preload="metadata" muted playsinline>
-                        <source src="${firstMedia.url}" type="${this.getVideoMimeType(firstMedia)}">
-                        Seu navegador não suporta vídeos.
-                    </video>
-                    <div class="media-indicator">
-                        <i class="fas fa-play"></i>
-                    </div>
-                `;
+                // Se for miniatura de vídeo
+                if (firstMedia.thumbnail) {
+                    mediaHTML = `
+                        <div class="media-thumbnail">
+                            <img src="${firstMedia.thumbnail}" alt="${post.title}" loading="lazy"
+                                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;media-placeholder&quot;><i class=&quot;fas fa-film&quot;></i></div>';">
+                            <div class="play-button">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            ${platformBadge}
+                        </div>
+                    `;
+                } else {
+                    // Se não tiver miniatura, usar vídeo direto
+                    mediaHTML = `
+                        <video preload="metadata" muted>
+                            <source src="${firstMedia.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
+                        </video>
+                        <div class="media-indicator">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        ${platformBadge}
+                    `;
+                }
             } else {
                 mediaHTML = `
                     <img src="${firstMedia.url}" alt="${post.title}" loading="lazy"
-                         onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;media-placeholder&quot;><i class=&quot;fas fa-image&quot;></i><p>Imagem não encontrada</p></div>';">
+                         onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;media-placeholder&quot;><i class=&quot;fas fa-image&quot;></i></div>';">
                     <div class="media-indicator">
                         <i class="fas fa-image"></i>
                     </div>
@@ -225,15 +337,8 @@ class GaleriaMidia {
             }
 
             if (mediaCount > 1) {
-                mediaHTML += `<div class="media-count"><i class="fas fa-images"></i> ${mediaCount}</div>`;
+                mediaHTML += `<div class="media-count">${mediaCount} itens</div>`;
             }
-        } else {
-            mediaHTML = `
-                <div class="media-placeholder">
-                    <i class="fas fa-image"></i>
-                    <p style="margin-top: 1rem; font-size: 1rem;">Sem mídia</p>
-                </div>
-            `;
         }
 
         return `
@@ -242,10 +347,8 @@ class GaleriaMidia {
                     <h3 class="post-title">${post.title}</h3>
                     <time class="post-date">${formattedDate}</time>
                 </div>
-                <div class="post-media">${mediaHTML}</div>
-                <div class="post-description">
-                    ${post.description}
-                </div>
+                ${firstMedia ? `<div class="post-media">${mediaHTML}</div>` : ''}
+                ${post.description ? `<div class="post-description">${post.description}</div>` : ''}
             </article>
         `;
     }
@@ -283,6 +386,7 @@ class GaleriaMidia {
     }
 
     setActiveFilter(activeBtn) {
+        // Atualizar classes dos botões
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.classList.remove('active');
         });
@@ -296,11 +400,23 @@ class GaleriaMidia {
         
         if (filter === 'photos') {
             filtered = this.posts.filter(post => 
-                post.media && post.media.some(media => !this.isVideoFile(media))
+                post.media && post.media.some(media => {
+                    const type = media.type || '';
+                    return type.startsWith('image/') || 
+                           (!type.startsWith('video/') && type !== 'video' && 
+                            !/\.(mp4|webm|ogg|avi|mov)$/i.test(media.url));
+                })
             );
         } else if (filter === 'videos') {
             filtered = this.posts.filter(post => 
-                post.media && post.media.some(media => this.isVideoFile(media))
+                post.media && post.media.some(media => {
+                    const type = media.type || '';
+                    return type.startsWith('video/') || 
+                           type === 'video' ||
+                           /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url) ||
+                           media.platform === 'youtube' ||
+                           media.platform === 'vimeo';
+                }) || post.isVideo === true
             );
         }
 
@@ -313,9 +429,14 @@ class GaleriaMidia {
             const postsContainer = document.getElementById('posts-feed');
             const newPosts = filtered.slice(postsContainer.children.length);
             newPosts.forEach(post => {
-                postsContainer.innerHTML += this.createPostHTML(post);
+                const postElement = document.createElement('div');
+                postElement.innerHTML = this.createPostHTML(post);
+                postsContainer.appendChild(postElement.firstChild);
             });
         }
+        
+        // Atualizar botão de carregar mais
+        this.updateLoadMoreButton(filtered.length >= this.postsPerPage);
     }
 
     updateLoadMoreButton(hasMore) {
@@ -336,26 +457,35 @@ class GaleriaMidia {
         
         this.showMediaModal();
         this.updateModalContent();
-    }    showMediaModal() {
-        this.showModalWithLoading();
+    }
+
+    showMediaModal() {
+        const modal = document.getElementById('media-modal');
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
     }
 
     closeMediaModal() {
         const modal = document.getElementById('media-modal');
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
         
-        // Adicionar animação de saída
-        modal.style.opacity = '0';
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            
-            // Pause any playing videos
-            const videos = modal.querySelectorAll('video');
-            videos.forEach(video => {
-                video.pause();
-                video.currentTime = 0;
-            });
-        }, 300);
+        // Pause any playing videos
+        const videos = modal.querySelectorAll('video');
+        videos.forEach(video => {
+            video.pause();
+            video.currentTime = 0;
+        });
+        
+        // Reset iframe sources to stop playback
+        const iframes = modal.querySelectorAll('iframe');
+        iframes.forEach(iframe => {
+            const src = iframe.src;
+            iframe.src = '';
+            setTimeout(() => {
+                iframe.src = src;
+            }, 100);
+        });
     }
 
     updateModalContent() {
@@ -363,42 +493,45 @@ class GaleriaMidia {
         const media = this.currentPostMedia[this.currentMediaIndex];
         
         if (!media) return;
-
+        
         let mediaHTML = '';
-        const isVideo = this.isVideoFile(media);        if (isVideo) {
-            mediaHTML = `
-                <video controls autoplay muted playsinline>
-                    <source src="${media.url}" type="${this.getVideoMimeType(media)}">
-                    Seu navegador não suporta vídeos.
-                </video>
-            `;
+        const mediaType = media.type || '';
+        const isVideo = mediaType.startsWith('video/') || 
+                       mediaType === 'video' ||
+                       media.platform === 'youtube' ||
+                       media.platform === 'vimeo' ||
+                       /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url);
+
+        if (isVideo) {
+            if (media.platform === 'youtube' && media.videoId) {
+                mediaHTML = `
+                    <iframe src="https://www.youtube.com/embed/${media.videoId}?autoplay=1" 
+                            frameborder="0" 
+                            allowfullscreen
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                    </iframe>
+                `;
+            } else if (media.platform === 'vimeo' && media.videoId) {
+                mediaHTML = `
+                    <iframe src="https://player.vimeo.com/video/${media.videoId}?autoplay=1" 
+                            frameborder="0" 
+                            allowfullscreen
+                            allow="autoplay; fullscreen; picture-in-picture">
+                    </iframe>
+                `;
+            } else {
+                mediaHTML = `
+                    <video controls autoplay>
+                        <source src="${media.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
+                        Seu navegador não suporta vídeos.
+                    </video>
+                `;
+            }
         } else {
             mediaHTML = `<img src="${media.url}" alt="Mídia" loading="lazy">`;
         }
 
         modalBody.innerHTML = mediaHTML;
-
-        // Configurar vídeo se existir
-        const video = modalBody.querySelector('video');
-        if (video) {
-            video.addEventListener('loadeddata', () => {
-                modalBody.classList.remove('loading');
-                video.volume = 0.5; // Volume baixo no modal
-                video.muted = false; // Permitir som no modal
-            });
-            
-            video.addEventListener('error', () => {
-                modalBody.innerHTML = `
-                    <div class="media-placeholder">
-                        <i class="fas fa-video-slash"></i>
-                        <p>Erro ao carregar vídeo</p>
-                    </div>
-                `;
-                modalBody.classList.remove('loading');
-            });
-        } else {
-            modalBody.classList.remove('loading');
-        }
 
         // Update navigation buttons
         const prevBtn = document.querySelector('.prev-btn');
@@ -417,110 +550,48 @@ class GaleriaMidia {
         }
     }
 
-    showError(message) {
-        console.error(message);
-        // Aqui você pode implementar um sistema de notificações
-    }
-
-    // Método para pausar todos os vídeos nos cards
-    pauseAllCardVideos() {
-        document.querySelectorAll('.post-media video').forEach(video => {
-            video.pause();
-            video.currentTime = 0;
-        });
-    }
-
-    // Método para configurar comportamento dos vídeos nos cards
-    setupVideoInteractions() {
-        // Pausar vídeos quando sair de hover
-        document.addEventListener('mouseleave', () => {
-            this.pauseAllCardVideos();
-        });
-
-        // Configurar eventos para vídeos nos cards
-        document.addEventListener('mouseenter', (e) => {
-            if (e.target.tagName === 'VIDEO' && e.target.closest('.post-media')) {
-                // Reproduzir vídeo no hover com delay
-                setTimeout(() => {
-                    if (e.target.matches(':hover')) {
-                        e.target.play().catch(() => {
-                            // Ignorar erros de autoplay
-                        });
-                    }
-                }, 300);
-            }
-        });
-
-        document.addEventListener('mouseleave', (e) => {
-            if (e.target.tagName === 'VIDEO' && e.target.closest('.post-media')) {
-                e.target.pause();
-                e.target.currentTime = 0;
-            }
-        });
-    }
-
-    // Método para melhorar o carregamento do modal
-    showModalWithLoading() {
-        const modal = document.getElementById('media-modal');
-        const modalBody = document.querySelector('.modal-body');
-        
-        // Mostrar loading
-        modalBody.innerHTML = '<div class="video-loading">Carregando...</div>';
-        modalBody.classList.add('loading');
-        
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        
-        // Remover loading após conteúdo carregar
-        setTimeout(() => {
-            modalBody.classList.remove('loading');
-        }, 500);
-    }
-
-    // Método para tratar erros de vídeo
-    handleVideoError(videoElement) {
-        videoElement.style.display = 'none';
-        const parent = videoElement.closest('.post-media') || videoElement.parentElement;
-        if (parent) {
-            parent.innerHTML = `
-                <div class="media-placeholder">
-                    <i class="fas fa-video-slash"></i>
-                    <p style="margin-top: 1rem; font-size: 1rem;">Erro ao carregar vídeo</p>
-                </div>
-            `;
+    showLoadingIndicator() {
+        const loadMoreBtn = document.querySelector('.load-more-btn');
+        if (loadMoreBtn) {
+            loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Carregando...';
+            loadMoreBtn.disabled = true;
         }
     }
 
-    // Método para otimizar carregamento de vídeos
-    optimizeVideoLoading() {
-        // Configurar Intersection Observer para vídeos
-        const videoObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const video = entry.target;
-                if (entry.isIntersecting) {
-                    // Preload quando entrar na viewport
-                    video.preload = 'metadata';
-                } else {
-                    // Pausar quando sair da viewport
-                    video.pause();
-                    video.currentTime = 0;
-                }
-            });
-        }, {
-            rootMargin: '50px'
-        });
+    hideLoadingIndicator() {
+        const loadMoreBtn = document.querySelector('.load-more-btn');
+        if (loadMoreBtn) {
+            loadMoreBtn.innerHTML = '<i class="fas fa-plus"></i> Carregar Mais';
+            loadMoreBtn.disabled = false;
+        }
+    }
 
-        // Observar todos os vídeos
-        document.querySelectorAll('.post-media video').forEach(video => {
-            videoObserver.observe(video);
-            
-            // Adicionar tratamento de erro
-            video.addEventListener('error', () => this.handleVideoError(video));
-            video.addEventListener('loadedmetadata', () => {
-                // Garantir que o vídeo está mudo
-                video.muted = true;
-                video.volume = 0;
-            });
+    showError(message) {
+        console.error(message);
+        // Sistema de notificações
+        const notification = document.createElement('div');
+        notification.className = 'notification error';
+        notification.innerHTML = `
+            <i class="fas fa-exclamation-circle"></i>
+            <span>${message}</span>
+            <button class="notification-close"><i class="fas fa-times"></i></button>
+        `;
+        document.body.appendChild(notification);
+        
+        // Auto-hide após 5 segundos
+        setTimeout(() => {
+            notification.classList.add('hide');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 5000);
+        
+        // Fechar ao clicar no X
+        notification.querySelector('.notification-close').addEventListener('click', () => {
+            notification.classList.add('hide');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
         });
     }
 }

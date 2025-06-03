@@ -656,10 +656,9 @@ function createMediaPreview(mediaItem) {
     div.className = 'relative bg-gray-800 rounded-lg overflow-hidden border border-yellow-600';
     
     let mediaElement;
-    
-    // URLs do YouTube
+      // URLs do YouTube
     if (mediaItem.type === 'video/youtube') {
-        const videoId = extractYouTubeId(mediaItem.url);
+        const videoId = extractYouTubeID(mediaItem.url);
         mediaElement = `
             <div class="w-full h-32 bg-gray-900 flex items-center justify-center">
                 <div class="text-center">
@@ -753,12 +752,6 @@ function createMediaPreview(mediaItem) {
 }
 
 // Função auxiliar para extrair ID do YouTube
-function extractYouTubeId(url) {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-}
-
 // Função para extrair ID do YouTube de uma URL
 function extractYouTubeID(url) {
     if (!url) return null;
@@ -768,12 +761,22 @@ function extractYouTubeID(url) {
         /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/i,
         /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([^?]+)/i,
         /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?]+)/i,
-        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/v\/([^?]+)/i
+        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/v\/([^?]+)/i,
+        /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/  // Padrão adicional para maior compatibilidade
     ];
     
-    for (const pattern of patterns) {
+    for (let i = 0; i < patterns.length; i++) {
+        const pattern = patterns[i];
         const match = url.match(pattern);
-        if (match) return match[1];
+        
+        // O último padrão tem o ID no índice 2, os demais no índice 1
+        if (match) {
+            if (i === patterns.length - 1) {
+                return (match[2] && match[2].length === 11) ? match[2] : null;
+            } else {
+                return match[1];
+            }
+        }
     }
     
     return null;

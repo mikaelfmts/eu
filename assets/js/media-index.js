@@ -119,6 +119,11 @@ async function loadRecentMedia() {
                     container.appendChild(postElement);
                 }
             });
+            
+            // Inicializar os controles de vídeo após adicionar os cards
+            if (typeof initializeVideoControls === 'function') {
+                initializeVideoControls();
+            }
         }
         
     } catch (error) {
@@ -144,6 +149,12 @@ function createRecentMediaCard(post) {
     const mediaCount = post.media ? post.media.length : 0;
       let mediaElement = '';
     if (firstMedia) {
+        // Verificar se é um vídeo do YouTube
+        const youtubeID = firstMedia.youtubeID || 
+            (firstMedia.type === 'video/youtube' ? 
+                extractYouTubeID(firstMedia.url) : 
+                (firstMedia.url ? extractYouTubeID(firstMedia.url) : null));
+        
         // Melhor detecção de tipo de mídia
         const isVideo = firstMedia.type && (
             firstMedia.type.startsWith('video/') || 
@@ -151,12 +162,29 @@ function createRecentMediaCard(post) {
             /\.(mp4|webm|ogg|avi|mov)(\?|$)/i.test(firstMedia.url)
         );
         
-        if (isVideo) {
+        if (youtubeID) {
+            // YouTube video
             mediaElement = `
-                <video class="media-preview" muted preload="metadata">
-                    <source src="${firstMedia.url}" type="video/mp4">
-                    Seu navegador não suporta vídeo.
-                </video>
+                <div class="media-preview youtube-container">
+                    <div class="youtube-thumbnail" data-youtube-id="${youtubeID}">
+                        <img src="https://img.youtube.com/vi/${youtubeID}/mqdefault.jpg" alt="YouTube thumbnail" class="media-preview">
+                        <div class="youtube-play-button">
+                            <i class="fab fa-youtube"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (isVideo) {
+            mediaElement = `
+                <div class="media-preview video-container">
+                    <video class="media-preview" muted preload="metadata">
+                        <source src="${firstMedia.url}" type="video/mp4">
+                        Seu navegador não suporta vídeo.
+                    </video>
+                    <div class="video-play-button">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
             `;
         } else {
             mediaElement = `
@@ -197,10 +225,64 @@ function createRecentMediaCard(post) {
             </div>
         </div>
     `;
+      // Adicionar controladores de reprodução para os vídeos
+    const videoPlayButton = card.querySelector('.video-play-button');
+    const youtubePlayButton = card.querySelector('.youtube-thumbnail');
+    const video = card.querySelector('video');
     
-    // Adicionar evento de clique para abrir galeria
-    card.addEventListener('click', () => {
-        window.location.href = 'pages/galeria-midia.html';
+    if (videoPlayButton && video) {
+        // Para vídeos normais
+        videoPlayButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Evitar navegação para galeria
+            
+            if (video.paused) {
+                video.play();
+                videoPlayButton.classList.add('playing');
+            } else {
+                video.pause();
+                videoPlayButton.classList.remove('playing');
+            }
+        });
+        
+        // Quando o vídeo acaba, mostrar o botão play novamente
+        video.addEventListener('ended', () => {
+            videoPlayButton.classList.remove('playing');
+        });
+    }
+    
+    if (youtubePlayButton) {
+        // Para vídeos do YouTube
+        youtubePlayButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Evitar navegação para galeria
+            
+            const youtubeID = youtubePlayButton.dataset.youtubeId;
+            
+            if (youtubeID) {
+                // Substituir a thumbnail por um iframe que reproduz automaticamente
+                const iframe = document.createElement('iframe');
+                iframe.width = '100%';
+                iframe.height = '100%';
+                iframe.src = `https://www.youtube.com/embed/${youtubeID}?autoplay=1`;
+                iframe.title = 'YouTube video';
+                iframe.frameBorder = '0';
+                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                iframe.allowFullscreen = true;
+                
+                // Substituir o container da thumbnail pelo iframe
+                youtubePlayButton.parentNode.replaceChild(iframe, youtubePlayButton);
+            }
+        });
+    }
+    
+    // Adicionar evento de clique para abrir galeria (exceto em botões de play)
+    card.addEventListener('click', (e) => {
+        // Apenas navegar se o clique não foi nos controles de vídeo
+        if (!e.target.closest('.video-play-button') && 
+            !e.target.closest('.youtube-thumbnail') && 
+            !e.target.closest('video') &&
+            !e.target.closest('iframe')) {
+            window.location.href = 'pages/galeria-midia.html';
+        }
     });
     
     return card;
@@ -225,6 +307,16 @@ async function loadFeaturedMedia() {
                 const mediaCard = createFeaturedMediaCard(media);
                 container.appendChild(mediaCard);
             });
+            
+            // Inicializar controles de vídeo
+            if (typeof initializeVideoControls === 'function') {
+                initializeVideoControls();
+            }
+            
+            // Configurar autoplay para YouTube
+            if (typeof setupFeaturedYouTubeAutoplay === 'function') {
+                setupFeaturedYouTubeAutoplay();
+            }
         } else {
             container.innerHTML = `
                 <div class="no-featured-message">
@@ -254,25 +346,27 @@ function createFeaturedMediaCard(media) {
     
     // Verificar se é um vídeo do YouTube
     const youtubeID = media.youtubeID || (media.type === 'video/youtube' ? extractYouTubeID(media.url) : null);
-    
-    const mediaType = media.type || '';
+      const mediaType = media.type || '';
     const isVideo = mediaType.startsWith('video/') || 
                    mediaType === 'video' ||
-                   /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url);
+                   youtubeID || // Garantir que URLs do YouTube sejam tratadas como vídeo
+                   /\.(mp4|webm|ogg|avi|mov|m4v|mkv)$/i.test(media.url);
     
     let mediaElement = '';
-    
-    if (youtubeID) {
+      if (youtubeID) {
         // É um vídeo do YouTube
         mediaElement = `
-            <iframe 
-                class="featured-media-content youtube-embed" 
-                src="https://www.youtube.com/embed/${youtubeID}?rel=0&mute=1" 
-                title="YouTube video" 
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen
-            ></iframe>
+            <div class="youtube-container">
+                <iframe 
+                    class="featured-media-content youtube-embed" 
+                    src="https://www.youtube.com/embed/${youtubeID}?rel=0&mute=1&enablejsapi=1" 
+                    title="YouTube video" 
+                    frameborder="0"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen
+                ></iframe>
+            </div>
         `;
     } else if (isVideo) {
         mediaElement = `
@@ -369,6 +463,18 @@ window.openFeaturedModal = function(url, type, title, description, youtubeID) {
 window.closeFeaturedModal = function() {
     const modal = document.querySelector('.featured-modal');
     if (modal) {
+        // Pausar qualquer vídeo ou iFrame do YouTube antes de fechar o modal
+        const videos = modal.querySelectorAll('video');
+        videos.forEach(video => {
+            video.pause();
+        });
+        
+        // Limpar iFrames do YouTube removendo o src
+        const youtubeFrames = modal.querySelectorAll('iframe[src*="youtube"]');
+        youtubeFrames.forEach(frame => {
+            frame.src = '';
+        });
+        
         modal.remove();
         document.body.style.overflow = '';
         document.removeEventListener('keydown', handleModalKeydown);

@@ -27,6 +27,26 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// Função para extrair ID do YouTube de uma URL
+function extractYouTubeID(url) {
+    if (!url) return null;
+    
+    // Padrões de URL do YouTube
+    const patterns = [
+        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/i,
+        /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([^?]+)/i,
+        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?]+)/i,
+        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/v\/([^?]+)/i
+    ];
+    
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match) return match[1];
+    }
+    
+    return null;
+}
+
 class GaleriaMidia {
     constructor() {
         this.posts = [];
@@ -44,6 +64,13 @@ class GaleriaMidia {
         await this.loadPosts();
         this.setupEventListeners();
         this.hideLoadingScreen();
+        
+        // Inicializar controles de vídeo se o script estiver disponível
+        if (typeof initializeVideoControls === 'function') {
+            setTimeout(() => {
+                initializeVideoControls();
+            }, 500); // Pequeno delay para garantir que o DOM esteja atualizado
+        }
     }
 
     hideLoadingScreen() {

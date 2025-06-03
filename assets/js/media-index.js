@@ -1,4 +1,3 @@
-
 import { db } from './firebase-config.js';
 import { 
     collection, 
@@ -157,6 +156,11 @@ async function loadFeaturedMedia() {
                 const mediaCard = createFeaturedMediaCard(media);
                 container.appendChild(mediaCard);
             });
+            
+            // Inicializar autoplay após carregar as mídias
+            setTimeout(() => {
+                initFeaturedVideoAutoplay();
+            }, 1000);
         } else {
             container.innerHTML = `
                 <div class="no-featured-message">
@@ -183,16 +187,36 @@ async function loadFeaturedMedia() {
 function createFeaturedMediaCard(media) {
     const card = document.createElement('div');
     card.className = 'featured-media-card';
+    card.setAttribute('data-media-type', media.type);
     
     const mediaType = media.type || '';
-    const isVideo = mediaType.startsWith('video/') || 
-                   mediaType === 'video' ||
-                   /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url);
     
     let mediaElement = '';
-    if (isVideo) {
+    if (mediaType === 'video/youtube') {
         mediaElement = `
-            <video class="featured-media-content" controls muted preload="metadata">
+            <div class="featured-media-content youtube-container" data-video-url="${media.url}">
+                <iframe width="100%" height="100%" 
+                    src="${media.url}?enablejsapi=1&autoplay=0&mute=1&modestbranding=1" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+        `;
+    } else if (mediaType === 'video/vimeo') {
+        mediaElement = `
+            <div class="featured-media-content vimeo-container" data-video-url="${media.url}">
+                <iframe width="100%" height="100%" 
+                    src="${media.url}?autoplay=0&muted=1" 
+                    frameborder="0" 
+                    allow="autoplay; fullscreen; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+        `;
+    } else if (mediaType.startsWith('video/') || mediaType === 'video') {
+        mediaElement = `
+            <video class="featured-media-content video-player" controls muted preload="metadata" data-video-url="${media.url}">
                 <source src="${media.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
             </video>
         `;
@@ -273,3 +297,94 @@ function handleModalKeydown(event) {
         closeFeaturedModal();
     }
 }
+
+// Sistema de autoplay com scroll para vídeos em destaque
+let featuredVideoObserver;
+
+function initFeaturedVideoAutoplay() {
+    if (!window.IntersectionObserver) return;
+    
+    // Configurar o observer para detectar quando vídeos entram/saem da tela
+    featuredVideoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const card = entry.target;
+            const mediaType = card.getAttribute('data-media-type');
+            
+            if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+                // Vídeo está visível (mais de 50% na tela)
+                playFeaturedVideo(card, mediaType);
+            } else {
+                // Vídeo saiu da tela ou está pouco visível
+                pauseFeaturedVideo(card, mediaType);
+            }
+        });
+    }, {
+        threshold: [0.25, 0.5, 0.75], // Múltiplos thresholds para melhor controle
+        rootMargin: '0px 0px -10% 0px' // Margem inferior para começar a pausar um pouco antes
+    });
+    
+    // Observar todos os cards de mídia em destaque
+    observeFeaturedVideos();
+}
+
+function observeFeaturedVideos() {
+    const featuredCards = document.querySelectorAll('.featured-media-card');
+    featuredCards.forEach(card => {
+        const mediaType = card.getAttribute('data-media-type');
+        if (mediaType && (mediaType.includes('video') || mediaType === 'video/youtube' || mediaType === 'video/vimeo')) {
+            featuredVideoObserver.observe(card);
+        }
+    });
+}
+
+function playFeaturedVideo(card, mediaType) {
+    try {
+        if (mediaType === 'video/youtube') {
+            const iframe = card.querySelector('iframe');
+            if (iframe) {
+                // Para YouTube, enviamos comando via postMessage
+                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+            }
+        } else if (mediaType === 'video/vimeo') {
+            const iframe = card.querySelector('iframe');
+            if (iframe) {
+                // Para Vimeo, enviamos comando via postMessage
+                iframe.contentWindow.postMessage('{"method":"play"}', '*');
+            }
+        } else if (mediaType.startsWith('video/') || mediaType === 'video') {
+            const video = card.querySelector('video');
+            if (video) {
+                video.muted = true; // Garantir que está mutado para autoplay
+                video.play().catch(e => console.log('Autoplay bloqueado:', e));
+            }
+        }
+    } catch (error) {
+        console.log('Erro ao reproduzir vídeo:', error);
+    }
+}
+
+function pauseFeaturedVideo(card, mediaType) {
+    try {
+        if (mediaType === 'video/youtube') {
+            const iframe = card.querySelector('iframe');
+            if (iframe) {
+                iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            }
+        } else if (mediaType === 'video/vimeo') {
+            const iframe = card.querySelector('iframe');
+            if (iframe) {
+                iframe.contentWindow.postMessage('{"method":"pause"}', '*');
+            }
+        } else if (mediaType.startsWith('video/') || mediaType === 'video') {
+            const video = card.querySelector('video');
+            if (video) {
+                video.pause();
+            }
+        }
+    } catch (error) {
+        console.log('Erro ao pausar vídeo:', error);
+    }
+}
+
+// Iniciar autoplay com scroll quando o DOM estiver totalmente carregado
+document.addEventListener('DOMContentLoaded', initFeaturedVideoAutoplay);

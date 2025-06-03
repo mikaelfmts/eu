@@ -27,26 +27,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Função para extrair ID do YouTube de uma URL
-function extractYouTubeID(url) {
-    if (!url) return null;
-    
-    // Padrões de URL do YouTube
-    const patterns = [
-        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/i,
-        /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([^?]+)/i,
-        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?]+)/i,
-        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/v\/([^?]+)/i
-    ];
-    
-    for (const pattern of patterns) {
-        const match = url.match(pattern);
-        if (match) return match[1];
-    }
-    
-    return null;
-}
-
 class GaleriaMidia {
     constructor() {
         this.posts = [];
@@ -64,13 +44,6 @@ class GaleriaMidia {
         await this.loadPosts();
         this.setupEventListeners();
         this.hideLoadingScreen();
-        
-        // Inicializar controles de vídeo se o script estiver disponível
-        if (typeof initializeVideoControls === 'function') {
-            setTimeout(() => {
-                initializeVideoControls();
-            }, 500); // Pequeno delay para garantir que o DOM esteja atualizado
-        }
     }
 
     hideLoadingScreen() {
@@ -192,23 +165,23 @@ class GaleriaMidia {
         const mediaCount = post.media?.length || 0;
 
         let mediaHTML = '';
-        if (firstMedia) {        // Melhor detecção de vídeo
-        const isVideo = mediaType && (
-            mediaType.startsWith('video/') || 
-            mediaType === 'video' ||
-            /\.(mp4|webm|ogg|avi|mov)$/i.test(firstMedia.url)
-        );
+        if (firstMedia) {        // Melhor detecção de vídeo com mais formatos
+        const isVideo = this.isVideoFile(firstMedia.url, mediaType);
 
         if (isVideo) {
+                const videoMimeType = this.getVideoMimeType(firstMedia.url, mediaType);
                 mediaHTML = `
-                    <video preload="metadata" muted>
-                        <source src="${firstMedia.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
+                    <video preload="metadata" muted playsinline 
+                           onloadstart="this.style.opacity='1'" 
+                           onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;media-placeholder video-error&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><span>Erro ao carregar vídeo</span></div>';">
+                        <source src="${firstMedia.url}" type="${videoMimeType}">
+                        Seu navegador não suporta a reprodução de vídeos.
                     </video>
                     <div class="media-indicator">
                         <i class="fas fa-play"></i>
                     </div>
                 `;
-            } else {
+            }else {
                 mediaHTML = `
                     <img src="${firstMedia.url}" alt="${post.title}" loading="lazy"
                          onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;media-placeholder&quot;><i class=&quot;fas fa-image&quot;></i></div>';">
@@ -279,23 +252,16 @@ class GaleriaMidia {
     applyFilter(filter, clearContainer = true) {
         this.currentFilter = filter;
         
-        let filtered = this.posts;
-          if (filter === 'photos') {
+        let filtered = this.posts;        if (filter === 'photos') {
             filtered = this.posts.filter(post => 
                 post.media && post.media.some(media => {
-                    const type = media.type || '';
-                    return type.startsWith('image/') || 
-                           (!type.startsWith('video/') && type !== 'video' && 
-                            !/\.(mp4|webm|ogg|avi|mov)$/i.test(media.url));
+                    return !this.isVideoFile(media.url, media.type);
                 })
             );
         } else if (filter === 'videos') {
             filtered = this.posts.filter(post => 
                 post.media && post.media.some(media => {
-                    const type = media.type || '';
-                    return type.startsWith('video/') || 
-                           type === 'video' ||
-                           /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url);
+                    return this.isVideoFile(media.url, media.type);
                 })
             );
         }
@@ -359,18 +325,22 @@ class GaleriaMidia {
         
         if (!media) return;        let mediaHTML = '';
         const mediaType = media.type || '';
-        const isVideo = mediaType.startsWith('video/') || 
-                       mediaType === 'video' ||
-                       /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url);
+        const isVideo = this.isVideoFile(media.url, mediaType);
 
         if (isVideo) {
+            const videoMimeType = this.getVideoMimeType(media.url, mediaType);
             mediaHTML = `
-                <video controls autoplay muted>
-                    <source src="${media.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
-                    Seu navegador não suporta vídeos.
+                <video controls preload="metadata" playsinline 
+                       onloadstart="this.style.opacity='1'"
+                       oncanplay="this.style.opacity='1'"
+                       onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;video-error-message&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><p>Erro ao carregar vídeo</p><small>Formato não suportado ou arquivo corrompido</small></div>';">
+                    <source src="${media.url}" type="${videoMimeType}">
+                    <source src="${media.url}" type="video/mp4">
+                    <source src="${media.url}" type="video/webm">
+                    Seu navegador não suporta a reprodução de vídeos. <a href="${media.url}" target="_blank">Clique aqui para baixar o vídeo</a>.
                 </video>
             `;
-        } else {
+        }else {
             mediaHTML = `<img src="${media.url}" alt="Mídia" loading="lazy">`;
         }
 
@@ -391,11 +361,71 @@ class GaleriaMidia {
             this.currentMediaIndex = newIndex;
             this.updateModalContent();
         }
-    }
-
-    showError(message) {
+    }    showError(message) {
         console.error(message);
         // Aqui você pode implementar um sistema de notificações
+    }
+
+    // Método para detectar se um arquivo é vídeo de forma mais robusta
+    isVideoFile(url, mimeType) {
+        if (!url) return false;
+        
+        // Verificar MIME type primeiro
+        if (mimeType && mimeType.startsWith('video/')) {
+            return true;
+        }
+        
+        // Verificar por palavras-chave no tipo
+        if (mimeType === 'video' || mimeType === 'Video') {
+            return true;
+        }
+        
+        // Verificar extensão do arquivo na URL
+        const videoExtensions = /\.(mp4|webm|ogg|avi|mov|mkv|wmv|flv|m4v|3gp)(\?|#|$)/i;
+        if (videoExtensions.test(url)) {
+            return true;
+        }
+        
+        // Verificar se é um data URL de vídeo
+        if (url.startsWith('data:video/')) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    // Método para obter o MIME type correto do vídeo
+    getVideoMimeType(url, originalMimeType) {
+        // Se já temos um MIME type válido, usar ele
+        if (originalMimeType && originalMimeType.startsWith('video/')) {
+            return originalMimeType;
+        }
+        
+        // Detectar por extensão
+        if (/\.mp4(\?|#|$)/i.test(url)) {
+            return 'video/mp4';
+        } else if (/\.webm(\?|#|$)/i.test(url)) {
+            return 'video/webm';
+        } else if (/\.ogg(\?|#|$)/i.test(url)) {
+            return 'video/ogg';
+        } else if (/\.avi(\?|#|$)/i.test(url)) {
+            return 'video/avi';
+        } else if (/\.mov(\?|#|$)/i.test(url)) {
+            return 'video/quicktime';
+        } else if (/\.mkv(\?|#|$)/i.test(url)) {
+            return 'video/x-matroska';
+        } else if (/\.wmv(\?|#|$)/i.test(url)) {
+            return 'video/x-ms-wmv';
+        } else if (/\.flv(\?|#|$)/i.test(url)) {
+            return 'video/x-flv';
+        } else if (/\.m4v(\?|#|$)/i.test(url)) {
+            return 'video/mp4';
+        } else if (/\.3gp(\?|#|$)/i.test(url)) {
+            return 'video/3gpp';
+        }
+        
+        // Fallback para MP4 se não conseguir detectar
+        return 'video/mp4';
     }
 }
 

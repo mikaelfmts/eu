@@ -1,3 +1,4 @@
+
 import { db } from './firebase-config.js';
 import { 
     collection, 
@@ -10,79 +11,10 @@ import {
     getDoc
 } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
-// Função para extrair ID do YouTube de uma URL
-function extractYouTubeID(url) {
-    if (!url) return null;
-    
-    // Padrões de URL do YouTube
-    const patterns = [
-        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/i,
-        /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([^?]+)/i,
-        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?]+)/i,
-        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/v\/([^?]+)/i
-    ];
-    
-    for (const pattern of patterns) {
-        const match = url.match(pattern);
-        if (match) return match[1];
-    }
-    
-    return null;
-}
-
-// Sistema de autoplay com scroll para vídeos em destaque
-function setupFeaturedVideoAutoplay() {
-    // Encontrar todos os vídeos em destaque
-    const featuredVideos = document.querySelectorAll('.featured-media-content');
-    
-    // Configurar o Intersection Observer
-    const videoObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            // Verificar se é um elemento de vídeo válido
-            if (entry.target.tagName === 'VIDEO') {
-                if (entry.isIntersecting) {
-                    // Vídeo está visível na tela
-                    entry.target.play().catch(e => console.log('Erro ao reproduzir vídeo:', e));
-                } else {
-                    // Vídeo está fora da tela
-                    entry.target.pause();
-                }
-            } else if (entry.target.tagName === 'IFRAME' && entry.target.src.includes('youtube')) {
-                // Manipular iframes do YouTube
-                if (entry.isIntersecting) {
-                    // YouTube está visível na tela, adicionar parâmetro de autoplay
-                    const currentSrc = entry.target.src;
-                    if (!currentSrc.includes('autoplay=1')) {
-                        entry.target.src = currentSrc.includes('?') 
-                            ? `${currentSrc}&autoplay=1&mute=1` 
-                            : `${currentSrc}?autoplay=1&mute=1`;
-                    }
-                } else {
-                    // YouTube está fora da tela, pausar (recarregar sem autoplay)
-                    const currentSrc = entry.target.src.replace(/[?&]autoplay=1/, '');
-                    if (entry.target.src !== currentSrc) {
-                        entry.target.src = currentSrc;
-                    }
-                }
-            }
-        });
-    }, {
-        threshold: 0.5 // 50% do vídeo deve estar visível
-    });
-    
-    // Observar cada vídeo
-    featuredVideos.forEach(video => {
-        videoObserver.observe(video);
-    });
-}
-
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
     loadRecentMedia();
-    loadFeaturedMedia().then(() => {
-        // Configurar autoplay com scroll para vídeos em destaque após carregamento
-        setupFeaturedVideoAutoplay();
-    });
+    loadFeaturedMedia();
 });
 
 async function loadRecentMedia() {
@@ -117,7 +49,8 @@ async function loadRecentMedia() {
                 if (post.visible !== false) {
                     const postElement = createRecentMediaCard(post);
                     container.appendChild(postElement);
-                }            });
+                }
+            });
         }
         
     } catch (error) {
@@ -140,45 +73,23 @@ function createRecentMediaCard(post) {
     
     // Usar primeira mídia como preview
     const firstMedia = post.media && post.media.length > 0 ? post.media[0] : null;
-    const mediaCount = post.media ? post.media.length : 0;
-      let mediaElement = '';
+    const mediaCount = post.media ? post.media.length : 0;    let mediaElement = '';
     if (firstMedia) {
-        // Verificar se é um vídeo do YouTube
-        const youtubeID = firstMedia.youtubeID || 
-            (firstMedia.type === 'video/youtube' ? 
-                extractYouTubeID(firstMedia.url) : 
-                (firstMedia.url ? extractYouTubeID(firstMedia.url) : null));
-        
         // Melhor detecção de tipo de mídia
-        const isVideo = firstMedia.type && (
-            firstMedia.type.startsWith('video/') || 
-            firstMedia.type === 'video' ||
-            /\.(mp4|webm|ogg|avi|mov)(\?|$)/i.test(firstMedia.url)
-        );
-          if (youtubeID) {
-            // YouTube video - ESTRUTURA SIMPLES
+        const isVideo = isVideoFile(firstMedia.url, firstMedia.type);
+        
+        if (isVideo) {
+            const videoMimeType = getVideoMimeType(firstMedia.url, firstMedia.type);
             mediaElement = `
-                <div class="media-preview youtube-container" data-youtube-id="${youtubeID}">
-                    <img src="https://img.youtube.com/vi/${youtubeID}/mqdefault.jpg" alt="YouTube thumbnail" class="media-preview">
-                    <div class="youtube-play-button">
-                        <i class="fab fa-youtube"></i>
-                    </div>
-                </div>
+                <video class="media-preview" muted preload="metadata" playsinline
+                       onloadstart="this.style.opacity='1'"
+                       onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;media-preview-placeholder video-error&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><span>Erro no vídeo</span></div>';">
+                    <source src="${firstMedia.url}" type="${videoMimeType}">
+                    <source src="${firstMedia.url}" type="video/mp4">
+                    Seu navegador não suporta vídeo.
+                </video>
             `;
-        } else if (isVideo) {
-            // Vídeo normal - ESTRUTURA SIMPLES
-            mediaElement = `
-                <div class="media-preview video-container">
-                    <video class="media-preview" muted preload="metadata" playsinline>
-                        <source src="${firstMedia.url}" type="video/mp4">
-                        Seu navegador não suporta vídeo.
-                    </video>
-                    <div class="video-play-button">
-                        <i class="fas fa-play"></i>
-                    </div>
-                </div>
-            `;
-        } else {
+        }else {
             mediaElement = `
                 <img src="${firstMedia.url}" alt="${post.title}" class="media-preview"
                      onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;media-preview-placeholder&quot;><i class=&quot;fas fa-image&quot;></i></div>';">
@@ -216,71 +127,11 @@ function createRecentMediaCard(post) {
                 </span>
             </div>
         </div>
-    `;    // Adicionar controladores de reprodução SIMPLES
-    const videoContainer = card.querySelector('.video-container');
-    const youtubeContainer = card.querySelector('.youtube-container');
+    `;
     
-    // Vídeos normais - FUNCIONAMENTO DIRETO
-    if (videoContainer) {
-        const video = videoContainer.querySelector('video');
-        const playBtn = videoContainer.querySelector('.video-play-button');
-        
-        if (video && playBtn) {
-            const playVideo = (e) => {
-                e.stopPropagation();
-                if (video.paused) {
-                    video.play().then(() => {
-                        playBtn.style.display = 'none';
-                    }).catch(err => console.log('Erro:', err));
-                } else {
-                    video.pause();
-                    playBtn.style.display = 'flex';
-                }
-            };
-            
-            playBtn.addEventListener('click', playVideo);
-            video.addEventListener('click', playVideo);
-            
-            video.addEventListener('ended', () => {
-                playBtn.style.display = 'flex';
-            });
-        }
-    }
-    
-    // YouTube - FUNCIONAMENTO DIRETO
-    if (youtubeContainer) {
-        youtubeContainer.addEventListener('click', (e) => {
-            e.stopPropagation();
-            
-            const youtubeID = youtubeContainer.dataset.youtubeId;
-            if (youtubeID) {
-                // Criar iframe e substituir
-                const iframe = document.createElement('iframe');
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.position = 'absolute';
-                iframe.style.top = '0';
-                iframe.style.left = '0';
-                iframe.src = `https://www.youtube.com/embed/${youtubeID}?autoplay=1&rel=0`;
-                iframe.frameBorder = '0';
-                iframe.allow = 'autoplay; encrypted-media';
-                iframe.allowFullscreen = true;
-                
-                youtubeContainer.innerHTML = '';
-                youtubeContainer.appendChild(iframe);
-            }
-        });
-    }
-    
-    // Adicionar evento de clique para abrir galeria (exceto em botões de play)
-    card.addEventListener('click', (e) => {
-        // Apenas navegar se o clique não foi nos controles de vídeo
-        if (!e.target.closest('.video-play-button') && 
-            !e.target.closest('.youtube-thumbnail') && 
-            !e.target.closest('video') &&
-            !e.target.closest('iframe')) {
-            window.location.href = 'pages/galeria-midia.html';
-        }
+    // Adicionar evento de clique para abrir galeria
+    card.addEventListener('click', () => {
+        window.location.href = 'pages/galeria-midia.html';
     });
     
     return card;
@@ -305,16 +156,6 @@ async function loadFeaturedMedia() {
                 const mediaCard = createFeaturedMediaCard(media);
                 container.appendChild(mediaCard);
             });
-            
-            // Inicializar controles de vídeo
-            if (typeof initializeVideoControls === 'function') {
-                initializeVideoControls();
-            }
-            
-            // Configurar autoplay para YouTube
-            if (typeof setupFeaturedYouTubeAutoplay === 'function') {
-                setupFeaturedYouTubeAutoplay();
-            }
         } else {
             container.innerHTML = `
                 <div class="no-featured-message">
@@ -341,38 +182,23 @@ async function loadFeaturedMedia() {
 function createFeaturedMediaCard(media) {
     const card = document.createElement('div');
     card.className = 'featured-media-card';
-    
-    // Verificar se é um vídeo do YouTube
-    const youtubeID = media.youtubeID || (media.type === 'video/youtube' ? extractYouTubeID(media.url) : null);
       const mediaType = media.type || '';
-    const isVideo = mediaType.startsWith('video/') || 
-                   mediaType === 'video' ||
-                   youtubeID || // Garantir que URLs do YouTube sejam tratadas como vídeo
-                   /\.(mp4|webm|ogg|avi|mov|m4v|mkv)$/i.test(media.url);
+    const isVideo = isVideoFile(media.url, mediaType);
     
     let mediaElement = '';
-      if (youtubeID) {
-        // É um vídeo do YouTube
+    if (isVideo) {
+        const videoMimeType = getVideoMimeType(media.url, mediaType);
         mediaElement = `
-            <div class="youtube-container">
-                <iframe 
-                    class="featured-media-content youtube-embed" 
-                    src="https://www.youtube.com/embed/${youtubeID}?rel=0&mute=1&enablejsapi=1" 
-                    title="YouTube video" 
-                    frameborder="0"
-                    loading="lazy"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen
-                ></iframe>
-            </div>
-        `;
-    } else if (isVideo) {
-        mediaElement = `
-            <video class="featured-media-content" controls muted preload="metadata" playsinline loop>
-                <source src="${media.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
+            <video class="featured-media-content" controls muted preload="metadata" playsinline
+                   onloadstart="this.style.opacity='1'"
+                   onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;featured-media-placeholder video-error&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><p>Erro ao carregar vídeo</p></div>';">
+                <source src="${media.url}" type="${videoMimeType}">
+                <source src="${media.url}" type="video/mp4">
+                <source src="${media.url}" type="video/webm">
+                Seu navegador não suporta vídeos.
             </video>
         `;
-    } else {
+    }else {
         mediaElement = `
             <img src="${media.url}" alt="${media.title}" class="featured-media-content"
                  onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;featured-media-placeholder&quot;><i class=&quot;fas fa-image&quot;></i></div>';">
@@ -392,71 +218,21 @@ function createFeaturedMediaCard(media) {
         <div class="featured-info">
             <h3 class="featured-title">${media.title}</h3>
             <p class="featured-description">${media.description}</p>
-            <button class="btn-view-featured" onclick="openFeaturedModal('${media.url}', '${youtubeID ? 'video/youtube' : media.type}', '${media.title}', '${media.description}', '${youtubeID || ''}')">
+            <button class="btn-view-featured" onclick="openFeaturedModal('${media.url}', '${media.type}', '${media.title}', '${media.description}')">
                 <i class="fas fa-expand"></i>
                 Ver em Tela Cheia
             </button>
-        </div>    `;
-    
-    // Adicionar controles de vídeo SIMPLES diretamente aqui
-    setTimeout(() => {
-        const video = card.querySelector('video');
-        const iframe = card.querySelector('iframe.youtube-embed');
-        
-        if (video) {
-            video.onclick = () => {
-                if (video.paused) {
-                    video.play();
-                } else {
-                    video.pause();
-                }
-            };
-        }
-        
-        if (iframe && youtubeID) {
-            iframe.onclick = () => {
-                // YouTube já tem controles próprios
-                console.log('YouTube video clicked');
-            };
-        }
-    }, 100);
+        </div>
+    `;
     
     return card;
 }
 
 // Função global para abrir modal de mídia em destaque
-window.openFeaturedModal = function(url, type, title, description, youtubeID) {
+window.openFeaturedModal = function(url, type, title, description) {
     // Criar modal
     const modal = document.createElement('div');
     modal.className = 'featured-modal';
-    
-    // Determinar qual tipo de mídia mostrar
-    let mediaContent;
-    
-    if (type === 'video/youtube' && youtubeID) {
-        // YouTube
-        mediaContent = `
-            <iframe 
-                class="featured-modal-media" 
-                src="https://www.youtube.com/embed/${youtubeID}?rel=0&autoplay=1" 
-                title="YouTube video" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen
-            ></iframe>
-        `;
-    } else if (type === 'video' || type.startsWith('video/')) {
-        // Vídeo normal
-        mediaContent = `
-            <video controls autoplay class="featured-modal-media">
-                <source src="${url}" type="${type.startsWith('video/') ? type : 'video/mp4'}">
-            </video>
-        `;
-    } else {
-        // Imagem padrão
-        mediaContent = `<img src="${url}" alt="${title}" class="featured-modal-media">`;
-    }
-    
     modal.innerHTML = `
         <div class="featured-modal-content">
             <div class="featured-modal-header">
@@ -464,9 +240,18 @@ window.openFeaturedModal = function(url, type, title, description, youtubeID) {
                 <button class="featured-modal-close" onclick="closeFeaturedModal()">
                     <i class="fas fa-times"></i>
                 </button>
-            </div>
-            <div class="featured-modal-body">
-                ${mediaContent}
+            </div>            <div class="featured-modal-body">
+                ${isVideoFile(url, type) ? 
+                    `<video controls preload="metadata" playsinline class="featured-modal-media"
+                            onloadstart="this.style.opacity='1'"
+                            onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;video-error-message&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><p>Erro ao carregar vídeo</p></div>';">
+                        <source src="${url}" type="${getVideoMimeType(url, type)}">
+                        <source src="${url}" type="video/mp4">
+                        <source src="${url}" type="video/webm">
+                        Seu navegador não suporta vídeos.
+                    </video>` :
+                    `<img src="${url}" alt="${title}" class="featured-modal-media">`
+                }
                 <p class="featured-modal-description">${description}</p>
             </div>
         </div>
@@ -483,18 +268,6 @@ window.openFeaturedModal = function(url, type, title, description, youtubeID) {
 window.closeFeaturedModal = function() {
     const modal = document.querySelector('.featured-modal');
     if (modal) {
-        // Pausar qualquer vídeo ou iFrame do YouTube antes de fechar o modal
-        const videos = modal.querySelectorAll('video');
-        videos.forEach(video => {
-            video.pause();
-        });
-        
-        // Limpar iFrames do YouTube removendo o src
-        const youtubeFrames = modal.querySelectorAll('iframe[src*="youtube"]');
-        youtubeFrames.forEach(frame => {
-            frame.src = '';
-        });
-        
         modal.remove();
         document.body.style.overflow = '';
         document.removeEventListener('keydown', handleModalKeydown);
@@ -505,4 +278,65 @@ function handleModalKeydown(event) {
     if (event.key === 'Escape') {
         closeFeaturedModal();
     }
+}
+
+// Funções auxiliares para detecção de vídeo
+function isVideoFile(url, mimeType) {
+    if (!url) return false;
+    
+    // Verificar MIME type primeiro
+    if (mimeType && mimeType.startsWith('video/')) {
+        return true;
+    }
+    
+    // Verificar por palavras-chave no tipo
+    if (mimeType === 'video' || mimeType === 'Video') {
+        return true;
+    }
+    
+    // Verificar extensão do arquivo na URL
+    const videoExtensions = /\.(mp4|webm|ogg|avi|mov|mkv|wmv|flv|m4v|3gp)(\?|#|$)/i;
+    if (videoExtensions.test(url)) {
+        return true;
+    }
+    
+    // Verificar se é um data URL de vídeo
+    if (url.startsWith('data:video/')) {
+        return true;
+    }
+    
+    return false;
+}
+
+function getVideoMimeType(url, originalMimeType) {
+    // Se já temos um MIME type válido, usar ele
+    if (originalMimeType && originalMimeType.startsWith('video/')) {
+        return originalMimeType;
+    }
+    
+    // Detectar por extensão
+    if (/\.mp4(\?|#|$)/i.test(url)) {
+        return 'video/mp4';
+    } else if (/\.webm(\?|#|$)/i.test(url)) {
+        return 'video/webm';
+    } else if (/\.ogg(\?|#|$)/i.test(url)) {
+        return 'video/ogg';
+    } else if (/\.avi(\?|#|$)/i.test(url)) {
+        return 'video/avi';
+    } else if (/\.mov(\?|#|$)/i.test(url)) {
+        return 'video/quicktime';
+    } else if (/\.mkv(\?|#|$)/i.test(url)) {
+        return 'video/x-matroska';
+    } else if (/\.wmv(\?|#|$)/i.test(url)) {
+        return 'video/x-ms-wmv';
+    } else if (/\.flv(\?|#|$)/i.test(url)) {
+        return 'video/x-flv';
+    } else if (/\.m4v(\?|#|$)/i.test(url)) {
+        return 'video/mp4';
+    } else if (/\.3gp(\?|#|$)/i.test(url)) {
+        return 'video/3gpp';
+    }
+    
+    // Fallback para MP4 se não conseguir detectar
+    return 'video/mp4';
 }

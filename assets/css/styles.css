@@ -3295,3 +3295,57 @@ section {
     }
 }
 
+/* Estilos para tratamento de erro de vídeo - compatibilidade com index */
+.video-error-message,
+.media-preview-placeholder.video-error,
+.featured-media-placeholder.video-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(139, 69, 19, 0.1);
+    border: 2px dashed #c8aa6e;
+    border-radius: 8px;
+    padding: 1.5rem;
+    color: #c8aa6e;
+    text-align: center;
+    min-height: 150px;
+}
+
+.video-error-message i,
+.media-preview-placeholder.video-error i,
+.featured-media-placeholder.video-error i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #ff6b6b;
+}
+
+.video-error-message p {
+    margin: 0.25rem 0;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.media-preview-placeholder.video-error span {
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+}
+
+/* Melhorias para elementos de vídeo na página principal */
+.media-preview video,
+.featured-media-content video {
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+}
+
+.media-preview video:hover,
+.featured-media-content video:hover {
+    opacity: 1;
+}
+
+/* Indicador de carregamento de vídeo */
+.media-preview video[preload="metadata"],
+.featured-media-content video[preload="metadata"] {
+    background: rgba(200, 170, 110, 0.05);
+}
+

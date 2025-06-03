@@ -656,9 +656,10 @@ function createMediaPreview(mediaItem) {
     div.className = 'relative bg-gray-800 rounded-lg overflow-hidden border border-yellow-600';
     
     let mediaElement;
-      // URLs do YouTube
+    
+    // URLs do YouTube
     if (mediaItem.type === 'video/youtube') {
-        const videoId = extractYouTubeID(mediaItem.url);
+        const videoId = extractYouTubeId(mediaItem.url);
         mediaElement = `
             <div class="w-full h-32 bg-gray-900 flex items-center justify-center">
                 <div class="text-center">
@@ -752,34 +753,10 @@ function createMediaPreview(mediaItem) {
 }
 
 // Função auxiliar para extrair ID do YouTube
-// Função para extrair ID do YouTube de uma URL
-function extractYouTubeID(url) {
-    if (!url) return null;
-    
-    // Padrões de URL do YouTube
-    const patterns = [
-        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/i,
-        /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([^?]+)/i,
-        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?]+)/i,
-        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/v\/([^?]+)/i,
-        /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/  // Padrão adicional para maior compatibilidade
-    ];
-    
-    for (let i = 0; i < patterns.length; i++) {
-        const pattern = patterns[i];
-        const match = url.match(pattern);
-        
-        // O último padrão tem o ID no índice 2, os demais no índice 1
-        if (match) {
-            if (i === patterns.length - 1) {
-                return (match[2] && match[2].length === 11) ? match[2] : null;
-            } else {
-                return match[1];
-            }
-        }
-    }
-    
-    return null;
+function extractYouTubeId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
 }
 
 // Função para adicionar mídia ao preview
@@ -1575,31 +1552,6 @@ function handleAddFeaturedUrlMedia() {
         return;
     }
     
-    // Verificar se é URL do YouTube
-    const youtubeID = extractYouTubeID(url);
-    if (youtubeID) {
-        // É um vídeo do YouTube
-        const mediaItem = {
-            url: url,
-            type: 'video/youtube',
-            youtubeID: youtubeID,
-            name: 'Vídeo do YouTube',
-            source: 'url'
-        };
-        
-        // Mostrar preview
-        showFeaturedPreview(mediaItem);
-        
-        // Armazenar referência
-        featuredMediaItem = mediaItem;
-        
-        // Limpar input
-        urlInput.value = '';
-        
-        showSuccess('✅ Vídeo do YouTube adicionado com sucesso!');
-        return;
-    }
-    
     // Detectar tipo de mídia baseado na extensão
     const extension = url.split('.').pop().toLowerCase();
     const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
@@ -1648,28 +1600,7 @@ function showFeaturedPreview(mediaItem) {
         position: relative;
     `;
 
-    if (mediaItem.type === 'video/youtube' && mediaItem.youtubeID) {
-        // Preview de vídeo do YouTube
-        previewElement.innerHTML = `
-            <iframe 
-                width="100%" 
-                height="200" 
-                src="https://www.youtube.com/embed/${mediaItem.youtubeID}?rel=0" 
-                title="YouTube video" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen
-                style="border-radius: 4px; margin-bottom: 0.5rem;"
-            ></iframe>
-            <p style="color: var(--text-light); font-size: 0.875rem; margin: 0;">
-                <strong>Vídeo do YouTube:</strong> ${mediaItem.name}
-            </p>
-            <button type="button" onclick="clearFeaturedPreview()" 
-                    style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;">
-                ×
-            </button>
-        `;
-    } else if (mediaItem.type === 'video') {
+    if (mediaItem.type === 'video') {
         previewElement.innerHTML = `
             <video controls style="width: 100%; max-height: 200px; border-radius: 4px; margin-bottom: 0.5rem;">
                 <source src="${mediaItem.url}" type="video/mp4">

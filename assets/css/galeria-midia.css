@@ -352,8 +352,67 @@
         flex-direction: column;
         align-items: center;
     }
-    
-    .filter-btn {
+      .filter-btn {
         width: 150px;
     }
+}
+
+/* Estilos para tratamento de erro de vídeo */
+.video-error-message,
+.media-placeholder.video-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(139, 69, 19, 0.1);
+    border: 2px dashed #c8aa6e;
+    border-radius: 8px;
+    padding: 2rem;
+    color: #c8aa6e;
+    text-align: center;
+    min-height: 200px;
+}
+
+.video-error-message i,
+.media-placeholder.video-error i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #ff6b6b;
+}
+
+.video-error-message p {
+    margin: 0.5rem 0;
+    font-weight: bold;
+}
+
+.video-error-message small {
+    color: #f0e6d2;
+    opacity: 0.8;
+    font-size: 0.85rem;
+}
+
+.media-placeholder.video-error span {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* Melhorias para elementos de vídeo */
+.post-media video,
+.modal-body video {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.post-media video:hover,
+.modal-body video:hover {
+    opacity: 1;
+}
+
+/* Indicador de carregamento de vídeo */
+.post-media video[preload="metadata"] {
+    background: rgba(200, 170, 110, 0.1);
+}
+
+.modal-body video[preload="metadata"] {
+    background: rgba(10, 20, 40, 0.8);
 }

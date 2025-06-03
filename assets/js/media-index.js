@@ -117,53 +117,7 @@ async function loadRecentMedia() {
                 if (post.visible !== false) {
                     const postElement = createRecentMediaCard(post);
                     container.appendChild(postElement);
-                }
-            });
-              // Inicializar os controles de vídeo após adicionar os cards
-            setTimeout(() => {
-                // Simples e direto - sem complicação
-                document.querySelectorAll('.video-play-button').forEach(btn => {
-                    const video = btn.parentElement.querySelector('video');
-                    if (video) {
-                        btn.onclick = (e) => {
-                            e.stopPropagation();
-                            if (video.paused) {
-                                video.play().then(() => btn.style.display = 'none');
-                            } else {
-                                video.pause();
-                                btn.style.display = 'flex';
-                            }
-                        };
-                        video.onclick = (e) => {
-                            e.stopPropagation();
-                            if (video.paused) {
-                                video.play().then(() => btn.style.display = 'none');
-                            } else {
-                                video.pause();
-                                btn.style.display = 'flex';
-                            }
-                        };
-                    }
-                });
-                
-                document.querySelectorAll('.youtube-thumbnail').forEach(thumb => {
-                    thumb.onclick = (e) => {
-                        e.stopPropagation();
-                        const id = thumb.dataset.youtubeId;
-                        if (id) {
-                            const iframe = document.createElement('iframe');
-                            iframe.style.width = '100%';
-                            iframe.style.height = '100%';
-                            iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1`;
-                            iframe.frameBorder = '0';
-                            iframe.allow = 'autoplay';
-                            iframe.allowFullscreen = true;
-                            thumb.parentElement.innerHTML = '';
-                            thumb.parentElement.appendChild(iframe);
-                        }
-                    };
-                });
-            }, 500);
+                }            });
         }
         
     } catch (error) {
@@ -201,23 +155,21 @@ function createRecentMediaCard(post) {
             firstMedia.type === 'video' ||
             /\.(mp4|webm|ogg|avi|mov)(\?|$)/i.test(firstMedia.url)
         );
-        
-        if (youtubeID) {
-            // YouTube video
+          if (youtubeID) {
+            // YouTube video - ESTRUTURA SIMPLES
             mediaElement = `
-                <div class="media-preview youtube-container">
-                    <div class="youtube-thumbnail" data-youtube-id="${youtubeID}">
-                        <img src="https://img.youtube.com/vi/${youtubeID}/mqdefault.jpg" alt="YouTube thumbnail" class="media-preview">
-                        <div class="youtube-play-button">
-                            <i class="fab fa-youtube"></i>
-                        </div>
+                <div class="media-preview youtube-container" data-youtube-id="${youtubeID}">
+                    <img src="https://img.youtube.com/vi/${youtubeID}/mqdefault.jpg" alt="YouTube thumbnail" class="media-preview">
+                    <div class="youtube-play-button">
+                        <i class="fab fa-youtube"></i>
                     </div>
                 </div>
             `;
         } else if (isVideo) {
+            // Vídeo normal - ESTRUTURA SIMPLES
             mediaElement = `
                 <div class="media-preview video-container">
-                    <video class="media-preview" muted preload="metadata">
+                    <video class="media-preview" muted preload="metadata" playsinline>
                         <source src="${firstMedia.url}" type="video/mp4">
                         Seu navegador não suporta vídeo.
                     </video>
@@ -265,60 +217,57 @@ function createRecentMediaCard(post) {
             </div>
         </div>
     `;    // Adicionar controladores de reprodução SIMPLES
-    const videoPlayButton = card.querySelector('.video-play-button');
-    const youtubeContainer = card.querySelector('.youtube-thumbnail');
-    const video = card.querySelector('video');
+    const videoContainer = card.querySelector('.video-container');
+    const youtubeContainer = card.querySelector('.youtube-container');
     
-    // Vídeos normais - FUNCIONAMENTO SIMPLES
-    if (video && videoPlayButton) {
-        videoPlayButton.addEventListener('click', (e) => {
-            e.stopPropagation();
+    // Vídeos normais - FUNCIONAMENTO DIRETO
+    if (videoContainer) {
+        const video = videoContainer.querySelector('video');
+        const playBtn = videoContainer.querySelector('.video-play-button');
+        
+        if (video && playBtn) {
+            const playVideo = (e) => {
+                e.stopPropagation();
+                if (video.paused) {
+                    video.play().then(() => {
+                        playBtn.style.display = 'none';
+                    }).catch(err => console.log('Erro:', err));
+                } else {
+                    video.pause();
+                    playBtn.style.display = 'flex';
+                }
+            };
             
-            if (video.paused) {
-                video.play().then(() => {
-                    videoPlayButton.style.display = 'none';
-                }).catch(err => console.log('Erro ao reproduzir:', err));
-            } else {
-                video.pause();
-                videoPlayButton.style.display = 'flex';
-            }
-        });
-        
-        video.addEventListener('ended', () => {
-            videoPlayButton.style.display = 'flex';
-        });
-        
-        video.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (video.paused) {
-                video.play().then(() => {
-                    videoPlayButton.style.display = 'none';
-                });
-            } else {
-                video.pause();
-                videoPlayButton.style.display = 'flex';
-            }
-        });
+            playBtn.addEventListener('click', playVideo);
+            video.addEventListener('click', playVideo);
+            
+            video.addEventListener('ended', () => {
+                playBtn.style.display = 'flex';
+            });
+        }
     }
     
-    // YouTube - FUNCIONAMENTO SIMPLES
+    // YouTube - FUNCIONAMENTO DIRETO
     if (youtubeContainer) {
         youtubeContainer.addEventListener('click', (e) => {
             e.stopPropagation();
             
             const youtubeID = youtubeContainer.dataset.youtubeId;
             if (youtubeID) {
-                const container = youtubeContainer.closest('.youtube-container');
+                // Criar iframe e substituir
                 const iframe = document.createElement('iframe');
                 iframe.style.width = '100%';
                 iframe.style.height = '100%';
-                iframe.src = `https://www.youtube.com/embed/${youtubeID}?autoplay=1`;
+                iframe.style.position = 'absolute';
+                iframe.style.top = '0';
+                iframe.style.left = '0';
+                iframe.src = `https://www.youtube.com/embed/${youtubeID}?autoplay=1&rel=0`;
                 iframe.frameBorder = '0';
                 iframe.allow = 'autoplay; encrypted-media';
                 iframe.allowFullscreen = true;
                 
-                container.innerHTML = '';
-                container.appendChild(iframe);
+                youtubeContainer.innerHTML = '';
+                youtubeContainer.appendChild(iframe);
             }
         });
     }
@@ -447,8 +396,30 @@ function createFeaturedMediaCard(media) {
                 <i class="fas fa-expand"></i>
                 Ver em Tela Cheia
             </button>
-        </div>
-    `;
+        </div>    `;
+    
+    // Adicionar controles de vídeo SIMPLES diretamente aqui
+    setTimeout(() => {
+        const video = card.querySelector('video');
+        const iframe = card.querySelector('iframe.youtube-embed');
+        
+        if (video) {
+            video.onclick = () => {
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            };
+        }
+        
+        if (iframe && youtubeID) {
+            iframe.onclick = () => {
+                // YouTube já tem controles próprios
+                console.log('YouTube video clicked');
+            };
+        }
+    }, 100);
     
     return card;
 }

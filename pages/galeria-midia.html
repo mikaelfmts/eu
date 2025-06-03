@@ -15,10 +15,11 @@
     <link rel="stylesheet" href="../assets/css/styles.css">
     <link rel="stylesheet" href="../assets/css/galeria-midia.css">
     <link rel="stylesheet" href="../assets/css/minerva-styles.css">
-    <link rel="stylesheet" href="../assets/css/video-styles.css"><!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">    <!-- Scripts -->
-    <script type="module" src="../assets/js/video-system.js"></script>
-    <script type="module" src="../assets/js/video-helpers.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Scripts -->
     <script type="module" src="../assets/js/galeria-midia.js"></script>
     <script src="../assets/js/page-control.js"></script>
     
@@ -104,41 +105,5 @@
 
     <!-- Minerva Assistant -->
     <script type="module" src="../assets/js/minerva-assistant.js"></script>
-    
-    <script>
-        // Inicialização dos players de vídeo
-        document.addEventListener('DOMContentLoaded', function() {
-            // Inicializar os players após todos os recursos serem carregados
-            window.addEventListener('load', function() {
-                setTimeout(function() {
-                    if (window.initVideoPlayers) {
-                        window.initVideoPlayers();
-                    }
-                }, 500);
-            });
-            
-            // Observar quando os vídeos são adicionados ao DOM
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.addedNodes.length) {
-                        mutation.addedNodes.forEach(function(node) {
-                            if (node.nodeType === 1) {
-                                // Elemento adicionado
-                                const videos = node.querySelectorAll('.plyr__video');
-                                if (videos.length > 0 && window.initVideoPlayers) {
-                                    window.initVideoPlayers();
-                                }
-                            }
-                        });
-                    }
-                });
-            });
-            
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
-        });
-    </script>
 </body>
 </html>

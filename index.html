@@ -20,9 +20,6 @@
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/reports-styles.css">
     <link rel="stylesheet" href="assets/css/minerva-styles.css">
-    <link rel="stylesheet" href="assets/css/video-styles.css">
-    <link rel="stylesheet" href="assets/css/video-modal-styles.css">
-    <link rel="stylesheet" href="assets/css/featured-media-styles.css">
 
     <!-- Font Awesome para os ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -30,19 +27,12 @@
     <!-- Sistema Centralizado de Rate Limiting -->
     <script type="module" src="assets/js/github-rate-limit.js"></script>
     
-    <!-- VideoProcessor - deve ser carregado antes do media-index.js -->
-    <script type="module" src="assets/js/video-system.js"></script>
-    <script type="module" src="assets/js/video-helpers.js"></script>
-    
     <!-- Script Principal como Módulo -->
     <script type="module" src="assets/js/script.js"></script>
     <script type="module" src="assets/js/media-index.js"></script>
     <script type="module" src="assets/js/reports-index.js"></script>
     <script type="module" src="assets/js/minerva-assistant.js"></script>
     <script src="assets/js/page-control.js"></script>
-    
-    <!-- Sistema Global de Vídeo -->
-    <script src="assets/js/video-init.js"></script>
     
     <!-- Controle de Página -->
     <script>
@@ -570,50 +560,6 @@
         }
     </style>
     
-    <!-- Inicialização dos players de vídeo -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Inicializar os players após todos os recursos serem carregados
-            window.addEventListener('load', function() {
-                setTimeout(function() {
-                    if (window.initVideoPlayers) {
-                        window.initVideoPlayers();
-                    }
-                }, 1000);
-            });
-            
-            // Verificar estado do carregamento dos vídeos
-            document.querySelectorAll('video').forEach(video => {
-                // Configurar eventos de erro para melhorar feedback
-                video.addEventListener('error', function(e) {
-                    console.log('Erro ao carregar vídeo:', e);
-                    // Tentar com formato alternativo
-                    if (video.querySelector('source[type="video/mp4"]')) {
-                        video.querySelector('source[type="video/mp4"]').remove();
-                        video.load();
-                    }
-                });
-                
-                // Garantir que vídeos na tela sejam inicializados
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting && entry.target.paused) {
-                            // Se o player Plyr estiver disponível para este vídeo
-                            if (window.Plyr && !entry.target.plyrInstance && entry.target.classList.contains('plyr__video')) {
-                                try {
-                                    entry.target.plyrInstance = new Plyr(entry.target);
-                                } catch (e) {
-                                    console.error('Erro ao inicializar player:', e);
-                                }
-                            }
-                        }
-                    });
-                });
-                
-                observer.observe(video);
-            });
-        });
-    </script>
 </body>
    
 </html>

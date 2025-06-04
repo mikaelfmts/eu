@@ -1,5 +1,6 @@
 // Fitness Admin JavaScript
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { firebaseConfig } from './firebase-config.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
 import { 
     getFirestore, 
     collection, 
@@ -12,17 +13,7 @@ import {
     orderBy, 
     limit,
     Timestamp
-} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-// Firebase config
-const firebaseConfig = {
-    apiKey: "AIzaSyDxJzUKjhUfgwOZoZYmDbBF6XG8Qf5tAM0",
-    authDomain: "portfolio-mikael.firebaseapp.com",
-    projectId: "portfolio-mikael",
-    storageBucket: "portfolio-mikael.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abcdef123456"
-};
+} from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

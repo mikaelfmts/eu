@@ -133,12 +133,18 @@
                 <div id="currentGoals"></div>
             </div>
         </div>
-    </div>
-
-    <script type="module" src="assets/js/fitness-admin.js"></script>
+    </div>    <script type="module" src="assets/js/fitness-admin.js"></script>
     <script src="assets/js/page-control.js"></script>
-    <script src="assets/js/auth.js"></script>
     <script>
+        // Função checkAuth simples para verificar autenticação
+        function checkAuth() {
+            // Verificar se há token de autenticação no localStorage
+            const authToken = localStorage.getItem('authToken');
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            
+            return authToken && isLoggedIn === 'true';
+        }
+        
         window.addEventListener('DOMContentLoaded', () => {
             // Verificar autenticação
             if (!checkAuth()) {

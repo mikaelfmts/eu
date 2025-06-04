@@ -1278,13 +1278,15 @@ window.generatePreview = function() {
         console.warn('Container de preview não encontrado');
         return;
     }
-    
-    try {        const html = generateCurriculumHTML();
+      try {        const html = generateCurriculumHTML();
         previewContainer.innerHTML = html;
         console.log('✅ Preview gerado com sucesso');
         
         // Aplicar configurações de formatação ao preview
         applyPreviewStyles(previewContainer);
+        
+        // GARANTIR que as configurações das checkboxes sejam aplicadas
+        applyCheckboxSettings(previewContainer);
         
         // Aplicar cores personalizadas automaticamente
         if (curriculumData.settings && curriculumData.settings.customColors) {
@@ -1304,6 +1306,12 @@ window.refreshPreview = function() {
     
     const html = generateCurriculumHTML();
     previewContainer.innerHTML = html;
+    
+    // Aplicar estilos de formatação
+    applyPreviewStyles(previewContainer);
+    
+    // GARANTIR que as configurações das checkboxes sejam aplicadas
+    applyCheckboxSettings(previewContainer);
     
     // Aplicar cores personalizadas automaticamente
     if (curriculumData.settings && curriculumData.settings.customColors) {
@@ -2479,13 +2487,59 @@ function applyPreviewStyles(previewContainer) {
       
     // Aplicar classes de tema e layout
     previewContainer.className = `curriculum-preview curriculum-${settings.theme} layout-${settings.layout} spacing-${settings.spacing}`;
-    
-    // Aplicar cores personalizadas se existirem
+      // Aplicar cores personalizadas se existirem
     if (settings.customColors) {
         applyCustomColorsToPreview(settings.customColors, previewContainer);
     }
     
-    console.log('Cor de fundo aplicada:', backgroundColor);
+    // APLICAR CONFIGURAÇÕES DAS CHECKBOXES - CORREÇÃO CRÍTICA
+    applyCheckboxSettings(previewContainer);
+      console.log('Cor de fundo aplicada:', backgroundColor);
+}
+
+// NOVA FUNÇÃO: Aplicar configurações específicas das checkboxes
+function applyCheckboxSettings(previewContainer) {
+    if (!previewContainer || !curriculumData.settings) {
+        console.warn('⚠️ Container ou settings não encontrados para aplicar checkboxes');
+        return;
+    }
+    
+    const settings = curriculumData.settings;
+    console.log('🔧 Aplicando configurações de checkbox:', settings);
+    
+    // Gerenciar visibilidade da foto
+    const photoElements = previewContainer.querySelectorAll('.profile-photo, .curriculum-photo, img[src*="avatar"], img[alt*="foto"], img[alt*="profile"]');
+    photoElements.forEach(photo => {
+        photo.style.display = settings.showPhoto ? 'block' : 'none';
+        console.log(`📸 Foto ${settings.showPhoto ? 'mostrada' : 'ocultada'}`);
+    });
+    
+    // Gerenciar barras de progresso das habilidades
+    const skillProgressElements = previewContainer.querySelectorAll('.skill-progress, .progress-bar, [style*="background: #eee"], [style*="height: 8px"], [style*="background: linear-gradient"]');
+    skillProgressElements.forEach(progress => {
+        progress.style.display = settings.showSkillsProgress ? 'block' : 'none';
+        console.log(`📊 Barra de progresso ${settings.showSkillsProgress ? 'mostrada' : 'ocultada'}`);
+    });
+    
+    // Gerenciar ícones de contato
+    const contactIconElements = previewContainer.querySelectorAll('.contact-icon, .icon, i.fas, i.fab, [class*="fa-"]');
+    contactIconElements.forEach(icon => {
+        icon.style.display = settings.showContactIcons ? 'inline' : 'none';
+        console.log(`🎯 Ícone ${settings.showContactIcons ? 'mostrado' : 'ocultado'}`);
+    });
+    
+    // Gerenciar links de projetos
+    const projectLinkElements = previewContainer.querySelectorAll('.project-link, .project-url, a[href]:not([href^="mailto"]):not([href^="tel"])');
+    projectLinkElements.forEach(link => {
+        // Verificar se não é um link de contato
+        const href = link.getAttribute('href');
+        if (href && !href.startsWith('mailto:') && !href.startsWith('tel:')) {
+            link.style.display = settings.showProjectLinks ? 'inline' : 'none';
+            console.log(`🔗 Link de projeto ${settings.showProjectLinks ? 'mostrado' : 'ocultado'}: ${href}`);
+        }
+    });
+    
+    console.log(`✅ Configurações de checkbox aplicadas: ${photoElements.length} fotos, ${skillProgressElements.length} barras, ${contactIconElements.length} ícones, ${projectLinkElements.length} links`);
 }
 
 // Função para aplicar cores personalizadas

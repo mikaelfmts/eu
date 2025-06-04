@@ -306,13 +306,21 @@
         #projects-list .project-item,
         #skills-list .skill-item,
         #certificates-list .certificate-item {
-            background: rgba(45, 55, 72, 0.7) !important;
+            background: rgba(45, 55, 72, 0.9) !important;
             border: 1px solid rgba(255, 255, 255, 0.2) !important;
             border-radius: 8px !important;
             padding: 1.5rem !important;
             margin: 1rem 0 !important;
             color: #ffffff !important;
             transition: all 0.3s ease !important;
+        }
+        
+        /* Forçar cor do texto para garantir visibilidade */
+        #experience-list .experience-item *,
+        #projects-list .project-item *,
+        #skills-list .skill-item *,
+        #certificates-list .certificate-item * {
+            color: #ffffff !important;
         }
         
         #experience-list .experience-item:hover,

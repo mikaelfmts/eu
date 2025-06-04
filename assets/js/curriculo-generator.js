@@ -594,29 +594,22 @@ function setupEventListeners() {
             element.addEventListener('change', updateSettings);
         }
     });
-    
-    // Listener específico para o checkbox de links de projetos
+      // Listener específico para o checkbox de links de projetos
     const showProjectLinksCheckbox = document.getElementById('show-project-links');
     if (showProjectLinksCheckbox) {
         showProjectLinksCheckbox.addEventListener('change', function(e) {
-            // Atualiza a configuração
+            // Atualiza a configuração imediatamente
             curriculumData.settings.showProjectLinks = e.target.checked;
             
-            // Aplica imediatamente a classe ao preview
-            const previewContainer = document.getElementById('curriculum-preview');
-            if (previewContainer) {
-                if (!e.target.checked) {
-                    previewContainer.classList.add('hide-project-links');
-                } else {
-                    previewContainer.classList.remove('hide-project-links');
-                }
+            // Regenera o preview para aplicar a mudança
+            generatePreview();
+            
+            // Mostra uma notificação
+            if (e.target.checked) {
+                showNotification('Links de projetos habilitados', 'success');
+            } else {
+                showNotification('Links de projetos desabilitados', 'success');
             }
-            
-            // Atualiza as configurações gerais
-            updateSettings();
-            
-            // Regenera o preview
-            refreshPreview();
         });
     }
     
@@ -1672,18 +1665,45 @@ window.downloadPDF = async function() {
         console.log('📄 Iniciando geração do PDF...');
         showNotification('Preparando seu currículo para download...', 'info');
         
-        // Configuração simplificada para garantir funcionamento
+        // Pegar as configurações básicas
         const backgroundColor = document.getElementById('background-color')?.value || '#ffffff';
+        const marginSetting = document.getElementById('document-margins')?.value || 'normal';
+        const showProjectLinks = document.getElementById('show-project-links')?.checked || true;
         
-        // Configurações básicas para o PDF
-        const opt = {
-            margin: 10,
+        // Converter margens para números
+        let marginValue = 10; // padrão em mm
+        switch (marginSetting) {
+            case 'compact': marginValue = 5; break;
+            case 'comfortable': marginValue = 15; break;
+            case 'wide': marginValue = 20; break;
+            default: marginValue = 10; // normal
+        }
+        
+        // Fazer uma cópia do preview para modificar
+        const cloneContainer = previewContainer.cloneNode(true);
+        
+        // Aplicar a cor de fundo ao clone
+        cloneContainer.style.backgroundColor = backgroundColor;
+        
+        // Se não deve mostrar links, ocultar todos os links no clone
+        if (!showProjectLinks) {
+            const links = cloneContainer.querySelectorAll('.contact-link, a[href]');
+            links.forEach(link => {
+                if (link.textContent.includes('Ver projeto') || link.textContent.includes('→')) {
+                    link.style.display = 'none';
+                }
+            });
+        }
+        
+        // Configuração SIMPLES do PDF
+        const options = {
+            margin: marginValue,
             filename: 'curriculo-mikael-ferreira.pdf',
-            image: { type: 'jpeg', quality: 1 },
+            image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
-                scale: 2, 
-                useCORS: true,
-                backgroundColor: backgroundColor
+                scale: 2,
+                backgroundColor: backgroundColor,
+                useCORS: true
             },
             jsPDF: { 
                 unit: 'mm', 
@@ -1692,19 +1712,19 @@ window.downloadPDF = async function() {
             }
         };
         
-        // Gerar PDF com configurações básicas para garantir o funcionamento
-        html2pdf().from(previewContainer).set(opt).save()
+        // Gerar o PDF
+        html2pdf().from(cloneContainer).set(options).save()
             .then(() => {
-                showNotification('PDF gerado com sucesso! Verifique seus downloads.', 'success');
+                showNotification('PDF gerado com sucesso!', 'success');
             })
             .catch((error) => {
                 console.error('Erro ao gerar PDF:', error);
-                showNotification('Erro ao gerar PDF. Tente novamente ou verifique suas configurações.', 'error');
+                showNotification('Erro ao gerar PDF', 'error');
             });
         
     } catch (error) {
         console.error('Erro no download PDF:', error);
-        showNotification('Erro ao gerar PDF. Verifique se o preview foi gerado corretamente.', 'error');
+        showNotification('Erro ao gerar PDF', 'error');
     }
 };
 

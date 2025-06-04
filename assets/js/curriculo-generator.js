@@ -584,8 +584,7 @@ function setupEventListeners() {
     });    // Listeners para configurações de formatação
     const settingsInputs = [
         'curriculum-theme', 'primary-color', 'font-family', 'font-size',
-        'layout-type', 'spacing', 'background-color', 'document-margins', 
-        'show-skills-progress', 'show-contact-icons'
+        'layout-type', 'spacing', 'background-color', 'document-margins'
     ];
     
     settingsInputs.forEach(id => {
@@ -593,45 +592,39 @@ function setupEventListeners() {
         if (element) {
             element.addEventListener('change', updateSettings);
         }
-    });    // Listener específico para o checkbox de links de projetos
-    const showProjectLinksCheckbox = document.getElementById('show-project-links');
-    if (showProjectLinksCheckbox) {
-        showProjectLinksCheckbox.addEventListener('change', function(e) {
-            console.log('Checkbox links de projetos alterado para:', e.target.checked);
-            
-            // Atualiza a configuração imediatamente
-            curriculumData.settings.showProjectLinks = e.target.checked;
-            
-            // Atualiza todas as configurações
-            updateSettings();
-            
-            // Regenera o preview para aplicar a mudança
-            generatePreview();
-            
-            // Mostra uma notificação
-            if (e.target.checked) {
-                showNotification('Links de projetos incluídos no currículo', 'success');
-            } else {
-                showNotification('Links de projetos removidos do currículo', 'success');
-            }
-        });
-    }
+    });
+
+    // Listeners específicos para todos os checkboxes
+    const checkboxes = [
+        'show-photo', 'show-skills-progress', 'show-contact-icons', 'show-project-links'
+    ];
     
-    // Listener especial para checkbox de foto
-    const showPhotoCheckbox = document.getElementById('show-photo');    if (showPhotoCheckbox) {
-        showPhotoCheckbox.addEventListener('change', async (e) => {
-            curriculumData.settings.showPhoto = e.target.checked;
-            if (e.target.checked) {
-                // Sincronizar foto do GitHub quando habilitada
-                const githubPhoto = await syncGitHubPhoto();
-                if (githubPhoto) {
-                    console.log('✅ Foto do GitHub sincronizada e preview atualizado');
-                }
-            }
-            updateSettings();
-            generatePreview();
-        });
-    }
+    checkboxes.forEach(id => {
+        const checkbox = document.getElementById(id);
+        if (checkbox) {
+            checkbox.addEventListener('change', function(e) {
+                console.log(`Checkbox ${id} alterado para:`, e.target.checked);
+                
+                // Atualizar configurações
+                updateSettings();
+                
+                // Regenerar preview para aplicar mudanças
+                setTimeout(() => {
+                    generatePreview();
+                }, 100);
+                
+                // Mostrar notificação
+                const messages = {
+                    'show-photo': e.target.checked ? 'Foto incluída no currículo' : 'Foto removida do currículo',
+                    'show-skills-progress': e.target.checked ? 'Barras de progresso das habilidades ativadas' : 'Barras de progresso das habilidades desativadas',
+                    'show-contact-icons': e.target.checked ? 'Ícones de contato ativados' : 'Ícones de contato desativados',
+                    'show-project-links': e.target.checked ? 'Links de projetos incluídos' : 'Links de projetos removidos'
+                };
+                
+                showNotification(messages[id], 'success');
+            });
+        }
+    });
 }
 
 // Atualizar dados pessoais
@@ -658,10 +651,24 @@ function updatePersonalData() {    curriculumData.personalData = {
 
 // Atualizar configurações
 function updateSettings() {
+    // Capturar todos os elementos de checkbox
+    const showPhotoElement = document.getElementById('show-photo');
+    const showSkillsProgressElement = document.getElementById('show-skills-progress');
+    const showContactIconsElement = document.getElementById('show-contact-icons');
     const showProjectLinksElement = document.getElementById('show-project-links');
+    
+    // Capturar valores dos checkboxes
+    const showPhoto = showPhotoElement ? showPhotoElement.checked : false;
+    const showSkillsProgress = showSkillsProgressElement ? showSkillsProgressElement.checked : true;
+    const showContactIcons = showContactIconsElement ? showContactIconsElement.checked : true;
     const showProjectLinks = showProjectLinksElement ? showProjectLinksElement.checked : true;
     
-    console.log('Atualizando configurações - showProjectLinks:', showProjectLinks);
+    console.log('Atualizando configurações:', {
+        showPhoto,
+        showSkillsProgress,
+        showContactIcons,
+        showProjectLinks
+    });
     
     curriculumData.settings = {
         theme: document.getElementById('curriculum-theme')?.value || 'modern',
@@ -672,13 +679,45 @@ function updateSettings() {
         spacing: document.getElementById('spacing')?.value || 'normal',
         backgroundColor: document.getElementById('background-color')?.value || '#ffffff',
         documentMargins: document.getElementById('document-margins')?.value || 'normal',
-        showPhoto: document.getElementById('show-photo')?.checked || false,
-        showSkillsProgress: document.getElementById('show-skills-progress')?.checked || true,
-        showContactIcons: document.getElementById('show-contact-icons')?.checked || true,
+        showPhoto: showPhoto,
+        showSkillsProgress: showSkillsProgress,
+        showContactIcons: showContactIcons,
         showProjectLinks: showProjectLinks
     };
     
+    // Aplicar configurações imediatamente ao preview
+    applySettingsToPreview();
     updateProgress();
+}
+
+// Aplicar configurações ao preview
+function applySettingsToPreview() {
+    const previewContainer = document.getElementById('curriculum-preview');
+    if (!previewContainer) return;
+    
+    // Gerenciar visibilidade da foto
+    const photoElements = previewContainer.querySelectorAll('.profile-photo, .curriculum-photo');
+    photoElements.forEach(photo => {
+        photo.style.display = curriculumData.settings.showPhoto ? 'block' : 'none';
+    });
+    
+    // Gerenciar barras de progresso das habilidades
+    const skillProgressElements = previewContainer.querySelectorAll('.skill-progress, .progress-bar');
+    skillProgressElements.forEach(progress => {
+        progress.style.display = curriculumData.settings.showSkillsProgress ? 'block' : 'none';
+    });
+    
+    // Gerenciar ícones de contato
+    const contactIconElements = previewContainer.querySelectorAll('.contact-icon, .icon');
+    contactIconElements.forEach(icon => {
+        icon.style.display = curriculumData.settings.showContactIcons ? 'inline' : 'none';
+    });
+    
+    // Gerenciar links de projetos
+    const projectLinkElements = previewContainer.querySelectorAll('.project-link, .project-url');
+    projectLinkElements.forEach(link => {
+        link.style.display = curriculumData.settings.showProjectLinks ? 'block' : 'none';
+    });
 }
 
 // Preenchimento automático de dados pessoais
@@ -1537,6 +1576,8 @@ function gatherAllData() {
             fontSize: document.getElementById('font-size')?.value || 'medium',
             layout: document.getElementById('layout-type')?.value || 'single-column',
             spacing: document.getElementById('spacing')?.value || 'normal',
+            backgroundColor: document.getElementById('background-color')?.value || '#ffffff',
+            documentMargins: document.getElementById('document-margins')?.value || 'normal',
             showPhoto: document.getElementById('show-photo')?.checked || false,
             showSkillsProgress: document.getElementById('show-skills-progress')?.checked || true,
             showContactIcons: document.getElementById('show-contact-icons')?.checked || true,
@@ -1649,7 +1690,7 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// Download PDF
+// Download PDF com todas as correções
 window.downloadPDF = async function() {
     try {
         const previewContainer = document.getElementById('curriculum-preview');
@@ -1664,17 +1705,37 @@ window.downloadPDF = async function() {
         // Atualizar configurações antes de gerar PDF
         updateSettings();
         
-        // Pegar configurações atuais
-        const backgroundColor = curriculumData.settings.backgroundColor || '#ffffff';
-        const marginSetting = curriculumData.settings.documentMargins || 'normal';
+        // Criar um clone do elemento para aplicar estilos específicos de PDF
+        const element = previewContainer.cloneNode(true);
         
-        console.log('Configurações PDF:', {
-            backgroundColor,
-            marginSetting,
-            showProjectLinks: curriculumData.settings.showProjectLinks
+        // Aplicar estilos específicos para PDF
+        element.style.backgroundColor = curriculumData.settings.backgroundColor || '#ffffff';
+        element.style.color = '#000000'; // Força texto preto para PDF
+        element.style.fontFamily = curriculumData.settings.fontFamily || 'Arial, sans-serif';
+        
+        // Aplicar estilos específicos para experience section
+        const experienceItems = element.querySelectorAll('.experience-item, .exp-item');
+        experienceItems.forEach(item => {
+            item.style.color = '#000000 !important';
+            item.style.backgroundColor = 'transparent';
+            
+            // Forçar cor do texto em todos os elementos filhos
+            const allElements = item.querySelectorAll('*');
+            allElements.forEach(el => {
+                el.style.color = '#000000 !important';
+            });
         });
         
-        // Converter configuração de margens para valores em mm
+        // Gerenciar visibilidade dos links de projetos
+        const projectLinks = element.querySelectorAll('.project-link, .project-url');
+        projectLinks.forEach(link => {
+            if (!curriculumData.settings.showProjectLinks) {
+                link.style.display = 'none';
+            }
+        });
+        
+        // Configuração de margens
+        const marginSetting = curriculumData.settings.documentMargins || 'normal';
         let marginValue;
         switch (marginSetting) {
             case 'compact': marginValue = [5, 5, 5, 5]; break;
@@ -1693,10 +1754,18 @@ window.downloadPDF = async function() {
             },
             html2canvas: { 
                 scale: 2,
-                backgroundColor: backgroundColor,
+                backgroundColor: curriculumData.settings.backgroundColor || '#ffffff',
                 useCORS: true,
                 allowTaint: true,
-                logging: false
+                logging: false,
+                onclone: function(clonedDoc) {
+                    // Aplicar estilos adicionais no documento clonado
+                    const clonedElement = clonedDoc.querySelector('#curriculum-preview');
+                    if (clonedElement) {
+                        clonedElement.style.color = '#000000';
+                        clonedElement.style.backgroundColor = curriculumData.settings.backgroundColor || '#ffffff';
+                    }
+                }
             },
             jsPDF: { 
                 unit: 'mm', 
@@ -1705,8 +1774,8 @@ window.downloadPDF = async function() {
             }
         };
         
-        // Gerar o PDF
-        await html2pdf().from(previewContainer).set(options).save();
+        // Gerar o PDF usando o elemento clonado
+        await html2pdf().from(element).set(options).save();
         showNotification('PDF gerado com sucesso!', 'success');
         
     } catch (error) {
@@ -2751,5 +2820,240 @@ window.testGitHubSystem = async function() {
             success: false,
             error: error.message
         };
+    }
+};
+
+// Função para mostrar/esconder menu de exportação
+window.toggleExportMenu = function() {
+    const menu = document.getElementById('export-menu');
+    menu.classList.toggle('hidden');
+    
+    // Fechar menu ao clicar fora
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.relative')) {
+            menu.classList.add('hidden');
+        }
+    });
+};
+
+// Exportar como HTML
+window.exportHTML = function() {
+    try {
+        const previewContainer = document.getElementById('curriculum-preview');
+        if (!previewContainer || !previewContainer.innerHTML.trim()) {
+            showNotification('Por favor, gere o preview do currículo primeiro', 'warning');
+            return;
+        }
+
+        // Atualizar configurações
+        updateSettings();
+        
+        // Criar HTML completo
+        const htmlContent = `
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currículo - Mikael Ferreira</title>
+    <style>
+        body {
+            font-family: ${curriculumData.settings.fontFamily || 'Arial, sans-serif'};
+            background-color: ${curriculumData.settings.backgroundColor || '#ffffff'};
+            margin: 0;
+            padding: 20px;
+            color: #000000;
+        }
+        .experience-item, .exp-item {
+            color: #000000 !important;
+            background-color: transparent !important;
+        }
+        .experience-item *, .exp-item * {
+            color: #000000 !important;
+        }
+        ${!curriculumData.settings.showProjectLinks ? '.project-link, .project-url { display: none !important; }' : ''}
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+    ${previewContainer.innerHTML}
+</body>
+</html>`;
+
+        // Criar blob e download
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'curriculo-mikael-ferreira.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showNotification('HTML exportado com sucesso!', 'success');
+        document.getElementById('export-menu').classList.add('hidden');
+        
+    } catch (error) {
+        console.error('Erro ao exportar HTML:', error);
+        showNotification('Erro ao exportar HTML: ' + error.message, 'error');
+    }
+};
+
+// Exportar como Word (DOCX)
+window.exportWord = function() {
+    try {
+        const previewContainer = document.getElementById('curriculum-preview');
+        if (!previewContainer || !previewContainer.innerHTML.trim()) {
+            showNotification('Por favor, gere o preview do currículo primeiro', 'warning');
+            return;
+        }
+
+        // Atualizar configurações
+        updateSettings();
+        
+        // Extrair dados do currículo para formato Word
+        const data = gatherAllData();
+        
+        // Criar conteúdo do documento Word
+        let wordContent = `CURRÍCULO - ${data.personalData.nomeCompleto || 'Mikael Ferreira'}\n\n`;
+        
+        // Dados pessoais
+        wordContent += `DADOS PESSOAIS\n`;
+        wordContent += `Nome: ${data.personalData.nomeCompleto || ''}\n`;
+        wordContent += `Título: ${data.personalData.tituloProfissional || ''}\n`;
+        wordContent += `Email: ${data.personalData.email || ''}\n`;
+        wordContent += `Telefone: ${data.personalData.telefone || ''}\n`;
+        wordContent += `LinkedIn: ${data.personalData.linkedin || ''}\n`;
+        wordContent += `GitHub: ${data.personalData.github || ''}\n`;
+        wordContent += `Localização: ${data.personalData.localizacao || ''}\n\n`;
+        
+        // Resumo profissional
+        if (data.personalData.resumoProfissional) {
+            wordContent += `RESUMO PROFISSIONAL\n${data.personalData.resumoProfissional}\n\n`;
+        }
+        
+        // Experiências
+        if (data.experience && data.experience.length > 0) {
+            wordContent += `EXPERIÊNCIA PROFISSIONAL\n`;
+            data.experience.forEach(exp => {
+                wordContent += `${exp.cargo} - ${exp.empresa}\n`;
+                wordContent += `Período: ${exp.dataInicio} - ${exp.dataFim || 'Atual'}\n`;
+                if (exp.descricao) {
+                    wordContent += `Descrição: ${exp.descricao}\n`;
+                }
+                wordContent += `\n`;
+            });
+        }
+        
+        // Projetos
+        if (data.projects && data.projects.length > 0) {
+            wordContent += `PROJETOS\n`;
+            data.projects.forEach(project => {
+                wordContent += `${project.nome}\n`;
+                if (project.descricao) {
+                    wordContent += `Descrição: ${project.descricao}\n`;
+                }
+                if (project.tecnologias) {
+                    wordContent += `Tecnologias: ${project.tecnologias}\n`;
+                }
+                if (curriculumData.settings.showProjectLinks && project.link) {
+                    wordContent += `Link: ${project.link}\n`;
+                }
+                wordContent += `\n`;
+            });
+        }
+        
+        // Habilidades
+        if (data.skills && data.skills.length > 0) {
+            wordContent += `HABILIDADES\n`;
+            data.skills.forEach(skill => {
+                let skillLine = skill.nome;
+                if (curriculumData.settings.showSkillsProgress && skill.nivel) {
+                    skillLine += ` - Nível: ${skill.nivel}`;
+                }
+                wordContent += `${skillLine}\n`;
+            });
+            wordContent += `\n`;
+        }
+        
+        // Certificações
+        if (data.certificates && data.certificates.length > 0) {
+            wordContent += `CERTIFICAÇÕES\n`;
+            data.certificates.forEach(cert => {
+                wordContent += `${cert.nome}\n`;
+                if (cert.instituicao) {
+                    wordContent += `Instituição: ${cert.instituicao}\n`;
+                }
+                if (cert.dataObtencao) {
+                    wordContent += `Data: ${cert.dataObtencao}\n`;
+                }
+                wordContent += `\n`;
+            });
+        }
+        
+        // Criar blob e download
+        const blob = new Blob([wordContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'curriculo-mikael-ferreira.docx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showNotification('Documento Word exportado com sucesso!', 'success');
+        document.getElementById('export-menu').classList.add('hidden');
+        
+    } catch (error) {
+        console.error('Erro ao exportar Word:', error);
+        showNotification('Erro ao exportar Word: ' + error.message, 'error');
+    }
+};
+
+// Exportar como JSON
+window.exportJSON = function() {
+    try {
+        // Atualizar configurações
+        updateSettings();
+        
+        // Obter todos os dados
+        const data = gatherAllData();
+        
+        // Adicionar metadados de exportação
+        const exportData = {
+            ...data,
+            exportInfo: {
+                exportDate: new Date().toISOString(),
+                exportFormat: 'JSON',
+                version: '1.0',
+                generator: 'Curriculo Generator - Mikael Ferreira'
+            }
+        };
+        
+        // Criar JSON formatado
+        const jsonContent = JSON.stringify(exportData, null, 2);
+        
+        // Criar blob e download
+        const blob = new Blob([jsonContent], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'curriculo-mikael-ferreira.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showNotification('JSON exportado com sucesso!', 'success');
+        document.getElementById('export-menu').classList.add('hidden');
+        
+    } catch (error) {
+        console.error('Erro ao exportar JSON:', error);
+        showNotification('Erro ao exportar JSON: ' + error.message, 'error');
     }
 };

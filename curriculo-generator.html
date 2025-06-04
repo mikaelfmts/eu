@@ -21,9 +21,12 @@
             }
         }
     </script>    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <!-- HTML2PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>    <!-- Estilos específicos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">    <!-- HTML2PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <!-- Bibliotecas para exportação -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://unpkg.com/docx@8.0.0/build/index.js"></script><!-- Estilos específicos -->
     <link rel="stylesheet" href="assets/css/curriculo-generator-styles.css">
     <link rel="stylesheet" href="assets/css/minerva-styles.css">
     <link rel="stylesheet" href="assets/css/pdf-print-fixes.css">
@@ -562,10 +565,30 @@
                         <button onclick="refreshPreview()" class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
                             <i class="fas fa-sync mr-2"></i>Atualizar
                         </button>
-                        <button onclick="downloadPDF()" class="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">
-                            <i class="fas fa-file-pdf mr-2"></i>Download PDF
-                        </button>
-                        <button onclick="saveCurriculum()" class="bg-green-500 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
+                        
+                        <!-- Dropdown de Exportação -->
+                        <div class="relative inline-block">
+                            <button onclick="toggleExportMenu()" class="bg-green-500 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition flex items-center">
+                                <i class="fas fa-download mr-2"></i>Exportar
+                                <i class="fas fa-chevron-down ml-2"></i>
+                            </button>
+                            <div id="export-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border">
+                                <a href="#" onclick="downloadPDF()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-md">
+                                    <i class="fas fa-file-pdf mr-2 text-red-500"></i>PDF
+                                </a>
+                                <a href="#" onclick="exportHTML()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-code mr-2 text-blue-500"></i>HTML
+                                </a>
+                                <a href="#" onclick="exportWord()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-file-word mr-2 text-blue-600"></i>Word (DOCX)
+                                </a>
+                                <a href="#" onclick="exportJSON()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-b-md">
+                                    <i class="fas fa-file-code mr-2 text-green-500"></i>JSON
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <button onclick="saveCurriculum()" class="bg-purple-500 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition">
                             <i class="fas fa-save mr-2"></i>Salvar
                         </button>
                     </div>

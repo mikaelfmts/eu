@@ -1718,8 +1718,8 @@ window.downloadPDF = async function() {
             },
             pagebreak: { mode: 'avoid-all' }
         };
-        
-        // Garantir que todos os elementos tenham a cor de fundo definida        const mainDiv = previewClone.querySelector('div');
+          // Garantir que todos os elementos tenham a cor de fundo definida
+        const mainDiv = previewClone.querySelector('div');
         if (mainDiv) {
             // Aplicar a cor de fundo
             mainDiv.style.backgroundColor = backgroundColor;

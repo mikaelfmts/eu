@@ -590,20 +590,24 @@
             experience.forEach(exp => {
                 const expElement = document.createElement('div');
                 expElement.style.cssText = `
-                    background: #f8f9ff;
+                    background: rgba(45, 55, 72, 0.9);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
                     border-radius: 10px;
                     padding: 1.5rem;
                     margin-bottom: 1.5rem;
                     border-left: 4px solid #667eea;
                     transition: transform 0.3s ease, box-shadow 0.3s ease;
+                    backdrop-filter: blur(5px);
                 `;
                 expElement.onmouseover = () => {
                     expElement.style.transform = 'translateY(-2px)';
-                    expElement.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+                    expElement.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)';
+                    expElement.style.background = 'rgba(55, 65, 82, 0.95)';
                 };
                 expElement.onmouseout = () => {
                     expElement.style.transform = 'translateY(0)';
                     expElement.style.boxShadow = 'none';
+                    expElement.style.background = 'rgba(45, 55, 72, 0.9)';
                 };
                 
                 expElement.innerHTML = `

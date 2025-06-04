@@ -581,7 +581,9 @@ function setupEventListeners() {
         if (element) {
             element.addEventListener('input', updatePersonalData);
         }
-    });    // Listeners para configurações de formatação
+    });
+
+    // Listeners para configurações de formatação
     const settingsInputs = [
         'curriculum-theme', 'primary-color', 'font-family', 'font-size',
         'layout-type', 'spacing', 'background-color', 'document-margins'
@@ -594,7 +596,7 @@ function setupEventListeners() {
         }
     });
 
-    // Listeners específicos para todos os checkboxes
+    // Listeners específicos para todos os checkboxes - COM DEBUG MELHORADO
     const checkboxes = [
         'show-photo', 'show-skills-progress', 'show-contact-icons', 'show-project-links'
     ];
@@ -602,16 +604,21 @@ function setupEventListeners() {
     checkboxes.forEach(id => {
         const checkbox = document.getElementById(id);
         if (checkbox) {
+            console.log(`✅ Configurando listener para checkbox: ${id}`);
+            
             checkbox.addEventListener('change', function(e) {
-                console.log(`Checkbox ${id} alterado para:`, e.target.checked);
+                console.log(`🔄 Checkbox ${id} alterado para:`, e.target.checked);
                 
-                // Atualizar configurações
+                // Atualizar configurações IMEDIATAMENTE
                 updateSettings();
                 
-                // Regenerar preview para aplicar mudanças
+                // Aplicar configurações ao preview existente
+                applySettingsToPreview();
+                
+                // Regenerar preview para garantir mudanças
                 setTimeout(() => {
                     generatePreview();
-                }, 100);
+                }, 50);
                 
                 // Mostrar notificação
                 const messages = {
@@ -622,6 +629,28 @@ function setupEventListeners() {
                 };
                 
                 showNotification(messages[id], 'success');
+            });
+        } else {
+            console.warn(`⚠️ Checkbox não encontrado: ${id}`);
+        }
+    });
+    
+    // Adicionar listeners para color presets também
+    const colorPresets = [
+        'background-color-preset', 'name-title-color-preset', 
+        'section-title-color-preset', 'highlight-color-preset',
+        'link-color-preset', 'skills-color-preset'
+    ];
+    
+    colorPresets.forEach(id => {
+        const preset = document.getElementById(id);
+        if (preset) {
+            preset.addEventListener('change', function(e) {
+                const colorInput = document.getElementById(id.replace('-preset', ''));
+                if (colorInput) {
+                    colorInput.value = e.target.value;
+                    updateSettings();
+                }
             });
         }
     });
@@ -651,25 +680,26 @@ function updatePersonalData() {    curriculumData.personalData = {
 
 // Atualizar configurações
 function updateSettings() {
-    // Capturar todos os elementos de checkbox
+    // Capturar todos os elementos de checkbox COM VERIFICAÇÃO MELHORADA
     const showPhotoElement = document.getElementById('show-photo');
     const showSkillsProgressElement = document.getElementById('show-skills-progress');
     const showContactIconsElement = document.getElementById('show-contact-icons');
     const showProjectLinksElement = document.getElementById('show-project-links');
     
-    // Capturar valores dos checkboxes
+    // Capturar valores dos checkboxes com logs para debug
     const showPhoto = showPhotoElement ? showPhotoElement.checked : false;
     const showSkillsProgress = showSkillsProgressElement ? showSkillsProgressElement.checked : true;
     const showContactIcons = showContactIconsElement ? showContactIconsElement.checked : true;
     const showProjectLinks = showProjectLinksElement ? showProjectLinksElement.checked : true;
     
-    console.log('Atualizando configurações:', {
-        showPhoto,
-        showSkillsProgress,
-        showContactIcons,
-        showProjectLinks
+    console.log('🔧 Atualizando configurações dos checkboxes:', {
+        showPhoto: { element: !!showPhotoElement, value: showPhoto },
+        showSkillsProgress: { element: !!showSkillsProgressElement, value: showSkillsProgress },
+        showContactIcons: { element: !!showContactIconsElement, value: showContactIcons },
+        showProjectLinks: { element: !!showProjectLinksElement, value: showProjectLinks }
     });
     
+    // Atualizar configurações completas
     curriculumData.settings = {
         theme: document.getElementById('curriculum-theme')?.value || 'modern',
         primaryColor: document.getElementById('primary-color')?.value || '#3B82F6',
@@ -679,11 +709,18 @@ function updateSettings() {
         spacing: document.getElementById('spacing')?.value || 'normal',
         backgroundColor: document.getElementById('background-color')?.value || '#ffffff',
         documentMargins: document.getElementById('document-margins')?.value || 'normal',
+        
+        // Configurações de checkbox - GARANTINDO QUE SEJAM APLICADAS
         showPhoto: showPhoto,
         showSkillsProgress: showSkillsProgress,
         showContactIcons: showContactIcons,
-        showProjectLinks: showProjectLinks
+        showProjectLinks: showProjectLinks,
+        
+        // Cores personalizadas se existirem
+        customColors: curriculumData.settings?.customColors || {}
     };
+    
+    console.log('✅ Settings atualizadas:', curriculumData.settings);
     
     // Aplicar configurações imediatamente ao preview
     applySettingsToPreview();
@@ -693,31 +730,53 @@ function updateSettings() {
 // Aplicar configurações ao preview
 function applySettingsToPreview() {
     const previewContainer = document.getElementById('curriculum-preview');
-    if (!previewContainer) return;
+    if (!previewContainer) {
+        console.warn('⚠️ Container de preview não encontrado');
+        return;
+    }
+    
+    console.log('🎨 Aplicando configurações ao preview:', curriculumData.settings);
     
     // Gerenciar visibilidade da foto
-    const photoElements = previewContainer.querySelectorAll('.profile-photo, .curriculum-photo');
+    const photoElements = previewContainer.querySelectorAll('.profile-photo, .curriculum-photo, img[src*="avatar"]');
     photoElements.forEach(photo => {
-        photo.style.display = curriculumData.settings.showPhoto ? 'block' : 'none';
+        const display = curriculumData.settings.showPhoto ? 'block' : 'none';
+        photo.style.display = display;
+        console.log(`📸 Foto ${curriculumData.settings.showPhoto ? 'mostrada' : 'ocultada'}`);
     });
     
-    // Gerenciar barras de progresso das habilidades
-    const skillProgressElements = previewContainer.querySelectorAll('.skill-progress, .progress-bar');
+    // Gerenciar barras de progresso das habilidades - SELETORES MELHORADOS
+    const skillProgressElements = previewContainer.querySelectorAll(
+        '.skill-progress, .progress-bar, [style*="background: #eee"], [style*="height: 8px"]'
+    );
     skillProgressElements.forEach(progress => {
-        progress.style.display = curriculumData.settings.showSkillsProgress ? 'block' : 'none';
+        const display = curriculumData.settings.showSkillsProgress ? 'block' : 'none';
+        progress.style.display = display;
+        console.log(`📊 Barra de progresso ${curriculumData.settings.showSkillsProgress ? 'mostrada' : 'ocultada'}`);
     });
     
-    // Gerenciar ícones de contato
-    const contactIconElements = previewContainer.querySelectorAll('.contact-icon, .icon');
+    // Gerenciar ícones de contato - SELETORES MAIS ESPECÍFICOS
+    const contactIconElements = previewContainer.querySelectorAll(
+        '.contact-icon, .icon, i.fas, i.fab, [class*="fa-"]'
+    );
     contactIconElements.forEach(icon => {
-        icon.style.display = curriculumData.settings.showContactIcons ? 'inline' : 'none';
+        const display = curriculumData.settings.showContactIcons ? 'inline' : 'none';
+        icon.style.display = display;
+        console.log(`🎯 Ícone ${curriculumData.settings.showContactIcons ? 'mostrado' : 'ocultado'}`);
     });
     
-    // Gerenciar links de projetos
-    const projectLinkElements = previewContainer.querySelectorAll('.project-link, .project-url');
+    // Gerenciar links de projetos - SELETORES MAIS ABRANGENTES
+    const projectLinkElements = previewContainer.querySelectorAll(
+        '.project-link, .project-url, a[href]:not([href^="mailto"]):not([href^="tel"]), [style*="Ver projeto"]'
+    );
     projectLinkElements.forEach(link => {
-        link.style.display = curriculumData.settings.showProjectLinks ? 'block' : 'none';
+        const display = curriculumData.settings.showProjectLinks ? 'inline' : 'none';
+        link.style.display = display;
+        console.log(`🔗 Link de projeto ${curriculumData.settings.showProjectLinks ? 'mostrado' : 'ocultado'}`);
     });
+    
+    // Log final
+    console.log(`✅ Configurações aplicadas: ${photoElements.length} fotos, ${skillProgressElements.length} barras, ${contactIconElements.length} ícones, ${projectLinkElements.length} links`);
 }
 
 // Preenchimento automático de dados pessoais
@@ -2912,13 +2971,241 @@ window.exportWord = function() {
             return;
         }
 
+        // Verificar se a biblioteca docx está disponível
+        if (typeof docx === 'undefined') {
+            showNotification('Biblioteca DOCX não carregada. Gerando arquivo de texto formatado...', 'warning');
+            exportWordAsText();
+            return;
+        }
+
         // Atualizar configurações
         updateSettings();
         
         // Extrair dados do currículo para formato Word
         const data = gatherAllData();
         
-        // Criar conteúdo do documento Word
+        // Criar documento Word com formatação usando a biblioteca docx
+        const doc = new docx.Document({
+            styles: {
+                default: {
+                    document: {
+                        run: {
+                            font: curriculumData.settings.fontFamily || 'Calibri',
+                            size: curriculumData.settings.fontSize === 'small' ? 22 : 
+                                  curriculumData.settings.fontSize === 'large' ? 26 : 24
+                        }
+                    }
+                },
+                paragraphStyles: [
+                    {
+                        id: "heading1",
+                        name: "Heading 1",
+                        basedOn: "Normal",
+                        next: "Normal",
+                        run: {
+                            size: 32,
+                            bold: true,
+                            color: curriculumData.settings.primaryColor.replace('#', ''),
+                        },
+                        paragraph: {
+                            spacing: {
+                                after: 200
+                            }
+                        }
+                    },
+                    {
+                        id: "heading2",
+                        name: "Heading 2", 
+                        basedOn: "Normal",
+                        next: "Normal",
+                        run: {
+                            size: 28,
+                            bold: true,
+                            color: "2D3748"
+                        },
+                        paragraph: {
+                            spacing: {
+                                before: 200,
+                                after: 120
+                            }
+                        }
+                    }
+                ]
+            },
+            sections: [{
+                properties: {},
+                children: [
+                    // Cabeçalho
+                    new docx.Paragraph({
+                        text: data.personalData.nomeCompleto || 'Mikael Ferreira',
+                        style: "heading1",
+                        alignment: docx.AlignmentType.CENTER
+                    }),
+                    new docx.Paragraph({
+                        text: data.personalData.tituloProfissional || 'Desenvolvedor Web Full Stack',
+                        alignment: docx.AlignmentType.CENTER,
+                        run: { bold: true, size: 24 }
+                    }),
+                    new docx.Paragraph({ text: "" }), // Espaço
+                    
+                    // Dados pessoais
+                    new docx.Paragraph({
+                        text: "DADOS PESSOAIS",
+                        style: "heading2"
+                    })
+                ]
+            }]
+        });
+
+        // Adicionar dados pessoais
+        const section = doc.sections[0];
+        if (data.personalData.email) {
+            section.children.push(new docx.Paragraph({ text: `Email: ${data.personalData.email}` }));
+        }
+        if (data.personalData.telefone) {
+            section.children.push(new docx.Paragraph({ text: `Telefone: ${data.personalData.telefone}` }));
+        }
+        if (data.personalData.linkedin && curriculumData.settings.showContactIcons) {
+            section.children.push(new docx.Paragraph({ text: `LinkedIn: ${data.personalData.linkedin}` }));
+        }
+        if (data.personalData.github && curriculumData.settings.showContactIcons) {
+            section.children.push(new docx.Paragraph({ text: `GitHub: ${data.personalData.github}` }));
+        }
+        if (data.personalData.localizacao) {
+            section.children.push(new docx.Paragraph({ text: `Localização: ${data.personalData.localizacao}` }));
+        }
+
+        // Resumo profissional
+        if (data.personalData.resumoProfissional) {
+            section.children.push(new docx.Paragraph({ text: "" }));
+            section.children.push(new docx.Paragraph({
+                text: "RESUMO PROFISSIONAL",
+                style: "heading2"
+            }));
+            section.children.push(new docx.Paragraph({ text: data.personalData.resumoProfissional }));
+        }
+
+        // Experiências
+        if (data.experience && data.experience.length > 0) {
+            section.children.push(new docx.Paragraph({ text: "" }));
+            section.children.push(new docx.Paragraph({
+                text: "EXPERIÊNCIA PROFISSIONAL",
+                style: "heading2"
+            }));
+            
+            data.experience.forEach(exp => {
+                section.children.push(new docx.Paragraph({
+                    text: `${exp.cargo} - ${exp.empresa}`,
+                    run: { bold: true }
+                }));
+                section.children.push(new docx.Paragraph({
+                    text: `Período: ${exp.periodo || 'Não informado'}`
+                }));
+                if (exp.descricao) {
+                    section.children.push(new docx.Paragraph({ text: exp.descricao }));
+                }
+                section.children.push(new docx.Paragraph({ text: "" }));
+            });
+        }
+
+        // Projetos
+        if (data.projects && data.projects.length > 0) {
+            section.children.push(new docx.Paragraph({
+                text: "PROJETOS",
+                style: "heading2"
+            }));
+            
+            data.projects.forEach(project => {
+                section.children.push(new docx.Paragraph({
+                    text: project.nome,
+                    run: { bold: true }
+                }));
+                if (project.descricao) {
+                    section.children.push(new docx.Paragraph({ text: project.descricao }));
+                }
+                if (project.tecnologias && project.tecnologias.length > 0) {
+                    section.children.push(new docx.Paragraph({
+                        text: `Tecnologias: ${Array.isArray(project.tecnologias) ? project.tecnologias.join(', ') : project.tecnologias}`
+                    }));
+                }
+                if (curriculumData.settings.showProjectLinks && project.link) {
+                    section.children.push(new docx.Paragraph({ text: `Link: ${project.link}` }));
+                }
+                section.children.push(new docx.Paragraph({ text: "" }));
+            });
+        }
+
+        // Habilidades
+        if (data.skills && data.skills.length > 0) {
+            section.children.push(new docx.Paragraph({
+                text: "HABILIDADES TÉCNICAS",
+                style: "heading2"
+            }));
+            
+            data.skills.forEach(skill => {
+                let skillText = skill.nome;
+                if (curriculumData.settings.showSkillsProgress && skill.nivel) {
+                    skillText += ` - Nível: ${skill.nivel}%`;
+                }
+                section.children.push(new docx.Paragraph({ text: skillText }));
+            });
+        }
+
+        // Certificações
+        if (data.certificates && data.certificates.length > 0) {
+            section.children.push(new docx.Paragraph({ text: "" }));
+            section.children.push(new docx.Paragraph({
+                text: "CERTIFICAÇÕES",
+                style: "heading2"
+            }));
+            
+            data.certificates.forEach(cert => {
+                section.children.push(new docx.Paragraph({
+                    text: cert.titulo || cert.nome,
+                    run: { bold: true }
+                }));
+                if (cert.instituicao) {
+                    section.children.push(new docx.Paragraph({ text: `Instituição: ${cert.instituicao}` }));
+                }
+                if (cert.data || cert.dataObtencao) {
+                    section.children.push(new docx.Paragraph({ text: `Data: ${cert.data || cert.dataObtencao}` }));
+                }
+                section.children.push(new docx.Paragraph({ text: "" }));
+            });
+        }
+
+        // Gerar e baixar arquivo
+        docx.Packer.toBlob(doc).then(blob => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'curriculo-mikael-ferreira.docx';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('Documento Word exportado com sucesso!', 'success');
+            document.getElementById('export-menu').classList.add('hidden');
+        });
+        
+    } catch (error) {
+        console.error('Erro ao exportar Word:', error);
+        showNotification('Erro ao exportar Word: ' + error.message + '. Gerando versão de texto...', 'error');
+        exportWordAsText();
+    }
+};
+
+// Função alternativa para exportar como texto formatado
+function exportWordAsText() {
+    try {
+        // Atualizar configurações
+        updateSettings();
+        
+        // Extrair dados do currículo para formato Word
+        const data = gatherAllData();
+        
+        // Criar conteúdo do documento Word como texto
         let wordContent = `CURRÍCULO - ${data.personalData.nomeCompleto || 'Mikael Ferreira'}\n\n`;
         
         // Dados pessoais
@@ -2927,8 +3214,10 @@ window.exportWord = function() {
         wordContent += `Título: ${data.personalData.tituloProfissional || ''}\n`;
         wordContent += `Email: ${data.personalData.email || ''}\n`;
         wordContent += `Telefone: ${data.personalData.telefone || ''}\n`;
-        wordContent += `LinkedIn: ${data.personalData.linkedin || ''}\n`;
-        wordContent += `GitHub: ${data.personalData.github || ''}\n`;
+        if (curriculumData.settings.showContactIcons) {
+            wordContent += `LinkedIn: ${data.personalData.linkedin || ''}\n`;
+            wordContent += `GitHub: ${data.personalData.github || ''}\n`;
+        }
         wordContent += `Localização: ${data.personalData.localizacao || ''}\n\n`;
         
         // Resumo profissional
@@ -2941,15 +3230,13 @@ window.exportWord = function() {
             wordContent += `EXPERIÊNCIA PROFISSIONAL\n`;
             data.experience.forEach(exp => {
                 wordContent += `${exp.cargo} - ${exp.empresa}\n`;
-                wordContent += `Período: ${exp.dataInicio} - ${exp.dataFim || 'Atual'}\n`;
+                wordContent += `Período: ${exp.periodo || 'Não informado'}\n`;
                 if (exp.descricao) {
                     wordContent += `Descrição: ${exp.descricao}\n`;
                 }
                 wordContent += `\n`;
             });
         }
-        
-        // Projetos
         if (data.projects && data.projects.length > 0) {
             wordContent += `PROJETOS\n`;
             data.projects.forEach(project => {

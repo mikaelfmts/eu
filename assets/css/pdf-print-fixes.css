@@ -78,3 +78,17 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
 }
+
+/* Ajustes para controlar a visibilidade dos links de projetos */
+.hide-project-links .contact-link,
+.hide-project-links .project-link {
+    display: none !important;
+}
+
+/* Garantir que os links apareçam com formatação correta quando visíveis */
+.project-link, 
+.contact-link {
+    display: inline-block;
+    margin-top: 0.5em;
+    text-decoration: none;
+}

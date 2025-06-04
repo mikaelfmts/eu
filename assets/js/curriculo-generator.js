@@ -585,7 +585,7 @@ function setupEventListeners() {
     const settingsInputs = [
         'curriculum-theme', 'primary-color', 'font-family', 'font-size',
         'layout-type', 'spacing', 'background-color', 'document-margins', 
-        'show-skills-progress', 'show-contact-icons', 'show-project-links'
+        'show-skills-progress', 'show-contact-icons'
     ];
     
     settingsInputs.forEach(id => {
@@ -594,6 +594,31 @@ function setupEventListeners() {
             element.addEventListener('change', updateSettings);
         }
     });
+    
+    // Listener específico para o checkbox de links de projetos
+    const showProjectLinksCheckbox = document.getElementById('show-project-links');
+    if (showProjectLinksCheckbox) {
+        showProjectLinksCheckbox.addEventListener('change', function(e) {
+            // Atualiza a configuração
+            curriculumData.settings.showProjectLinks = e.target.checked;
+            
+            // Aplica imediatamente a classe ao preview
+            const previewContainer = document.getElementById('curriculum-preview');
+            if (previewContainer) {
+                if (!e.target.checked) {
+                    previewContainer.classList.add('hide-project-links');
+                } else {
+                    previewContainer.classList.remove('hide-project-links');
+                }
+            }
+            
+            // Atualiza as configurações gerais
+            updateSettings();
+            
+            // Regenera o preview
+            refreshPreview();
+        });
+    }
     
     // Listener especial para checkbox de foto
     const showPhotoCheckbox = document.getElementById('show-photo');    if (showPhotoCheckbox) {
@@ -636,6 +661,9 @@ function updatePersonalData() {    curriculumData.personalData = {
 
 // Atualizar configurações
 function updateSettings() {
+    const showProjectLinksElement = document.getElementById('show-project-links');
+    const showProjectLinks = showProjectLinksElement ? showProjectLinksElement.checked : true;
+    
     curriculumData.settings = {
         theme: document.getElementById('curriculum-theme')?.value || 'modern',
         primaryColor: document.getElementById('primary-color')?.value || '#3B82F6',
@@ -648,8 +676,19 @@ function updateSettings() {
         showPhoto: document.getElementById('show-photo')?.checked || false,
         showSkillsProgress: document.getElementById('show-skills-progress')?.checked || true,
         showContactIcons: document.getElementById('show-contact-icons')?.checked || true,
-        showProjectLinks: document.getElementById('show-project-links')?.checked || true
+        showProjectLinks: showProjectLinks
     };
+    
+    // Aplica a classe CSS para ocultar links de projetos se necessário
+    const previewContainer = document.getElementById('curriculum-preview');
+    if (previewContainer) {
+        if (!showProjectLinks) {
+            previewContainer.classList.add('hide-project-links');
+        } else {
+            previewContainer.classList.remove('hide-project-links');
+        }
+    }
+    
     updateProgress();
 }
 
@@ -1633,148 +1672,35 @@ window.downloadPDF = async function() {
         console.log('📄 Iniciando geração do PDF...');
         showNotification('Preparando seu currículo para download...', 'info');
         
-        // Log para verificar as configurações atuais
+        // Configuração simplificada para garantir funcionamento
         const backgroundColor = document.getElementById('background-color')?.value || '#ffffff';
-        const marginSetting = document.getElementById('document-margins')?.value || 'normal';
         
-        console.log('Configurações do documento:',
-            'Background:', backgroundColor,
-            'Margens:', marginSetting);
-        
-        // Aplicar otimizações para garantir melhor qualidade na geração do PDF
-        const previewClone = previewContainer.cloneNode(true);
-        document.body.appendChild(previewClone);
-        previewClone.style.position = 'absolute';
-        previewClone.style.left = '-9999px';
-        previewClone.style.width = '21cm'; // Tamanho A4
-        previewClone.style.height = 'auto';
-        previewClone.style.margin = '0';
-        previewClone.style.padding = '0';
-        
-        // Garantir que a cor de fundo seja aplicada ao clone e seus elementos filhos
-        previewClone.style.backgroundColor = backgroundColor;
-        previewClone.style.webkitPrintColorAdjust = 'exact';
-        previewClone.style.printColorAdjust = 'exact';
-        
-        // Adicionar estilo inline crítico para garantir a impressão adequada das cores
-        const styleElement = document.createElement('style');
-        styleElement.textContent = `
-            @media print {
-                * {
-                    -webkit-print-color-adjust: exact !important;
-                    print-color-adjust: exact !important;
-                }
-                html, body, div {
-                    background-color: ${backgroundColor} !important;
-                }
-            }
-        `;
-        previewClone.appendChild(styleElement);
-        
-        // Aplicar a cor de fundo a cada elemento aninhado para garantir consistência
-        const allDivs = previewClone.querySelectorAll('div');
-        allDivs.forEach(div => {
-            div.style.backgroundColor = backgroundColor;
-        });
-        
-        // Converter imagem do GitHub para base64 antes de gerar PDF
-        const photoElement = previewContainer.querySelector('#curriculum-photo');
-        if (photoElement && photoElement.src && !photoElement.src.startsWith('data:')) {
-            try {
-                const base64Image = await convertImageToBase64(photoElement.src);
-                if (base64Image) {
-                    photoElement.src = base64Image;
-                    
-                    // Atualizar cache com versão base64
-                    const cachedUser = getCacheItem(GITHUB_CACHE_CONFIG.keys.profile);
-                    if (cachedUser) {
-                        cachedUser.avatar_base64 = base64Image;
-                        setCacheItem(GITHUB_CACHE_CONFIG.keys.profile, cachedUser);
-                    }
-                }
-            } catch (error) {
-                console.log('Aviso: Não foi possível converter foto para base64:', error);
-            }
-        }
-        
-        // Obter configurações de margem selecionadas
-        let marginSize;
-        switch (marginSetting) {
-            case 'compact':
-                marginSize = 0.5;
-                break;
-            case 'comfortable':
-                marginSize = 1.5;
-                break;
-            case 'wide':
-                marginSize = 2;
-                break;
-            default: // normal
-                marginSize = 1;
-        }
-        
-        // Configurações aprimoradas para o PDF
+        // Configurações básicas para o PDF
         const opt = {
-            margin: marginSize,
+            margin: 10,
             filename: 'curriculo-mikael-ferreira.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
+            image: { type: 'jpeg', quality: 1 },
             html2canvas: { 
-                scale: 2.5, // Alta resolução
+                scale: 2, 
                 useCORS: true,
-                logging: true, 
-                letterRendering: true,
-                allowTaint: true,
-                backgroundColor: backgroundColor,
-                imageTimeout: 0,
-                removeContainer: false
+                backgroundColor: backgroundColor
             },
             jsPDF: { 
-                unit: 'cm', 
+                unit: 'mm', 
                 format: 'a4', 
-                orientation: 'portrait',
-                compress: true,
-                precision: 16 // Maior precisão para cores
-            },
-            pagebreak: { mode: 'avoid-all' }
-        };
-          // Garantir que todos os elementos tenham a cor de fundo definida
-        const mainDiv = previewClone.querySelector('div');
-        if (mainDiv) {
-            // Aplicar a cor de fundo
-            mainDiv.style.backgroundColor = backgroundColor;
-            
-            // Adicionar classe para ajudar na impressão da cor de fundo
-            mainDiv.classList.add('custom-background');
-            
-            // Adicionar classe para as margens do documento
-            mainDiv.classList.add(`document-margins-${marginSetting}`);
-            
-            // Aplicar estilo inline adicional para garantir a impressão da cor
-            mainDiv.setAttribute('style', `background-color: ${backgroundColor} !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; ${mainDiv.getAttribute('style') || ''}`);
-        }
-        
-        // Gerar PDF com melhor qualidade
-        html2pdf().set(opt).from(previewClone).save().then(() => {
-            // Remover o clone após concluído
-            previewClone.remove();
-            showNotification('PDF gerado com sucesso! Verifique seus downloads.', 'success');
-            
-            // Adicionar estatísticas localmente
-            try {
-                const pdfStats = localStorage.getItem('pdf_generation_stats') || '{}';
-                const stats = JSON.parse(pdfStats);
-                stats.count = (stats.count || 0) + 1;
-                stats.lastDate = new Date().toISOString();
-                localStorage.setItem('pdf_generation_stats', JSON.stringify(stats));
-            } catch (e) {
-                console.log('Erro ao registrar estatísticas de PDF');
+                orientation: 'portrait' 
             }
-        }).catch((error) => {
-            // Remover o clone em caso de erro
-            previewClone.remove();
-            console.error('Erro ao gerar PDF:', error);
-            showNotification('Erro ao gerar PDF. Tente novamente ou verifique suas configurações.', 'error');
-        });
+        };
+        
+        // Gerar PDF com configurações básicas para garantir o funcionamento
+        html2pdf().from(previewContainer).set(opt).save()
+            .then(() => {
+                showNotification('PDF gerado com sucesso! Verifique seus downloads.', 'success');
+            })
+            .catch((error) => {
+                console.error('Erro ao gerar PDF:', error);
+                showNotification('Erro ao gerar PDF. Tente novamente ou verifique suas configurações.', 'error');
+            });
         
     } catch (error) {
         console.error('Erro no download PDF:', error);

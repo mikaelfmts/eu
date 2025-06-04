@@ -593,22 +593,26 @@ function setupEventListeners() {
         if (element) {
             element.addEventListener('change', updateSettings);
         }
-    });
-      // Listener específico para o checkbox de links de projetos
+    });    // Listener específico para o checkbox de links de projetos
     const showProjectLinksCheckbox = document.getElementById('show-project-links');
     if (showProjectLinksCheckbox) {
         showProjectLinksCheckbox.addEventListener('change', function(e) {
+            console.log('Checkbox links de projetos alterado para:', e.target.checked);
+            
             // Atualiza a configuração imediatamente
             curriculumData.settings.showProjectLinks = e.target.checked;
+            
+            // Atualiza todas as configurações
+            updateSettings();
             
             // Regenera o preview para aplicar a mudança
             generatePreview();
             
             // Mostra uma notificação
             if (e.target.checked) {
-                showNotification('Links de projetos habilitados', 'success');
+                showNotification('Links de projetos incluídos no currículo', 'success');
             } else {
-                showNotification('Links de projetos desabilitados', 'success');
+                showNotification('Links de projetos removidos do currículo', 'success');
             }
         });
     }
@@ -657,6 +661,8 @@ function updateSettings() {
     const showProjectLinksElement = document.getElementById('show-project-links');
     const showProjectLinks = showProjectLinksElement ? showProjectLinksElement.checked : true;
     
+    console.log('Atualizando configurações - showProjectLinks:', showProjectLinks);
+    
     curriculumData.settings = {
         theme: document.getElementById('curriculum-theme')?.value || 'modern',
         primaryColor: document.getElementById('primary-color')?.value || '#3B82F6',
@@ -671,16 +677,6 @@ function updateSettings() {
         showContactIcons: document.getElementById('show-contact-icons')?.checked || true,
         showProjectLinks: showProjectLinks
     };
-    
-    // Aplica a classe CSS para ocultar links de projetos se necessário
-    const previewContainer = document.getElementById('curriculum-preview');
-    if (previewContainer) {
-        if (!showProjectLinks) {
-            previewContainer.classList.add('hide-project-links');
-        } else {
-            previewContainer.classList.remove('hide-project-links');
-        }
-    }
     
     updateProgress();
 }
@@ -1663,68 +1659,59 @@ window.downloadPDF = async function() {
         }
 
         console.log('📄 Iniciando geração do PDF...');
-        showNotification('Preparando seu currículo para download...', 'info');
+        showNotification('Preparando PDF...', 'info');
         
-        // Pegar as configurações básicas
-        const backgroundColor = document.getElementById('background-color')?.value || '#ffffff';
-        const marginSetting = document.getElementById('document-margins')?.value || 'normal';
-        const showProjectLinks = document.getElementById('show-project-links')?.checked || true;
+        // Atualizar configurações antes de gerar PDF
+        updateSettings();
         
-        // Converter margens para números
-        let marginValue = 10; // padrão em mm
+        // Pegar configurações atuais
+        const backgroundColor = curriculumData.settings.backgroundColor || '#ffffff';
+        const marginSetting = curriculumData.settings.documentMargins || 'normal';
+        
+        console.log('Configurações PDF:', {
+            backgroundColor,
+            marginSetting,
+            showProjectLinks: curriculumData.settings.showProjectLinks
+        });
+        
+        // Converter configuração de margens para valores em mm
+        let marginValue;
         switch (marginSetting) {
-            case 'compact': marginValue = 5; break;
-            case 'comfortable': marginValue = 15; break;
-            case 'wide': marginValue = 20; break;
-            default: marginValue = 10; // normal
+            case 'compact': marginValue = [5, 5, 5, 5]; break;
+            case 'comfortable': marginValue = [15, 15, 15, 15]; break;
+            case 'wide': marginValue = [25, 25, 25, 25]; break;
+            default: marginValue = [10, 10, 10, 10]; // normal
         }
         
-        // Fazer uma cópia do preview para modificar
-        const cloneContainer = previewContainer.cloneNode(true);
-        
-        // Aplicar a cor de fundo ao clone
-        cloneContainer.style.backgroundColor = backgroundColor;
-        
-        // Se não deve mostrar links, ocultar todos os links no clone
-        if (!showProjectLinks) {
-            const links = cloneContainer.querySelectorAll('.contact-link, a[href]');
-            links.forEach(link => {
-                if (link.textContent.includes('Ver projeto') || link.textContent.includes('→')) {
-                    link.style.display = 'none';
-                }
-            });
-        }
-        
-        // Configuração SIMPLES do PDF
+        // Configuração do PDF
         const options = {
             margin: marginValue,
             filename: 'curriculo-mikael-ferreira.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
+            image: { 
+                type: 'jpeg', 
+                quality: 0.98 
+            },
             html2canvas: { 
                 scale: 2,
                 backgroundColor: backgroundColor,
-                useCORS: true
+                useCORS: true,
+                allowTaint: true,
+                logging: false
             },
             jsPDF: { 
                 unit: 'mm', 
                 format: 'a4', 
-                orientation: 'portrait' 
+                orientation: 'portrait'
             }
         };
         
         // Gerar o PDF
-        html2pdf().from(cloneContainer).set(options).save()
-            .then(() => {
-                showNotification('PDF gerado com sucesso!', 'success');
-            })
-            .catch((error) => {
-                console.error('Erro ao gerar PDF:', error);
-                showNotification('Erro ao gerar PDF', 'error');
-            });
+        await html2pdf().from(previewContainer).set(options).save();
+        showNotification('PDF gerado com sucesso!', 'success');
         
     } catch (error) {
-        console.error('Erro no download PDF:', error);
-        showNotification('Erro ao gerar PDF', 'error');
+        console.error('Erro ao gerar PDF:', error);
+        showNotification('Erro ao gerar PDF: ' + error.message, 'error');
     }
 };
 

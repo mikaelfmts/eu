@@ -321,6 +321,49 @@ button > * {
     page-break-after: auto;
 }
 
+/* Garantir que a cor de fundo seja impressa em PDF */
+#curriculum-preview {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background-color: inherit;
+}
+
+#curriculum-preview > div {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    box-shadow: none !important;
+    display: block;
+    page-break-inside: avoid;
+    background-color: inherit;
+}
+
+/* Correção para PDF - forçar cor de fundo no elemento principal */
+@media print {
+    #curriculum-preview,
+    #curriculum-preview > div {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background-color: inherit !important;
+    }
+    
+    /* Regras específicas para PDF */
+    html, body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* Evitar quebras de página em locais indesejados */
+    .curriculum-section {
+        page-break-inside: avoid;
+    }
+    
+    /* Manter cabeçalho sempre junto */
+    .curriculum-header {
+        page-break-inside: avoid;
+        page-break-after: avoid;
+    }
+}
+
 /* Themes do Currículo */
 .curriculum-modern {
     font-family: 'Inter', sans-serif;
@@ -624,23 +667,25 @@ button > * {
         padding: 0 !important;
         width: 210mm !important;
         min-height: 297mm !important;
-        background: white !important;
-        color: black !important;
+        /* Removido background: white !important para permitir cores de fundo personalizadas */
         font-size: 12px !important;
         line-height: 1.4 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
     
-    .curriculum-modern,
-    .curriculum-creative,
-    .curriculum-professional,
-    .curriculum-executive,
-    .curriculum-startup,
-    .curriculum-creative-bold,
-    .curriculum-consulting,
-    .curriculum-media,
-    .curriculum-tech {
-        background: white !important;
-        color: black !important;
+    /* Removido sobrescrever cores de temas para permitir cores personalizadas */
+    /* Garantir que elementos dentro do currículo preservem cores de fundo */
+    .curriculum-preview * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* Garantir que cores de fundo se mantenham no PDF */
+    html, body, .curriculum-preview > div {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background-color: inherit !important;
     }
     
     .layout-sidebar {

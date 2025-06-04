@@ -1138,6 +1138,12 @@ function renderCertificatesList() {
     });
 }
 
+window.removeCertificate = function(id) {
+    curriculumData.certificates = curriculumData.certificates.filter(cert => cert.id !== id);
+    renderCertificatesList();
+    updateProgress();
+    showNotification('Certificado removido com sucesso!', 'success');
+};
 
 // Preview do currículo
 window.generatePreview = function() {
@@ -1185,6 +1191,11 @@ function generateCurriculumHTML() {
     const theme = curriculumData.settings.theme;
     const layout = curriculumData.settings.layout;
     const backgroundColor = document.getElementById('background-color')?.value || '#ffffff';
+    const today = new Date().toLocaleDateString('pt-BR', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    });
     
     return `
         <div class="curriculum-${theme} layout-${layout}" style="
@@ -1197,12 +1208,13 @@ function generateCurriculumHTML() {
             <!-- Header Reference - Discreto -->
             <div style="
                 text-align: right;
-                font-size: 0.7rem;
+                font-size: 0.65rem;
                 color: #9ca3af;
-                margin-bottom: 1rem;
+                margin-bottom: 0.7rem;
                 font-style: italic;
+                opacity: 0.7;
             ">
-                <span>Criado em mikaelfmts.github.io/eu</span>
+                <span>Portfólio: mikaelfmts.github.io/eu • Atualizado em ${today}</span>
             </div>
             
             ${generateHeaderSection()}
@@ -1214,14 +1226,14 @@ function generateCurriculumHTML() {
             <!-- Footer do Portfolio -->
             <footer style="
                 margin-top: 3rem;
-                padding-top: 2rem;
+                padding-top: 1.5rem;
                 border-top: 1px solid #e2e8f0;
                 text-align: center;
-                color: #718096;
-                font-size: 0.9rem;
-                font-style: italic;
+                color: #64748b;
+                font-size: 0.8rem;
             ">
-                <p style="margin: 0;">Documento gerado através do portfolio profissional de <strong>Mikael Ferreira</strong>: <strong>mikaelfmts.github.io/eu</strong></p>
+                <p style="margin: 0;">Currículo gerado via Portfolio Profissional • Mikael Ferreira • mikaelfmts.github.io/eu</p>
+                <p style="margin-top: 0.3rem; font-size: 0.75rem; opacity: 0.8;">Referências e comprovações de certificações disponíveis mediante solicitação.</p>
             </footer>
         </div>
     `;
@@ -1599,7 +1611,16 @@ window.downloadPDF = async function() {
             return;
         }
 
+        console.log('📄 Iniciando geração do PDF...');
         showNotification('Preparando seu currículo para download...', 'info');
+        
+        // Log para verificar as configurações atuais
+        const backgroundColor = document.getElementById('background-color')?.value || '#ffffff';
+        const marginSetting = document.getElementById('document-margins')?.value || 'normal';
+        
+        console.log('Configurações do documento:',
+            'Background:', backgroundColor,
+            'Margens:', marginSetting);
         
         // Aplicar otimizações para garantir melhor qualidade na geração do PDF
         const previewClone = previewContainer.cloneNode(true);
@@ -1611,12 +1632,39 @@ window.downloadPDF = async function() {
         previewClone.style.margin = '0';
         previewClone.style.padding = '0';
         
+        // Garantir que a cor de fundo seja aplicada ao clone e seus elementos filhos
+        previewClone.style.backgroundColor = backgroundColor;
+        previewClone.style.webkitPrintColorAdjust = 'exact';
+        previewClone.style.printColorAdjust = 'exact';
+        
+        // Adicionar estilo inline crítico para garantir a impressão adequada das cores
+        const styleElement = document.createElement('style');
+        styleElement.textContent = `
+            @media print {
+                * {
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+                html, body, div {
+                    background-color: ${backgroundColor} !important;
+                }
+            }
+        `;
+        previewClone.appendChild(styleElement);
+        
+        // Aplicar a cor de fundo a cada elemento aninhado para garantir consistência
+        const allDivs = previewClone.querySelectorAll('div');
+        allDivs.forEach(div => {
+            div.style.backgroundColor = backgroundColor;
+        });
+        
         // Converter imagem do GitHub para base64 antes de gerar PDF
         const photoElement = previewContainer.querySelector('#curriculum-photo');
         if (photoElement && photoElement.src && !photoElement.src.startsWith('data:')) {
             try {
                 const base64Image = await convertImageToBase64(photoElement.src);
-                if (base64Image) {                    photoElement.src = base64Image;
+                if (base64Image) {
+                    photoElement.src = base64Image;
                     
                     // Atualizar cache com versão base64
                     const cachedUser = getCacheItem(GITHUB_CACHE_CONFIG.keys.profile);
@@ -1629,10 +1677,9 @@ window.downloadPDF = async function() {
                 console.log('Aviso: Não foi possível converter foto para base64:', error);
             }
         }
-          // Obter configurações de margem selecionadas
-        const marginSetting = document.getElementById('document-margins')?.value || 'normal';
-        let marginSize;
         
+        // Obter configurações de margem selecionadas
+        let marginSize;
         switch (marginSetting) {
             case 'compact':
                 marginSize = 0.5;
@@ -1647,26 +1694,47 @@ window.downloadPDF = async function() {
                 marginSize = 1;
         }
         
-        // Configurações para o PDF
+        // Configurações aprimoradas para o PDF
         const opt = {
             margin: marginSize,
             filename: 'curriculo-mikael-ferreira.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
-                scale: 2.5, // Aumentado para melhor resolução
+                scale: 2.5, // Alta resolução
                 useCORS: true,
-                logging: false,
+                logging: true, 
                 letterRendering: true,
-                backgroundColor: document.getElementById('background-color')?.value || '#ffffff'
+                allowTaint: true,
+                backgroundColor: backgroundColor,
+                imageTimeout: 0,
+                removeContainer: false
             },
             jsPDF: { 
                 unit: 'cm', 
                 format: 'a4', 
                 orientation: 'portrait',
-                compress: true // Compressão para reduzir tamanho
+                compress: true,
+                precision: 16 // Maior precisão para cores
             },
-            pagebreak: { mode: 'avoid-all' } // Tenta evitar quebras de página em elementos
-        };        // Gerar PDF com melhor qualidade
+            pagebreak: { mode: 'avoid-all' }
+        };
+        
+        // Garantir que todos os elementos tenham a cor de fundo definida        const mainDiv = previewClone.querySelector('div');
+        if (mainDiv) {
+            // Aplicar a cor de fundo
+            mainDiv.style.backgroundColor = backgroundColor;
+            
+            // Adicionar classe para ajudar na impressão da cor de fundo
+            mainDiv.classList.add('custom-background');
+            
+            // Adicionar classe para as margens do documento
+            mainDiv.classList.add(`document-margins-${marginSetting}`);
+            
+            // Aplicar estilo inline adicional para garantir a impressão da cor
+            mainDiv.setAttribute('style', `background-color: ${backgroundColor} !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; ${mainDiv.getAttribute('style') || ''}`);
+        }
+        
+        // Gerar PDF com melhor qualidade
         html2pdf().set(opt).from(previewClone).save().then(() => {
             // Remover o clone após concluído
             previewClone.remove();
@@ -2315,10 +2383,18 @@ function applyPreviewStyles(previewContainer) {
     previewContainer.style.setProperty('--primary-color', settings.primaryColor);
     previewContainer.style.fontFamily = `${settings.fontFamily}, sans-serif`;
     
-    // Aplicar a cor de fundo se estiver disponível
-    if (settings.backgroundColor || document.getElementById('background-color')?.value) {
-        previewContainer.style.backgroundColor = settings.backgroundColor || 
-                                                document.getElementById('background-color').value;
+    // Obter cor de fundo da configuração ou do input
+    const backgroundColor = settings.backgroundColor || 
+                          document.getElementById('background-color')?.value || 
+                          '#ffffff';
+    
+    // Aplicar a cor de fundo diretamente ao container
+    previewContainer.style.backgroundColor = backgroundColor;
+    
+    // Aplicar a cor de fundo ao primeiro elemento div dentro do preview (conteúdo principal)
+    const mainContentDiv = previewContainer.querySelector('div');
+    if (mainContentDiv) {
+        mainContentDiv.style.backgroundColor = backgroundColor;
     }
       
     // Aplicar classes de tema e layout
@@ -2328,6 +2404,8 @@ function applyPreviewStyles(previewContainer) {
     if (settings.customColors) {
         applyCustomColorsToPreview(settings.customColors, previewContainer);
     }
+    
+    console.log('Cor de fundo aplicada:', backgroundColor);
 }
 
 // Função para aplicar cores personalizadas
@@ -2344,12 +2422,29 @@ function applyCustomColors() {
         
         // Salvar cores no curriculumData
         curriculumData.settings.customColors = customColors;
-          // Aplicar cores ao preview se estiver visível
+        
+        // Atualizar backgroundColor e documentMargins nas configurações
+        const backgroundColor = document.getElementById('background-color')?.value || '#ffffff';
+        const documentMargins = document.getElementById('document-margins')?.value || 'normal';
+        
+        curriculumData.settings.backgroundColor = backgroundColor;
+        curriculumData.settings.documentMargins = documentMargins;
+        
+        console.log('Configurações atualizadas:', 
+            'Cor de fundo:', backgroundColor, 
+            'Margens:', documentMargins);
+          
+        // Aplicar cores ao preview se estiver visível
         const previewContainer = document.getElementById('curriculum-preview');
         if (previewContainer) {
+            // Aplicar cor de fundo diretamente ao container de preview
+            previewContainer.style.backgroundColor = backgroundColor;
+            
+            // Aplicar cores personalizadas
             applyCustomColorsToPreview(customColors, previewContainer);
         }
-          showNotification('Cores personalizadas aplicadas com sucesso!', 'success');
+          
+        showNotification('Cores e formatação aplicadas com sucesso!', 'success');
         
         // Salvar automaticamente
         saveCurriculum();
@@ -2375,6 +2470,9 @@ function applyCustomColorsToPreview(colors, container = null) {
         return;
     }
     
+    // Obter cor de fundo da configuração ou do input
+    const backgroundColor = document.getElementById('background-color')?.value || '#ffffff';
+    
     const style = document.createElement('style');
     style.id = 'custom-colors-style';
     
@@ -2384,6 +2482,23 @@ function applyCustomColorsToPreview(colors, container = null) {
         existingStyle.remove();
     }
       style.textContent = `
+        /* Regras para impressão - garantir cores corretas no PDF */
+        @media print {
+            #curriculum-preview, 
+            #curriculum-preview > div,
+            .curriculum-preview {
+                background-color: ${backgroundColor} !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+        
+        /* Cor de fundo do currículo */
+        #curriculum-preview, 
+        #curriculum-preview > div {
+            background-color: ${backgroundColor} !important;
+        }
+        
         /* Nome e título principal */
         #curriculum-preview header h1 {
             color: ${colors.nameTitle} !important;

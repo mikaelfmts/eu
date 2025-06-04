@@ -1223,8 +1223,7 @@ function generateCurriculumHTML() {
             ${generateSkillsSection()}
             ${generateCertificatesSection()}
             
-            <!-- Footer do Portfolio -->
-            <footer style="
+            <!-- Footer do Portfolio -->            <footer style="
                 margin-top: 3rem;
                 padding-top: 1.5rem;
                 border-top: 1px solid #e2e8f0;
@@ -1234,6 +1233,9 @@ function generateCurriculumHTML() {
             ">
                 <p style="margin: 0;">Currículo gerado via Portfolio Profissional • Mikael Ferreira • mikaelfmts.github.io/eu</p>
                 <p style="margin-top: 0.3rem; font-size: 0.75rem; opacity: 0.8;">Referências e comprovações de certificações disponíveis mediante solicitação.</p>
+                <p style="margin-top: 0.5rem; font-size: 0.65rem; color: #94a3b8;">
+                    Portfolio desenvolvido com HTML5, CSS3, JavaScript, Firebase, RESTful APIs e GitHub Actions • GitHub: github.com/MikaelFMTS
+                </p>
             </footer>
         </div>
     `;
@@ -1274,9 +1276,11 @@ function generateHeaderSection() {
             </h2>            <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
                 ${personal.email ? `<span class="contact-link"><i class="fas fa-envelope"></i> ${personal.email}</span>` : ''}
                 ${personal.telefone ? `<span class="contact-link"><i class="fas fa-phone"></i> ${personal.telefone}</span>` : ''}
-                ${personal.localizacao ? `<span class="contact-link"><i class="fas fa-map-marker-alt"></i> ${personal.localizacao}</span>` : ''}
-            </div>
+                ${personal.localizacao ? `<span class="contact-link"><i class="fas fa-map-marker-alt"></i> ${personal.localizacao}</span>` : ''}            </div>
             ${personal.resumoProfissional ? `<p class="main-text" style="margin-top: 1rem; font-style: italic; max-width: 600px; margin-left: auto; margin-right: auto;">${personal.resumoProfissional}</p>` : ''}
+            <div style="font-size: 0.65rem; color: #999; text-align: center; margin-top: 0.5rem;">
+                <span>Mais informações e projetos completos disponíveis em: mikaelfmts.github.io/eu</span>
+            </div>
         </header>
     `;
 }
@@ -1295,6 +1299,9 @@ function generateExperienceSection() {
                     ${exp.descricao ? `<p class="main-text" style="margin: 0.5rem 0;">${exp.descricao}</p>` : ''}
                 </div>
             `).join('')}
+            <div style="font-size: 0.65rem; color: #999; text-align: right; margin-top: 0.5rem;">
+                <span>Histórico completo e referências disponíveis em: mikaelfmts.github.io/eu/mentors.html</span>
+            </div>
         </section>
     `;
 }
@@ -1322,6 +1329,9 @@ function generateProjectsSection() {
                     ` : ''}
                 </div>
             `).join('')}
+            <div style="font-size: 0.65rem; color: #999; text-align: right; margin-top: 0.5rem;">
+                <span>Todos os projetos com código-fonte e demonstrações em: mikaelfmts.github.io/eu/projetos.html</span>
+            </div>
         </section>
     `;
 }
@@ -1346,6 +1356,12 @@ function generateSkillsSection() {
                     </div>
                 `).join('')}
             </div>
+            <p style="font-size: 0.7rem; color: #666; font-style: italic; margin-top: 0.8rem; text-align: right;">
+                Dados Reais: Os percentuais exibidos são calculados automaticamente através da API do GitHub, analisando linguagens, frameworks e tecnologias utilizadas nos repositórios públicos do meu perfil.
+            </p>
+            <div style="font-size: 0.65rem; color: #999; text-align: right; margin-top: 0.3rem;">
+                <span>Para mais detalhes: mikaelfmts.github.io/eu/projetos.html</span>
+            </div>
         </section>
     `;
 }
@@ -1364,6 +1380,9 @@ function generateCertificatesSection() {
                     ${cert.data ? `<p class="main-text" style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">${cert.data}</p>` : ''}
                 </div>
             `).join('')}
+            <div style="font-size: 0.65rem; color: #999; text-align: right; margin-top: 0.5rem;">
+                <span>Certificados em andamento e comprovantes disponíveis em: mikaelfmts.github.io/eu/pages/certificates-in-progress.html</span>
+            </div>
         </section>
     `;
 }

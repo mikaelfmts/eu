@@ -24,790 +24,6 @@
     <!-- Font Awesome para os ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
-    <!-- Estilos exclusivos para a página inicial -->
-    <style>
-        /* Estilos específicos para o index */
-        body.index-page {
-            background: linear-gradient(135deg, #0a0e27 0%, #1e1b24 30%, #2b1810 60%, #1a0e0e 100%);
-            overflow-x: hidden;
-            position: relative;
-        }
-        
-        /* Sistema de partículas aprimorado */
-        body.index-page::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(2px 2px at 20px 30px, #c8aa6e, transparent),
-                radial-gradient(2px 2px at 40px 70px, rgba(200, 170, 110, 0.5), transparent),
-                radial-gradient(1px 1px at 90px 40px, #f0c674, transparent),
-                radial-gradient(1px 1px at 130px 80px, rgba(240, 198, 116, 0.3), transparent),
-                radial-gradient(2px 2px at 160px 30px, #c8aa6e, transparent);
-            background-repeat: repeat;
-            background-size: 200px 100px;
-            opacity: 0.3;
-            z-index: -1;
-            animation: float-particles 20s linear infinite;
-            will-change: transform;
-        }
-        
-        @keyframes float-particles {
-            0% { transform: translateY(0px) translateX(0px); }
-            33% { transform: translateY(-2px) translateX(2px); }
-            66% { transform: translateY(2px) translateX(-1px); }
-            100% { transform: translateY(0px) translateX(0px); }
-        }
-        
-        /* Scroll suave para âncoras */
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        /* Indicador de scroll para mobile */
-        .scroll-indicator {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            color: var(--primary-color);
-            font-size: 2rem;
-            opacity: 0.7;
-            animation: bounce 2s infinite;
-            z-index: 10;
-            display: none;
-        }
-        
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
-            40% { transform: translateX(-50%) translateY(-10px); }
-            60% { transform: translateX(-50%) translateY(-5px); }
-        }
-        
-        @media (max-width: 768px) {
-            .scroll-indicator {
-                display: block;
-            }
-        }
-        
-        .hero-section {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            background: 
-                radial-gradient(ellipse at center, rgba(200, 170, 110, 0.15) 0%, transparent 70%),
-                radial-gradient(ellipse 800px 600px at 50% 0%, rgba(30, 35, 40, 0.3) 0%, transparent 50%);
-            padding: 2rem;
-        }
-        
-        .hero-avatar {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 3px solid var(--primary-color);
-            box-shadow: 
-                0 0 35px rgba(200, 170, 110, 0.5),
-                inset 0 0 12px rgba(200, 170, 110, 0.1);
-            margin-bottom: 1.2rem;
-            transition: all 0.5s ease;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .hero-avatar::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(
-                from 0deg,
-                transparent,
-                rgba(200, 170, 110, 0.4),
-                transparent,
-                rgba(200, 170, 110, 0.4),
-                transparent
-            );
-            animation: rotate-border 8s linear infinite;
-            z-index: -1;
-        }
-        
-        @keyframes rotate-border {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .hero-avatar:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 80px rgba(200, 170, 110, 0.8);
-        }
-        
-        .hero-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .hero-title {
-            font-size: 3.8rem;
-            font-weight: 700;
-            background: linear-gradient(45deg, #c8aa6e, #f0c674, #c8aa6e, #ff8c00);
-            background-size: 400% 400%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-align: center;
-            margin-bottom: 0.8rem;
-            letter-spacing: 2px;
-            animation: gradient-flow 4s ease-in-out infinite;
-            text-shadow: 0 0 25px rgba(200, 170, 110, 0.5);
-            position: relative;
-        }
-        
-        @keyframes gradient-flow {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-        
-        .hero-subtitle {
-            font-size: 1.4rem;
-            color: var(--text-secondary);
-            text-align: center;
-            margin-bottom: 2.5rem;
-            opacity: 0.9;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            animation: subtitle-glow 3s ease-in-out infinite alternate;
-        }
-        
-        @keyframes subtitle-glow {
-            0% { opacity: 0.8; }
-            100% { opacity: 1; text-shadow: 0 2px 20px rgba(200, 170, 110, 0.3); }
-        }
-        
-        .floating-nav {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            z-index: 1000;
-        }
-        
-        .nav-button {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            background: rgba(200, 170, 110, 0.15);
-            border: 2px solid rgba(200, 170, 110, 0.4);
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            transition: all 0.4s ease;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            position: relative;
-            overflow: hidden;
-            font-size: 1.1rem;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        .nav-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(200, 170, 110, 0.3), transparent);
-            transition: left 0.5s ease;
-        }
-        
-        .nav-button:hover::before,
-        .nav-button:active::before {
-            left: 100%;
-        }
-        
-        .nav-button:hover,
-        .nav-button:active {
-            background: rgba(200, 170, 110, 0.3);
-            transform: scale(1.15);
-            box-shadow: 0 0 25px rgba(200, 170, 110, 0.6);
-            border-color: var(--primary-color);
-        }
-        
-        .nav-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(200, 170, 110, 0.3), transparent);
-            transition: left 0.5s ease;
-        }
-        
-        .nav-button:hover::before {
-            left: 100%;
-        }
-        
-        .nav-button:hover {
-            background: rgba(200, 170, 110, 0.3);
-            transform: scale(1.15);
-            box-shadow: 0 0 25px rgba(200, 170, 110, 0.6);
-            border-color: var(--primary-color);
-        }
-        
-        .floating-menu {
-            position: fixed;
-            top: 2rem;
-            left: 2rem;
-            z-index: 1000;
-        }
-        
-        .menu-toggle {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: rgba(200, 170, 110, 0.2);
-            border: 2px solid rgba(200, 170, 110, 0.5);
-            color: var(--primary-color);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        .menu-toggle:hover,
-        .menu-toggle:active {
-            background: rgba(200, 170, 110, 0.4);
-            transform: scale(1.1);
-        }
-        
-        .floating-menu-items {
-            position: absolute;
-            top: 70px;
-            left: 0;
-            background: rgba(0, 0, 0, 0.95);
-            border-radius: 15px;
-            padding: 1rem;
-            min-width: 250px;
-            opacity: 0;
-            transform: translateY(-20px);
-            pointer-events: none;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(200, 170, 110, 0.3);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-        
-        .floating-menu-items.active {
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: all;
-        }
-        
-        .floating-menu-items a {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.8rem;
-            color: var(--text-primary);
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .floating-menu-items a::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(200, 170, 110, 0.2), transparent);
-            transition: left 0.3s ease;
-        }
-        
-        .floating-menu-items a:hover::before,
-        .floating-menu-items a:active::before {
-            left: 100%;
-        }
-        
-        .floating-menu-items a:hover,
-        .floating-menu-items a:active {
-            background: rgba(200, 170, 110, 0.2);
-            color: var(--primary-color);
-            transform: translateX(5px);
-        }
-        
-        .section-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin: 3rem 0;
-            padding: 0 1.5rem;
-            max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .feature-card {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(200, 170, 110, 0.3);
-            border-radius: 18px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
-            min-height: 280px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(200, 170, 110, 0.1), transparent);
-            transition: left 0.5s ease;
-        }
-        
-        .feature-card:hover::before {
-            left: 100%;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--primary-color);
-            box-shadow: 0 20px 40px rgba(200, 170, 110, 0.2);
-        }
-        
-        .feature-card:active {
-            transform: translateY(-5px) scale(0.98);
-        }
-        
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(200, 170, 110, 0.1), transparent);
-            transition: left 0.5s ease;
-        }
-        
-        .feature-card:hover::before {
-            left: 100%;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--primary-color);
-            box-shadow: 0 20px 40px rgba(200, 170, 110, 0.2);
-        }
-        
-        .feature-icon {
-            font-size: 3rem;
-            color: var(--primary-color);
-            margin-bottom: 1.5rem;
-        }
-        
-        .feature-title {
-            font-size: 1.5rem;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
-        }
-        
-        .feature-description {
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-        
-        .cta-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 1rem 2rem;
-            background: linear-gradient(45deg, var(--primary-color), #f0c674);
-            color: #000;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 600;
-            margin-top: 1rem;
-            transition: all 0.3s ease;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-            position: relative;
-            overflow: hidden;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .cta-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.4s ease;
-        }
-        
-        .cta-button:hover::before,
-        .cta-button:active::before {
-            left: 100%;
-        }
-        
-        .cta-button:hover,
-        .cta-button:active {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(200, 170, 110, 0.4);
-        }
-        
-        .cta-button:active {
-            transform: scale(1.02);
-        }
-        
-        /* Responsividade Aprimorada */
-        @media (max-width: 1200px) {
-            .hero-section {
-                padding: 1.5rem;
-            }
-            
-            .section-grid {
-                max-width: 900px;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 1.2rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.8rem;
-                letter-spacing: 1px;
-                margin-bottom: 1rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1.1rem;
-                margin-bottom: 2rem;
-                padding: 0 1rem;
-            }
-            
-            .hero-avatar {
-                width: 120px;
-                height: 120px;
-                margin-bottom: 1.5rem;
-            }
-            
-            .floating-nav {
-                right: 1rem;
-                top: 1rem;
-                gap: 0.8rem;
-            }
-            
-            .nav-button {
-                width: 50px;
-                height: 50px;
-                font-size: 1rem;
-            }
-            
-            .floating-menu {
-                left: 1rem;
-                top: 1rem;
-            }
-            
-            .menu-toggle {
-                width: 55px;
-                height: 55px;
-            }
-            
-            .floating-menu-items {
-                min-width: 220px;
-                top: 65px;
-            }
-            
-            .section-grid {
-                grid-template-columns: 1fr;
-                padding: 0 1rem;
-                gap: 1rem;
-                margin: 2rem auto;
-            }
-            
-            .feature-card {
-                min-height: 250px;
-                padding: 1.2rem;
-            }
-            
-            .feature-icon {
-                font-size: 2.5rem;
-                margin-bottom: 1rem;
-            }
-            
-            .feature-title {
-                font-size: 1.3rem;
-                margin-bottom: 0.8rem;
-            }
-            
-            .feature-description {
-                font-size: 0.95rem;
-                line-height: 1.5;
-            }
-            
-            .cta-button {
-                padding: 0.8rem 1.5rem;
-                font-size: 0.9rem;
-                margin-top: 0.8rem;
-            }
-            
-            .hero-section {
-                padding: 1rem;
-                min-height: 90vh;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero-title {
-                font-size: 2.2rem;
-                letter-spacing: 0.5px;
-            }
-            
-            .hero-subtitle {
-                font-size: 1rem;
-                padding: 0 0.5rem;
-            }
-            
-            .hero-avatar {
-                width: 100px;
-                height: 100px;
-            }
-            
-            .floating-nav {
-                right: 0.5rem;
-                top: 0.5rem;
-                gap: 0.6rem;
-            }
-            
-            .nav-button {
-                width: 45px;
-                height: 45px;
-                font-size: 0.9rem;
-            }
-            
-            .floating-menu {
-                left: 0.5rem;
-                top: 0.5rem;
-            }
-            
-            .menu-toggle {
-                width: 50px;
-                height: 50px;
-            }
-            
-            .floating-menu-items {
-                min-width: 200px;
-                padding: 0.8rem;
-                top: 60px;
-            }
-            
-            .floating-menu-items a {
-                padding: 0.6rem;
-                font-size: 0.9rem;
-            }
-            
-            .section-grid {
-                padding: 0 0.5rem;
-                margin: 1.5rem auto;
-            }
-            
-            .feature-card {
-                min-height: 220px;
-                padding: 1rem;
-                border-radius: 15px;
-            }
-            
-            .feature-icon {
-                font-size: 2.2rem;
-                margin-bottom: 0.8rem;
-            }
-            
-            .feature-title {
-                font-size: 1.2rem;
-                margin-bottom: 0.6rem;
-            }
-            
-            .feature-description {
-                font-size: 0.9rem;
-                line-height: 1.4;
-            }
-            
-            .cta-button {
-                padding: 0.7rem 1.2rem;
-                font-size: 0.85rem;
-                border-radius: 40px;
-            }
-            
-            .hero-section {
-                padding: 0.5rem;
-            }
-        }
-
-        @media (max-width: 320px) {
-            .hero-title {
-                font-size: 1.8rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 0.9rem;
-            }
-            
-            .hero-avatar {
-                width: 90px;
-                height: 90px;
-            }
-            
-            .feature-card {
-                min-height: 200px;
-                padding: 0.8rem;
-            }
-            
-            .feature-icon {
-                font-size: 2rem;
-            }
-            
-            .feature-title {
-                font-size: 1.1rem;
-            }
-            
-            .feature-description {
-                font-size: 0.85rem;
-            }
-            
-            .cta-button {
-                padding: 0.6rem 1rem;
-                font-size: 0.8rem;
-            }
-        }
-
-        /* Estilos para orientação landscape em dispositivos móveis */
-        @media screen and (max-height: 500px) and (orientation: landscape) {
-            .hero-section {
-                min-height: 100vh;
-                padding: 1rem 2rem;
-            }
-            
-            .hero-avatar {
-                width: 80px;
-                height: 80px;
-                margin-bottom: 0.8rem;
-            }
-            
-            .hero-title {
-                font-size: 2rem;
-                margin-bottom: 0.5rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 0.9rem;
-                margin-bottom: 1.5rem;
-            }
-            
-            .section-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 0.8rem;
-                margin: 1rem auto;
-            }
-            
-            .feature-card {
-                min-height: 180px;
-                padding: 0.8rem;
-            }
-            
-            .feature-icon {
-                font-size: 1.8rem;
-                margin-bottom: 0.5rem;
-            }
-            
-            .feature-title {
-                font-size: 1rem;
-                margin-bottom: 0.4rem;
-            }
-            
-            .feature-description {
-                font-size: 0.8rem;
-                line-height: 1.3;
-            }
-            
-            .cta-button {
-                padding: 0.5rem 0.8rem;
-                font-size: 0.75rem;
-                margin-top: 0.5rem;
-            }
-            
-            .floating-nav {
-                gap: 0.5rem;
-            }
-            
-            .nav-button {
-                width: 40px;
-                height: 40px;
-                font-size: 0.85rem;
-            }
-        }
-
-        /* Melhorias para acessibilidade e performance */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-            
-            .hero-title {
-                animation: none;
-            }
-            
-            .hero-subtitle {
-                animation: none;
-            }
-            
-            .hero-avatar::before {
-                animation: none;
-            }
-            
-            body.index-page::before {
-                animation: none;
-            }
-        }
-    </style>
-    
     <!-- Sistema Centralizado de Rate Limiting -->
     <script type="module" src="assets/js/github-rate-limit.js"></script>
     
@@ -829,52 +45,6 @@
                     console.log('🦉 Minerva - Assistente Virtual inicializada com sucesso!');
                 }
             }, 1500);
-
-            // Adicionar classe específica ao body
-            document.body.classList.add('index-page');
-        });
-
-        // Toggle do menu flutuante
-        function toggleFloatingMenu() {
-            const menuItems = document.querySelector('.floating-menu-items');
-            menuItems.classList.toggle('active');
-        }
-
-        // Fechar menu ao clicar fora
-        document.addEventListener('click', (e) => {
-            const menu = document.querySelector('.floating-menu');
-            const menuItems = document.querySelector('.floating-menu-items');
-            if (!menu.contains(e.target)) {
-                menuItems.classList.remove('active');
-            }
-        });
-
-        // Controle do indicador de scroll
-        window.addEventListener('scroll', () => {
-            const scrollIndicator = document.querySelector('.scroll-indicator');
-            if (scrollIndicator) {
-                if (window.scrollY > 100) {
-                    scrollIndicator.style.opacity = '0';
-                    scrollIndicator.style.pointerEvents = 'none';
-                } else {
-                    scrollIndicator.style.opacity = '0.7';
-                    scrollIndicator.style.pointerEvents = 'all';
-                }
-            }
-        });
-
-        // Smooth scroll para os links de navegação
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
         });
     </script>
 </head>
@@ -887,220 +57,254 @@
         <div class="loader"></div>
     </div>
 
-    <!-- Menu Flutuante -->
-    <div class="floating-menu">
-        <div class="menu-toggle" onclick="toggleFloatingMenu()">
-            <i class="fas fa-bars"></i>
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle" onclick="toggleTheme()">
+        <i id="theme-icon" class="fab fa-battle-net"></i>
+    </button>
+
+    <!-- Foto do Usuário (Agora Aciona o Menu) -->
+    <div class="foto-perfil" onclick="toggleMenu()">
+        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
+    </div>
+
+   <!-- Menu Lateral Oculto -->
+    <nav id="menu-lateral" class="menu-fechado">
+        <div class="menu-header" style="padding: 1.5rem; text-align: center; margin-bottom: 1rem; border-bottom: 1px solid rgba(200, 170, 110, 0.2);">
+            <h2 style="font-family: 'Marcellus', serif; color: var(--primary-color); font-size: 1.5rem; letter-spacing: 2px;">NAVEGAÇÃO</h2>
+            <div style="width: 50px; height: 3px; background: linear-gradient(90deg, transparent, var(--primary-color), transparent); margin: 0.5rem auto;"></div>
         </div>
-        <div class="floating-menu-items">
-            <a href="pages/curriculum.html">
-                <i class="fas fa-scroll"></i>
-                <span>Curriculum</span>
+        <ul>
+            <li><a href="pages/curriculum.html"><i class="fas fa-scroll" style="margin-right: 15px; color: var(--primary-color);"></i>Curriculum</a></li>
+            <li><a href="pages/projetos.html"><i class="fas fa-code-branch" style="margin-right: 15px; color: var(--primary-color);"></i>All Uploaded Projects</a></li>
+            <li><a href="pages/mentors.html"><i class="fas fa-users" style="margin-right: 15px; color: var(--primary-color);"></i>Mentors</a></li>
+            <li><a href="pages/certificates-in-progress.html"><i class="fas fa-certificate" style="margin-right: 15px; color: var(--primary-color);"></i>Certificates in progress</a></li>
+            <li><a href="pages/interactive-projects.html"><i class="fas fa-project-diagram" style="margin-right: 15px; color: var(--primary-color);"></i>Interactive Projects</a></li>
+            <li><a href="pages/galeria-midia.html"><i class="fas fa-images" style="margin-right: 15px; color: var(--primary-color);"></i>Media Gallery</a></li>
+            <li><a href="pages/relatorios-galeria.html"><i class="fas fa-chart-line" style="margin-right: 15px; color: var(--primary-color);"></i>Reports Gallery</a></li>
+            <li><a href="pages/games.html"><i class="fas fa-gamepad" style="margin-right: 15px; color: var(--primary-color);"></i>Games</a></li>
+        </ul>
+
+        <!-- Bonequinho Dançante -->
+        <div class="bonequinho">
+            <a href="login.html">
+                <i class="fas fa-user-alt"></i>
             </a>
-            <a href="pages/projetos.html">
-                <i class="fas fa-code-branch"></i>
-                <span>Projetos</span>
-            </a>
-            <a href="pages/mentors.html">
-                <i class="fas fa-users"></i>
-                <span>Mentors</span>
-            </a>
-            <a href="pages/certificates-in-progress.html">
-                <i class="fas fa-certificate"></i>
-                <span>Certificados</span>
-            </a>
-            <a href="pages/interactive-projects.html">
-                <i class="fas fa-project-diagram"></i>
-                <span>Projetos Interativos</span>
-            </a>
-            <a href="pages/galeria-midia.html">
-                <i class="fas fa-images"></i>
-                <span>Galeria</span>
-            </a>
-            <a href="pages/relatorios-galeria.html">
+        </div>
+    </nav>
+
+    <!-- Cabeçalho -->
+    <header>
+         <h1 class="titulo-principal">
+            Mikael Ferreira
+         </h1>
+         <h2 class="subtitulo">
+            Desenvolvedor Web Full Stack  
+            <i class="fas fa-code"></i> |  
+            HTML <i class="fab fa-html5"></i> |
+            CSS <i class="fab fa-css3-alt"></i> |  
+            JavaScript <i class="fab fa-js"></i> |  
+            React <i class="fab fa-react"></i>
+        </h2>
+    </header>
+
+    <!-- Seção de Relatórios em Destaque -->
+    <section id="featured-reports" class="media-section">
+        <div class="container">
+            <h2 class="section-title">
+                <i class="fas fa-star"></i>
+                Featured Reports
+            </h2>
+            <div id="featured-reports-loading" class="loading-indicator">
+                <div class="loader"></div>
+                <p>Carregando relatórios em destaque...</p>
+            </div>
+            <div id="featured-reports-container" class="featured-media-container">
+                <!-- Relatórios em destaque serão carregados aqui -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Mídia em Destaque -->
+    <section id="featured-media" class="media-section">
+        <div class="container">
+            <h2 class="section-title">
+                <i class="fas fa-star"></i>
+                Featured Media
+            </h2>
+            <div id="featured-media-loading" class="loading-indicator">
+                <div class="loader"></div>
+                <p>Carregando mídia em destaque...</p>
+            </div>
+            <div id="featured-media-container" class="featured-media-container">
+                <!-- Mídia em destaque será carregada aqui -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Relatórios Recentes -->
+    <section id="recent-reports" class="media-section">
+        <div class="container">
+            <h2 class="section-title">
                 <i class="fas fa-chart-line"></i>
-                <span>Relatórios</span>
-            </a>
-            <a href="pages/games.html">
-                <i class="fas fa-gamepad"></i>
-                <span>Games</span>
-            </a>
-        </div>
-    </div>
-
-    <!-- Navegação Flutuante -->
-    <div class="floating-nav">
-        <a href="#github-profile-section" class="nav-button" title="GitHub">
-            <i class="fab fa-github"></i>
-        </a>
-        <a href="#habilidades" class="nav-button" title="Skills">
-            <i class="fas fa-code"></i>
-        </a>
-        <a href="#redes-sociais" class="nav-button" title="Social">
-            <i class="fas fa-share-alt"></i>
-        </a>
-        <button id="theme-toggle" class="nav-button" onclick="toggleTheme()" title="Tema">
-            <i id="theme-icon" class="fab fa-battle-net"></i>
-        </button>
-    </div>
-
-    <!-- Seção Hero -->
-    <section class="hero-section">
-        <div class="hero-avatar">
-            <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
-        </div>
-        <h1 class="hero-title">Mikael Ferreira</h1>
-        <p class="hero-subtitle">Desenvolvedor Web Full Stack | Criando experiências digitais incríveis</p>
-        
-        <!-- Grid de Features -->
-        <div class="section-grid">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-code"></i>
-                </div>
-                <h3 class="feature-title">Desenvolvimento</h3>
-                <p class="feature-description">
-                    Criação de aplicações web modernas com as melhores tecnologias do mercado
-                </p>
-                <a href="pages/projetos.html" class="cta-button">
-                    <span>Ver Projetos</span>
-                    <i class="fas fa-arrow-right"></i>
-                </a>
+                Recent Reports
+            </h2>
+            <div id="recent-reports-loading" class="loading-indicator">
+                <div class="loader"></div>
+                <p>Carregando relatórios recentes...</p>
             </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <h3 class="feature-title">Relatórios</h3>
-                <p class="feature-description">
-                    Análises detalhadas e insights sobre projetos e tecnologias
-                </p>
-                <a href="pages/relatorios-galeria.html" class="cta-button">
-                    <span>Ver Relatórios</span>
-                    <i class="fas fa-arrow-right"></i>
-                </a>
+            <div id="recent-reports-grid" class="recent-media-grid">
+                <!-- Relatórios recentes serão carregados aqui -->
             </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-gamepad"></i>
-                </div>
-                <h3 class="feature-title">Games</h3>
-                <p class="feature-description">
-                    Jogos interativos desenvolvidos com JavaScript e HTML5 Canvas
-                </p>
-                <a href="pages/games.html" class="cta-button">
-                    <span>Jogar Agora</span>
-                    <i class="fas fa-play"></i>
-                </a>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-images"></i>
-                </div>
-                <h3 class="feature-title">Galeria</h3>
-                <p class="feature-description">
-                    Coleção de projetos visuais e multimídia
-                </p>
-                <a href="pages/galeria-midia.html" class="cta-button">
-                    <span>Explorar</span>
+            <div class="view-all-link">
+                <a href="pages/relatorios-galeria.html" class="btn-view-all">
                     <i class="fas fa-external-link-alt"></i>
+                    Ver Todos os Relatórios
                 </a>
             </div>
         </div>
-        
-        <!-- Indicador de Scroll para Mobile -->
-        <div class="scroll-indicator">
-            <i class="fas fa-chevron-down"></i>
+    </section>
+
+    <!-- Seção de Posts Recentes da Galeria -->
+    <section id="recent-media" class="media-section">
+        <div class="container">
+            <h2 class="section-title">
+                <i class="fas fa-images"></i>
+                Recent Media Posts
+            </h2>
+            <div id="recent-media-loading" class="loading-indicator">
+                <div class="loader"></div>
+                <p>Carregando posts recentes...</p>
+            </div>
+            <div id="recent-media-grid" class="recent-media-grid">
+                <!-- Posts recentes serão carregados aqui -->
+            </div>
+            <div class="view-all-link">
+                <a href="pages/galeria-midia.html" class="btn-view-all">
+                    <i class="fas fa-external-link-alt"></i>
+                    Ver Galeria Completa
+                </a>
+            </div>
         </div>
     </section>
 
     <!-- Seção de Habilidades Técnicas -->
     <section id="habilidades">
-        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 4rem 2rem;">
-            <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--primary-color);">
-                <i class="fas fa-code" style="margin-right: 1rem;"></i>
-                Technical Skills
-            </h2>
-            <div class="skills-info">
-                <p style="text-align: center; color: #c8aa6e; font-style: italic; margin-bottom: 1rem; padding: 0.8rem; background: rgba(200, 170, 110, 0.1); border-radius: 8px; border-left: 4px solid #c8aa6e;">
-                    <i class="fab fa-github" style="margin-right: 0.5rem;"></i>
-                    <strong>Dados Reais em Tempo Real:</strong> Os percentuais exibidos são calculados automaticamente através da API do GitHub, 
-                    analisando linguagens, frameworks e tecnologias utilizadas nos repositórios públicos do meu perfil.
-                </p>
-                <div style="text-align: center; margin-bottom: 2rem;">
-                    <button onclick="clearSkillsCache(); location.reload();" style="background: rgba(200, 170, 110, 0.2); border: 1px solid rgba(200, 170, 110, 0.5); color: #c8aa6e; padding: 0.8rem 1.5rem; border-radius: 25px; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease;">
-                        <i class="fas fa-sync-alt" style="margin-right: 0.5rem;"></i>Atualizar Skills
-                    </button>
-                </div>
+        <h2>Technical Skills</h2>
+        <div class="skills-info">
+            <p style="text-align: center; color: #c8aa6e; font-style: italic; margin-bottom: 1rem; padding: 0.8rem; background: rgba(200, 170, 110, 0.1); border-radius: 8px; border-left: 4px solid #c8aa6e;">
+                <i class="fab fa-github" style="margin-right: 0.5rem;"></i>
+                <strong>Dados Reais em Tempo Real:</strong> Os percentuais exibidos são calculados automaticamente através da API do GitHub, 
+                analisando linguagens, frameworks e tecnologias utilizadas nos repositórios públicos do meu perfil.
+            </p>
+            <div style="text-align: center; margin-bottom: 1rem;">
+                <button onclick="clearSkillsCache(); location.reload();" style="background: rgba(200, 170, 110, 0.2); border: 1px solid rgba(200, 170, 110, 0.5); color: #c8aa6e; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.3s ease;">
+                    <i class="fas fa-sync-alt" style="margin-right: 0.5rem;"></i>Atualizar Skills
+                </button>
             </div>
-            <div class="skills-grid">
-                <!-- Loading indicator -->
-                <div id="skills-loading" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
-                    <div class="loader" style="margin: 0 auto 1.5rem;"></div>
-                    <p style="color: #c8aa6e; margin-bottom: 0.5rem; font-size: 1.1rem;"><strong>Analisando repositórios do GitHub...</strong></p>
-                    <p style="color: #a09b8c; font-size: 0.9rem; opacity: 0.8;">Coletando dados de linguagens e tecnologias em tempo real</p>
+        </div>
+        <div class="skills-grid">
+            <!-- Loading indicator -->
+            <div id="skills-loading" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+                <div class="loader" style="margin: 0 auto 1rem;"></div>
+                <p style="color: #c8aa6e; margin-bottom: 0.5rem;"><strong>Analisando repositórios do GitHub...</strong></p>
+                <p style="color: #a09b8c; font-size: 0.8rem; opacity: 0.8;">Coletando dados de linguagens e tecnologias em tempo real</p>
+            </div>
+            
+            <!-- Skills cards will be populated dynamically -->
+        </div>
+    </section>
+
+    <!-- Seção de Games - Atalho Especial -->
+    <section id="games-section" class="games-highlight">
+        <div class="games-container">
+            <div class="games-content">
+                <div class="games-icon">
+                    🎮
                 </div>
-                
-                <!-- Skills cards will be populated dynamically -->
+                <h2 class="games-title">Explore Meus Jogos</h2>
+                <p class="games-description">
+                    Descubra projetos interativos e jogos desenvolvidos com JavaScript, HTML5 Canvas e muito mais!
+                </p>
+                <div class="games-features">
+                    <span class="feature-tag">🕹️ Fehuna: Códigos Perdidos</span>
+                    <span class="feature-tag">🎯 Jogos Interativos</span>
+                    <span class="feature-tag">⚡ HTML5 Canvas</span>
+                </div>
+                <a href="pages/games.html" class="games-cta-button">
+                    <span class="button-text">🚀 Jogar Agora</span>
+                    <div class="button-glow"></div>
+                </a>
+            </div>
+            <div class="games-visual">
+                <div class="game-preview">
+                    <div class="pixel-art">
+                        <div class="pixel-row">
+                            <div class="pixel green"></div>
+                            <div class="pixel green"></div>
+                            <div class="pixel blue"></div>
+                            <div class="pixel blue"></div>
+                        </div>
+                        <div class="pixel-row">
+                            <div class="pixel green"></div>
+                            <div class="pixel yellow"></div>
+                            <div class="pixel yellow"></div>
+                            <div class="pixel blue"></div>
+                        </div>
+                        <div class="pixel-row">
+                            <div class="pixel red"></div>
+                            <div class="pixel red"></div>
+                            <div class="pixel yellow"></div>
+                            <div class="pixel yellow"></div>
+                        </div>
+                        <div class="pixel-row">
+                            <div class="pixel red"></div>
+                            <div class="pixel purple"></div>
+                            <div class="pixel purple"></div>
+                            <div class="pixel orange"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- GitHub Profile Section -->
     <section id="github-profile-section">
-        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 4rem 2rem;">
-            <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--primary-color);">
-                <i class="fab fa-github" style="margin-right: 1rem;"></i>
-                Meu Perfil GitHub
-            </h2>
-            <div id="github-profile" class="github-profile-container">
-                <!-- O conteúdo será preenchido pelo JavaScript -->
-                <div class="loader"></div>
-            </div>
+        <h2>Meu Perfil GitHub</h2>
+        <div id="github-profile" class="github-profile-container">
+            <!-- O conteúdo será preenchido pelo JavaScript -->
+            <div class="loader"></div>
         </div>
     </section>
 
     <!-- GitHub Repos Section -->
     <section id="github-repos-section">
-        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 4rem 2rem;">
-            <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--primary-color);">
-                <i class="fas fa-folder-open" style="margin-right: 1rem;"></i>
-                Meus Repositórios GitHub
-            </h2>
-            <div id="github-repos" class="github-repos-container">
-                <!-- O conteúdo será preenchido pelo JavaScript -->
-                <div class="loader"></div>
-            </div>
+        <h2>Meus Repositórios GitHub</h2>
+        <div id="github-repos" class="github-repos-container">
+            <!-- O conteúdo será preenchido pelo JavaScript -->
+            <div class="loader"></div>
         </div>
     </section>
 
     <!-- Redes Sociais -->
-    <section id="redes-sociais" class="redes-sociais">
-        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 4rem 2rem; text-align: center;">
-            <h2 style="font-size: 2.5rem; margin-bottom: 3rem; color: var(--primary-color);">
-                <i class="fas fa-share-alt" style="margin-right: 1rem;"></i>
-                My Social Media
-            </h2>
-            <div class="botoes-redes">
-                <a href="https://www.linkedin.com/in/mikaelferreira/" target="_blank" class="social-btn linkedin">
-                    <i class="fab fa-linkedin"></i>
-                </a>
-                <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-btn tiktok">
-                    <i class="fab fa-tiktok"></i>
-                </a>
-                <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-btn reddit">
-                    <i class="fab fa-reddit"></i>
-                </a>
-                <a href="https://discord.gg/fffen2a4" target="_blank" class="social-btn discord">
-                    <i class="fab fa-discord"></i>
-                </a>
-                <a href="https://github.com/mikaelfmts" target="_blank" class="social-btn github">
-                    <i class="fab fa-github"></i>
-                </a>
-            </div>
+    <section class="redes-sociais">
+        <h2>My Social Media</h2>
+        <div class="botoes-redes">
+            <a href="https://www.linkedin.com/in/mikaelferreira/" target="_blank" class="social-btn linkedin">
+                <i class="fab fa-linkedin"></i>
+            </a>
+            <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-btn tiktok">
+                <i class="fab fa-tiktok"></i>
+            </a>
+            <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-btn reddit">
+                <i class="fab fa-reddit"></i>
+            </a>
+            <a href="https://discord.gg/fffen2a4" target="_blank" class="social-btn discord">
+                <i class="fab fa-discord"></i>
+            </a>
+            <a href="https://github.com/mikaelfmts" target="_blank" class="social-btn github">
+                <i class="fab fa-github"></i>
+            </a>
         </div>
     </section>
 
@@ -1131,15 +335,11 @@
 </div>
 
     <!-- Rodapé -->
-    <footer style="text-align: center; padding: 3rem 2rem; background: rgba(0, 0, 0, 0.3); margin-top: 4rem;">
-        <p style="color: var(--text-secondary); font-size: 1rem;">
-            © 2025 Mikael Ferreira 
-            <i class="fas fa-chess-rook" style="margin: 0 0.5rem; color: var(--primary-color);"></i>
-            Desenvolvedor Full Stack
-        </p>
+    <footer>
+        <p>© 2025 Mikael Ferreira <i class="fas fa-chess-rook"></i></p>
     </footer>
     
-    <!-- Modal de Manutenção (mantido para funcionalidade) -->
+    <!-- Modal de Manutenção -->
     <div id="maintenance-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0a0e27 0%, #1e1b24 30%, #2b1810 60%, #1a0e0e 100%); z-index: 9999; justify-content: center; align-items: center; overflow: hidden;">
         <!-- Background de Chamas Animadas -->
         <div class="flames-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.15; pointer-events: none;">
@@ -1252,6 +452,113 @@
             }
         </style>
     </div>
+
+    <!-- LinkedIn Profile Card -->
+    <section class="linkedin-card-section">
+        <div class="linkedin-card">
+            <div class="linkedin-card-header">
+                <i class="fab fa-linkedin"></i>
+                <h3>Conecte-se no LinkedIn</h3>
+            </div>
+            <div class="linkedin-card-content">
+                <p>Acompanhe minha jornada profissional e vamos expandir nossa rede de contatos!</p>
+                <a href="https://www.linkedin.com/in/mikaelferreira/" target="_blank" class="linkedin-btn">
+                    <i class="fab fa-linkedin"></i>
+                    Visitar Perfil
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .linkedin-card-section {
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, rgba(0, 119, 181, 0.1) 0%, rgba(0, 119, 181, 0.05) 100%);
+            margin: 2rem 0;
+            max-width: 1200px;
+            margin: 2rem auto;
+        }
+
+        .linkedin-card {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 119, 181, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 119, 181, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .linkedin-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 119, 181, 0.2);
+        }
+
+        .linkedin-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .linkedin-card-header i {
+            font-size: 2rem;
+            color: #0077b5;
+        }
+
+        .linkedin-card-header h3 {
+            color: #f7fafc;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .linkedin-card-content p {
+            color: #e2e8f0;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .linkedin-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: linear-gradient(135deg, #0077b5 0%, #005885 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 119, 181, 0.3);
+        }
+
+        .linkedin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 119, 181, 0.4);
+            background: linear-gradient(135deg, #005885 0%, #0077b5 100%);
+        }
+
+        .linkedin-btn i {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .linkedin-card {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .linkedin-card-header h3 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
     
 </body>
    

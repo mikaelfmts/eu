@@ -25,17 +25,17 @@
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* Sistema de Partículas da Minerva - Elegante e Profissional */
+/* Sistema de Partículas da Minerva */
 .minerva-particles {
     position: absolute;
-    top: -50px;
-    left: -50px;
-    width: 180px;
-    height: 180px;
+    top: -30px;
+    left: -30px;
+    width: 140px;
+    height: 140px;
     pointer-events: none;
     z-index: -1;
     opacity: 0;
-    transition: opacity 0.8s ease;
+    transition: opacity 0.6s ease;
 }
 
 .minerva-particles.active {
@@ -46,64 +46,58 @@
     position: absolute;
     width: 4px;
     height: 4px;
-    background: linear-gradient(45deg, #c8aa6e, #f0c674, #ffd700);
+    background: linear-gradient(45deg, #C89B3C, #F0E6D2);
     border-radius: 50%;
-    animation: elegantFloat 6s ease-in-out infinite;
-    box-shadow: 
-        0 0 8px rgba(200, 170, 110, 0.6),
-        0 0 16px rgba(240, 198, 116, 0.3);
+    animation: float 3s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(200, 155, 60, 0.6);
 }
 
-.minerva-particle:nth-child(1) { top: 15%; left: 15%; animation-delay: 0s; }
-.minerva-particle:nth-child(2) { top: 25%; right: 20%; animation-delay: 1s; }
-.minerva-particle:nth-child(3) { bottom: 30%; left: 25%; animation-delay: 2s; }
-.minerva-particle:nth-child(4) { bottom: 20%; right: 15%; animation-delay: 3s; }
-.minerva-particle:nth-child(5) { top: 60%; left: 10%; animation-delay: 4s; }
-.minerva-particle:nth-child(6) { top: 45%; right: 10%; animation-delay: 5s; }
+.minerva-particle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+.minerva-particle:nth-child(2) { top: 30%; right: 15%; animation-delay: 0.5s; }
+.minerva-particle:nth-child(3) { bottom: 25%; left: 20%; animation-delay: 1s; }
+.minerva-particle:nth-child(4) { bottom: 35%; right: 10%; animation-delay: 1.5s; }
+.minerva-particle:nth-child(5) { top: 50%; left: 5%; animation-delay: 2s; }
+.minerva-particle:nth-child(6) { top: 60%; right: 5%; animation-delay: 2.5s; }
 
-/* Coruja Minerva - Design Moderno e Profissional */
+/* Coruja Minerva - Ultra Imponente e Realista - Apenas Cabeça */
 .minerva-owl {
     width: 80px;
     height: 80px;
     cursor: pointer;
     position: relative;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    filter: drop-shadow(0 8px 25px rgba(200, 170, 110, 0.3));
-    transform-origin: center;
+    filter: drop-shadow(0 0 20px rgba(200, 155, 60, 0.4));
+    transform-origin: center bottom;
     z-index: 2;
 }
 
 .minerva-owl:hover {
-    transform: scale(1.08) translateY(-2px);
-    filter: drop-shadow(0 12px 35px rgba(200, 170, 110, 0.4));
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 30px rgba(200, 155, 60, 0.7));
 }
 
 .minerva-owl.active {
-    transform: scale(1.1) translateY(-3px);
-    filter: drop-shadow(0 15px 40px rgba(200, 170, 110, 0.5));
-    animation: professionalPulse 3s ease-in-out infinite;
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 40px rgba(200, 155, 60, 0.9));
+    animation: owlPulse 2s ease-in-out infinite;
 }
 
 .minerva-owl.thinking {
-    animation: elegantThinking 2s ease-in-out infinite;
+    animation: owlThinking 1.5s ease-in-out infinite;
 }
 
-/* Aura Elegante e Profissional */
+/* Aura Mágica Ultra Imponente */
 .minerva-owl::before {
     content: '';
     position: absolute;
-    top: -20px;
-    left: -20px;
-    right: -20px;
-    bottom: -20px;
-    background: conic-gradient(
-        from 0deg,
-        transparent 0%,
-        rgba(200, 170, 110, 0.1) 25%,
-        rgba(240, 198, 116, 0.15) 50%,
-        rgba(200, 170, 110, 0.1) 75%,
-        transparent 100%
-    );
+    top: -15px;
+    left: -15px;
+    right: -15px;
+    bottom: -15px;
+    background: radial-gradient(circle, 
+        rgba(200, 155, 60, 0.1) 0%, 
+        rgba(240, 230, 210, 0.05) 50%, 
+        transparent 70%);
     border-radius: 50%;
     opacity: 0;
     transition: opacity 0.6s ease;
@@ -114,58 +108,39 @@
 .minerva-owl.active::before,
 .minerva-owl:hover::before {
     opacity: 1;
-    animation: elegantAuraRotate 8s linear infinite;
+    animation: auraRotate 8s linear infinite;
 }
 
-/* Cabeça da Coruja - Design Premium */
+/* Cabeça da Coruja - Formato Realista */
 .owl-head {
     width: 100%;
     height: 100%;
     background: linear-gradient(135deg, 
-        #2c2c2c 0%, 
-        #3a3a3a 15%, 
-        #4a4a4a 30%, 
-        #5a5a5a 45%, 
-        #4a4a4a 60%, 
-        #3a3a3a 85%, 
-        #2c2c2c 100%);
-    border-radius: 50%;
-    border: 3px solid #c8aa6e;
+        #4A3B2A 0%, 
+        #5C4A36 25%, 
+        #6B5540 50%, 
+        #7A6247 75%, 
+        #5C4A36 100%);
+    border-radius: 50% 50% 45% 45%;
+    border: 3px solid #C89B3C;
     position: relative;
     box-shadow: 
-        inset 0 -15px 30px rgba(0, 0, 0, 0.4),
-        inset 0 15px 30px rgba(255, 255, 255, 0.05),
-        0 0 30px rgba(200, 170, 110, 0.2),
-        0 8px 25px rgba(0, 0, 0, 0.3);
+        inset 0 -10px 20px rgba(0, 0, 0, 0.3),
+        inset 0 8px 15px rgba(200, 155, 60, 0.2),
+        0 0 25px rgba(200, 155, 60, 0.4);
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow: hidden;
 }
 
-.owl-head::after {
-    content: '';
-    position: absolute;
-    top: 10%;
-    left: 20%;
-    width: 60%;
-    height: 40%;
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.08) 0%,
-        rgba(255, 255, 255, 0.02) 50%,
-        transparent 100%);
-    border-radius: 50% 50% 30% 30%;
-    pointer-events: none;
-}
-
-/* Tufos de Penas - Estilo Moderno */
+/* Tufos de Penas (Orelhas) */
 .owl-tufts {
     position: absolute;
-    top: -12px;
+    top: -5px;
     left: 50%;
     transform: translateX(-50%);
-    width: 100px;
-    height: 30px;
+    width: 80px;
+    height: 20px;
     z-index: 2;
 }
 
@@ -173,27 +148,148 @@
 .tuft-right {
     position: absolute;
     width: 8px;
-    height: 20px;
-    background: linear-gradient(180deg, 
-        #c8aa6e 0%,
-        #a69554 50%,
-        #8b7d45 100%);
+    height: 12px;
+    background: linear-gradient(45deg, #3E2F20, #4A3B2A);
     border-radius: 50% 50% 0 0;
-    box-shadow: 
-        0 4px 12px rgba(0, 0, 0, 0.4),
-        inset 0 2px 6px rgba(200, 170, 110, 0.3),
-        0 0 8px rgba(200, 170, 110, 0.2);
-    border: 1px solid #c8aa6e;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .tuft-left {
-    left: 25px;
+    left: 20px;
     transform: rotate(-15deg);
 }
 
 .tuft-right {
-    right: 25px;
+    right: 20px;
     transform: rotate(15deg);
+}
+
+/* Cabeça da Coruja */
+.owl-head::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, 
+        #4A3B2A 0%, 
+        #5C4A36 25%, 
+        #6B5540 50%, 
+        #7A6247 75%, 
+        #5C4A36 100%);
+    border-radius: 50% 50% 45% 45%;
+    border: 3px solid #C89B3C;
+    box-shadow: 
+        inset 0 -10px 20px rgba(0, 0, 0, 0.3),
+        inset 0 8px 15px rgba(200, 155, 60, 0.2),
+        0 0 25px rgba(200, 155, 60, 0.4);
+    z-index: 1;
+}
+
+/* Olhos da Coruja - Mais Expressivos e Realistas */
+.owl-eyes {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 3;
+}
+
+.eye {
+    width: 24px;
+    height: 24px;
+    background: radial-gradient(circle at 30% 30%, 
+        #ffffff 0%, 
+        #f5f5f5 30%, 
+        #e8e8e8 70%,
+        #d0d0d0 100%);
+    border-radius: 50%;
+    border: 2px solid #2A1F17;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        inset 0 -3px 6px rgba(0, 0, 0, 0.2),
+        0 3px 8px rgba(0, 0, 0, 0.3),
+        0 0 15px rgba(200, 155, 60, 0.3);
+}
+
+.eye::before {
+    content: '';
+    position: absolute;
+    top: 15%;
+    left: 20%;
+    width: 25%;
+    height: 35%;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.pupil {
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(circle at 25% 25%, 
+        #1a1a1a 0%, 
+        #000000 70%);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+}
+
+.pupil::after {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 25%;
+    width: 3px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+}
+
+/* Bico da Coruja - Mais Detalhado e Realista */
+.owl-beak {
+    position: absolute;
+    top: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+}
+
+.owl-beak::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 8px solid #D2691E;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.owl-beak::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 5px solid #B8860B;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
 
 /* Asas da Coruja - Mais Realistas e Dinâmicas */
@@ -358,19 +454,15 @@
 
 .minerva-header {
     background: linear-gradient(135deg, 
-        #1a0a0a 0%, 
-        #2b1414 50%,
-        #3d1f1f 100%);
-    border-bottom: 2px solid #8B0000;
+        var(--accent-color) 0%, 
+        var(--secondary-color) 100%);
+    border-bottom: 1px solid var(--primary-color);
     padding: 15px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-radius: 13px 13px 0 0;
-    box-shadow: 
-        0 2px 10px rgba(0, 0, 0, 0.8),
-        0 0 20px rgba(139, 0, 0, 0.4),
-        inset 0 1px 0 rgba(220, 20, 60, 0.2);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .minerva-title {
@@ -379,16 +471,13 @@
     gap: 10px;
     font-weight: 700;
     font-size: 1rem;
-    color: #DC143C;
-    text-shadow: 
-        0 0 10px rgba(220, 20, 60, 0.8),
-        0 0 20px rgba(139, 0, 0, 0.6);
+    color: var(--primary-color);
+    text-shadow: 0 0 10px rgba(200, 170, 110, 0.5);
 }
 
 .minerva-title i {
     font-size: 1.2rem;
-    color: #8B0000;
-    text-shadow: 0 0 15px rgba(139, 0, 0, 1);
+    color: var(--primary-color);
 }
 
 .minerva-status {
@@ -400,15 +489,12 @@
 }
 
 .status-dot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    background: #8B0000;
-    box-shadow: 
-        0 0 15px #8B0000,
-        0 0 30px rgba(139, 0, 0, 0.6),
-        inset 0 0 5px rgba(220, 20, 60, 0.8);
-    animation: darkStatusPulse 2s ease-in-out infinite;
+    background: #00ff88;
+    box-shadow: 0 0 10px #00ff88;
+    animation: statusPulse 2s ease-in-out infinite;
 }
 
 .minerva-close {
@@ -427,19 +513,16 @@
     transform: scale(1.1);
 }
 
-/* Área de Mensagens - Dark Theme */
+/* Área de Mensagens */
 .minerva-messages {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
     background: linear-gradient(135deg, 
-        rgba(26, 10, 10, 0.95) 0%, 
-        rgba(43, 20, 20, 0.95) 50%,
-        rgba(61, 31, 31, 0.95) 100%);
+        rgba(1, 10, 19, 0.9) 0%, 
+        rgba(10, 20, 40, 0.9) 100%);
     scrollbar-width: thin;
-    scrollbar-color: #8B0000 transparent;
-    border-left: 2px solid rgba(139, 0, 0, 0.3);
-    border-right: 2px solid rgba(139, 0, 0, 0.3);
+    scrollbar-color: var(--primary-color) transparent;
 }
 
 .minerva-messages::-webkit-scrollbar {
@@ -869,79 +952,6 @@ body.modal-open {
     }
 }
 
-/* Animações Dark e Malévolas para Minerva */
-/* Animações Profissionais e Elegantes */
-@keyframes elegantFloat {
-    0%, 100% {
-        transform: translateY(0px) scale(1);
-        opacity: 0.6;
-    }
-    25% {
-        transform: translateY(-6px) scale(1.1);
-        opacity: 0.8;
-    }
-    50% {
-        transform: translateY(-3px) scale(1.05);
-        opacity: 1;
-    }
-    75% {
-        transform: translateY(-8px) scale(1.15);
-        opacity: 0.9;
-    }
-}
-
-@keyframes professionalPulse {
-    0%, 100% {
-        transform: scale(1.1) translateY(-3px);
-        filter: drop-shadow(0 15px 40px rgba(200, 170, 110, 0.5));
-    }
-    50% {
-        transform: scale(1.12) translateY(-5px);
-        filter: drop-shadow(0 20px 50px rgba(200, 170, 110, 0.6)) 
-                drop-shadow(0 0 25px rgba(240, 198, 116, 0.4));
-    }
-}
-
-@keyframes elegantThinking {
-    0%, 100% {
-        transform: rotate(-1deg) scale(1.08);
-    }
-    25% {
-        transform: rotate(0.5deg) scale(1.1);
-    }
-    50% {
-        transform: rotate(-0.5deg) scale(1.09);
-    }
-    75% {
-        transform: rotate(1deg) scale(1.11);
-    }
-}
-
-@keyframes elegantAuraRotate {
-    0% {
-        transform: rotate(0deg);
-        background: conic-gradient(
-            from 0deg,
-            transparent 0%,
-            rgba(200, 170, 110, 0.1) 25%,
-            rgba(240, 198, 116, 0.15) 50%,
-            rgba(200, 170, 110, 0.1) 75%,
-            transparent 100%
-        );
-    }
-    100% {
-        transform: rotate(360deg);
-        background: conic-gradient(
-            from 360deg,
-            transparent 0%,
-            rgba(200, 170, 110, 0.15) 25%,
-            rgba(240, 198, 116, 0.2) 50%,
-            rgba(200, 170, 110, 0.15) 75%,
-            transparent 100%
-        );
-    }
-}
-
 /* Melhorias para funcionalidade de drag */
 #minerva-container.dragging .minerva-owl {
     transform: scale(1.15);
@@ -1010,165 +1020,4 @@ body.modal-open {
 @keyframes dragHint {
     0%, 100% { transform: scale(1); opacity: 0.7; }
     50% { transform: scale(1.3); opacity: 1; }
-}
-
-@keyframes darkStatusPulse {
-    0%, 100% { 
-        opacity: 1; 
-        transform: scale(1);
-        box-shadow: 
-            0 0 15px #8B0000,
-            0 0 30px rgba(139, 0, 0, 0.6),
-            inset 0 0 5px rgba(220, 20, 60, 0.8);
-    }
-    50% { 
-        opacity: 0.6; 
-        transform: scale(1.2);
-        box-shadow: 
-            0 0 25px #8B0000,
-            0 0 50px rgba(139, 0, 0, 0.8),
-            inset 0 0 8px rgba(220, 20, 60, 1);
-    }
-}
-
-@keyframes leftWingFlap {
-    0%, 100% {
-        transform: rotate(-25deg) scaleY(1);
-    }
-    50% {
-        transform: rotate(-15deg) scaleY(1.1);
-    }
-}
-
-@keyframes rightWingFlap {
-    0%, 100% {
-        transform: rotate(25deg) scaleY(1);
-    }
-    50% {
-        transform: rotate(15deg) scaleY(1.1);
-    }
-}
-
-@keyframes advancedThinkingDots {
-    0%, 80%, 100% {
-        transform: scale(0.8);
-        opacity: 0.5;
-    }
-    40% {
-        transform: scale(1.2);
-        opacity: 1;
-    }
-}
-
-/* Olhos da Coruja - Design Sofisticado */
-.owl-eyes {
-    position: absolute;
-    top: 25px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 16px;
-    z-index: 3;
-}
-
-.eye {
-    width: 20px;
-    height: 20px;
-    background: radial-gradient(ellipse at center, 
-        #ffffff 0%, 
-        #f0f0f0 20%, 
-        #e0e0e0 40%,
-        #d0d0d0 60%,
-        #c0c0c0 80%,
-        #b0b0b0 100%);
-    border-radius: 50%;
-    border: 2px solid #c8aa6e;
-    position: relative;
-    overflow: visible;
-    box-shadow: 
-        inset 0 -3px 6px rgba(0, 0, 0, 0.2),
-        inset 0 3px 6px rgba(255, 255, 255, 0.3),
-        0 2px 8px rgba(0, 0, 0, 0.3),
-        0 0 12px rgba(200, 170, 110, 0.3);
-}
-
-.eye::before {
-    content: '';
-    position: absolute;
-    top: 15%;
-    left: 20%;
-    width: 25%;
-    height: 30%;
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.8) 0%,
-        rgba(255, 255, 255, 0.4) 100%);
-    border-radius: 50%;
-    pointer-events: none;
-}
-
-.pupil {
-    width: 10px;
-    height: 10px;
-    background: radial-gradient(ellipse at center, 
-        #1a1a1a 0%, 
-        #000000 70%);
-    border-radius: 50%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 
-        0 0 8px rgba(0, 0, 0, 0.5),
-        inset 0 1px 2px rgba(255, 255, 255, 0.2);
-}
-
-.pupil::after {
-    content: '';
-    position: absolute;
-    top: 20%;
-    left: 30%;
-    width: 2px;
-    height: 2px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 50%;
-    box-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
-}
-
-/* Bico da Coruja - Design Moderno */
-.owl-beak {
-    position: absolute;
-    top: 50px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 3;
-}
-
-.owl-beak::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 12px solid #c8aa6e;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-    box-shadow: 0 0 6px rgba(200, 170, 110, 0.4);
-}
-
-.owl-beak::after {
-    content: '';
-    position: absolute;
-    top: 1px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 8px solid #f0c674;
-    z-index: 1;
 }

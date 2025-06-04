@@ -581,12 +581,11 @@ function setupEventListeners() {
         if (element) {
             element.addEventListener('input', updatePersonalData);
         }
-    });
-      // Listeners para configurações de formatação
+    });    // Listeners para configurações de formatação
     const settingsInputs = [
         'curriculum-theme', 'primary-color', 'font-family', 'font-size',
-        'layout-type', 'spacing', 'show-skills-progress',
-        'show-contact-icons', 'show-project-links'
+        'layout-type', 'spacing', 'background-color', 'document-margins', 
+        'show-skills-progress', 'show-contact-icons', 'show-project-links'
     ];
     
     settingsInputs.forEach(id => {
@@ -644,6 +643,8 @@ function updateSettings() {
         fontSize: document.getElementById('font-size')?.value || 'medium',
         layout: document.getElementById('layout-type')?.value || 'single-column',
         spacing: document.getElementById('spacing')?.value || 'normal',
+        backgroundColor: document.getElementById('background-color')?.value || '#ffffff',
+        documentMargins: document.getElementById('document-margins')?.value || 'normal',
         showPhoto: document.getElementById('show-photo')?.checked || false,
         showSkillsProgress: document.getElementById('show-skills-progress')?.checked || true,
         showContactIcons: document.getElementById('show-contact-icons')?.checked || true,
@@ -1183,6 +1184,7 @@ window.refreshPreview = function() {
 function generateCurriculumHTML() {
     const theme = curriculumData.settings.theme;
     const layout = curriculumData.settings.layout;
+    const backgroundColor = document.getElementById('background-color')?.value || '#ffffff';
     
     return `
         <div class="curriculum-${theme} layout-${layout}" style="
@@ -1190,7 +1192,19 @@ function generateCurriculumHTML() {
             color: ${curriculumData.settings.primaryColor};
             padding: 2rem;
             line-height: 1.6;
+            background-color: ${backgroundColor};
         ">
+            <!-- Header Reference - Discreto -->
+            <div style="
+                text-align: right;
+                font-size: 0.7rem;
+                color: #9ca3af;
+                margin-bottom: 1rem;
+                font-style: italic;
+            ">
+                <span>Criado em mikaelfmts.github.io/eu</span>
+            </div>
+            
             ${generateHeaderSection()}
             ${generateExperienceSection()}
             ${generateProjectsSection()}
@@ -1207,7 +1221,7 @@ function generateCurriculumHTML() {
                 font-size: 0.9rem;
                 font-style: italic;
             ">
-                <p style="margin: 0;">Este documento foi gerado através do meu portfólio pessoal: <strong>mikaelfmts.github.io/eu</strong></p>
+                <p style="margin: 0;">Documento gerado através do portfolio profissional de <strong>Mikael Ferreira</strong>: <strong>mikaelfmts.github.io/eu</strong></p>
             </footer>
         </div>
     `;
@@ -1585,7 +1599,17 @@ window.downloadPDF = async function() {
             return;
         }
 
-        showNotification('Gerando PDF... aguarde', 'info');
+        showNotification('Preparando seu currículo para download...', 'info');
+        
+        // Aplicar otimizações para garantir melhor qualidade na geração do PDF
+        const previewClone = previewContainer.cloneNode(true);
+        document.body.appendChild(previewClone);
+        previewClone.style.position = 'absolute';
+        previewClone.style.left = '-9999px';
+        previewClone.style.width = '21cm'; // Tamanho A4
+        previewClone.style.height = 'auto';
+        previewClone.style.margin = '0';
+        previewClone.style.padding = '0';
         
         // Converter imagem do GitHub para base64 antes de gerar PDF
         const photoElement = previewContainer.querySelector('#curriculum-photo');
@@ -1605,36 +1629,69 @@ window.downloadPDF = async function() {
                 console.log('Aviso: Não foi possível converter foto para base64:', error);
             }
         }
+          // Obter configurações de margem selecionadas
+        const marginSetting = document.getElementById('document-margins')?.value || 'normal';
+        let marginSize;
+        
+        switch (marginSetting) {
+            case 'compact':
+                marginSize = 0.5;
+                break;
+            case 'comfortable':
+                marginSize = 1.5;
+                break;
+            case 'wide':
+                marginSize = 2;
+                break;
+            default: // normal
+                marginSize = 1;
+        }
         
         // Configurações para o PDF
         const opt = {
-            margin: 1,
+            margin: marginSize,
             filename: 'curriculo-mikael-ferreira.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
-                scale: 2,
+                scale: 2.5, // Aumentado para melhor resolução
                 useCORS: true,
                 logging: false,
-                letterRendering: true
+                letterRendering: true,
+                backgroundColor: document.getElementById('background-color')?.value || '#ffffff'
             },
             jsPDF: { 
                 unit: 'cm', 
                 format: 'a4', 
-                orientation: 'portrait' 
+                orientation: 'portrait',
+                compress: true // Compressão para reduzir tamanho
+            },
+            pagebreak: { mode: 'avoid-all' } // Tenta evitar quebras de página em elementos
+        };        // Gerar PDF com melhor qualidade
+        html2pdf().set(opt).from(previewClone).save().then(() => {
+            // Remover o clone após concluído
+            previewClone.remove();
+            showNotification('PDF gerado com sucesso! Verifique seus downloads.', 'success');
+            
+            // Adicionar estatísticas localmente
+            try {
+                const pdfStats = localStorage.getItem('pdf_generation_stats') || '{}';
+                const stats = JSON.parse(pdfStats);
+                stats.count = (stats.count || 0) + 1;
+                stats.lastDate = new Date().toISOString();
+                localStorage.setItem('pdf_generation_stats', JSON.stringify(stats));
+            } catch (e) {
+                console.log('Erro ao registrar estatísticas de PDF');
             }
-        };
-
-        // Gerar PDF
-        html2pdf().set(opt).from(previewContainer).save().then(() => {
-            showNotification('PDF baixado com sucesso!', 'success');
         }).catch((error) => {
+            // Remover o clone em caso de erro
+            previewClone.remove();
             console.error('Erro ao gerar PDF:', error);
-            showNotification('Erro ao gerar PDF. Tente novamente.', 'error');
+            showNotification('Erro ao gerar PDF. Tente novamente ou verifique suas configurações.', 'error');
         });
         
     } catch (error) {
         console.error('Erro no download PDF:', error);
-        showNotification('Erro ao gerar PDF. Verifique se o preview foi gerado.', 'error');
+        showNotification('Erro ao gerar PDF. Verifique se o preview foi gerado corretamente.', 'error');
     }
 };
 
@@ -2257,7 +2314,14 @@ function applyPreviewStyles(previewContainer) {
     
     previewContainer.style.setProperty('--primary-color', settings.primaryColor);
     previewContainer.style.fontFamily = `${settings.fontFamily}, sans-serif`;
-      // Aplicar classes de tema e layout
+    
+    // Aplicar a cor de fundo se estiver disponível
+    if (settings.backgroundColor || document.getElementById('background-color')?.value) {
+        previewContainer.style.backgroundColor = settings.backgroundColor || 
+                                                document.getElementById('background-color').value;
+    }
+      
+    // Aplicar classes de tema e layout
     previewContainer.className = `curriculum-preview curriculum-${settings.theme} layout-${settings.layout} spacing-${settings.spacing}`;
     
     // Aplicar cores personalizadas se existirem
@@ -2399,6 +2463,7 @@ function applyCustomColorsToPreview(colors, container = null) {
 // Função para sincronizar controles de cor (input color e select)
 function setupColorControls() {
     const colorControls = [
+        { colorInput: 'background-color', preset: 'background-color-preset' },
         { colorInput: 'name-title-color', preset: 'name-title-color-preset' },
         { colorInput: 'section-title-color', preset: 'section-title-color-preset' },
         { colorInput: 'main-text-color', preset: 'main-text-color-preset' },
@@ -2460,6 +2525,7 @@ function loadSavedColors() {
     if (curriculumData.settings && curriculumData.settings.customColors) {
         const colors = curriculumData.settings.customColors;
         
+        // Carregar todas as cores personalizadas
         document.getElementById('name-title-color').value = colors.nameTitle || '#1f2937';
         document.getElementById('section-title-color').value = colors.sectionTitle || '#3b82f6';
         document.getElementById('main-text-color').value = colors.mainText || '#374151';
@@ -2474,6 +2540,21 @@ function loadSavedColors() {
         document.getElementById('highlight-color-preset').value = colors.highlight || '#10b981';
         document.getElementById('link-color-preset').value = colors.link || '#3b82f6';
         document.getElementById('skills-color-preset').value = colors.skills || '#8b5cf6';
+    }
+    
+    // Carregar a cor de fundo salva nas configurações gerais
+    if (curriculumData.settings && curriculumData.settings.backgroundColor) {
+        const bgColorInput = document.getElementById('background-color');
+        const bgColorPreset = document.getElementById('background-color-preset');
+        
+        if (bgColorInput) bgColorInput.value = curriculumData.settings.backgroundColor;
+        if (bgColorPreset) bgColorPreset.value = curriculumData.settings.backgroundColor;
+    }
+    
+    // Carregar configurações de margem
+    if (curriculumData.settings && curriculumData.settings.documentMargins) {
+        const marginsSelect = document.getElementById('document-margins');
+        if (marginsSelect) marginsSelect.value = curriculumData.settings.documentMargins;
     }
 }
 

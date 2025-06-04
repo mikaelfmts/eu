@@ -361,6 +361,37 @@
                 <div class="mt-6">
                     <h3 class="text-lg font-semibold mb-4">Cores por Seção</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Cor do Background -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Cor de Fundo</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="color" id="background-color" value="#ffffff" class="w-12 h-8 border border-gray-300 rounded cursor-pointer">
+                                <select id="background-color-preset" class="flex-1 border border-gray-300 rounded-md px-2 py-1 text-sm">
+                                    <option value="#ffffff">Branco</option>
+                                    <option value="#f9fafb">Branco Suave</option>
+                                    <option value="#f3f4f6">Branco Acinzentado</option>
+                                    <option value="#f8f9fa">Cinza Claro</option>
+                                    <option value="#f0f4f8">Azul Suave</option>
+                                    <option value="#f0fdf4">Verde Suave</option>
+                                    <option value="#fdf2f8">Rosa Suave</option>
+                                    <option value="#fef3c7">Amarelo Suave</option>
+                                    <option value="#ecfdf5">Turquesa Suave</option>
+                                    <option value="#fffbeb">Âmbar Suave</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Ajuste de Margens -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Margens</label>
+                            <select id="document-margins" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="normal">Normal (1cm)</option>
+                                <option value="compact">Compacto (0.5cm)</option>
+                                <option value="comfortable">Confortável (1.5cm)</option>
+                                <option value="wide">Amplo (2cm)</option>
+                            </select>
+                        </div>
+                        
                         <!-- Cor do Nome/Título -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nome e Título</label>

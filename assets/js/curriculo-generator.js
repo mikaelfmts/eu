@@ -1220,7 +1220,7 @@ function generateHeaderSection() {
     let photoUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNjAiIGZpbGw9IiNmMGYwZjAiLz48Y2lyY2xlIGN4PSI2MCIgY3k9IjQ1IiByPSIyMCIgZmlsbD0iIzk5OTk5OSIvPjxwYXRoIGQ9Ik0yMCA5NWMwLTE2IDIwLTMwIDQwLTMwczQwIDE0IDQwIDMwIiBmaWxsPSIjOTk5OTk5Ii8+PC9zdmc+';
     
     // Verificar cache do GitHub primeiro e converter para base64 para PDF
-    const cachedUser = getCacheItem(GITHUB_CACHE.userData);
+    const cachedUser = getCacheItem(GITHUB_CACHE_CONFIG.keys.profile);
     if (cachedUser && cachedUser.avatar_url) {
         // Usar URL base64 se disponível no cache, senão usar URL original
         if (cachedUser.avatar_base64) {
@@ -1592,14 +1592,13 @@ window.downloadPDF = async function() {
         if (photoElement && photoElement.src && !photoElement.src.startsWith('data:')) {
             try {
                 const base64Image = await convertImageToBase64(photoElement.src);
-                if (base64Image) {
-                    photoElement.src = base64Image;
+                if (base64Image) {                    photoElement.src = base64Image;
                     
                     // Atualizar cache com versão base64
-                    const cachedUser = getCacheItem(GITHUB_CACHE.userData);
+                    const cachedUser = getCacheItem(GITHUB_CACHE_CONFIG.keys.profile);
                     if (cachedUser) {
                         cachedUser.avatar_base64 = base64Image;
-                        setCacheItem(GITHUB_CACHE.userData, cachedUser);
+                        setCacheItem(GITHUB_CACHE_CONFIG.keys.profile, cachedUser);
                     }
                 }
             } catch (error) {
@@ -2258,13 +2257,12 @@ function applyPreviewStyles(previewContainer) {
     
     previewContainer.style.setProperty('--primary-color', settings.primaryColor);
     previewContainer.style.fontFamily = `${settings.fontFamily}, sans-serif`;
-    
-    // Aplicar classes de tema e layout
+      // Aplicar classes de tema e layout
     previewContainer.className = `curriculum-preview curriculum-${settings.theme} layout-${settings.layout} spacing-${settings.spacing}`;
     
     // Aplicar cores personalizadas se existirem
     if (settings.customColors) {
-        applyCustomColorsToPreview(previewContainer, settings.customColors);
+        applyCustomColorsToPreview(settings.customColors, previewContainer);
     }
 }
 
@@ -2282,11 +2280,10 @@ function applyCustomColors() {
         
         // Salvar cores no curriculumData
         curriculumData.settings.customColors = customColors;
-        
-        // Aplicar cores ao preview se estiver visível
+          // Aplicar cores ao preview se estiver visível
         const previewContainer = document.getElementById('curriculum-preview');
         if (previewContainer) {
-            applyCustomColorsToPreview(previewContainer, customColors);
+            applyCustomColorsToPreview(customColors, previewContainer);
         }
           showNotification('Cores personalizadas aplicadas com sucesso!', 'success');
         
@@ -2300,7 +2297,20 @@ function applyCustomColors() {
 }
 
 // Função para aplicar cores personalizadas ao preview
-function applyCustomColorsToPreview(container, colors) {
+function applyCustomColorsToPreview(colors, container = null) {
+    // Se o primeiro parâmetro for um elemento DOM, trocar os parâmetros (compatibilidade)
+    if (colors && colors.nodeType) {
+        const temp = colors;
+        colors = container;
+        container = temp;
+    }
+    
+    // Verificar se colors é válido
+    if (!colors || typeof colors !== 'object') {
+        console.warn('Cores não fornecidas para applyCustomColorsToPreview');
+        return;
+    }
+    
     const style = document.createElement('style');
     style.id = 'custom-colors-style';
     

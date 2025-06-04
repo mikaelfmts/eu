@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker - Mikael Ferreira</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/fitness-tracker.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="particles-container"></div>
+    
+    <div id="loading-screen">
+        <div class="loader"></div>
+    </div>
+
+    <button id="theme-toggle" onclick="toggleTheme()">
+        <i id="theme-icon" class="fab fa-battle-net"></i>
+    </button>
+
+    <div class="foto-perfil" onclick="window.location.href='../index.html'">
+        <img src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Voltar ao Portfolio">
+    </div>
+
+    <div class="container">
+        <header class="fitness-header">
+            <h1><i class="fas fa-dumbbell"></i> Fitness Tracker</h1>
+            <p>Acompanhe meu progresso nos treinos</p>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-fire"></i>
+                <h3>Treinos Este Mês</h3>
+                <span id="monthlyWorkouts">0</span>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-trophy"></i>
+                <h3>Metas Atingidas</h3>
+                <span id="goalsAchieved">0</span>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <h3>Tempo Total</h3>
+                <span id="totalTime">0h</span>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-medal"></i>
+                <h3>Nível Atual</h3>
+                <span id="currentLevel">1</span>
+            </div>
+        </div>
+
+        <!-- Progress Charts -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <h3>Progresso Semanal</h3>
+                <canvas id="weeklyChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Evolução por Grupo Muscular</h3>
+                <canvas id="muscleGroupChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Workouts -->
+        <div class="recent-workouts">
+            <h3><i class="fas fa-history"></i> Últimos Treinos</h3>
+            <div id="workoutsList">
+                <!-- Workouts serão carregados dinamicamente -->
+            </div>
+        </div>
+
+        <!-- Achievements -->
+        <div class="achievements-section">
+            <h3><i class="fas fa-award"></i> Conquistas</h3>
+            <div id="achievementsList" class="achievements-grid">
+                <!-- Achievements serão carregados dinamicamente -->
+            </div>
+        </div>
+
+        <!-- Goals Progress -->
+        <div class="goals-section">
+            <h3><i class="fas fa-target"></i> Metas Atuais</h3>
+            <div id="goalsList">
+                <!-- Goals serão carregados dinamicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="../assets/js/fitness-tracker.js"></script>
+    <script src="../assets/js/page-control.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            initPageControl('fitness-tracker');
+        });
+    </script>
+</body>
+</html>

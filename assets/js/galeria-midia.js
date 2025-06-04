@@ -44,27 +44,6 @@ class GaleriaMidia {
         await this.loadPosts();
         this.setupEventListeners();
         this.hideLoadingScreen();
-        
-        // Verificar se há um filtro na URL
-        this.checkUrlFilter();
-    }
-    
-    // Verificar se há um filtro na URL
-    checkUrlFilter() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const filter = urlParams.get('filter');
-        
-        if (filter) {
-            const validFilters = ['all', 'photos', 'videos'];
-            if (validFilters.includes(filter)) {
-                // Encontrar o botão correto para o filtro
-                const filterBtn = document.querySelector(`.filter-btn[data-filter="${filter}"]`);
-                if (filterBtn) {
-                    this.setActiveFilter(filterBtn);
-                    this.applyFilter(filter);
-                }
-            }
-        }
     }
 
     hideLoadingScreen() {
@@ -77,176 +56,79 @@ class GaleriaMidia {
                 }, 300);
             }, 1000);
         }
-    }
-
-    async loadPosts(loadMore = false) {
+    }    async loadPosts(loadMore = false) {
         try {
-            // Mostrar indicador de carregamento
-            this.showLoadingIndicator();
-            
-            // Carregar posts
-            const postsRef = collection(db, 'galeria_posts');
-            
             let q;
-            if (!this.lastDoc) {
+            if (loadMore && this.lastDoc) {
                 q = query(
-                    postsRef, 
-                    where('visible', '==', true), 
-                    orderBy('createdAt', 'desc'), 
+                    collection(db, 'galeria_posts'),
+                    orderBy('createdAt', 'desc'),
+                    startAfter(this.lastDoc),
                     limit(this.postsPerPage)
                 );
             } else {
                 q = query(
-                    postsRef, 
-                    where('visible', '==', true), 
-                    orderBy('createdAt', 'desc'), 
-                    startAfter(this.lastDoc), 
+                    collection(db, 'galeria_posts'),
+                    orderBy('createdAt', 'desc'),
                     limit(this.postsPerPage)
                 );
             }
-            
+
             const querySnapshot = await getDocs(q);
-            
-            // Se não houver mais posts, ocultar o botão de carregar mais
-            if (querySnapshot.empty && this.lastDoc) {
-                document.getElementById('load-more').classList.add('hidden');
-                this.hideLoadingIndicator();
-                return;
-            }
-            
-            // Atualizar o último documento
-            this.lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
-            
-            const loadedPosts = [];
-            
-            // Processar posts
-            for (const doc of querySnapshot.docs) {
-                const postData = doc.data();
-                const post = {
-                    id: doc.id,
-                    title: postData.title || 'Sem título',
-                    description: postData.description || '',
-                    media: [],
-                    timestamp: postData.createdAt.toDate()
-                };
-                
-                // Processar mídia do post
+            const newPosts = [];            // Carregar posts e suas mídias
+            for (const postDoc of querySnapshot.docs) {
+                const postData = {
+                    id: postDoc.id,
+                    ...postDoc.data()
+                };// Se o post tem referências de mídia, carregar do galeria_media
                 if (postData.mediaIds && postData.mediaIds.length > 0) {
-                    for (const mediaId of postData.mediaIds) {
-                        const mediaDoc = await getDoc(doc(db, 'galeria_media', mediaId));
-                        if (mediaDoc.exists()) {
-                            const mediaData = mediaDoc.data();
-                            post.media.push(mediaData);
+                    const mediaPromises = postData.mediaIds.map(async (mediaId) => {
+                        try {
+                            const mediaDocRef = doc(db, 'galeria_media', mediaId);
+                            const mediaDoc = await getDoc(mediaDocRef);
+                            if (mediaDoc.exists()) {
+                                return {
+                                    id: mediaId,
+                                    url: mediaDoc.data().data, // Base64 data
+                                    type: mediaDoc.data().type,
+                                    name: mediaDoc.data().name
+                                };
+                            }
+                        } catch (error) {
+                            console.error('Erro ao carregar mídia:', error);
+                            return null;
                         }
-                    }
-                } else if (postData.media && postData.media.length > 0) {
-                    // Para compatibilidade com dados antigos
-                    post.media = postData.media;
+                    });
+                    
+                    const mediaResults = await Promise.all(mediaPromises);
+                    postData.media = mediaResults.filter(media => media !== null);
+                } else if (postData.media) {
+                    // Manter compatibilidade com posts antigos que já têm URLs diretas
+                    postData.media = postData.media;
+                } else {
+                    postData.media = [];
                 }
-                
-                loadedPosts.push(post);
+
+                newPosts.push(postData);
             }
-            
-            // Adicionar posts à lista
-            this.posts = [...this.posts, ...loadedPosts];
-            
-            // Carregar vídeos separadamente
-            const videos = await this.loadVideos();
-            
-            // Converter vídeos para formato compatível com posts
-            const videoPosts = videos.map(video => {
-                let thumbnailUrl = '';
-                let videoUrl = '';
-                
-                // Determinar a fonte da miniatura com base no tipo de vídeo
-                if (video.platform === 'youtube') {
-                    thumbnailUrl = video.thumbnailUrl || `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`;
-                    videoUrl = `https://www.youtube.com/embed/${video.videoId}`;
-                } else if (video.platform === 'vimeo') {
-                    thumbnailUrl = video.thumbnailUrl;
-                    videoUrl = `https://player.vimeo.com/video/${video.videoId}`;
-                } else if (video.url && video.thumbnailUrl) {
-                    thumbnailUrl = video.thumbnailUrl;
-                    videoUrl = video.url;
-                } else if (video.thumbnailData) {
-                    thumbnailUrl = video.thumbnailData;
-                    videoUrl = video.data;
-                }
-                
-                return {
-                    id: video.id,
-                    title: video.title || 'Vídeo sem título',
-                    description: video.description || '',
-                    media: [{
-                        id: video.id,
-                        type: 'video',
-                        thumbnail: thumbnailUrl,
-                        url: videoUrl,
-                        platform: video.platform || 'other',
-                        videoId: video.videoId || ''
-                    }],
-                    timestamp: video.uploadedAt.toDate(),
-                    isVideo: true
-                };
-            });
-            
-            // Adicionar vídeos à lista de posts
-            this.posts = [...this.posts, ...videoPosts];
-            
-            // Ordenar por data (mais recente primeiro)
-            this.posts.sort((a, b) => b.timestamp - a.timestamp);
-            
-            // Aplicar filtro atual
-            this.applyFilter(this.currentFilter, !loadMore);
-            
-            // Mostrar botão de carregar mais se houver mais posts
-            if (querySnapshot.size >= this.postsPerPage) {
-                document.getElementById('load-more').classList.remove('hidden');
+
+            if (loadMore) {
+                this.posts = [...this.posts, ...newPosts];
             } else {
-                document.getElementById('load-more').classList.add('hidden');
+                this.posts = newPosts;
             }
-            
-            // Ocultar indicador de carregamento
-            this.hideLoadingIndicator();
+
+            // Atualizar lastDoc para paginação
+            if (querySnapshot.docs.length > 0) {
+                this.lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
+            }
+
+            this.applyFilter(this.currentFilter, !loadMore);
+            this.updateLoadMoreButton(querySnapshot.docs.length === this.postsPerPage);
+
         } catch (error) {
             console.error('Erro ao carregar posts:', error);
-            this.hideLoadingIndicator();
-            
-            // Mostrar mensagem de erro
-            const postsContainer = document.getElementById('posts-feed');
-            postsContainer.innerHTML = `
-                <div class="no-posts" style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #c8aa6e;">
-                    <i class="fas fa-exclamation-circle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                    <h3>Erro ao carregar posts</h3>
-                    <p>Ocorreu um erro ao carregar os posts. Por favor, tente novamente mais tarde.</p>
-                </div>
-            `;
-        }
-    }
-    
-    // Adicionar carregamento de vídeos do Firestore
-    async loadVideos() {
-        try {
-            const videosRef = collection(db, 'videos');
-            const q = query(videosRef, orderBy('uploadedAt', 'desc'));
-            const querySnapshot = await getDocs(q);
-            
-            let videos = [];
-            
-            querySnapshot.forEach((doc) => {
-                const videoData = doc.data();
-                videos.push({
-                    id: doc.id,
-                    ...videoData,
-                    mediaType: 'video',
-                    timestamp: videoData.uploadedAt.toDate()
-                });
-            });
-            
-            return videos;
-        } catch (error) {
-            console.error('Erro ao carregar vídeos:', error);
-            return [];
+            this.showError('Erro ao carregar posts');
         }
     }
 
@@ -258,7 +140,7 @@ class GaleriaMidia {
                 <div class="no-posts" style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #c8aa6e;">
                     <i class="fas fa-images" style="font-size: 3rem; margin-bottom: 1rem;"></i>
                     <h3>Nenhum post encontrado</h3>
-                    <p>Não há posts para exibir com o filtro atual.</p>
+                    <p>Não há posts para exibir no momento.</p>
                 </div>
             `;
             return;
@@ -283,49 +165,22 @@ class GaleriaMidia {
         const mediaCount = post.media?.length || 0;
 
         let mediaHTML = '';
-        if (firstMedia) {
-            // Melhor detecção de vídeo
-            const isVideo = mediaType && (
-                mediaType.startsWith('video/') || 
-                mediaType === 'video' ||
-                /\.(mp4|webm|ogg|avi|mov)$/i.test(firstMedia.url)
-            );
-            
-            // Detectar plataforma de vídeo
-            let platformBadge = '';
-            if (isVideo) {
-                if (firstMedia.platform === 'youtube') {
-                    platformBadge = '<span class="platform-badge youtube"><i class="fab fa-youtube"></i></span>';
-                } else if (firstMedia.platform === 'vimeo') {
-                    platformBadge = '<span class="platform-badge vimeo"><i class="fab fa-vimeo-v"></i></span>';
-                }
-            }
+        if (firstMedia) {        // Melhor detecção de vídeo
+        const isVideo = mediaType && (
+            mediaType.startsWith('video/') || 
+            mediaType === 'video' ||
+            /\.(mp4|webm|ogg|avi|mov)$/i.test(firstMedia.url)
+        );
 
-            if (isVideo) {
-                // Se for miniatura de vídeo
-                if (firstMedia.thumbnail) {
-                    mediaHTML = `
-                        <div class="media-thumbnail">
-                            <img src="${firstMedia.thumbnail}" alt="${post.title}" loading="lazy"
-                                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;media-placeholder&quot;><i class=&quot;fas fa-film&quot;></i></div>';">
-                            <div class="play-button">
-                                <i class="fas fa-play"></i>
-                            </div>
-                            ${platformBadge}
-                        </div>
-                    `;
-                } else {
-                    // Se não tiver miniatura, usar vídeo direto
-                    mediaHTML = `
-                        <video preload="metadata" muted>
-                            <source src="${firstMedia.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
-                        </video>
-                        <div class="media-indicator">
-                            <i class="fas fa-play"></i>
-                        </div>
-                        ${platformBadge}
-                    `;
-                }
+        if (isVideo) {
+                mediaHTML = `
+                    <video preload="metadata" muted>
+                        <source src="${firstMedia.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
+                    </video>
+                    <div class="media-indicator">
+                        <i class="fas fa-play"></i>
+                    </div>
+                `;
             } else {
                 mediaHTML = `
                     <img src="${firstMedia.url}" alt="${post.title}" loading="lazy"
@@ -348,7 +203,9 @@ class GaleriaMidia {
                     <time class="post-date">${formattedDate}</time>
                 </div>
                 ${firstMedia ? `<div class="post-media">${mediaHTML}</div>` : ''}
-                ${post.description ? `<div class="post-description">${post.description}</div>` : ''}
+                <div class="post-description">
+                    ${post.description}
+                </div>
             </article>
         `;
     }
@@ -386,7 +243,6 @@ class GaleriaMidia {
     }
 
     setActiveFilter(activeBtn) {
-        // Atualizar classes dos botões
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.classList.remove('active');
         });
@@ -397,8 +253,7 @@ class GaleriaMidia {
         this.currentFilter = filter;
         
         let filtered = this.posts;
-        
-        if (filter === 'photos') {
+          if (filter === 'photos') {
             filtered = this.posts.filter(post => 
                 post.media && post.media.some(media => {
                     const type = media.type || '';
@@ -413,10 +268,8 @@ class GaleriaMidia {
                     const type = media.type || '';
                     return type.startsWith('video/') || 
                            type === 'video' ||
-                           /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url) ||
-                           media.platform === 'youtube' ||
-                           media.platform === 'vimeo';
-                }) || post.isVideo === true
+                           /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url);
+                })
             );
         }
 
@@ -429,14 +282,9 @@ class GaleriaMidia {
             const postsContainer = document.getElementById('posts-feed');
             const newPosts = filtered.slice(postsContainer.children.length);
             newPosts.forEach(post => {
-                const postElement = document.createElement('div');
-                postElement.innerHTML = this.createPostHTML(post);
-                postsContainer.appendChild(postElement.firstChild);
+                postsContainer.innerHTML += this.createPostHTML(post);
             });
         }
-        
-        // Atualizar botão de carregar mais
-        this.updateLoadMoreButton(filtered.length >= this.postsPerPage);
     }
 
     updateLoadMoreButton(hasMore) {
@@ -476,57 +324,25 @@ class GaleriaMidia {
             video.pause();
             video.currentTime = 0;
         });
-        
-        // Reset iframe sources to stop playback
-        const iframes = modal.querySelectorAll('iframe');
-        iframes.forEach(iframe => {
-            const src = iframe.src;
-            iframe.src = '';
-            setTimeout(() => {
-                iframe.src = src;
-            }, 100);
-        });
     }
 
     updateModalContent() {
         const modalBody = document.querySelector('.modal-body');
         const media = this.currentPostMedia[this.currentMediaIndex];
         
-        if (!media) return;
-        
-        let mediaHTML = '';
+        if (!media) return;        let mediaHTML = '';
         const mediaType = media.type || '';
         const isVideo = mediaType.startsWith('video/') || 
                        mediaType === 'video' ||
-                       media.platform === 'youtube' ||
-                       media.platform === 'vimeo' ||
                        /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url);
 
         if (isVideo) {
-            if (media.platform === 'youtube' && media.videoId) {
-                mediaHTML = `
-                    <iframe src="https://www.youtube.com/embed/${media.videoId}?autoplay=1" 
-                            frameborder="0" 
-                            allowfullscreen
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
-                    </iframe>
-                `;
-            } else if (media.platform === 'vimeo' && media.videoId) {
-                mediaHTML = `
-                    <iframe src="https://player.vimeo.com/video/${media.videoId}?autoplay=1" 
-                            frameborder="0" 
-                            allowfullscreen
-                            allow="autoplay; fullscreen; picture-in-picture">
-                    </iframe>
-                `;
-            } else {
-                mediaHTML = `
-                    <video controls autoplay>
-                        <source src="${media.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
-                        Seu navegador não suporta vídeos.
-                    </video>
-                `;
-            }
+            mediaHTML = `
+                <video controls autoplay muted>
+                    <source src="${media.url}" type="${mediaType.startsWith('video/') ? mediaType : 'video/mp4'}">
+                    Seu navegador não suporta vídeos.
+                </video>
+            `;
         } else {
             mediaHTML = `<img src="${media.url}" alt="Mídia" loading="lazy">`;
         }
@@ -550,49 +366,9 @@ class GaleriaMidia {
         }
     }
 
-    showLoadingIndicator() {
-        const loadMoreBtn = document.querySelector('.load-more-btn');
-        if (loadMoreBtn) {
-            loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Carregando...';
-            loadMoreBtn.disabled = true;
-        }
-    }
-
-    hideLoadingIndicator() {
-        const loadMoreBtn = document.querySelector('.load-more-btn');
-        if (loadMoreBtn) {
-            loadMoreBtn.innerHTML = '<i class="fas fa-plus"></i> Carregar Mais';
-            loadMoreBtn.disabled = false;
-        }
-    }
-
     showError(message) {
         console.error(message);
-        // Sistema de notificações
-        const notification = document.createElement('div');
-        notification.className = 'notification error';
-        notification.innerHTML = `
-            <i class="fas fa-exclamation-circle"></i>
-            <span>${message}</span>
-            <button class="notification-close"><i class="fas fa-times"></i></button>
-        `;
-        document.body.appendChild(notification);
-        
-        // Auto-hide após 5 segundos
-        setTimeout(() => {
-            notification.classList.add('hide');
-            setTimeout(() => {
-                notification.remove();
-            }, 300);
-        }, 5000);
-        
-        // Fechar ao clicar no X
-        notification.querySelector('.notification-close').addEventListener('click', () => {
-            notification.classList.add('hide');
-            setTimeout(() => {
-                notification.remove();
-            }, 300);
-        });
+        // Aqui você pode implementar um sistema de notificações
     }
 }
 

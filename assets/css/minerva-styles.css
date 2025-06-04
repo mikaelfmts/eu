@@ -25,13 +25,13 @@
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* Sistema de Partículas da Minerva */
+/* Sistema de Partículas da Minerva - Dark & Malévola */
 .minerva-particles {
     position: absolute;
-    top: -30px;
-    left: -30px;
-    width: 140px;
-    height: 140px;
+    top: -40px;
+    left: -40px;
+    width: 160px;
+    height: 160px;
     pointer-events: none;
     z-index: -1;
     opacity: 0;
@@ -44,12 +44,15 @@
 
 .minerva-particle {
     position: absolute;
-    width: 4px;
-    height: 4px;
-    background: linear-gradient(45deg, #C89B3C, #F0E6D2);
+    width: 6px;
+    height: 6px;
+    background: linear-gradient(45deg, #8B0000, #FF0000, #DC143C);
     border-radius: 50%;
-    animation: float 3s ease-in-out infinite;
-    box-shadow: 0 0 10px rgba(200, 155, 60, 0.6);
+    animation: darkFloat 4s ease-in-out infinite;
+    box-shadow: 
+        0 0 15px rgba(139, 0, 0, 0.8),
+        0 0 30px rgba(255, 0, 0, 0.4),
+        inset 0 0 10px rgba(220, 20, 60, 0.6);
 }
 
 .minerva-particle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
@@ -59,46 +62,47 @@
 .minerva-particle:nth-child(5) { top: 50%; left: 5%; animation-delay: 2s; }
 .minerva-particle:nth-child(6) { top: 60%; right: 5%; animation-delay: 2.5s; }
 
-/* Coruja Minerva - Ultra Imponente e Realista - Apenas Cabeça */
+/* Coruja Minerva - Dark, Imponente e Malévola */
 .minerva-owl {
-    width: 80px;
-    height: 80px;
+    width: 90px;
+    height: 90px;
     cursor: pointer;
     position: relative;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    filter: drop-shadow(0 0 20px rgba(200, 155, 60, 0.4));
+    filter: drop-shadow(0 0 25px rgba(139, 0, 0, 0.6));
     transform-origin: center bottom;
     z-index: 2;
 }
 
 .minerva-owl:hover {
-    transform: scale(1.08);
-    filter: drop-shadow(0 0 30px rgba(200, 155, 60, 0.7));
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 40px rgba(139, 0, 0, 0.9));
 }
 
 .minerva-owl.active {
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 40px rgba(200, 155, 60, 0.9));
-    animation: owlPulse 2s ease-in-out infinite;
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 60px rgba(139, 0, 0, 1));
+    animation: darkOwlPulse 2s ease-in-out infinite;
 }
 
 .minerva-owl.thinking {
-    animation: owlThinking 1.5s ease-in-out infinite;
+    animation: malevolentThinking 1.5s ease-in-out infinite;
 }
 
-/* Aura Mágica Ultra Imponente */
+/* Aura Mágica Dark e Angular */
 .minerva-owl::before {
     content: '';
     position: absolute;
-    top: -15px;
-    left: -15px;
-    right: -15px;
-    bottom: -15px;
-    background: radial-gradient(circle, 
-        rgba(200, 155, 60, 0.1) 0%, 
-        rgba(240, 230, 210, 0.05) 50%, 
+    top: -25px;
+    left: -25px;
+    right: -25px;
+    bottom: -25px;
+    background: radial-gradient(polygon, 
+        rgba(139, 0, 0, 0.3) 0%, 
+        rgba(220, 20, 60, 0.2) 30%,
+        rgba(255, 0, 0, 0.1) 50%, 
         transparent 70%);
-    border-radius: 50%;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 25%, 100% 75%, 75% 100%, 25% 100%, 0% 75%, 0% 25%);
     opacity: 0;
     transition: opacity 0.6s ease;
     pointer-events: none;
@@ -108,60 +112,64 @@
 .minerva-owl.active::before,
 .minerva-owl:hover::before {
     opacity: 1;
-    animation: auraRotate 8s linear infinite;
+    animation: darkAuraRotate 6s linear infinite;
 }
 
-/* Cabeça da Coruja - Formato Realista */
+/* Cabeça da Coruja - Angular e Intimidante */
 .owl-head {
     width: 100%;
     height: 100%;
     background: linear-gradient(135deg, 
-        #4A3B2A 0%, 
-        #5C4A36 25%, 
-        #6B5540 50%, 
-        #7A6247 75%, 
-        #5C4A36 100%);
-    border-radius: 50% 50% 45% 45%;
-    border: 3px solid #C89B3C;
+        #1a0a0a 0%, 
+        #2b1414 25%, 
+        #3d1f1f 50%, 
+        #4a2626 75%, 
+        #2b1414 100%);
+    clip-path: polygon(20% 0%, 80% 0%, 100% 30%, 90% 70%, 50% 100%, 10% 70%, 0% 30%);
+    border: 4px solid #8B0000;
     position: relative;
     box-shadow: 
-        inset 0 -10px 20px rgba(0, 0, 0, 0.3),
-        inset 0 8px 15px rgba(200, 155, 60, 0.2),
-        0 0 25px rgba(200, 155, 60, 0.4);
+        inset 0 -15px 25px rgba(0, 0, 0, 0.8),
+        inset 0 10px 20px rgba(139, 0, 0, 0.3),
+        0 0 35px rgba(139, 0, 0, 0.6),
+        0 0 60px rgba(220, 20, 60, 0.4);
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* Tufos de Penas (Orelhas) */
+/* Tufos de Penas (Orelhas) - Angular e Ameaçadores */
 .owl-tufts {
     position: absolute;
-    top: -5px;
+    top: -12px;
     left: 50%;
     transform: translateX(-50%);
-    width: 80px;
-    height: 20px;
+    width: 100px;
+    height: 30px;
     z-index: 2;
 }
 
 .tuft-left,
 .tuft-right {
     position: absolute;
-    width: 8px;
-    height: 12px;
-    background: linear-gradient(45deg, #3E2F20, #4A3B2A);
-    border-radius: 50% 50% 0 0;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    width: 16px;
+    height: 24px;
+    background: linear-gradient(45deg, #0f0404, #1a0a0a, #2b1414);
+    clip-path: polygon(20% 0%, 80% 0%, 100% 60%, 50% 100%, 0% 60%);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.8),
+        inset 0 3px 6px rgba(139, 0, 0, 0.4);
+    border: 2px solid #8B0000;
 }
 
 .tuft-left {
-    left: 20px;
-    transform: rotate(-15deg);
+    left: 15px;
+    transform: rotate(-25deg);
 }
 
 .tuft-right {
-    right: 20px;
-    transform: rotate(15deg);
+    right: 15px;
+    transform: rotate(25deg);
 }
 
 /* Cabeça da Coruja */
@@ -199,49 +207,64 @@
     z-index: 3;
 }
 
+/* Olhos da Coruja - Angular e Penetrantes */
+.owl-eyes {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 3;
+}
+
 .eye {
-    width: 24px;
-    height: 24px;
-    background: radial-gradient(circle at 30% 30%, 
-        #ffffff 0%, 
-        #f5f5f5 30%, 
-        #e8e8e8 70%,
-        #d0d0d0 100%);
-    border-radius: 50%;
-    border: 2px solid #2A1F17;
+    width: 32px;
+    height: 20px;
+    background: radial-gradient(ellipse at center, 
+        #ff4444 0%, 
+        #cc0000 30%, 
+        #880000 70%,
+        #440000 100%);
+    clip-path: polygon(0% 50%, 25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%);
+    border: 3px solid #000000;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     box-shadow: 
-        inset 0 -3px 6px rgba(0, 0, 0, 0.2),
-        0 3px 8px rgba(0, 0, 0, 0.3),
-        0 0 15px rgba(200, 155, 60, 0.3);
+        inset 0 -4px 8px rgba(0, 0, 0, 0.6),
+        0 4px 12px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(139, 0, 0, 0.6),
+        inset 0 0 10px rgba(255, 0, 0, 0.3);
 }
 
 .eye::before {
     content: '';
     position: absolute;
-    top: 15%;
-    left: 20%;
-    width: 25%;
-    height: 35%;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 50%;
+    top: 10%;
+    left: 15%;
+    width: 30%;
+    height: 40%;
+    background: rgba(255, 100, 100, 0.8);
+    clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
     pointer-events: none;
 }
 
 .pupil {
-    width: 14px;
-    height: 14px;
-    background: radial-gradient(circle at 25% 25%, 
-        #1a1a1a 0%, 
-        #000000 70%);
-    border-radius: 50%;
+    width: 20px;
+    height: 12px;
+    background: radial-gradient(ellipse at center, 
+        #ff0000 0%, 
+        #8B0000 50%,
+        #000000 80%);
+    clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+    box-shadow: 
+        0 0 15px rgba(139, 0, 0, 0.8),
+        inset 0 0 8px rgba(255, 0, 0, 0.4);
 }
 
 .pupil::after {
@@ -251,14 +274,15 @@
     left: 25%;
     width: 3px;
     height: 3px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.6);
 }
 
-/* Bico da Coruja - Mais Detalhado e Realista */
+/* Bico da Coruja - Angular e Letal */
 .owl-beak {
     position: absolute;
-    top: 48px;
+    top: 45px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 3;
@@ -272,24 +296,26 @@
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 8px solid #D2691E;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 15px solid #2F1B14;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8));
+    clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
 }
 
 .owl-beak::after {
     content: '';
     position: absolute;
-    top: 6px;
+    top: 10px;
     left: 50%;
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-left: 3px solid transparent;
-    border-right: 3px solid transparent;
-    border-top: 5px solid #B8860B;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 9px solid #1A0E0A;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
+    clip-path: polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%);
 }
 
 /* Asas da Coruja - Mais Realistas e Dinâmicas */
@@ -454,15 +480,19 @@
 
 .minerva-header {
     background: linear-gradient(135deg, 
-        var(--accent-color) 0%, 
-        var(--secondary-color) 100%);
-    border-bottom: 1px solid var(--primary-color);
+        #1a0a0a 0%, 
+        #2b1414 50%,
+        #3d1f1f 100%);
+    border-bottom: 2px solid #8B0000;
     padding: 15px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-radius: 13px 13px 0 0;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 
+        0 2px 10px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(139, 0, 0, 0.4),
+        inset 0 1px 0 rgba(220, 20, 60, 0.2);
 }
 
 .minerva-title {
@@ -471,13 +501,16 @@
     gap: 10px;
     font-weight: 700;
     font-size: 1rem;
-    color: var(--primary-color);
-    text-shadow: 0 0 10px rgba(200, 170, 110, 0.5);
+    color: #DC143C;
+    text-shadow: 
+        0 0 10px rgba(220, 20, 60, 0.8),
+        0 0 20px rgba(139, 0, 0, 0.6);
 }
 
 .minerva-title i {
     font-size: 1.2rem;
-    color: var(--primary-color);
+    color: #8B0000;
+    text-shadow: 0 0 15px rgba(139, 0, 0, 1);
 }
 
 .minerva-status {
@@ -489,12 +522,15 @@
 }
 
 .status-dot {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background: #00ff88;
-    box-shadow: 0 0 10px #00ff88;
-    animation: statusPulse 2s ease-in-out infinite;
+    background: #8B0000;
+    box-shadow: 
+        0 0 15px #8B0000,
+        0 0 30px rgba(139, 0, 0, 0.6),
+        inset 0 0 5px rgba(220, 20, 60, 0.8);
+    animation: darkStatusPulse 2s ease-in-out infinite;
 }
 
 .minerva-close {
@@ -513,16 +549,19 @@
     transform: scale(1.1);
 }
 
-/* Área de Mensagens */
+/* Área de Mensagens - Dark Theme */
 .minerva-messages {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
     background: linear-gradient(135deg, 
-        rgba(1, 10, 19, 0.9) 0%, 
-        rgba(10, 20, 40, 0.9) 100%);
+        rgba(26, 10, 10, 0.95) 0%, 
+        rgba(43, 20, 20, 0.95) 50%,
+        rgba(61, 31, 31, 0.95) 100%);
     scrollbar-width: thin;
-    scrollbar-color: var(--primary-color) transparent;
+    scrollbar-color: #8B0000 transparent;
+    border-left: 2px solid rgba(139, 0, 0, 0.3);
+    border-right: 2px solid rgba(139, 0, 0, 0.3);
 }
 
 .minerva-messages::-webkit-scrollbar {
@@ -952,6 +991,85 @@ body.modal-open {
     }
 }
 
+/* Animações Dark e Malévolas para Minerva */
+@keyframes darkFloat {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+        opacity: 0.8;
+    }
+    25% {
+        transform: translateY(-8px) rotate(90deg);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-4px) rotate(180deg);
+        opacity: 0.9;
+    }
+    75% {
+        transform: translateY(-12px) rotate(270deg);
+        opacity: 1;
+    }
+}
+
+@keyframes darkOwlPulse {
+    0%, 100% {
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 60px rgba(139, 0, 0, 1));
+    }
+    50% {
+        transform: scale(1.2);
+        filter: drop-shadow(0 0 80px rgba(139, 0, 0, 1)) drop-shadow(0 0 40px rgba(255, 0, 0, 0.8));
+    }
+}
+
+@keyframes malevolentThinking {
+    0%, 100% {
+        transform: rotate(-2deg) scale(1);
+    }
+    25% {
+        transform: rotate(1deg) scale(1.05);
+    }
+    50% {
+        transform: rotate(-1deg) scale(1.02);
+    }
+    75% {
+        transform: rotate(2deg) scale(1.08);
+    }
+}
+
+@keyframes darkAuraRotate {
+    0% {
+        transform: rotate(0deg);
+        background: radial-gradient(circle, 
+            rgba(139, 0, 0, 0.3) 0%, 
+            rgba(220, 20, 60, 0.2) 30%,
+            rgba(255, 0, 0, 0.1) 50%, 
+            transparent 70%);
+    }
+    33% {
+        background: radial-gradient(circle, 
+            rgba(220, 20, 60, 0.3) 0%, 
+            rgba(255, 0, 0, 0.2) 30%,
+            rgba(139, 0, 0, 0.1) 50%, 
+            transparent 70%);
+    }
+    66% {
+        background: radial-gradient(circle, 
+            rgba(255, 0, 0, 0.3) 0%, 
+            rgba(139, 0, 0, 0.2) 30%,
+            rgba(220, 20, 60, 0.1) 50%, 
+            transparent 70%);
+    }
+    100% {
+        transform: rotate(360deg);
+        background: radial-gradient(circle, 
+            rgba(139, 0, 0, 0.3) 0%, 
+            rgba(220, 20, 60, 0.2) 30%,
+            rgba(255, 0, 0, 0.1) 50%, 
+            transparent 70%);
+    }
+}
+
 /* Melhorias para funcionalidade de drag */
 #minerva-container.dragging .minerva-owl {
     transform: scale(1.15);
@@ -1020,4 +1138,84 @@ body.modal-open {
 @keyframes dragHint {
     0%, 100% { transform: scale(1); opacity: 0.7; }
     50% { transform: scale(1.3); opacity: 1; }
+}
+
+@keyframes darkStatusPulse {
+    0%, 100% { 
+        opacity: 1; 
+        transform: scale(1);
+        box-shadow: 
+            0 0 15px #8B0000,
+            0 0 30px rgba(139, 0, 0, 0.6),
+            inset 0 0 5px rgba(220, 20, 60, 0.8);
+    }
+    50% { 
+        opacity: 0.6; 
+        transform: scale(1.2);
+        box-shadow: 
+            0 0 25px #8B0000,
+            0 0 50px rgba(139, 0, 0, 0.8),
+            inset 0 0 8px rgba(220, 20, 60, 1);
+    }
+}
+
+/* Elementos Geométricos Adicionais para Visual Angular */
+.owl-head::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    height: 60%;
+    background: linear-gradient(45deg, 
+        transparent 0%, 
+        rgba(139, 0, 0, 0.1) 25%, 
+        transparent 50%, 
+        rgba(255, 0, 0, 0.1) 75%, 
+        transparent 100%);
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+    z-index: 1;
+    animation: geometricPulse 4s ease-in-out infinite;
+}
+
+/* Detalhes tecnológicos nas laterais */
+.owl-head::before {
+    content: '';
+    position: absolute;
+    top: 25%;
+    left: -8px;
+    width: 8px;
+    height: 50%;
+    background: linear-gradient(90deg, 
+        #8B0000 0%, 
+        #DC143C 50%, 
+        #8B0000 100%);
+    clip-path: polygon(0% 20%, 100% 0%, 100% 100%, 0% 80%);
+    box-shadow: 0 0 10px rgba(139, 0, 0, 0.6);
+}
+
+.owl-head .right-tech {
+    position: absolute;
+    top: 25%;
+    right: -8px;
+    width: 8px;
+    height: 50%;
+    background: linear-gradient(270deg, 
+        #8B0000 0%, 
+        #DC143C 50%, 
+        #8B0000 100%);
+    clip-path: polygon(0% 0%, 100% 20%, 100% 80%, 0% 100%);
+    box-shadow: 0 0 10px rgba(139, 0, 0, 0.6);
+}
+
+@keyframes geometricPulse {
+    0%, 100% {
+        opacity: 0.3;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
 }

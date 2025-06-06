@@ -3,6 +3,7 @@ class PersonalHubDashboard {
     constructor() {
         this.user = null;
         this.stats = {};
+        this.isEnhancedMode = false;
         this.init();
     }
 
@@ -17,6 +18,11 @@ class PersonalHubDashboard {
                 this.user = user;
                 this.loadDashboard();
                 document.getElementById('userInfo').textContent = `Olá, ${user.displayName || user.email}!`;
+                
+                // Pass user info to enhanced dashboard if it exists
+                if (window.dashboardEnhanced) {
+                    window.dashboardEnhanced.setUser(user);
+                }
             } else {
                 window.location.href = 'index.html';
             }
@@ -30,8 +36,23 @@ class PersonalHubDashboard {
     }
 
     async loadDashboard() {
-        await this.loadStats();
-        await this.loadRecentActivity();
+        // Only load traditional dashboard if enhanced mode is not active
+        if (!this.isEnhancedMode) {
+            await this.loadStats();
+            await this.loadRecentActivity();
+        }
+    }
+
+    setEnhancedMode(enabled) {
+        this.isEnhancedMode = enabled;
+        if (enabled) {
+            document.getElementById('traditionalDashboard').style.display = 'none';
+            document.getElementById('enhancedDashboard').style.display = 'block';
+        } else {
+            document.getElementById('traditionalDashboard').style.display = 'block';
+            document.getElementById('enhancedDashboard').style.display = 'none';
+            this.loadDashboard();
+        }
     }
 
     async loadStats() {

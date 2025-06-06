@@ -720,6 +720,21 @@
     transform: translateY(-2px);
 }
 
+/* API Status Info */
+.api-status-info {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(200, 170, 110, 0.1);
+    border: 1px solid rgba(200, 170, 110, 0.2);
+    border-radius: 5px;
+    text-align: center;
+}
+
+.api-status-info small {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.8rem;
+}
+
 /* Layout em duas colunas */
 .music-layout {
     display: grid;
@@ -873,25 +888,25 @@
 /* Mensagens de estado */
 .loading,
 .no-results,
-.error {
+.error,
+.api-error {
     text-align: center;
     padding: 2rem;
     color: rgba(255, 255, 255, 0.7);
     font-style: italic;
 }
 
-.search-hint {
-    text-align: center;
-    color: rgba(255, 255, 255, 0.5);
-    font-style: italic;
-    padding: 2rem;
+.api-error {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 8px;
+    color: #ffc107;
 }
 
-.empty-playlist {
-    text-align: center;
-    color: rgba(255, 255, 255, 0.5);
-    font-style: italic;
-    padding: 2rem;
+.api-error small {
+    display: block;
+    margin-top: 0.5rem;
+    opacity: 0.8;
 }
 
 /* Toast notification */

@@ -2,14 +2,73 @@
 class YouTubeMusicPlayer {
     constructor() {
         this.player = null;
+        this.isReady = false;
+        this.isPlaying = false;
+        this.currentTrack = null;
         this.playlist = [];
         this.currentIndex = 0;
-        this.isPlaying = false;
-        this.isReady = false;
         this.volume = 50;
         this.user = null;
         
+        // Storage fallback system
+        this.storageAvailable = this.checkStorageAvailability();
+        this.tempStorage = new Map(); // Fallback for when localStorage is blocked
+        
         this.init();
+    }
+
+    // Check if localStorage is available and not blocked
+    checkStorageAvailability() {
+        try {
+            const test = '__storage_test__';
+            localStorage.setItem(test, test);
+            localStorage.removeItem(test);
+            return true;
+        } catch (e) {
+            console.warn('localStorage is not available, using temporary storage fallback');
+            return false;
+        }
+    }
+
+    // Safe storage methods with fallback
+    setStorage(key, value) {
+        try {
+            if (this.storageAvailable) {
+                localStorage.setItem(key, JSON.stringify(value));
+            } else {
+                this.tempStorage.set(key, value);
+            }
+        } catch (e) {
+            console.warn('Storage failed, using temporary storage:', e);
+            this.tempStorage.set(key, value);
+        }
+    }
+
+    getStorage(key) {
+        try {
+            if (this.storageAvailable) {
+                const item = localStorage.getItem(key);
+                return item ? JSON.parse(item) : null;
+            } else {
+                return this.tempStorage.get(key) || null;
+            }
+        } catch (e) {
+            console.warn('Storage retrieval failed:', e);
+            return this.tempStorage.get(key) || null;
+        }
+    }
+
+    removeStorage(key) {
+        try {
+            if (this.storageAvailable) {
+                localStorage.removeItem(key);
+            } else {
+                this.tempStorage.delete(key);
+            }
+        } catch (e) {
+            console.warn('Storage removal failed:', e);
+            this.tempStorage.delete(key);
+        }
     }
 
     init() {
@@ -127,21 +186,29 @@ class YouTubeMusicPlayer {
             const query = document.getElementById('music-search-input').value;
             if (query) this.searchMusic(query);
         });
-    }
-
-    async searchMusic(query) {
+    }    async searchMusic(query) {
         try {
             this.showSearchLoading(true);
             const results = await searchYouTubeMusic(query, 15);
             
-            if (results && results.items) {
+            if (results && results.items && results.items.length > 0) {
                 this.displaySearchResults(results.items);
+            } else if (results && results.error) {
+                // Handle API errors specifically
+                if (results.error.code === 403) {
+                    this.showAPIError('A API do YouTube não está configurada corretamente. Usando dados de exemplo.');
+                    this.displayMockResults(query);
+                } else {
+                    this.showAPIError(`Erro da API: ${results.error.message}`);
+                }
             } else {
                 this.showNoResults();
             }
         } catch (error) {
             console.error('Erro na busca:', error);
             this.showSearchError();
+            // Fallback to mock data for demonstration
+            this.displayMockResults(query);
         } finally {
             this.showSearchLoading(false);
         }
@@ -317,42 +384,87 @@ class YouTubeMusicPlayer {
         if (this.user) {
             this.savePlaylistToFirebase();
         }
-    }
-
-    async saveToHistory(videoId, title, channel) {
+    }    async saveToHistory(videoId, title, channel) {
         try {
-            await db.collection('music').add({
-                userId: this.user.uid,
-                videoId: videoId,
-                title: title,
-                channel: channel,
-                playedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                type: 'youtube'
-            });
+            if (this.user && typeof db !== 'undefined') {
+                await db.collection('music').add({
+                    userId: this.user.uid,
+                    videoId: videoId,
+                    title: title,
+                    channel: channel,
+                    playedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    type: 'youtube'
+                });
+            } else {
+                // Fallback to local storage when Firebase is not available
+                const history = this.getStorage('music_history') || [];
+                history.unshift({
+                    videoId,
+                    title,
+                    channel,
+                    playedAt: new Date().toISOString()
+                });
+                // Keep only last 50 items
+                if (history.length > 50) history.splice(50);
+                this.setStorage('music_history', history);
+            }
         } catch (error) {
             console.error('Erro ao salvar histórico:', error);
+            // Fallback to local storage
+            const history = this.getStorage('music_history') || [];
+            history.unshift({
+                videoId,
+                title,
+                channel,
+                playedAt: new Date().toISOString()
+            });
+            if (history.length > 50) history.splice(50);
+            this.setStorage('music_history', history);
         }
     }
 
     async savePlaylistToFirebase() {
         try {
-            await db.collection('users').doc(this.user.uid).set({
-                musicPlaylist: this.playlist
-            }, { merge: true });
+            if (this.user && typeof db !== 'undefined') {
+                await db.collection('users').doc(this.user.uid).set({
+                    musicPlaylist: this.playlist
+                }, { merge: true });
+            } else {
+                // Fallback to local storage
+                this.setStorage('music_playlist', this.playlist);
+            }
         } catch (error) {
             console.error('Erro ao salvar playlist:', error);
+            // Fallback to local storage
+            this.setStorage('music_playlist', this.playlist);
         }
     }
 
     async loadUserPlaylists() {
         try {
-            const userDoc = await db.collection('users').doc(this.user.uid).get();
-            if (userDoc.exists && userDoc.data().musicPlaylist) {
-                this.playlist = userDoc.data().musicPlaylist;
+            if (this.user && typeof db !== 'undefined') {
+                const userDoc = await db.collection('users').doc(this.user.uid).get();
+                if (userDoc.exists && userDoc.data().musicPlaylist) {
+                    this.playlist = userDoc.data().musicPlaylist;
+                    this.updatePlaylistDisplay();
+                    return;
+                }
+            }
+            
+            // Fallback to local storage
+            const savedPlaylist = this.getStorage('music_playlist');
+            if (savedPlaylist) {
+                this.playlist = savedPlaylist;
                 this.updatePlaylistDisplay();
             }
         } catch (error) {
             console.error('Erro ao carregar playlist:', error);
+            // Try local storage fallback
+            const savedPlaylist = this.getStorage('music_playlist');
+            if (savedPlaylist) {
+                this.playlist = savedPlaylist;
+                this.updatePlaylistDisplay();
+            }
         }
     }
 
@@ -384,22 +496,61 @@ class YouTubeMusicPlayer {
         resultsContainer.innerHTML = '<div class="error">⚠️ Erro na busca. Tente novamente.</div>';
     }
 
-    showToast(message) {
-        // Criar toast notification simples
-        const toast = document.createElement('div');
-        toast.className = 'music-toast';
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.classList.add('show');
-        }, 100);
-        
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => document.body.removeChild(toast), 300);
-        }, 3000);
+    showAPIError(message) {
+        const resultsContainer = document.getElementById('music-search-results');
+        resultsContainer.innerHTML = `
+            <div class="api-error">
+                ⚠️ ${message}
+                <br><small>Mostrando resultados de exemplo para demonstração.</small>
+            </div>
+        `;
     }
+
+    displayMockResults(query) {
+        // Mock data for demonstration when API is not available
+        const mockResults = [
+            {
+                id: { videoId: 'dQw4w9WgXcQ' },
+                snippet: {
+                    title: `🎵 ${query} - Resultado de Exemplo 1`,
+                    channelTitle: 'Canal Musical Demo',
+                    thumbnails: {
+                        medium: {
+                            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNjY3ZWVhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7wn461IE3DunNpY2E8L3RleHQ+PC9zdmc+'
+                        }
+                    }
+                }
+            },
+            {
+                id: { videoId: 'kJQP7kiw5Fk' },
+                snippet: {
+                    title: `🎶 ${query} - Resultado de Exemplo 2`,
+                    channelTitle: 'Artista Demo',
+                    thumbnails: {
+                        medium: {
+                            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNzY0YmEyIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7wn462IE11c2ljPC90ZXh0Pjwvc3ZnPg=='
+                        }
+                    }
+                }
+            },
+            {
+                id: { videoId: 'L_jWHffIx5E' },
+                snippet: {
+                    title: `🎤 ${query} - Resultado de Exemplo 3`,
+                    channelTitle: 'Demo Records',
+                    thumbnails: {
+                        medium: {
+                            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjOTk3M2ZmIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7wn464IE11c2ljPC90ZXh0Pjwvc3ZnPg=='
+                        }
+                    }
+                }
+            }
+        ];
+
+        this.displaySearchResults(mockResults);
+    }
+
+    // ...existing code...
 }
 
 // Inicializar player globalmente

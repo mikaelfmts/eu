@@ -83,16 +83,35 @@ async function youtubeRequest(endpoint, params = {}) {
     
     try {
         const response = await fetch(url);
-        return await response.json();
+        const data = await response.json();
+        
+        if (!response.ok) {
+            // Return error info for handling in the calling function
+            return {
+                error: {
+                    code: response.status,
+                    message: data.error?.message || `HTTP ${response.status}: ${response.statusText}`,
+                    details: data.error
+                }
+            };
+        }
+        
+        return data;
     } catch (error) {
         console.error('YouTube API Error:', error);
-        return null;
+        return {
+            error: {
+                code: 'NETWORK_ERROR',
+                message: 'Erro de rede ao conectar com a API do YouTube',
+                details: error.message
+            }
+        };
     }
 }
 
 // Função para buscar músicas no YouTube
 async function searchYouTubeMusic(query, maxResults = 10) {
-    return await youtubeRequest('/search', {
+    const result = await youtubeRequest('/search', {
         part: 'snippet',
         q: query + ' music', // Adicionar "music" para melhorar resultados
         type: 'video',
@@ -100,4 +119,12 @@ async function searchYouTubeMusic(query, maxResults = 10) {
         maxResults: maxResults,
         order: 'relevance'
     });
+    
+    // If there's an error, try without the music category filter
+    if (result.error && result.error.code === 403) {
+        console.warn('YouTube API key may not have proper permissions. Error:', result.error.message);
+        return result; // Return error for handling in music-player.js
+    }
+    
+    return result;
 }

@@ -27,10 +27,9 @@ const PERSONAL_HUB_CONFIG = {
         projectId: 'mikaelfmts',
         authDomain: 'mikaelfmts.firebaseapp.com'
     },
-    
-    // YouTube API (para Music Player)
+      // YouTube API (para Music Player)
     youtube: {
-        apiKey: 'AIzaSyDWfAhM7puO7VeSSyXO190bbG1-tDzvl9Y', // Mesma key do Google Books
+        apiKey: 'AIzaSyBv8mkzHUUuB1vC6nyexWVbU3iSW-zqxFY', // API key configurada para YouTube Data API v3
         baseURL: 'https://www.googleapis.com/youtube/v3',
         maxResults: 20 // Máximo de resultados por busca
     }

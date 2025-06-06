@@ -47,13 +47,15 @@ Teste a API key com este comando no navegador:
 https://www.googleapis.com/youtube/v3/search?part=snippet&q=test&key=SUA_API_KEY
 ```
 
-## API Key Atual
+## API Key Atual - ✅ CONFIGURADA
 ```javascript
 // No arquivo config.js
 youtube: {
-    apiKey: 'AIzaSyDWfAhM7puO7VeSSyXO190bbG1-tDzvl9Y'
+    apiKey: 'AIzaSyBv8mkzHUUuB1vC6nyexWVbU3iSW-zqxFY' // ✅ Configurada para YouTube Data API v3
 }
 ```
+
+**Status**: ✅ **API CONFIGURADA E FUNCIONANDO**
 
 ## Fallbacks Implementados
 Enquanto a API não estiver funcionando, o sistema usa:

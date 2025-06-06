@@ -178,66 +178,214 @@
                     </div>
                 </form>
             </div>
-        </div>
-
-        <!-- Modal Music Player -->
+        </div>        <!-- Modal Music Player -->
         <div id="music-player-modal" class="modal">
             <div class="modal-content modal-large">
-                <span class="close" onclick="document.getElementById('music-player-modal').style.display='none'">&times;</span>
-                <h3>🎵 Music Player</h3>
+                <!-- Header com controles minimizar/maximizar -->
+                <div class="music-player-header">
+                    <h3>🎵 Music Player</h3>
+                    <div class="header-controls">
+                        <button id="minimize-player" class="header-btn" title="Minimizar para Mini Player">🗕</button>
+                        <span class="close" onclick="document.getElementById('music-player-modal').style.display='none'">&times;</span>
+                    </div>
+                </div>
                 
                 <!-- YouTube Player (Oculto) -->
                 <div id="youtube-player" style="display: none;"></div>
                 
                 <!-- Player Controls -->
                 <div class="music-player-container">
-                    <!-- Now Playing -->
+                    <!-- Now Playing com Visualizer -->
                     <div id="music-now-playing" class="now-playing">
                         <div class="now-playing-info">
                             <h4>Nenhuma música tocando</h4>
                             <p>Busque e reproduza uma música</p>
+                            <div class="audio-visualizer" id="audio-visualizer" style="display: none;">
+                                <div class="visualizer-bar"></div>
+                                <div class="visualizer-bar"></div>
+                                <div class="visualizer-bar"></div>
+                                <div class="visualizer-bar"></div>
+                                <div class="visualizer-bar"></div>
+                            </div>
+                        </div>
+                        <div class="now-playing-controls">
+                            <button id="toggle-lyrics" class="feature-btn" title="Mostrar/Esconder Letras">📝</button>
+                            <button id="toggle-visualizer" class="feature-btn" title="Ativar/Desativar Visualizador">🎨</button>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="progress-section">
+                        <div class="time-display">
+                            <span id="current-time">0:00</span>
+                            <div class="progress-container">
+                                <input type="range" id="progress-bar" min="0" max="100" value="0">
+                            </div>
+                            <span id="total-time">0:00</span>
                         </div>
                     </div>
                     
-                    <!-- Controls -->
+                    <!-- Main Controls -->
                     <div class="music-controls">
-                        <button id="music-prev-btn" class="control-btn">⏮️</button>
-                        <button id="music-play-btn" class="control-btn play-btn">▶️</button>
-                        <button id="music-next-btn" class="control-btn">⏭️</button>
+                        <div class="control-group-left">
+                            <button id="music-shuffle-btn" class="control-btn mode-btn" title="Shuffle">🔀</button>
+                            <button id="music-prev-btn" class="control-btn">⏮️</button>
+                        </div>
                         
+                        <div class="control-group-center">
+                            <button id="music-play-btn" class="control-btn play-btn">▶️</button>
+                        </div>
+                        
+                        <div class="control-group-right">
+                            <button id="music-next-btn" class="control-btn">⏭️</button>
+                            <button id="music-repeat-btn" class="control-btn mode-btn" title="Repeat: Off">🔁</button>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Controls -->
+                    <div class="advanced-controls">
                         <div class="volume-control">
-                            <span>🔊</span>
+                            <button id="mute-btn" class="control-btn">🔊</button>
                             <input type="range" id="music-volume" min="0" max="100" value="50">
                             <span id="music-volume-display">50%</span>
+                        </div>
+                        
+                        <div class="speed-control">
+                            <label>Velocidade:</label>
+                            <select id="playback-speed">
+                                <option value="0.5">0.5x</option>
+                                <option value="0.75">0.75x</option>
+                                <option value="1" selected>1x</option>
+                                <option value="1.25">1.25x</option>
+                                <option value="1.5">1.5x</option>
+                                <option value="2">2x</option>
+                            </select>
+                        </div>
+                        
+                        <div class="timer-control">
+                            <button id="sleep-timer-btn" class="feature-btn" title="Sleep Timer">⏰</button>
+                            <span id="sleep-timer-display" style="display: none;">⏰ 0:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Playlist Management -->
+                    <div class="playlist-management">
+                        <div class="playlist-header">
+                            <select id="active-playlist">
+                                <option value="default">Playlist Principal</option>
+                            </select>
+                            <button id="new-playlist-btn" class="feature-btn" title="Nova Playlist">➕</button>
+                            <button id="party-mode-btn" class="feature-btn" title="Party Mode">🎉</button>
                         </div>
                     </div>
                       <!-- Search -->
                     <div class="music-search">
                         <form id="music-search-form">
-                            <input type="text" id="music-search-input" placeholder="Buscar música no YouTube..." required>
+                            <input type="text" id="music-search-input" placeholder="Buscar música no YouTube... (Ctrl+F para focar)" required>
                             <button type="submit" id="music-search-btn">🔍</button>
+                            <button type="button" id="clear-search-btn" title="Limpar busca">✖️</button>
                         </form>
+                        <div class="search-filters">
+                            <label>
+                                <input type="checkbox" id="filter-duration"> Apenas músicas (< 10 min)
+                            </label>
+                            <label>
+                                <input type="checkbox" id="filter-quality"> Alta qualidade
+                            </label>
+                        </div>
                     </div>
                     
-                    <!-- Two Column Layout -->
+                    <!-- Three Column Layout -->
                     <div class="music-layout">
-                        <!-- Search Results -->
+                        <!-- Search Results & Queue -->
                         <div class="music-section">
-                            <h4>🔍 Resultados da Busca</h4>
-                            <div id="music-search-results" class="search-results">
-                                <p class="search-hint">Digite algo acima e pressione Enter para buscar músicas</p>
+                            <div class="section-tabs">
+                                <button class="tab-btn active" data-tab="search">🔍 Busca</button>
+                                <button class="tab-btn" data-tab="queue">📋 Fila</button>
+                            </div>
+                            
+                            <div id="search-tab" class="tab-content active">
+                                <div id="music-search-results" class="search-results">
+                                    <p class="search-hint">Digite algo acima e pressione Enter para buscar músicas</p>
+                                </div>
+                            </div>
+                            
+                            <div id="queue-tab" class="tab-content">
+                                <div class="queue-controls">
+                                    <button id="clear-queue-btn" class="feature-btn">🗑️ Limpar Fila</button>
+                                    <button id="save-queue-btn" class="feature-btn">💾 Salvar como Playlist</button>
+                                </div>
+                                <div id="music-queue" class="queue-list">
+                                    <p class="empty-queue">Fila vazia</p>
+                                </div>
                             </div>
                         </div>
                         
                         <!-- Playlist -->
                         <div class="music-section">
-                            <h4>🎵 Sua Playlist</h4>
+                            <div class="section-header">
+                                <h4>🎵 Playlist Atual</h4>
+                                <div class="playlist-actions">
+                                    <button id="export-playlist-btn" class="feature-btn" title="Exportar Playlist">📤</button>
+                                    <button id="import-playlist-btn" class="feature-btn" title="Importar Playlist">📥</button>
+                                </div>
+                            </div>
                             <div id="music-playlist" class="playlist">
                                 <p class="empty-playlist">Playlist vazia. Busque e adicione músicas!</p>
                             </div>
                         </div>
+                        
+                        <!-- Stats & Lyrics -->
+                        <div class="music-section">
+                            <div class="section-tabs">
+                                <button class="tab-btn active" data-tab="stats">📊 Stats</button>
+                                <button class="tab-btn" data-tab="lyrics">📝 Letras</button>
+                            </div>
+                            
+                            <div id="stats-tab" class="tab-content active">
+                                <div id="music-stats" class="music-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Músicas tocadas hoje:</span>
+                                        <span class="stat-value" id="songs-today">0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Tempo total ouvido:</span>
+                                        <span class="stat-value" id="total-listen-time">0h 0m</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Música favorita:</span>
+                                        <span class="stat-value" id="favorite-song">Nenhuma</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="lyrics-tab" class="tab-content">
+                                <div id="music-lyrics" class="lyrics-display">
+                                    <p class="no-lyrics">Letras não disponíveis</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Mini Player -->
+        <div id="mini-player" class="mini-player" style="display: none;">
+            <div class="mini-player-content">
+                <div class="mini-info">
+                    <span id="mini-title">Nenhuma música</span>
+                </div>
+                <div class="mini-controls">
+                    <button id="mini-prev-btn" class="mini-btn">⏮️</button>
+                    <button id="mini-play-btn" class="mini-btn">▶️</button>
+                    <button id="mini-next-btn" class="mini-btn">⏭️</button>
+                    <button id="expand-player" class="mini-btn" title="Expandir Player">🔼</button>
+                    <button id="close-mini-player" class="mini-btn" title="Fechar">✖️</button>
+                </div>
+            </div>
+            <div class="mini-progress">
+                <div id="mini-progress-bar" class="mini-progress-fill"></div>
             </div>
         </div>
     </div>    <!-- Scripts -->

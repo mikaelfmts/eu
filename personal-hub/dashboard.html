@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Hub - Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="styles/personal-hub.css">
+</head>
+<body>
+    <div class="personal-hub-container">
+        <!-- Header -->
+        <header class="hub-header">
+            <div class="hub-logo">
+                <h1>🏠 Personal Hub</h1>
+                <p>Dashboard Principal</p>
+            </div>
+            <nav class="hub-nav">
+                <span id="userInfo">Carregando...</span>
+                <button id="logoutBtn" class="btn-back">Sair</button>
+            </nav>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard-main">
+            <!-- Quick Stats -->
+            <section class="dashboard-section">
+                <h2>📊 Visão Geral</h2>
+                <div class="stats-grid" id="statsGrid">
+                    <!-- Stats serão carregadas dinamicamente -->
+                </div>
+            </section>
+
+            <!-- Recent Activity -->
+            <section class="dashboard-section">
+                <h2>🕒 Atividades Recentes</h2>
+                <div class="activity-feed" id="activityFeed">
+                    <!-- Atividades serão carregadas dinamicamente -->
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="dashboard-section">
+                <h2>⚡ Ações Rápidas</h2>
+                <div class="quick-actions">
+                    <button class="action-btn" onclick="openDiary()">
+                        📖 Novo Diário
+                    </button>
+                    <button class="action-btn" onclick="addMovie()">
+                        🎬 Adicionar Filme
+                    </button>
+                    <button class="action-btn" onclick="addBook()">
+                        📚 Adicionar Livro
+                    </button>
+                    <button class="action-btn" onclick="openMusicPlayer()">
+                        🎵 Player de Música
+                    </button>
+                </div>
+            </section>            <!-- Quick Add Forms (Hidden by default) -->
+            <div id="quickForms" class="quick-forms" style="display: none;">
+                <!-- Forms dinâmicos aqui -->
+            </div>
+        </main>
+
+        <!-- Modais -->
+        <!-- Modal Diário -->
+        <div id="diaryModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('diaryModal')">&times;</span>
+                <h3>📖 Nova Entrada do Diário</h3>
+                <form id="diaryForm">
+                    <div class="form-group">
+                        <label for="diaryTitle">Título:</label>
+                        <input type="text" id="diaryTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="diaryMood">Como você está se sentindo?</label>
+                        <select id="diaryMood">
+                            <option value="😊">😊 Feliz</option>
+                            <option value="😐">😐 Neutro</option>
+                            <option value="😔">😔 Triste</option>
+                            <option value="😡">😡 Irritado</option>
+                            <option value="😴">😴 Cansado</option>
+                            <option value="🤔">🤔 Pensativo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="diaryContent">Conte sobre seu dia:</label>
+                        <textarea id="diaryContent" rows="6" required></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Salvar Entrada</button>
+                        <button type="button" onclick="closeModal('diaryModal')" class="btn-secondary">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Filme -->
+        <div id="movieModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('movieModal')">&times;</span>
+                <h3>🎬 Adicionar Filme</h3>
+                <form id="movieForm">
+                    <div class="form-group">
+                        <label for="movieSearch">Buscar filme:</label>
+                        <input type="text" id="movieSearch" placeholder="Digite o nome do filme...">
+                        <button type="button" onclick="searchMovies()" class="btn-search">Buscar</button>
+                    </div>
+                    <div id="movieResults" class="search-results"></div>
+                    <div id="selectedMovie" class="selected-item" style="display: none;">
+                        <div class="form-group">
+                            <label for="movieStatus">Status:</label>
+                            <select id="movieStatus">
+                                <option value="want_to_watch">Quero Assistir</option>
+                                <option value="watching">Assistindo</option>
+                                <option value="watched">Já Assisti</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="movieRating">Sua avaliação (1-10):</label>
+                            <input type="number" id="movieRating" min="1" max="10" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="movieReview">Sua opinião:</label>
+                            <textarea id="movieReview" rows="3"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Adicionar à Lista</button>
+                            <button type="button" onclick="closeModal('movieModal')" class="btn-secondary">Cancelar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Livro -->
+        <div id="bookModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('bookModal')">&times;</span>
+                <h3>📚 Adicionar Livro</h3>
+                <form id="bookForm">
+                    <div class="form-group">
+                        <label for="bookSearch">Buscar livro:</label>
+                        <input type="text" id="bookSearch" placeholder="Digite o nome do livro...">
+                        <button type="button" onclick="searchBooks()" class="btn-search">Buscar</button>
+                    </div>
+                    <div id="bookResults" class="search-results"></div>
+                    <div id="selectedBook" class="selected-item" style="display: none;">
+                        <div class="form-group">
+                            <label for="bookStatus">Status:</label>
+                            <select id="bookStatus">
+                                <option value="want_to_read">Quero Ler</option>
+                                <option value="reading">Lendo</option>
+                                <option value="read">Já Li</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookRating">Sua avaliação (1-5):</label>
+                            <input type="number" id="bookRating" min="1" max="5" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="bookPages">Páginas totais:</label>
+                            <input type="number" id="bookPages" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="bookCurrentPage">Página atual:</label>
+                            <input type="number" id="bookCurrentPage" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="bookReview">Sua resenha:</label>
+                            <textarea id="bookReview" rows="3"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Adicionar à Biblioteca</button>
+                            <button type="button" onclick="closeModal('bookModal')" class="btn-secondary">Cancelar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div><!-- Scripts -->
+    <!-- Firebase Libraries -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script>
+        // Configuração do Firebase (compatibilidade)
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
+            authDomain: "mikaelfmts.firebaseapp.com",
+            projectId: "mikaelfmts",
+            storageBucket: "mikaelfmts.firebasestorage.app",
+            messagingSenderId: "516762612351",
+            appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
+        };
+        
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+    
+    <script src="config.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        // Inicializar Personal Hub Dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            window.personalHubDashboard = new PersonalHubDashboard();
+        });
+    </script>
+</body>
+</html>

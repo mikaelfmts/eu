@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Hub - Login</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="styles/personal-hub.css">
+</head>
+<body>
+    <div class="personal-hub-container">
+        <!-- Header -->
+        <header class="hub-header">
+            <div class="hub-logo">
+                <h1>🏠 Personal Hub</h1>
+                <p>Organize sua vida digital</p>
+            </div>
+            <nav class="hub-nav">
+                <a href="../index.html" class="btn-back">← Voltar ao Portfolio</a>
+            </nav>
+        </header>
+
+        <!-- Login/Register Form -->
+        <main class="auth-main">
+            <div class="auth-container">
+                <div class="auth-toggle">
+                    <button id="loginTab" class="tab-btn active">Login</button>
+                    <button id="registerTab" class="tab-btn">Registrar</button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="auth-form active">
+                    <h2>Entrar no Personal Hub</h2>
+                    <div class="form-group">
+                        <label for="loginEmail">Email:</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Senha:</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Entrar</button>
+                    <p class="auth-link">
+                        Não tem conta? <a href="#" id="showRegister">Registre-se</a>
+                    </p>
+                </form>
+
+                <!-- Register Form -->
+                <form id="registerForm" class="auth-form">
+                    <h2>Criar Conta</h2>
+                    <div class="form-group">
+                        <label for="registerName">Nome:</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email:</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Senha:</label>
+                        <input type="password" id="registerPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirmar Senha:</label>
+                        <input type="password" id="confirmPassword" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Registrar</button>
+                    <p class="auth-link">
+                        Já tem conta? <a href="#" id="showLogin">Faça login</a>
+                    </p>
+                </form>
+            </div>
+
+            <!-- Features Preview -->
+            <div class="features-preview">
+                <h3>🌟 Recursos do Personal Hub</h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <span class="feature-icon">📊</span>
+                        <h4>Dashboard Unificado</h4>
+                        <p>Visão geral de todas as áreas da sua vida</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">🎵</span>
+                        <h4>Player de Música</h4>
+                        <p>Organize e reproduza suas músicas favoritas</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">📖</span>
+                        <h4>Diário Digital</h4>
+                        <p>Registre seus pensamentos e memórias</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">🎬</span>
+                        <h4>Gestão de Mídia</h4>
+                        <p>Acompanhe filmes, séries e livros</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>    <!-- Scripts -->
+    <!-- Firebase Libraries -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script>
+        // Configuração do Firebase (compatibilidade)
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
+            authDomain: "mikaelfmts.firebaseapp.com",
+            projectId: "mikaelfmts",
+            storageBucket: "mikaelfmts.firebasestorage.app",
+            messagingSenderId: "516762612351",
+            appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
+        };
+        
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+    
+    <script src="config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Inicializar Personal Hub Auth
+        document.addEventListener('DOMContentLoaded', function() {
+            window.personalHubAuth = new PersonalHubAuth();
+        });
+    </script>
+</body>
+</html>

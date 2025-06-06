@@ -67,21 +67,27 @@ class PersonalHubStats {
         this.renderOverviewStats(stats, diaryStreak, monthlyAvg);
     }
 
-    async calculateDiaryStreak() {
-        try {
+    async calculateDiaryStreak() {        try {
             const diaryDocs = await db.collection('diary')
                 .where('userId', '==', this.user.uid)
-                .orderBy('createdAt', 'desc')
                 .get();
 
             if (diaryDocs.empty) return 0;
+
+            // Ordenar por data no cliente
+            const sortedDocs = diaryDocs.docs.sort((a, b) => {
+                const dateA = a.data().createdAt?.toDate() || new Date(0);
+                const dateB = b.data().createdAt?.toDate() || new Date(0);
+                return dateB - dateA;
+            });
 
             let streak = 0;
             let currentDate = new Date();
             currentDate.setHours(0, 0, 0, 0);
 
-            for (const doc of diaryDocs.docs) {
-                const entryDate = doc.data().createdAt.toDate();
+            for (const doc of sortedDocs) {
+                const entryDate = doc.data().createdAt?.toDate();
+                if (!entryDate) continue;
                 entryDate.setHours(0, 0, 0, 0);
 
                 const diffDays = Math.floor((currentDate - entryDate) / (1000 * 60 * 60 * 24));

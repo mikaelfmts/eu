@@ -104,70 +104,73 @@ class PersonalHubDashboard {
                 </div>
             </div>
         `;
-    }
-
-    async loadRecentActivity() {
+    }    async loadRecentActivity() {
         try {
             // Buscar atividades recentes de todas as coleções
             const activities = [];
 
-            // Diário
+            // Diário - query simples sem orderBy composto
             const diaryDocs = await db.collection('diary')
                 .where('userId', '==', this.user.uid)
-                .orderBy('createdAt', 'desc')
-                .limit(3)
+                .limit(10) // Pegar mais para filtrar depois
                 .get();
             
             diaryDocs.forEach(doc => {
                 const data = doc.data();
-                activities.push({
-                    type: 'diary',
-                    icon: '📖',
-                    text: `Nova entrada no diário: "${data.title || 'Sem título'}"`,
-                    time: data.createdAt.toDate()
-                });
+                if (data.createdAt) {
+                    activities.push({
+                        type: 'diary',
+                        icon: '📖',
+                        text: `Nova entrada no diário: "${data.title || 'Sem título'}"`,
+                        time: data.createdAt.toDate()
+                    });
+                }
             });
 
-            // Filmes
+            // Filmes - query simples sem orderBy composto
             const moviesDocs = await db.collection('movies')
                 .where('userId', '==', this.user.uid)
-                .orderBy('createdAt', 'desc')
-                .limit(2)
+                .limit(10) // Pegar mais para filtrar depois
                 .get();
             
             moviesDocs.forEach(doc => {
                 const data = doc.data();
-                activities.push({
-                    type: 'movie',
-                    icon: '🎬',
-                    text: `Assistiu: ${data.title}`,
-                    time: data.createdAt.toDate()
-                });
+                if (data.createdAt) {
+                    activities.push({
+                        type: 'movie',
+                        icon: '🎬',
+                        text: `Assistiu: ${data.title}`,
+                        time: data.createdAt.toDate()
+                    });
+                }
             });
 
-            // Livros
+            // Livros - query simples sem orderBy composto
             const booksDocs = await db.collection('books')
                 .where('userId', '==', this.user.uid)
-                .orderBy('createdAt', 'desc')
-                .limit(2)
+                .limit(10) // Pegar mais para filtrar depois
                 .get();
             
             booksDocs.forEach(doc => {
                 const data = doc.data();
-                activities.push({
-                    type: 'book',
-                    icon: '📚',
-                    text: `Leu: ${data.title}`,
-                    time: data.createdAt.toDate()
-                });
+                if (data.createdAt) {
+                    activities.push({
+                        type: 'book',
+                        icon: '📚',
+                        text: `Leu: ${data.title}`,
+                        time: data.createdAt.toDate()
+                    });
+                }
             });
 
-            // Ordenar por data
+            // Ordenar por data no cliente (sem exigir índice)
             activities.sort((a, b) => b.time - a.time);
             
             this.renderActivity(activities.slice(0, 5));
         } catch (error) {
             console.error('Erro ao carregar atividades:', error);
+            // Em caso de erro, mostrar mensagem amigável
+            this.renderActivity([]);
         }
     }
 

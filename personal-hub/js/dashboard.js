@@ -222,7 +222,11 @@ function addBook() {
 }
 
 function openMusicPlayer() {
-    alert('Player de música em desenvolvimento! Em breve você poderá fazer upload e organizar suas músicas.');
+    document.getElementById('music-player-modal').style.display = 'flex';
+    
+    if (!window.musicPlayer) {
+        window.musicPlayer = new YouTubeMusicPlayer();
+    }
 }
 
 function closeModal(modalId) {

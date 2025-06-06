@@ -26,6 +26,13 @@ const PERSONAL_HUB_CONFIG = {
         // Usar firebase-config.js existente - configuração já está correta
         projectId: 'mikaelfmts',
         authDomain: 'mikaelfmts.firebaseapp.com'
+    },
+    
+    // YouTube API (para Music Player)
+    youtube: {
+        apiKey: 'AIzaSyDWfAhM7puO7VeSSyXO190bbG1-tDzvl9Y', // Mesma key do Google Books
+        baseURL: 'https://www.googleapis.com/youtube/v3',
+        maxResults: 20 // Máximo de resultados por busca
     }
 };
 
@@ -63,4 +70,34 @@ async function googleBooksRequest(endpoint, params = {}) {
         console.error('Google Books API Error:', error);
         return null;
     }
+}
+
+// Função para fazer requisições à API do YouTube
+async function youtubeRequest(endpoint, params = {}) {
+    const url = new URL(`${PERSONAL_HUB_CONFIG.youtube.baseURL}${endpoint}`);
+    url.searchParams.append('key', PERSONAL_HUB_CONFIG.youtube.apiKey);
+    
+    Object.keys(params).forEach(key => {
+        url.searchParams.append(key, params[key]);
+    });
+    
+    try {
+        const response = await fetch(url);
+        return await response.json();
+    } catch (error) {
+        console.error('YouTube API Error:', error);
+        return null;
+    }
+}
+
+// Função para buscar músicas no YouTube
+async function searchYouTubeMusic(query, maxResults = 10) {
+    return await youtubeRequest('/search', {
+        part: 'snippet',
+        q: query + ' music', // Adicionar "music" para melhorar resultados
+        type: 'video',
+        videoCategoryId: '10', // Categoria música
+        maxResults: maxResults,
+        order: 'relevance'
+    });
 }

@@ -179,6 +179,68 @@
                 </form>
             </div>
         </div>
+
+        <!-- Modal Music Player -->
+        <div id="music-player-modal" class="modal">
+            <div class="modal-content modal-large">
+                <span class="close" onclick="document.getElementById('music-player-modal').style.display='none'">&times;</span>
+                <h3>🎵 Music Player</h3>
+                
+                <!-- YouTube Player (Oculto) -->
+                <div id="youtube-player" style="display: none;"></div>
+                
+                <!-- Player Controls -->
+                <div class="music-player-container">
+                    <!-- Now Playing -->
+                    <div id="music-now-playing" class="now-playing">
+                        <div class="now-playing-info">
+                            <h4>Nenhuma música tocando</h4>
+                            <p>Busque e reproduza uma música</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Controls -->
+                    <div class="music-controls">
+                        <button id="music-prev-btn" class="control-btn">⏮️</button>
+                        <button id="music-play-btn" class="control-btn play-btn">▶️</button>
+                        <button id="music-next-btn" class="control-btn">⏭️</button>
+                        
+                        <div class="volume-control">
+                            <span>🔊</span>
+                            <input type="range" id="music-volume" min="0" max="100" value="50">
+                            <span id="music-volume-display">50%</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Search -->
+                    <div class="music-search">
+                        <form id="music-search-form">
+                            <input type="text" id="music-search-input" placeholder="Buscar música no YouTube..." required>
+                            <button type="submit" id="music-search-btn">🔍</button>
+                        </form>
+                    </div>
+                    
+                    <!-- Two Column Layout -->
+                    <div class="music-layout">
+                        <!-- Search Results -->
+                        <div class="music-section">
+                            <h4>🔍 Resultados da Busca</h4>
+                            <div id="music-search-results" class="search-results">
+                                <p class="search-hint">Digite algo acima e pressione Enter para buscar músicas</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Playlist -->
+                        <div class="music-section">
+                            <h4>🎵 Sua Playlist</h4>
+                            <div id="music-playlist" class="playlist">
+                                <p class="empty-playlist">Playlist vazia. Busque e adicione músicas!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>    <!-- Scripts -->
     <!-- Firebase Libraries - Production builds específicos -->
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -201,8 +263,8 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
     </script>
-    
-    <script src="config.js"></script>
+      <script src="config.js"></script>
+    <script src="js/music-player.js"></script>
     <script src="js/dashboard.js"></script>
     <script>
         // Inicializar Personal Hub Dashboard

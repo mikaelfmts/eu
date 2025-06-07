@@ -116,11 +116,48 @@ class DashboardEnhanced {
         if (!enhancedContainer) {
             console.error('Container do dashboard aprimorado não encontrado');
             return;
-        }
-
-        enhancedContainer.innerHTML = this.getEnhancedLayoutHTML();
+        }        enhancedContainer.innerHTML = this.getEnhancedLayoutHTML();
         this.updateGreeting();
         this.loadMotivationalQuote();
+    }
+
+    updateGreeting() {
+        const greetingElement = document.getElementById('dynamicGreeting');
+        if (!greetingElement) return;
+
+        const now = new Date();
+        const hour = now.getHours();
+        const userName = this.user?.displayName?.split(' ')[0] || 'Usuário';
+        
+        let greeting;
+        if (hour < 12) {
+            greeting = `Bom dia, ${userName}!`;
+        } else if (hour < 18) {
+            greeting = `Boa tarde, ${userName}!`;
+        } else {
+            greeting = `Boa noite, ${userName}!`;
+        }
+
+        greetingElement.textContent = greeting;
+    }
+
+    loadMotivationalQuote() {
+        const quoteElement = document.getElementById('motivationalQuote');
+        if (!quoteElement) return;
+
+        const quotes = [
+            "O sucesso é a soma de pequenos esforços repetidos dia após dia.",
+            "A produtividade não é sobre fazer mais coisas, é sobre fazer as coisas certas.",
+            "Foque no progresso, não na perfeição.",
+            "Cada pequeno passo te leva mais perto do seu objetivo.",
+            "A disciplina é a ponte entre objetivos e conquistas.",
+            "Organize seu dia, organize sua vida.",
+            "O tempo é um recurso não renovável. Use-o sabiamente.",
+            "Pequenas melhorias diárias levam a resultados impressionantes."
+        ];
+
+        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        quoteElement.textContent = randomQuote;
     }
 
     getEnhancedLayoutHTML() {

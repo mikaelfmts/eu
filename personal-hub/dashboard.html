@@ -433,20 +433,16 @@
     
     <script src="config.js"></script>
     <script src="js/music-player.js"></script>
-    <script src="js/dashboard.js"></script>
-    <script src="js/dashboard-enhanced.js"></script>
+    <script src="js/dashboard.js"></script>    <script src="js/dashboard-enhanced.js"></script>
     <script>
         // Initialize both dashboard systems
-        let dashboardEnhanced;
         let personalHubDashboard;
         
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize traditional dashboard first
             personalHubDashboard = new PersonalHubDashboard();
             
-            // Then initialize enhanced dashboard
-            dashboardEnhanced = new DashboardEnhanced();
-            dashboardEnhanced.init();
+            // Enhanced dashboard is initialized automatically by dashboard-enhanced.js
         });
     </script>
 </body>

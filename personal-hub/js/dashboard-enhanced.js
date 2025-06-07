@@ -324,6 +324,57 @@ class DashboardEnhanced {
         };
     }
 
+    getRecentActivities() {
+        // Gerar atividades recentes baseadas nos dados do usuário
+        const activities = [];
+        
+        // Adicionar atividades das tarefas
+        if (this.productivityData.tasks && this.productivityData.tasks.length > 0) {
+            const recentTasks = this.productivityData.tasks
+                .filter(task => task.completed && task.completedAt)
+                .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
+                .slice(0, 3);
+                
+            recentTasks.forEach(task => {
+                activities.push({
+                    icon: 'check-circle',
+                    title: 'Tarefa Concluída',
+                    description: task.title || 'Tarefa sem título',
+                    timestamp: task.completedAt || new Date().toISOString()
+                });
+            });
+        }
+        
+        // Adicionar atividades de login
+        activities.push({
+            icon: 'sign-in-alt',
+            title: 'Login realizado',
+            description: 'Acesso ao Personal Hub',
+            timestamp: new Date().toISOString()
+        });
+        
+        // Adicionar atividades de conquistas
+        if (this.gamification.achievements && this.gamification.achievements.length > 0) {
+            const recentAchievements = this.gamification.achievements
+                .sort((a, b) => new Date(b.unlockedAt) - new Date(a.unlockedAt))
+                .slice(0, 2);
+                
+            recentAchievements.forEach(achievement => {
+                activities.push({
+                    icon: 'trophy',
+                    title: 'Conquista Desbloqueada',
+                    description: achievement.name || 'Nova conquista',
+                    timestamp: achievement.unlockedAt || new Date().toISOString()
+                });
+            });
+        }
+        
+        // Ordenar por timestamp e retornar as 5 mais recentes
+        return activities
+            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+            .slice(0, 5);
+    }
+
     updateActivityWidget() {
         const activityWidget = document.getElementById('widget-activity');
         if (!activityWidget) return;
@@ -1079,6 +1130,16 @@ class DashboardEnhanced {
         } else {
             console.warn('Chart.js não está disponível. Gráficos não serão renderizados.');
         }
+    }
+
+    getStatsChartData() {
+        const stats = this.calculateStats();
+        return {
+            completed: stats.completedTasks,
+            pending: stats.totalTasks - stats.completedTasks,
+            labels: ['Concluídas', 'Pendentes'],
+            completionRate: stats.completionRate
+        };
     }
 
     renderStatsChart() {

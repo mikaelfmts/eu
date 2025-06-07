@@ -308,6 +308,20 @@ class DashboardEnhanced {
         `;
 
         setTimeout(() => this.renderStatsChart(), 100);
+    }    calculateStats() {
+        // Calcular estatísticas baseadas nos dados locais
+        const totalTasks = this.productivityData.tasks ? this.productivityData.tasks.length : 0;
+        const completedTasks = this.productivityData.tasks ? this.productivityData.tasks.filter(task => task.completed).length : 0;
+        const streak = this.gamification ? this.gamification.streak : 0;
+        const level = this.gamification ? this.gamification.level : 1;
+        
+        return {
+            totalTasks,
+            completedTasks,
+            streak,
+            level,
+            completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+        };
     }
 
     updateActivityWidget() {
@@ -498,6 +512,27 @@ class DashboardEnhanced {
         this.saveNotifications();
         this.loadNotifications();
         this.showToast(title, message, type);
+    }
+
+    formatRelativeTime(timestamp) {
+        const now = new Date();
+        const time = new Date(timestamp);
+        const diffInSeconds = Math.floor((now - time) / 1000);
+        
+        if (diffInSeconds < 60) {
+            return 'Agora mesmo';
+        } else if (diffInSeconds < 3600) {
+            const minutes = Math.floor(diffInSeconds / 60);
+            return `${minutes} min atrás`;
+        } else if (diffInSeconds < 86400) {
+            const hours = Math.floor(diffInSeconds / 3600);
+            return `${hours}h atrás`;
+        } else if (diffInSeconds < 604800) {
+            const days = Math.floor(diffInSeconds / 86400);
+            return `${days}d atrás`;
+        } else {
+            return time.toLocaleDateString('pt-BR');
+        }
     }
 
     showToast(title, message, type = 'info') {

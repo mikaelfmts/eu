@@ -430,6 +430,50 @@ class DashboardEnhanced {
         `;
     }
 
+    getGoals() {
+        // Retornar metas baseadas nos dados do usuário
+        const goals = [];
+        
+        // Meta de tarefas concluídas
+        const stats = this.calculateStats();
+        if (stats.totalTasks > 0) {
+            goals.push({
+                title: 'Completar Tarefas',
+                progress: (stats.completedTasks / stats.totalTasks) * 100,
+                target: stats.totalTasks,
+                current: stats.completedTasks
+            });
+        }
+        
+        // Meta de sequência de dias
+        const streakGoal = Math.max(7, this.gamification.streak + 3);
+        goals.push({
+            title: 'Sequência de Dias',
+            progress: (this.gamification.streak / streakGoal) * 100,
+            target: streakGoal,
+            current: this.gamification.streak
+        });
+        
+        // Meta de pontos
+        const nextLevelPoints = this.gamification.level * 1000;
+        goals.push({
+            title: 'Próximo Nível',
+            progress: (this.gamification.points / nextLevelPoints) * 100,
+            target: nextLevelPoints,
+            current: this.gamification.points
+        });
+        
+        // Meta de produtividade
+        goals.push({
+            title: 'Produtividade Semanal',
+            progress: Math.min(100, (this.gamification.streak / 7) * 100),
+            target: 7,
+            current: Math.min(7, this.gamification.streak)
+        });
+        
+        return goals.slice(0, 4); // Máximo 4 metas
+    }
+
     updateGoalsWidget() {
         const goalsWidget = document.getElementById('widget-goals');
         if (!goalsWidget) return;
@@ -2029,7 +2073,7 @@ class DashboardEnhanced {
             
             const moodEmojis = ['😢', '😐', '😊', '😄', '🤩'];
             const moodText = ['muito triste', 'triste', 'neutro', 'feliz', 'muito feliz'];
-            this.addNotification('Humor registrado', `Você se sente ${moodText[value - 1]} hoje ${moodEmojis[value - 1]}`, 'heart', 'info');
+            this.addNotification('Humor registrado', `Você se sente ${moodText[value - 1]} hoje ${moodEmojis[value -  1]}`, 'heart', 'info');
         } catch (error) {
             console.error('Erro ao salvar humor:', error);
         }

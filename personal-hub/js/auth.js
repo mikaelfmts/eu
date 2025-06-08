@@ -45,11 +45,26 @@ class PersonalHubAuth {
         e.preventDefault();
         
         const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-
-        try {
+        const password = document.getElementById('loginPassword').value;        try {
             // Usar Firebase Auth existente
             const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+            
+            // Verificar se o usuário foi aprovado
+            const userDoc = await db.collection('users').doc(userCredential.user.uid).get();
+            
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                if (userData.status === 'pending') {
+                    await firebase.auth().signOut();
+                    alert('Sua conta ainda está aguardando aprovação do administrador.');
+                    return;
+                } else if (userData.status === 'rejected') {
+                    await firebase.auth().signOut();
+                    alert('Sua conta foi rejeitada. Entre em contato com o administrador.');
+                    return;
+                }
+            }
+            
             console.log('Login realizado:', userCredential.user);
             
             // Redirecionar para dashboard
@@ -76,9 +91,7 @@ class PersonalHubAuth {
         if (password.length < 6) {
             alert('A senha deve ter pelo menos 6 caracteres!');
             return;
-        }
-
-        try {
+        }        try {
             // Criar usuário no Firebase
             const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
             
@@ -87,10 +100,11 @@ class PersonalHubAuth {
                 displayName: name
             });
 
-            // Criar documento do usuário no Firestore
+            // Criar documento do usuário no Firestore com status pendente
             await db.collection('users').doc(userCredential.user.uid).set({
                 name: name,
                 email: email,
+                status: 'pending', // Novo campo para controle de aprovação
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 stats: {
                     totalEntries: 0,
@@ -102,8 +116,12 @@ class PersonalHubAuth {
 
             console.log('Usuário registrado:', userCredential.user);
             
-            // Redirecionar para dashboard
-            window.location.href = 'dashboard.html';
+            // Sair do usuário criado para aguardar aprovação
+            await firebase.auth().signOut();
+            
+            // Mostrar mensagem de aguardo
+            alert('Cadastro realizado com sucesso! Aguarde a aprovação do administrador para acessar o sistema.');
+            this.showLogin();
         } catch (error) {
             console.error('Erro no registro:', error);
             alert('Erro no registro: ' + error.message);

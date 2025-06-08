@@ -10,11 +10,32 @@ class PersonalHubDashboard {
     init() {
         this.checkAuth();
         this.setupEventListeners();
-    }
-
-    checkAuth() {
-        firebase.auth().onAuthStateChanged((user) => {
+    }    checkAuth() {
+        firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
+                // Verificar status do usuário no Firestore
+                try {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        
+                        // Verificar se o usuário foi aprovado
+                        if (userData.status === 'pending') {
+                            await firebase.auth().signOut();
+                            alert('Sua conta ainda está aguardando aprovação do administrador.');
+                            window.location.href = 'index.html';
+                            return;
+                        } else if (userData.status === 'rejected' || userData.status === 'suspended') {
+                            await firebase.auth().signOut();
+                            alert('Sua conta foi suspensa ou rejeitada. Entre em contato com o administrador.');
+                            window.location.href = 'index.html';
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erro ao verificar status do usuário:', error);
+                }
+                
                 this.user = user;
                 this.loadDashboard();
                 document.getElementById('userInfo').textContent = `Olá, ${user.displayName || user.email}!`;

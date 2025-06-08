@@ -71,14 +71,32 @@ class DashboardEnhanced {
                 window.personalHubDashboard.setEnhancedMode(false);
             }
         }
-    }
-
-    async loadUserData() {
+    }    async loadUserData() {
         if (!this.user || typeof db === 'undefined') return;
         
         try {
             const userDoc = await db.collection('users').doc(this.user.uid).get();
             if (userDoc.exists) {
+                const userData = userDoc.data();
+                
+                // Verificar se o usuário foi aprovado
+                if (userData.status === 'pending') {
+                    await firebase.auth().signOut();
+                    alert('Sua conta ainda está aguardando aprovação do administrador.');
+                    window.location.href = 'index.html';
+                    return;
+                } else if (userData.status === 'rejected' || userData.status === 'suspended') {
+                    await firebase.auth().signOut();
+                    alert('Sua conta foi suspensa ou rejeitada. Entre em contato com o administrador.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                // Continuar com o carregamento normal se aprovado
+                this.stats = userData.stats || {};
+                this.gamification = userData.gamification || this.gamification;
+                this.loadDashboardData();
+            }
                 const userData = userDoc.data();
                 this.stats = userData.stats || {};
                 this.gamification = { ...this.gamification, ...userData.gamification };

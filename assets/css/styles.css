@@ -1310,14 +1310,7 @@ button:active {
     animation: spin 1.5s infinite ease-in-out reverse;
 }
 
-/* Tema Claro */
-body.light-mode {
-    --background-primary: #ffffff;
-    --background-secondary: #f8f9fa;
-    --text-primary: #000000;
-    --text-secondary: #6c757d;
-    --border-color: #dee2e6;
-}
+/* Tema claro removido - mantendo apenas modo escuro */
 
 /* Responsividade */
 @media (max-width: 768px) {

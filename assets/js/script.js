@@ -1736,27 +1736,7 @@ if (isMobile()) {
     document.body.classList.add('mobile');
 }
 
-// Tema claro/escuro
-function toggleTheme() {
-    document.body.classList.toggle('light-mode');
-    localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
-    updateThemeIcon();
-}
-
-function updateThemeIcon() {
-    const themeIcon = document.getElementById('theme-icon');
-    if (document.body.classList.contains('light-mode')) {
-        themeIcon.className = 'fas fa-moon';
-    } else {
-        themeIcon.className = 'fas fa-sun';
-    }
-}
-
-// Verificar preferência de tema salva
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme === 'light') {
-    document.body.classList.add('light-mode');
-}
+// Funcionalidade de tema removida - mantendo apenas modo escuro
 
 // Efeito de cards removido
 

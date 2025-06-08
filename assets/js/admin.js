@@ -49,20 +49,14 @@ window.editCertificate = editCertificate;
 window.deleteCertificate = deleteCertificate;
 window.toggleMaintenance = toggleMaintenance;
 window.loadMaintenanceStatus = loadMaintenanceStatus;
+window.loadPersonalHubUsers = loadPersonalHubUsers;
+window.approveUser = approveUser;
+window.rejectUser = rejectUser;
+window.suspendUser = suspendUser;
+window.openAddUserModal = openAddUserModal;
+window.closeAddUserModal = closeAddUserModal;
+window.createUser = createUser;
 
-// ==================== ADMIN PANEL JAVASCRIPT ====================
-
-// Variáveis globais
-let currentChatId = null;
-let currentMessageId = null;
-let chatsData = {};
-let messagesListener = null;
-let currentUser = null;
-let currentCertificateId = null;
-let certificatesData = {};
-let maintenanceData = null;
-
-// Aguardar carregamento completo e verificar autenticação
 window.addEventListener('load', async function() {
     console.log('Admin panel carregado, verificando autenticação...');
     
@@ -88,6 +82,8 @@ window.addEventListener('load', async function() {
         loadMaintenanceStatusWithFallback();
           // Carregar configurações de páginas
         loadPageSettings();
+          // Carregar usuários do Personal Hub
+        loadPersonalHubUsers();
     } catch (error) {
         console.error('Erro na autenticação:', error);
         // O redirecionamento já foi feito em checkAuth
@@ -112,11 +108,12 @@ function showSection(sectionName) {
     });
     
     document.getElementById(`tab-${sectionName}`).classList.add('active', 'bg-blue-500', 'text-white');
-    document.getElementById(`tab-${sectionName}`).classList.remove('bg-gray-300', 'text-gray-700');
-      // Carregar dados específicos da seção
+    document.getElementById(`tab-${sectionName}`).classList.remove('bg-gray-300', 'text-gray-700');      // Carregar dados específicos da seção
     if (sectionName === 'certificates') {
         loadCertificates();    } else if (sectionName === 'maintenance') {
         loadMaintenanceStatusWithFallback();
+    } else if (sectionName === 'users') {
+        loadPersonalHubUsers();
     }
 }
 
@@ -630,6 +627,194 @@ async function deleteCertificate(certificateId) {
     } catch (error) {
         console.error('Erro ao excluir certificado:', error);
         showError('Erro ao excluir certificado');
+    }
+}
+
+// ==================== GERENCIAMENTO DE USUÁRIOS PERSONAL HUB ====================
+
+// Carregar usuários quando a seção for exibida
+function loadPersonalHubUsers() {
+    loadPendingUsers();
+    loadApprovedUsers();
+}
+
+// Carregar usuários pendentes
+async function loadPendingUsers() {
+    try {
+        const q = query(
+            collection(db, 'users'), 
+            where('status', '==', 'pending'),
+            orderBy('createdAt', 'desc')
+        );
+        
+        onSnapshot(q, (snapshot) => {
+            const pendingContainer = document.getElementById('pending-users');
+            pendingContainer.innerHTML = '';
+            
+            if (snapshot.empty) {
+                pendingContainer.innerHTML = `
+                    <div class="text-center py-4 text-gray-500">
+                        <i class="fas fa-check mr-2"></i>Nenhuma solicitação pendente
+                    </div>
+                `;
+                return;
+            }
+            
+            snapshot.forEach((doc) => {
+                const user = doc.data();
+                const userCard = createUserCard(doc.id, user, 'pending');
+                pendingContainer.appendChild(userCard);
+            });
+        });
+    } catch (error) {
+        console.error('Erro ao carregar usuários pendentes:', error);
+        document.getElementById('pending-users').innerHTML = `
+            <div class="text-center py-4 text-red-500">
+                <i class="fas fa-exclamation-triangle mr-2"></i>Erro ao carregar usuários
+            </div>
+        `;
+    }
+}
+
+// Carregar usuários aprovados
+async function loadApprovedUsers() {
+    try {
+        const q = query(
+            collection(db, 'users'), 
+            where('status', '==', 'approved'),
+            orderBy('createdAt', 'desc')
+        );
+        
+        onSnapshot(q, (snapshot) => {
+            const approvedContainer = document.getElementById('approved-users');
+            approvedContainer.innerHTML = '';
+            
+            if (snapshot.empty) {
+                approvedContainer.innerHTML = `
+                    <div class="text-center py-4 text-gray-500">
+                        <i class="fas fa-users mr-2"></i>Nenhum usuário ativo
+                    </div>
+                `;
+                return;
+            }
+            
+            snapshot.forEach((doc) => {
+                const user = doc.data();
+                const userCard = createUserCard(doc.id, user, 'approved');
+                approvedContainer.appendChild(userCard);
+            });
+        });
+    } catch (error) {
+        console.error('Erro ao carregar usuários aprovados:', error);
+        document.getElementById('approved-users').innerHTML = `
+            <div class="text-center py-4 text-red-500">
+                <i class="fas fa-exclamation-triangle mr-2"></i>Erro ao carregar usuários
+            </div>
+        `;
+    }
+}
+
+// Criar card do usuário
+function createUserCard(userId, user, status) {
+    const div = document.createElement('div');
+    div.className = 'bg-gray-50 border border-gray-200 rounded-lg p-4';
+    
+    const formattedDate = user.createdAt ? 
+        new Date(user.createdAt.toDate()).toLocaleDateString('pt-BR') : 
+        'Data não disponível';
+    
+    if (status === 'pending') {
+        div.innerHTML = `
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div class="flex-1">
+                    <h4 class="font-semibold text-gray-800">${user.name || 'Nome não informado'}</h4>
+                    <p class="text-sm text-gray-600">${user.email}</p>
+                    <p class="text-xs text-gray-500">Solicitado em: ${formattedDate}</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="approveUser('${userId}')" 
+                            class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
+                        <i class="fas fa-check mr-1"></i>Aprovar
+                    </button>
+                    <button onclick="rejectUser('${userId}')" 
+                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
+                        <i class="fas fa-times mr-1"></i>Rejeitar
+                    </button>
+                </div>
+            </div>
+        `;
+    } else {
+        div.innerHTML = `
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div class="flex-1">
+                    <h4 class="font-semibold text-gray-800">${user.name || 'Nome não informado'}</h4>
+                    <p class="text-sm text-gray-600">${user.email}</p>
+                    <p class="text-xs text-gray-500">Membro desde: ${formattedDate}</p>
+                </div>
+                <div class="flex gap-2">
+                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+                        <i class="fas fa-check-circle mr-1"></i>Ativo
+                    </span>
+                    <button onclick="suspendUser('${userId}')" 
+                            class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm">
+                        <i class="fas fa-pause mr-1"></i>Suspender
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    return div;
+}
+
+// Aprovar usuário
+async function approveUser(userId) {
+    if (!confirm('Tem certeza que deseja aprovar este usuário?')) return;
+    
+    try {
+        await updateDoc(doc(db, 'users', userId), {
+            status: 'approved',
+            approvedAt: new Date()
+        });
+        
+        console.log('Usuário aprovado com sucesso!');
+    } catch (error) {
+        console.error('Erro ao aprovar usuário:', error);
+        alert('Erro ao aprovar usuário. Tente novamente.');
+    }
+}
+
+// Rejeitar usuário
+async function rejectUser(userId) {
+    if (!confirm('Tem certeza que deseja rejeitar este usuário? Esta ação não pode ser desfeita.')) return;
+    
+    try {
+        await updateDoc(doc(db, 'users', userId), {
+            status: 'rejected',
+            rejectedAt: new Date()
+        });
+        
+        console.log('Usuário rejeitado!');
+    } catch (error) {
+        console.error('Erro ao rejeitar usuário:', error);
+        alert('Erro ao rejeitar usuário. Tente novamente.');
+    }
+}
+
+// Suspender usuário
+async function suspendUser(userId) {
+    if (!confirm('Tem certeza que deseja suspender este usuário?')) return;
+    
+    try {
+        await updateDoc(doc(db, 'users', userId), {
+            status: 'suspended',
+            suspendedAt: new Date()
+        });
+        
+        console.log('Usuário suspenso!');
+    } catch (error) {
+        console.error('Erro ao suspender usuário:', error);
+        alert('Erro ao suspender usuário. Tente novamente.');
     }
 }
 
@@ -1210,4 +1395,79 @@ document.getElementById('response-modal').addEventListener('click', function(e) 
     }
 });
 
-console.log('Admin panel carregado!');
+// ==================== MODAL ADICIONAR USUÁRIO ====================
+
+function openAddUserModal() {
+    document.getElementById('add-user-modal').classList.remove('hidden');
+    document.getElementById('user-name').focus();
+}
+
+function closeAddUserModal() {
+    document.getElementById('add-user-modal').classList.add('hidden');
+    document.getElementById('add-user-form').reset();
+}
+
+async function createUser() {
+    const name = document.getElementById('user-name').value.trim();
+    const email = document.getElementById('user-email').value.trim();
+    const password = document.getElementById('user-password').value;
+    
+    if (!name || !email || !password) {
+        alert('Todos os campos são obrigatórios!');
+        return;
+    }
+    
+    if (password.length < 6) {
+        alert('A senha deve ter pelo menos 6 caracteres!');
+        return;
+    }
+    
+    try {
+        // Criar usuário no Firebase Auth
+        const response = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password,
+                displayName: name,
+                returnSecureToken: true
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            throw new Error(data.error.message);
+        }
+        
+        // Criar documento do usuário no Firestore com status aprovado
+        await setDoc(doc(db, 'users', data.localId), {
+            name: name,
+            email: email,
+            status: 'approved',
+            createdAt: new Date(),
+            createdBy: 'admin',
+            stats: {
+                totalEntries: 0,
+                moviesWatched: 0,
+                booksRead: 0,
+                songsPlayed: 0
+            }
+        });
+        
+        console.log('Usuário criado com sucesso!');
+        closeAddUserModal();
+        
+    } catch (error) {
+        console.error('Erro ao criar usuário:', error);
+        alert('Erro ao criar usuário: ' + error.message);
+    }
+}
+
+// Exportar funções para uso global
+window.openAddUserModal = openAddUserModal;
+window.closeAddUserModal = closeAddUserModal;
+window.createUser = createUser;

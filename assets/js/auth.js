@@ -17,18 +17,36 @@ const firebaseConfig = {
   appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
 };
 
+// Lista de emails de administradores (hardcoded por segurança)
+const ADMIN_EMAILS = [
+    'mikaelmts@gmail.com',
+    'mikael.fmts@gmail.com'
+    // Adicione outros emails de admin conforme necessário
+];
+
 // Inicializa o Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// Função para verificar autenticação
+// Função para verificar autenticação E permissão de admin
 export function checkAuth() {
     return new Promise((resolve, reject) => {
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // Usuário está logado
-                console.log("Usuário autenticado:", user.email);
-                resolve(user);            } else {
+                // Verificar se o usuário é admin
+                if (ADMIN_EMAILS.includes(user.email)) {
+                    console.log("Administrador autenticado:", user.email);
+                    resolve(user);
+                } else {
+                    // Usuário logado mas não é admin - fazer logout e bloquear
+                    console.log("Usuário não autorizado tentando acessar admin:", user.email);
+                    signOut(auth).then(() => {
+                        alert('Acesso negado! Você não tem permissão para acessar esta área.');
+                        window.location.href = 'index.html';
+                    });
+                    reject('Usuário não autorizado');
+                }
+            } else {
                 // Não está logado, redireciona para login
                 console.log("Usuário não autenticado, redirecionando...");
                 window.location.href = 'login.html';
@@ -49,6 +67,17 @@ export function doLogout() {
         console.log("Logout realizado com sucesso");
         window.location.href = 'login.html';
     });
+}
+
+// Função para verificar se um usuário é admin
+export function isAdmin(email) {
+    return ADMIN_EMAILS.includes(email);
+}
+
+// Função para verificar admin de forma síncrona (se já tiver usuário logado)
+export function checkAdminSync() {
+    const user = auth.currentUser;
+    return user && ADMIN_EMAILS.includes(user.email);
 }
 
 // Se este script estiver sendo executado na página de login, configura o formulário

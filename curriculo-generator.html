@@ -30,10 +30,29 @@
     <link rel="stylesheet" href="assets/css/curriculo-generator-styles.css">
     <link rel="stylesheet" href="assets/css/minerva-styles.css">
     <link rel="stylesheet" href="assets/css/pdf-print-fixes.css">
-    
-    <!-- Scripts -->
+      <!-- Scripts -->
     <script type="module" src="assets/js/auth.js"></script>
     <script type="module" src="assets/js/curriculo-generator.js"></script>
+    
+    <!-- Proteção de Segurança - Verificação Imediata de Admin -->
+    <script type="module">
+        import { checkAuth } from './assets/js/auth.js';
+        
+        // Verificação imediata quando a página carrega
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await checkAuth();
+                console.log('Acesso administrativo autorizado');
+            } catch (error) {
+                console.error('Acesso negado:', error);
+                // Proteção extra: se chegou até aqui sem ser admin, redirecionar
+                document.body.innerHTML = '<div style="text-align:center;padding:50px;"><h1>Acesso Negado</h1><p>Redirecionando...</p></div>';
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }
+        });
+    </script>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <!-- Container de partículas -->

@@ -48,388 +48,112 @@
         });
     </script>
 
-    <!-- Estilos para o novo layout - Particulas e Navegação -->
+    <!-- Estilos Melhorados para Navegação e Partículas -->
     <style>
-        :root {
-            --card-gradient: linear-gradient(145deg, 
-                rgba(30, 35, 40, 0.95) 0%, 
-                rgba(20, 25, 30, 0.9) 100%);
-            --card-border-gradient: linear-gradient(135deg, 
-                rgba(200, 170, 110, 0.4), 
-                rgba(200, 170, 110, 0.1), 
-                rgba(200, 170, 110, 0.4));
-            --card-hover-border-gradient: linear-gradient(135deg, 
-                #ffd700, 
-                var(--primary-color), 
-                #ffd700);
-            --card-shadow: 
-                0 15px 35px rgba(0, 0, 0, 0.5),
-                0 5px 15px rgba(200, 170, 110, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            --card-hover-shadow: 
-                0 25px 50px rgba(0, 0, 0, 0.6),
-                0 0 40px rgba(200, 170, 110, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            --navbar-height: 75px;
-        }
-        
-        body {
-            background: linear-gradient(135deg, 
-                var(--background-primary) 0%, 
-                rgba(10, 15, 25, 1) 50%,
-                rgba(5, 10, 20, 1) 100%);
-            padding-top: var(--navbar-height);
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-        
-        /* Nova barra de navegação */
-        .navbar {
+        /* Navegação Superior Moderna */
+        .main-navigation {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            height: var(--navbar-height);
-            background: rgba(10, 15, 25, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2), 0 0 10px rgba(200, 170, 110, 0.1);
             z-index: 1000;
+            background: rgba(10, 15, 25, 0.95);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(200, 170, 110, 0.2);
+            padding: 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             padding: 0 2rem;
-            border-bottom: 1px solid rgba(200, 170, 110, 0.2);
         }
-        
-        .nav-logo {
-            display: flex;
-            align-items: center;
-        }
-        
-        .nav-logo .foto-perfil {
-            position: relative;
-            top: 0;
-            left: 0;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 2px solid var(--primary-color);
-            box-shadow: 0 0 15px rgba(200, 170, 110, 0.3);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-logo .foto-perfil:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(200, 170, 110, 0.5);
-        }
-        
-        .nav-logo .foto-perfil img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        
-        .nav-item {
-            padding: 0.5rem 1rem;
-            border-radius: 30px;
-            text-decoration: none;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .nav-item::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
-            transform: translateX(-50%);
-            transition: width 0.3s ease;
-            border-radius: 2px;
-        }
-        
-        .nav-item:hover {
-            color: var(--primary-color);
-        }
-        
-        .nav-item:hover::before {
-            width: 70%;
-        }
-        
-        .nav-item i {
-            color: var(--primary-color);
-            font-size: 1rem;
-        }
-        
-        .nav-actions {
-            display: flex;
-            align-items: center;
-        }
-        
-        .login-btn {
-            background: linear-gradient(135deg, rgba(200, 170, 110, 0.2), rgba(200, 170, 110, 0.1));
-            border: 1px solid rgba(200, 170, 110, 0.3);
-            padding: 0.5rem 1.2rem;
-            border-radius: 30px;
-            color: var(--primary-color);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .login-btn:hover {
-            background: linear-gradient(135deg, var(--primary-color), #ffd700);
-            color: var(--background-primary);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(200, 170, 110, 0.3);
-        }
-        
-        /* Menu Mobile */
-        .mobile-toggle {
-            display: none;
-            font-size: 1.5rem;
-            color: var(--primary-color);
-            cursor: pointer;
-        }
-        
-        .mobile-menu {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: -100%;
-            width: 80%;
-            max-width: 320px;
-            height: 100vh;
-            background: rgba(15, 20, 30, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 1010;
-            transition: left 0.3s ease;
-            border-right: 1px solid rgba(200, 170, 110, 0.2);
-            box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
-            overflow-y: auto;
-        }
-        
-        .mobile-menu.open {
-            left: 0;
-        }
-        
-        .mobile-menu-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem;
-            border-bottom: 1px solid rgba(200, 170, 110, 0.2);
-        }
-        
-        .mobile-menu-header h3 {
-            color: var(--primary-color);
-            margin: 0;
-            font-family: 'Marcellus', serif;
-            letter-spacing: 2px;
-        }
-        
-        .close-menu {
-            background: transparent;
-            color: var(--primary-color);
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-        
-        .mobile-menu-links {
-            display: flex;
-            flex-direction: column;
-            padding: 1rem 0;
-        }
-        
-        .mobile-menu-links a {
-            padding: 1rem 1.5rem;
-            color: var(--text-secondary);
-            text-decoration: none;
+
+        .nav-brand {
             display: flex;
             align-items: center;
             gap: 1rem;
-            border-bottom: 1px solid rgba(200, 170, 110, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .mobile-menu-links a:hover {
-            background: rgba(200, 170, 110, 0.1);
-            color: var(--primary-color);
-        }
-        
-        .mobile-menu-links i {
-            color: var(--primary-color);
-            width: 20px;
-            text-align: center;
-        }
-        
-        .mobile-login {
-            margin-top: 1rem;
-            background: rgba(200, 170, 110, 0.1);
-            font-weight: 600;
-        }
-        
-        /* Media Queries para responsividade */
-        @media (max-width: 1024px) {
-            .nav-item span {
-                display: none;
-            }
-            
-            .nav-item {
-                padding: 0.5rem;
-            }
-            
-            .nav-item i {
-                font-size: 1.2rem;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
-            .mobile-toggle {
-                display: block;
-            }
-            
-            .mobile-menu {
-                display: block;
-            }
-            
-            .navbar {
-                padding: 0 1rem;
-            }
         }
 
-        /* Sobreposição de fundo - evitar que elementos apareçam quando o menu mobile estiver aberto */
-        .mobile-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1005;
+        .nav-brand img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--primary-color);
+            object-fit: cover;
+            transition: all 0.3s ease;
         }
-        
-        .mobile-overlay.open {
-            display: block;
+
+        .nav-brand img:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(200, 170, 110, 0.6);
         }
-    </style>
-</head>
-<body>
-    <!-- Container de partículas -->
-    <div class="particles-container"></div>
-    
-    <!-- Loading Screen -->
-    <div id="loading-screen">
-        <div class="loader"></div>
-    </div>
-    
-    <!-- Sistemas de partículas avançado - baseado na página de projetos -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const particlesContainer = document.querySelector('.particles-container');
-            
-            // Função para criar partículas com performance otimizada
-            function createParticle() {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                
-                // Tipos de partículas com cores temáticas
-                const types = ['golden', 'light', 'dark'];
-                const type = types[Math.floor(Math.random() * types.length)];
-                particle.classList.add(type);
-                
-                // Tamanho aleatório variado baseado no tipo
-                let sizeBase, sizeVariation;
-                if (type === 'golden') {
-                    sizeBase = 3;
-                    sizeVariation = 4;
-                } else if (type === 'light') {
-                    sizeBase = 2;
-                    sizeVariation = 3;
-                } else {
-                    sizeBase = 4;
-                    sizeVariation = 5;
-                }
-                
-                const size = Math.random() * sizeVariation + sizeBase;
-                particle.style.width = size + 'px';
-                particle.style.height = size + 'px';
-                
-                // Posição horizontal aleatória com distribuição melhorada
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.bottom = '-10px';
-                
-                // Animação de movimento com tempos variados
-                const minDuration = 10000; // 10 segundos
-                const maxDuration = 20000; // 20 segundos
-                const duration = Math.random() * (maxDuration - minDuration) + minDuration;
-                
-                // Deriva horizontal dependendo do tipo de partícula
-                const driftFactor = type === 'golden' ? 1.2 : (type === 'light' ? 0.7 : 1.5);
-                const drift = (Math.random() - 0.5) * 100 * driftFactor;
-                
-                particle.style.animationDuration = duration + 'ms';
-                particle.style.setProperty('--drift', drift + 'px');
-                
-                particlesContainer.appendChild(particle);
-                
-                // Remover partícula após animação para evitar vazamentos de memória
-                setTimeout(() => {
-                    if (particle.parentNode) {
-                        particle.parentNode.removeChild(particle);
-                    }
-                }, duration);
-            }
-            
-            // Criar partículas em intervalos controlados
-            const createInterval = setInterval(createParticle, 300);
-            
-            // Otimização para parar criação quando a guia não estiver visível
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    clearInterval(createInterval);
-                } else {
-                    setInterval(createParticle, 300);
-                }
-            });
-            
-            // Criar algumas partículas iniciais
-            for (let i = 0; i < 15; i++) {
-                setTimeout(() => createParticle(), i * 100);
-            }
-        });
-    </script>
-    
-    <!-- Estilos para as partículas -->
-    <style>
-        /* Container de partículas melhorado */
+
+        .brand-text {
+            color: var(--primary-color);
+            font-family: 'Marcellus', serif;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #e2e8f0;
+            text-decoration: none;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+            background: rgba(200, 170, 110, 0.1);
+            border-color: rgba(200, 170, 110, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+        }
+
+        .admin-link {
+            background: linear-gradient(135deg, rgba(200, 170, 110, 0.2), rgba(200, 170, 110, 0.1));
+            border: 1px solid rgba(200, 170, 110, 0.3);
+        }
+
+        .admin-link:hover {
+            background: linear-gradient(135deg, rgba(200, 170, 110, 0.3), rgba(200, 170, 110, 0.2));
+            box-shadow: 0 0 15px rgba(200, 170, 110, 0.4);
+        }
+
+        /* Ajustar o body para acomodar a nav fixa */
+        body {
+            padding-top: 80px;
+            background: linear-gradient(135deg, 
+                var(--background-primary) 0%, 
+                rgba(10, 15, 25, 1) 50%,
+                rgba(5, 10, 20, 1) 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Melhorias nas Partículas */
         .particles-container {
             position: fixed;
             top: 0;
@@ -440,32 +164,30 @@
             pointer-events: none;
             overflow: hidden;
         }
-        
+
         .particle {
             position: absolute;
             border-radius: 50%;
-            opacity: 0;
+            animation: floatUp linear;
             pointer-events: none;
-            animation: floatUp linear forwards;
+            z-index: -1;
         }
-        
+
         .particle.golden {
-            background-color: #c8aa6e;
-            box-shadow: 0 0 10px #c8aa6e;
-            filter: drop-shadow(0 0 3px rgba(200, 170, 110, 0.8));
+            background: radial-gradient(circle, #ffd700 0%, #c8aa6e 70%, transparent 100%);
+            filter: drop-shadow(0 0 6px rgba(200, 170, 110, 0.8));
         }
-        
+
         .particle.light {
-            background-color: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
-            filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.3) 70%, transparent 100%);
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
         }
-        
+
         .particle.dark {
-            background-color: rgba(50, 60, 80, 0.8);
-            box-shadow: 0 0 10px rgba(50, 60, 80, 0.5);
+            background: radial-gradient(circle, rgba(200, 170, 110, 0.6) 0%, rgba(200, 170, 110, 0.2) 70%, transparent 100%);
+            filter: drop-shadow(0 0 3px rgba(200, 170, 110, 0.4));
         }
-        
+
         @keyframes floatUp {
             0% {
                 transform: translateY(0) translateX(0) rotate(0deg);
@@ -482,237 +204,203 @@
                 opacity: 0;
             }
         }
+
+        /* Background melhorado */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(200, 170, 110, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(200, 170, 110, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(200, 170, 110, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -2;
+        }
+
+        /* Seções mais fluídas */
+        section {
+            margin: 4rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-title {
+            text-align: center;
+            font-family: 'Marcellus', serif;
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            text-shadow: 0 0 20px rgba(200, 170, 110, 0.5);
+            letter-spacing: 2px;
+        }
+
+        /* Cards melhorados */
+        .media-section {
+            background: rgba(20, 25, 30, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(200, 170, 110, 0.1);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            margin: 3rem auto;
+            max-width: 1200px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .media-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(200, 170, 110, 0.2);
+        }
+
+        /* Header melhorado */
+        header {
+            background: rgba(20, 25, 30, 0.4);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(200, 170, 110, 0.2);
+            border-radius: 20px;
+            padding: 4rem 2rem;
+            margin: 2rem auto;
+            max-width: 1000px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .titulo-principal {
+            font-size: 4rem;
+            background: linear-gradient(135deg, #ffd700, #c8aa6e, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(200, 170, 110, 0.6);
+            margin-bottom: 1rem;
+        }
+
+        .subtitulo {
+            font-size: 1.3rem;
+            color: #e2e8f0;
+            opacity: 0.9;
+            letter-spacing: 1px;
+        }
+
+        /* Responsividade melhorada */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .nav-link span {
+                display: none;
+            }
+            
+            .nav-link {
+                padding: 0.8rem;
+            }
+            
+            .titulo-principal {
+                font-size: 2.5rem;
+            }
+            
+            .subtitulo {
+                font-size: 1rem;
+            }
+            
+            .media-section {
+                margin: 2rem 1rem;
+                padding: 2rem 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .brand-text {
+                display: none;
+            }
+            
+            .nav-links {
+                gap: 0.5rem;
+            }
+        }
     </style>
+</head>
+<body>
+    <!-- Container de partículas -->
+    <div class="particles-container"></div>
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader"></div>
+    </div>
 
     <!-- Theme Toggle Button -->
     <button id="theme-toggle" onclick="toggleTheme()">
         <i id="theme-icon" class="fab fa-battle-net"></i>
     </button>
 
-    <!-- Nova Barra de Navegação -->
-    <nav class="navbar">
-        <div class="nav-logo">
-            <div class="foto-perfil">
-                <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
+    <!-- Navigation Bar Superior -->
+    <nav class="main-navigation">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Mikael Ferreira">
+                <span class="brand-text">Mikael</span>
             </div>
-        </div>
-        
-        <div class="nav-links">
-            <a href="pages/curriculum.html" class="nav-item"><i class="fas fa-scroll"></i><span>Curriculum</span></a>
-            <a href="pages/projetos.html" class="nav-item"><i class="fas fa-code-branch"></i><span>Projects</span></a>
-            <a href="pages/mentors.html" class="nav-item"><i class="fas fa-users"></i><span>Mentors</span></a>
-            <a href="pages/certificates-in-progress.html" class="nav-item"><i class="fas fa-certificate"></i><span>Certificates</span></a>
-            <a href="pages/interactive-projects.html" class="nav-item"><i class="fas fa-project-diagram"></i><span>Interactive</span></a>
-            <a href="pages/galeria-midia.html" class="nav-item"><i class="fas fa-images"></i><span>Media</span></a>
-            <a href="pages/relatorios-galeria.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Reports</span></a>
-            <a href="pages/games.html" class="nav-item"><i class="fas fa-gamepad"></i><span>Games</span></a>
-        </div>
-        
-        <div class="nav-actions">
-            <a href="login.html" class="login-btn">
-                <i class="fas fa-user-alt"></i>
-                <span>Login</span>
-            </a>
-        </div>
-        
-        <!-- Menu Mobile Toggle -->
-        <div class="mobile-toggle" onclick="toggleMobileMenu()">
-            <i class="fas fa-bars"></i>
+            <div class="nav-links">
+                <a href="pages/curriculum.html" class="nav-link">
+                    <i class="fas fa-scroll"></i>
+                    <span>Curriculum</span>
+                </a>
+                <a href="pages/projetos.html" class="nav-link">
+                    <i class="fas fa-code-branch"></i>
+                    <span>Projects</span>
+                </a>
+                <a href="pages/galeria-midia.html" class="nav-link">
+                    <i class="fas fa-images"></i>
+                    <span>Media</span>
+                </a>
+                <a href="pages/relatorios-galeria.html" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="pages/games.html" class="nav-link">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Games</span>
+                </a>
+                <a href="login.html" class="nav-link admin-link">
+                    <i class="fas fa-crown"></i>
+                    <span>Admin</span>
+                </a>
+            </div>
         </div>
     </nav>
-    
-    <!-- Menu Mobile (aparece em telas pequenas) -->
-    <div class="mobile-menu">
-        <div class="mobile-menu-header">
-            <h3>NAVEGAÇÃO</h3>
-            <button class="close-menu" onclick="toggleMobileMenu()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="mobile-menu-links">
-            <a href="pages/curriculum.html"><i class="fas fa-scroll"></i>Curriculum</a>
-            <a href="pages/projetos.html"><i class="fas fa-code-branch"></i>All Uploaded Projects</a>
-            <a href="pages/mentors.html"><i class="fas fa-users"></i>Mentors</a>
-            <a href="pages/certificates-in-progress.html"><i class="fas fa-certificate"></i>Certificates in progress</a>
-            <a href="pages/interactive-projects.html"><i class="fas fa-project-diagram"></i>Interactive Projects</a>
-            <a href="pages/galeria-midia.html"><i class="fas fa-images"></i>Media Gallery</a>
-            <a href="pages/relatorios-galeria.html"><i class="fas fa-chart-line"></i>Reports Gallery</a>
-            <a href="pages/games.html"><i class="fas fa-gamepad"></i>Games</a>
-            <a href="login.html" class="mobile-login"><i class="fas fa-user-alt"></i>Login</a>
-        </div>
-    </div>
 
-    <!-- Cabeçalho melhorado -->
-    <header class="hero-header">
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1 class="titulo-principal">
-                    Mikael Ferreira
-                </h1>
-                <div class="title-underline"></div>
-                <h2 class="subtitulo">
-                    Desenvolvedor Web Full Stack
-                </h2>
-                <div class="tech-badges">
-                    <span class="tech-badge"><i class="fas fa-code"></i></span>
-                    <span class="tech-badge"><i class="fab fa-html5"></i> HTML</span>
-                    <span class="tech-badge"><i class="fab fa-css3-alt"></i> CSS</span>
-                    <span class="tech-badge"><i class="fab fa-js"></i> JavaScript</span>
-                    <span class="tech-badge"><i class="fab fa-react"></i> React</span>
-                </div>
-            </div>
-        </div>
-        <div class="hero-overlay"></div>
+    <!-- Cabeçalho -->
+    <header>
+         <h1 class="titulo-principal">
+            Mikael Ferreira
+         </h1>
+         <h2 class="subtitulo">
+            Desenvolvedor Web Full Stack  
+            <i class="fas fa-code"></i> |  
+            HTML <i class="fab fa-html5"></i> |
+            CSS <i class="fab fa-css3-alt"></i> |  
+            JavaScript <i class="fab fa-js"></i> |  
+            React <i class="fab fa-react"></i>
+        </h2>
     </header>
-    
-    <style>
-        /* Estilos do Header melhorado */
-        .hero-header {
-            position: relative;
-            min-height: 60vh;
-            background: radial-gradient(circle at 70% 30%, rgba(30, 50, 80, 0.8), transparent 70%),
-                        radial-gradient(circle at 30% 70%, rgba(50, 30, 80, 0.8), transparent 70%),
-                        linear-gradient(135deg, rgba(10, 15, 25, 0.9) 0%, rgba(15, 25, 40, 0.9) 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            margin-bottom: 3rem;
-            overflow: hidden;
-            text-align: center;
-            border-bottom: 1px solid rgba(200, 170, 110, 0.2);
-        }
-        
-        .hero-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                radial-gradient(circle at 20% 80%, rgba(200, 170, 110, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(200, 170, 110, 0.08) 0%, transparent 50%);
-            z-index: 0;
-        }
-        
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            max-width: 1000px;
-            width: 100%;
-            animation: fadeIn 1.5s ease-out;
-        }
-        
-        .hero-text {
-            text-align: center;
-        }
-        
-        .titulo-principal {
-            font-family: 'Marcellus', serif;
-            font-size: 4rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            text-shadow: 
-                0 0 20px rgba(200, 170, 110, 0.4),
-                0 0 40px rgba(200, 170, 110, 0.2);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            animation: glow 3s ease-in-out infinite alternate;
-        }
-        
-        .title-underline {
-            width: 150px;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
-            margin: 0 auto 1.5rem;
-        }
-        
-        .subtitulo {
-            font-size: 1.5rem;
-            font-weight: normal;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-            font-family: 'Marcellus', serif;
-            letter-spacing: 1px;
-        }
-        
-        .tech-badges {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 2rem;
-            flex-wrap: wrap;
-        }
-        
-        .tech-badge {
-            background: linear-gradient(135deg, rgba(200, 170, 110, 0.2), rgba(200, 170, 110, 0.1));
-            color: var(--primary-color);
-            padding: 0.7rem 1.2rem;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: 600;
-            border: 1px solid rgba(200, 170, 110, 0.3);
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .tech-badge i {
-            font-size: 1.2rem;
-        }
-        
-        .tech-badge:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 8px 25px rgba(200, 170, 110, 0.2);
-            background: linear-gradient(135deg, rgba(200, 170, 110, 0.3), rgba(200, 170, 110, 0.15));
-        }
-        
-        @keyframes glow {
-            from { text-shadow: 0 0 20px rgba(200, 170, 110, 0.4), 0 0 40px rgba(200, 170, 110, 0.2); }
-            to { text-shadow: 0 0 30px rgba(200, 170, 110, 0.6), 0 0 60px rgba(200, 170, 110, 0.3); }
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @media (max-width: 768px) {
-            .titulo-principal {
-                font-size: 2.8rem;
-            }
-            
-            .subtitulo {
-                font-size: 1.2rem;
-            }
-            
-            .hero-header {
-                min-height: 50vh;
-                padding: 1rem;
-            }
-            
-            .tech-badges {
-                gap: 0.6rem;
-            }
-            
-            .tech-badge {
-                padding: 0.5rem 1rem;
-                font-size: 0.9rem;
-            }
-        }
-    </style>
 
     <!-- Seção de Relatórios em Destaque -->
     <section id="featured-reports" class="media-section">
         <div class="container">
             <h2 class="section-title">
                 <i class="fas fa-star"></i>
-                <span class="title-text">Featured Reports</span>
-                <div class="title-line"></div>
+                Featured Reports
             </h2>
             <div id="featured-reports-loading" class="loading-indicator">
                 <div class="loader"></div>
@@ -729,8 +417,7 @@
         <div class="container">
             <h2 class="section-title">
                 <i class="fas fa-star"></i>
-                <span class="title-text">Featured Media</span>
-                <div class="title-line"></div>
+                Featured Media
             </h2>
             <div id="featured-media-loading" class="loading-indicator">
                 <div class="loader"></div>
@@ -747,8 +434,7 @@
         <div class="container">
             <h2 class="section-title">
                 <i class="fas fa-chart-line"></i>
-                <span class="title-text">Recent Reports</span>
-                <div class="title-line"></div>
+                Recent Reports
             </h2>
             <div id="recent-reports-loading" class="loading-indicator">
                 <div class="loader"></div>
@@ -771,8 +457,7 @@
         <div class="container">
             <h2 class="section-title">
                 <i class="fas fa-images"></i>
-                <span class="title-text">Recent Media Posts</span>
-                <div class="title-line"></div>
+                Recent Media Posts
             </h2>
             <div id="recent-media-loading" class="loading-indicator">
                 <div class="loader"></div>
@@ -793,53 +478,34 @@
     <!-- Personal Hub Widget -->
     <section id="personal-hub-section" class="media-section">
         <div class="container">
-            <h2 class="section-title">
-                <i class="fas fa-home"></i>
-                <span class="title-text">Personal Hub</span>
-                <div class="title-line"></div>
-            </h2>
-            
             <div id="personal-hub-widget" class="personal-hub-widget">
                 <div class="widget-header">
-                    <div class="widget-title-area">
-                        <div class="widget-icon">🏠</div>
-                        <h3 class="widget-title">Personal Hub</h3>
-                    </div>
+                    <h3 class="widget-title">🏠 Personal Hub</h3>
                     <span class="widget-status offline">🔴 Verificando...</span>
                 </div>
                 <div class="widget-stats">
                     <div class="stat-item">
                         <div class="stat-number">-</div>
                         <div class="stat-label">Entradas do Diário</div>
-                        <div class="stat-icon"><i class="fas fa-book"></i></div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-number">-</div>
                         <div class="stat-label">Filmes Assistidos</div>
-                        <div class="stat-icon"><i class="fas fa-film"></i></div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-number">-</div>
                         <div class="stat-label">Livros Lidos</div>
-                        <div class="stat-icon"><i class="fas fa-book-open"></i></div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-number">-</div>
                         <div class="stat-label">Músicas Tocadas</div>
-                        <div class="stat-icon"><i class="fas fa-music"></i></div>
                     </div>
                 </div>
                 <div class="widget-footer">
-                    <p class="last-activity"><strong>Última atividade:</strong> <span class="activity-text">Carregando...</span></p>
+                    <p><strong>Última atividade:</strong> Carregando...</p>
                     <div class="widget-actions">
-                        <a href="personal-hub/index.html" class="btn-widget btn-primary-widget">
-                            <i class="fas fa-sign-in-alt"></i>
-                            Entrar no Hub
-                        </a>
-                        <a href="pages/personal-hub-stats.html" class="btn-widget btn-secondary-widget">
-                            <i class="fas fa-chart-bar"></i>
-                            Ver Detalhes
-                        </a>
+                        <a href="personal-hub/index.html" class="btn-widget btn-primary-widget">Entrar no Hub</a>
+                        <a href="pages/personal-hub-stats.html" class="btn-widget btn-secondary-widget">Ver Detalhes</a>
                     </div>
                 </div>
             </div>
@@ -847,41 +513,29 @@
     </section>
 
     <!-- Seção de Habilidades Técnicas -->
-    <section id="habilidades" class="media-section skills-section">
-        <div class="container">
-            <h2 class="section-title">
-                <i class="fas fa-code"></i>
-                <span class="title-text">Technical Skills</span>
-                <div class="title-line"></div>
-            </h2>
-            
-            <div class="skills-info">
-                <div class="info-card">
-                    <div class="info-icon">
-                        <i class="fab fa-github"></i>
-                    </div>
-                    <div class="info-content">
-                        <h3>Dados Reais em Tempo Real</h3>
-                        <p>Os percentuais exibidos são calculados automaticamente através da API do GitHub, analisando linguagens, frameworks e tecnologias utilizadas nos repositórios públicos do meu perfil.</p>
-                    </div>
-                    <div class="info-action">
-                        <button onclick="clearSkillsCache(); location.reload();" class="refresh-btn">
-                            <i class="fas fa-sync-alt"></i>Atualizar Skills
-                        </button>
-                    </div>
-                </div>
+    <section id="habilidades">
+        <h2>Technical Skills</h2>
+        <div class="skills-info">
+            <p style="text-align: center; color: #c8aa6e; font-style: italic; margin-bottom: 1rem; padding: 0.8rem; background: rgba(200, 170, 110, 0.1); border-radius: 8px; border-left: 4px solid #c8aa6e;">
+                <i class="fab fa-github" style="margin-right: 0.5rem;"></i>
+                <strong>Dados Reais em Tempo Real:</strong> Os percentuais exibidos são calculados automaticamente através da API do GitHub, 
+                analisando linguagens, frameworks e tecnologias utilizadas nos repositórios públicos do meu perfil.
+            </p>
+            <div style="text-align: center; margin-bottom: 1rem;">
+                <button onclick="clearSkillsCache(); location.reload();" style="background: rgba(200, 170, 110, 0.2); border: 1px solid rgba(200, 170, 110, 0.5); color: #c8aa6e; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.3s ease;">
+                    <i class="fas fa-sync-alt" style="margin-right: 0.5rem;"></i>Atualizar Skills
+                </button>
+            </div>
+        </div>
+        <div class="skills-grid">
+            <!-- Loading indicator -->
+            <div id="skills-loading" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+                <div class="loader" style="margin: 0 auto 1rem;"></div>
+                <p style="color: #c8aa6e; margin-bottom: 0.5rem;"><strong>Analisando repositórios do GitHub...</strong></p>
+                <p style="color: #a09b8c; font-size: 0.8rem; opacity: 0.8;">Coletando dados de linguagens e tecnologias em tempo real</p>
             </div>
             
-            <div class="skills-grid">
-                <!-- Loading indicator -->
-                <div id="skills-loading" class="skills-loading">
-                    <div class="loader"></div>
-                    <p class="loading-title">Analisando repositórios do GitHub...</p>
-                    <p class="loading-subtitle">Coletando dados de linguagens e tecnologias em tempo real</p>
-                </div>
-                
-                <!-- Skills cards will be populated dynamically -->
-            </div>
+            <!-- Skills cards will be populated dynamically -->
         </div>
     </section>
 
@@ -940,68 +594,42 @@
     </section>
 
     <!-- GitHub Profile Section -->
-    <section id="github-profile-section" class="media-section">
-        <div class="container">
-            <h2 class="section-title">
-                <i class="fab fa-github"></i>
-                <span class="title-text">Meu Perfil GitHub</span>
-                <div class="title-line"></div>
-            </h2>
-            <div id="github-profile" class="github-profile-container">
-                <!-- O conteúdo será preenchido pelo JavaScript -->
-                <div class="loader"></div>
-                <p class="loading-text">Carregando perfil do GitHub...</p>
-            </div>
+    <section id="github-profile-section">
+        <h2>Meu Perfil GitHub</h2>
+        <div id="github-profile" class="github-profile-container">
+            <!-- O conteúdo será preenchido pelo JavaScript -->
+            <div class="loader"></div>
         </div>
     </section>
 
     <!-- GitHub Repos Section -->
-    <section id="github-repos-section" class="media-section">
-        <div class="container">
-            <h2 class="section-title">
-                <i class="fas fa-code-branch"></i>
-                <span class="title-text">Meus Repositórios GitHub</span>
-                <div class="title-line"></div>
-            </h2>
-            <div id="github-repos" class="github-repos-container">
-                <!-- O conteúdo será preenchido pelo JavaScript -->
-                <div class="loader"></div>
-                <p class="loading-text">Carregando repositórios...</p>
-            </div>
+    <section id="github-repos-section">
+        <h2>Meus Repositórios GitHub</h2>
+        <div id="github-repos" class="github-repos-container">
+            <!-- O conteúdo será preenchido pelo JavaScript -->
+            <div class="loader"></div>
         </div>
     </section>
 
     <!-- Redes Sociais -->
-    <section class="redes-sociais media-section">
-        <div class="container">
-            <h2 class="section-title">
-                <i class="fas fa-share-alt"></i>
-                <span class="title-text">My Social Media</span>
-                <div class="title-line"></div>
-            </h2>
-            
-            <div class="social-media-container">
-                <a href="https://www.linkedin.com/in/mikaelferreira/" target="_blank" class="social-card linkedin">
-                    <div class="social-icon"><i class="fab fa-linkedin"></i></div>
-                    <div class="social-name">LinkedIn</div>
-                </a>
-                <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-card tiktok">
-                    <div class="social-icon"><i class="fab fa-tiktok"></i></div>
-                    <div class="social-name">TikTok</div>
-                </a>
-                <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-card reddit">
-                    <div class="social-icon"><i class="fab fa-reddit"></i></div>
-                    <div class="social-name">Reddit</div>
-                </a>
-                <a href="https://discord.gg/fffen2a4" target="_blank" class="social-card discord">
-                    <div class="social-icon"><i class="fab fa-discord"></i></div>
-                    <div class="social-name">Discord</div>
-                </a>
-                <a href="https://github.com/mikaelfmts" target="_blank" class="social-card github">
-                    <div class="social-icon"><i class="fab fa-github"></i></div>
-                    <div class="social-name">GitHub</div>
-                </a>
-            </div>
+    <section class="redes-sociais">
+        <h2>My Social Media</h2>
+        <div class="botoes-redes">
+            <a href="https://www.linkedin.com/in/mikaelferreira/" target="_blank" class="social-btn linkedin">
+                <i class="fab fa-linkedin"></i>
+            </a>
+            <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-btn tiktok">
+                <i class="fab fa-tiktok"></i>
+            </a>
+            <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-btn reddit">
+                <i class="fab fa-reddit"></i>
+            </a>
+            <a href="https://discord.gg/fffen2a4" target="_blank" class="social-btn discord">
+                <i class="fab fa-discord"></i>
+            </a>
+            <a href="https://github.com/mikaelfmts" target="_blank" class="social-btn github">
+                <i class="fab fa-github"></i>
+            </a>
         </div>
     </section>
 
@@ -1257,6 +885,83 @@
         }
     </style>
     
+    <!-- Sistema de Partículas Melhorado -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const particlesContainer = document.querySelector('.particles-container');
+            
+            // Função para criar partículas com performance otimizada
+            function createParticle() {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Tipos de partículas com cores temáticas
+                const types = ['golden', 'light', 'dark'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                particle.classList.add(type);
+                
+                // Tamanho aleatório variado baseado no tipo
+                let sizeBase, sizeVariation;
+                if (type === 'golden') {
+                    sizeBase = 3;
+                    sizeVariation = 4;
+                } else if (type === 'light') {
+                    sizeBase = 2;
+                    sizeVariation = 3;
+                } else {
+                    sizeBase = 4;
+                    sizeVariation = 5;
+                }
+                
+                const size = Math.random() * sizeVariation + sizeBase;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                
+                // Posição horizontal aleatória com distribuição melhorada
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.bottom = '-10px';
+                
+                // Animação de movimento com tempos variados
+                const minDuration = 12000; // 12 segundos
+                const maxDuration = 25000; // 25 segundos
+                const duration = Math.random() * (maxDuration - minDuration) + minDuration;
+                
+                // Deriva horizontal dependendo do tipo de partícula
+                const driftFactor = type === 'golden' ? 1.5 : (type === 'light' ? 0.8 : 1.2);
+                const drift = (Math.random() - 0.5) * 120 * driftFactor;
+                
+                particle.style.animationDuration = duration + 'ms';
+                particle.style.setProperty('--drift', drift + 'px');
+                
+                particlesContainer.appendChild(particle);
+                
+                // Remover partícula após animação para evitar vazamentos de memória
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, duration);
+            }
+            
+            // Criar partículas em intervalos controlados
+            let createInterval = setInterval(createParticle, 400);
+            
+            // Otimização para parar criação quando a guia não estiver visível
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    clearInterval(createInterval);
+                } else {
+                    createInterval = setInterval(createParticle, 400);
+                }
+            });
+            
+            // Criar algumas partículas iniciais
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => createParticle(), i * 150);
+            }
+        });
+    </script>
+
     <!-- Personal Hub Scripts -->
     <!-- Firebase Compatible para Personal Hub - Production builds específicos -->
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -1294,36 +999,6 @@
         });
     </script>
     
-    <!-- Script para o funcionamento do menu mobile -->
-    <script>
-        function toggleMobileMenu() {
-            const mobileMenu = document.querySelector('.mobile-menu');
-            const overlay = document.querySelector('.mobile-overlay');
-            
-            mobileMenu.classList.toggle('open');
-            
-            if (mobileMenu.classList.contains('open')) {
-                // Se o menu estiver aberto, adicione o overlay
-                if (!overlay) {
-                    const newOverlay = document.createElement('div');
-                    newOverlay.className = 'mobile-overlay open';
-                    newOverlay.onclick = toggleMobileMenu;
-                    document.body.appendChild(newOverlay);
-                } else {
-                    overlay.classList.add('open');
-                }
-                // Impedir rolagem no body
-                document.body.style.overflow = 'hidden';
-            } else {
-                // Se o menu estiver fechado, remova o overlay
-                if (overlay) {
-                    overlay.classList.remove('open');
-                }
-                // Permitir rolagem novamente
-                document.body.style.overflow = '';
-            }
-        }
-    </script>
 </body>
    
 </html>

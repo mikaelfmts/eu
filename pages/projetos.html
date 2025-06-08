@@ -53,6 +53,8 @@
             overflow-x: hidden;
             display: flex;
             flex-direction: column;
+            margin: 0 !important; /* Remove qualquer margem do body */
+            padding: 0 !important; /* Remove qualquer padding do body */
         }
         
         /* Container de partículas */
@@ -92,86 +94,83 @@
             width: 100%;
             max-width: 100%;
             overflow-x: hidden;
+            margin-left: 0 !important; /* Força a centralização removendo o margin-left do styles.css */
         }
 
         .hero-section {
             text-align: center;
-            padding: 4rem 1rem;
+            padding: 3rem 1rem;
             margin-bottom: 2rem;
             position: relative;
             width: 100%;
+            max-width: 100%;
         }
 
         .hero-title {
-            font-size: 3.5rem;
+            font-size: 2.8rem;
             font-weight: 700;
             color: var(--primary-color);
             font-family: 'Marcellus', serif;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             margin-bottom: 1.5rem;
-            text-shadow: 
-                0 0 20px rgba(200, 170, 110, 0.4),
-                0 0 40px rgba(200, 170, 110, 0.2);
-            animation: glow 3s ease-in-out infinite alternate;
+            text-align: center;
+            width: 100%;
+            text-shadow: 0 0 10px rgba(200, 170, 110, 0.3);
         }
 
-        @keyframes glow {
-            from { text-shadow: 0 0 20px rgba(200, 170, 110, 0.4), 0 0 40px rgba(200, 170, 110, 0.2); }
-            to { text-shadow: 0 0 30px rgba(200, 170, 110, 0.6), 0 0 60px rgba(200, 170, 110, 0.3); }
-        }
+        /* Remoção da animação de glow para melhorar performance */
 
         .hero-subtitle {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             color: var(--text-secondary);
             margin: 0 auto 2rem;
             max-width: 700px;
             line-height: 1.6;
             padding: 0 1rem;
+            text-align: center;
+            width: 100%;
         }
 
+        /* Forçar centralização de todos os elementos principais */
+        * {
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
+        }
+        
         .projects-container {
             width: 100%;
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 0 1rem;
             box-sizing: border-box;
+            text-align: center;
+            display: block !important;
+            position: relative;
+            left: 0 !important;
+            right: 0 !important;
         }
 
         .section-title {
-            font-size: 2.5rem;
+            font-size: 2rem;
             color: var(--primary-color);
             font-family: 'Marcellus', serif;
             text-align: center;
-            margin: 4rem auto 3.5rem;
+            margin: 3rem auto 2.5rem;
             position: relative;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 15px rgba(200, 170, 110, 0.4);
+            letter-spacing: 1px;
             display: block;
-            width: fit-content;
-            padding: 0 4rem;
+            width: 100%;
+            max-width: 80%;
+            padding: 0 1rem;
         }
         
-        .section-title::before,
-        .section-title::after {
-            content: '❧';
-            position: absolute;
-            top: 50%;
-            font-size: 1.5rem;
-            color: var(--primary-color);
-            opacity: 0.7;
-        }
-        
-        .section-title::before {
-            left: 0;
-            transform: translateY(-50%) rotate(180deg);
-        }
-        
-        .section-title::after {
-            right: 0;
-            transform: translateY(-50%);
-        }
+        /* Removidos os pseudo-elementos decorativos para simplificar */
 
         .section-title i {
             margin-right: 0.5rem;
@@ -199,17 +198,14 @@
         }
 
         .repo-card {
-            background: var(--card-gradient);
-            border: 2px solid transparent;
-            border-image: var(--card-border-gradient) 1;
-            border-radius: 20px;
-            padding: 2.5rem;
-            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            background: var(--background-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            backdrop-filter: blur(20px);
-            box-shadow: var(--card-shadow);
-            clip-path: polygon(0 0, 100% 0, 100% 94%, 95% 100%, 0 100%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -225,35 +221,17 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, 
-                var(--primary-color) 0%,
-                #ffd700 50%,
-                var(--primary-color) 100%);
+            height: 3px;
+            background: var(--primary-color);
             transform: scaleX(0);
             transform-origin: left;
-            transition: transform 0.5s ease;
-            z-index: 1;
-        }
-
-        .repo-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 50% 0%, rgba(200, 170, 110, 0.08) 0%, transparent 60%);
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            pointer-events: none;
+            transition: transform 0.3s ease;
         }
 
         .repo-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            border-image: var(--card-hover-border-gradient) 1;
-            box-shadow: var(--card-hover-shadow);
-            animation: card-pulse 2s infinite alternate;
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
         @keyframes card-pulse {
@@ -270,44 +248,30 @@
         }
 
         .repo-name {
-            font-size: 1.6rem;
-            font-weight: 700;
+            font-size: 1.4rem;
+            font-weight: 600;
             color: var(--primary-color);
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
             font-family: 'Marcellus', serif;
-            text-transform: uppercase;
-            letter-spacing: 1px;
             display: flex;
             align-items: center;
             position: relative;
-            text-shadow: 0 0 10px rgba(200, 170, 110, 0.3);
             text-align: center;
             justify-content: center;
             width: 100%;
         }
         
-        .repo-name::before {
-            content: '◈';
-            margin-right: 10px;
-            font-size: 1.2rem;
-            color: var(--primary-color);
-            animation: rotate-gem 4s linear infinite;
-            display: inline-block;
-        }
-        
-        @keyframes rotate-gem {
-            0% { transform: rotateY(0deg); }
-            100% { transform: rotateY(360deg); }
-        }
+        /* Removida a animação de rotação para melhorar performance */
 
         .repo-description {
             color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
-            font-size: 1.1rem;
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+            font-size: 1rem;
             text-align: center;
             width: 100%;
-            min-height: 80px;
+            min-height: auto;
+            padding: 0 0.5rem;
         }
 
         .repo-stats {
@@ -355,73 +319,41 @@
         }
 
         .tech-tag {
-            background: linear-gradient(135deg, rgba(200, 170, 110, 0.2), rgba(200, 170, 110, 0.1));
+            background: rgba(200, 170, 110, 0.1);
             color: var(--primary-color);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border: 1px solid rgba(200, 170, 110, 0.3);
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            padding: 0.4rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid rgba(200, 170, 110, 0.2);
+            transition: all 0.2s ease;
             margin-bottom: 0.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         .tech-tag:hover {
-            background: linear-gradient(135deg, var(--primary-color), #ffd700);
-            color: var(--background-primary);
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 5px 15px rgba(200, 170, 110, 0.4);
+            background: rgba(200, 170, 110, 0.2);
+            color: var(--primary-color);
         }
 
         .repo-link {
             display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 2rem;
-            background: linear-gradient(135deg, var(--primary-color), #ffd700);
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
             color: var(--background-primary);
-            border-radius: 30px;
+            border-radius: 4px;
             text-decoration: none;
-            font-weight: 700;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.4s ease;
-            margin-top: 2rem;
-            box-shadow: 
-                0 8px 20px rgba(200, 170, 110, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .repo-link::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
-            transform: scale(0);
-            opacity: 0;
-            transition: transform 0.6s ease, opacity 0.6s ease;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
         .repo-link:hover {
-            transform: translateY(-3px);
-            box-shadow: 
-                0 12px 30px rgba(200, 170, 110, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            background: linear-gradient(135deg, #ffd700, var(--primary-color));
-        }
-        
-        .repo-link:hover::after {
-            transform: scale(1);
-            opacity: 1;
+            background: #9f8654; /* Tom mais escuro do dourado */
+            transform: translateY(-2px);
         }
 
         .loader {
@@ -520,17 +452,19 @@
             
             .github-repos-container {
                 grid-template-columns: 1fr;
-                max-width: 95%;
+                max-width: 100%;
                 width: 95%;
                 margin-left: auto;
                 margin-right: auto;
                 margin-bottom: 3rem;
+                padding: 0 1rem;
             }
             
             .repo-card {
-                padding: 2rem;
+                padding: 1.5rem;
                 max-width: 100%;
                 width: 100%;
+                text-align: center;
             }
             
             .projects-container {
@@ -590,23 +524,21 @@
             }
         }
 
-        /* Estilização para o container de perfil GitHub */
+        /* Estilização para o container de perfil GitHub - Simplificada */
         .github-profile-container {
-            background: var(--card-gradient);
-            border: 2px solid transparent;
-            border-image: var(--card-border-gradient) 1;
-            border-radius: 20px;
-            padding: 2.5rem;
+            background: var(--background-secondary);
+            border: 1px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 2rem;
             margin: 0 auto 3rem;
-            max-width: 900px;
+            max-width: 800px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
             position: relative;
             overflow: hidden;
-            box-shadow: var(--card-shadow);
-            animation: fadeIn 1s ease-in-out;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         .profile-header {
@@ -617,15 +549,16 @@
             margin-bottom: 2rem;
             width: 100%;
             flex-wrap: wrap;
+            text-align: center;
         }
 
         .profile-avatar {
-            width: 150px;
-            height: 150px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid var(--primary-color);
-            box-shadow: 0 0 20px rgba(200, 170, 110, 0.4);
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
         }
 
@@ -637,14 +570,14 @@
         .profile-info {
             flex: 1;
             min-width: 250px;
+            width: 100%;
+            text-align: center;
         }
 
         .profile-name {
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             color: var(--primary-color);
             font-family: 'Marcellus', serif;
-            text-transform: uppercase;
-            letter-spacing: 2px;
             margin-bottom: 0.5rem;
             position: relative;
             display: inline-block;
@@ -677,6 +610,7 @@
             gap: 2rem;
             margin: 1.5rem 0;
             flex-wrap: wrap;
+            width: 100%;
         }
 
         .profile-stat {
@@ -684,13 +618,13 @@
             flex-direction: column;
             align-items: center;
             min-width: 100px;
+            flex: 0 1 auto;
         }
 
         .stat-number {
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 1.5rem;
+            font-weight: 600;
             color: var(--primary-color);
-            text-shadow: 0 0 10px rgba(200, 170, 110, 0.3);
         }
 
         .stat-name {
@@ -713,23 +647,21 @@
             align-items: center;
             gap: 0.5rem;
             padding: 0.7rem 1.5rem;
-            background: linear-gradient(135deg, rgba(200, 170, 110, 0.2), rgba(200, 170, 110, 0.1));
+            background: rgba(200, 170, 110, 0.1);
             color: var(--primary-color);
-            border-radius: 30px;
+            border-radius: 4px;
             text-decoration: none;
             font-weight: 600;
             border: 1px solid rgba(200, 170, 110, 0.3);
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            transition: all 0.2s ease;
             font-size: 0.9rem;
+            margin: 0 auto;
         }
 
         .profile-link:hover {
-            background: linear-gradient(135deg, var(--primary-color), #ffd700);
+            background: var(--primary-color);
             color: var(--background-primary);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(200, 170, 110, 0.4);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
         /* Melhoria no rodapé */
@@ -780,6 +712,16 @@
             overflow-x: hidden;
             margin: 0;
             padding: 0;
+        }
+        
+        /* Forçar centralização para todos os elementos principais */
+        .hero-section, .github-profile-container, .section-title, 
+        .github-repos-container, .projects-container {
+            margin-left: auto !important;
+            margin-right: auto !important;
+            text-align: center !important;
+            width: 100% !important;
+            max-width: 1200px !important;
         }
         
         /* Ajuste fino para menu lateral */
@@ -1060,7 +1002,7 @@
                     
                     <div class="profile-links">
                         <a href="${userData.html_url}" class="profile-link" target="_blank">
-                            <i class="fab fa-github"></i> Ver Perfil
+                            <i class="fab fa-github"></i> Ver perfil completo
                         </a>
                         ${userData.blog ? `
                         <a href="${userData.blog}" class="profile-link" target="_blank">
@@ -1161,19 +1103,22 @@
             // Detecção de dispositivo móvel
             const isMobileDevice = /Android|webOS|iPhone|iPad|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
-            // Configuração de partículas adaptável para mobile
-            const particleInterval = isMobileDevice ? 1000 : 300; // Mais lento em mobile
-            const initialParticles = isMobileDevice ? 3 : 10; // Menos partículas iniciais em mobile
+            // Configuração de partículas - reduzida para melhor performance
+            const particleInterval = isMobileDevice ? 2000 : 800; // Muito mais lento para melhorar performance
+            const initialParticles = isMobileDevice ? 2 : 5; // Muito menos partículas iniciais
             
-            // Criar partículas em intervalos controlados
-            const createInterval = setInterval(createParticle, particleInterval);
+            // Criar partículas em intervalos controlados - apenas se não for mobile ou se for um dispositivo potente
+            let createInterval;
+            if (!isMobileDevice || window.navigator.hardwareConcurrency > 4) {
+                createInterval = setInterval(createParticle, particleInterval);
+            }
             
             // Otimização para parar criação quando a guia não estiver visível
             document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
+                if (document.hidden && createInterval) {
                     clearInterval(createInterval);
-                } else {
-                    setInterval(createParticle, particleInterval);
+                } else if (!document.hidden && (!isMobileDevice || window.navigator.hardwareConcurrency > 4)) {
+                    createInterval = setInterval(createParticle, particleInterval);
                 }
             });
             

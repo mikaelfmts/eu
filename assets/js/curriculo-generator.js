@@ -600,25 +600,43 @@ function setupEventListeners() {
     const checkboxes = [
         'show-photo', 'show-skills-progress', 'show-contact-icons', 'show-project-links'
     ];
-    
-    checkboxes.forEach(id => {
+      checkboxes.forEach(id => {
         const checkbox = document.getElementById(id);
         if (checkbox) {
             console.log(`✅ Configurando listener para checkbox: ${id}`);
             
-            checkbox.addEventListener('change', function(e) {
+            // Remover listeners existentes para evitar duplicatas
+            checkbox.removeEventListener('change', checkbox._curriculumListener);
+            
+            // Criar nova função listener
+            checkbox._curriculumListener = function(e) {
                 console.log(`🔄 Checkbox ${id} alterado para:`, e.target.checked);
                 
-                // Atualizar configurações IMEDIATAMENTE
+                // Atualizar configurações IMEDIATAMENTE no objeto curriculumData
+                const settingMap = {
+                    'show-photo': 'showPhoto',
+                    'show-skills-progress': 'showSkillsProgress', 
+                    'show-contact-icons': 'showContactIcons',
+                    'show-project-links': 'showProjectLinks'
+                };
+                
+                const settingName = settingMap[id];
+                if (settingName) {
+                    curriculumData.settings[settingName] = e.target.checked;
+                }
+                
+                // Atualizar todas as configurações
                 updateSettings();
                 
-                // Aplicar configurações ao preview existente
+                // Aplicar configurações ao preview existente IMEDIATAMENTE
                 applySettingsToPreview();
                 
-                // Regenerar preview para garantir mudanças
+                // Regenerar preview para garantir mudanças persistentes
                 setTimeout(() => {
-                    generatePreview();
-                }, 50);
+                    if (document.getElementById('curriculum-preview').innerHTML.trim()) {
+                        generatePreview();
+                    }
+                }, 100);
                 
                 // Mostrar notificação
                 const messages = {
@@ -629,7 +647,10 @@ function setupEventListeners() {
                 };
                 
                 showNotification(messages[id], 'success');
-            });
+            };
+            
+            // Adicionar novo listener
+            checkbox.addEventListener('change', checkbox._curriculumListener);
         } else {
             console.warn(`⚠️ Checkbox não encontrado: ${id}`);
         }
@@ -738,26 +759,35 @@ function applySettingsToPreview() {
     console.log('🎨 Aplicando configurações ao preview:', curriculumData.settings);
     
     // Gerenciar visibilidade da foto
-    const photoElements = previewContainer.querySelectorAll('.profile-photo, .curriculum-photo, img[src*="avatar"]');
+    const photoElements = previewContainer.querySelectorAll('.profile-photo, .curriculum-photo, img[src*="avatar"], img[alt*="foto"], .photo-container, .avatar');
     photoElements.forEach(photo => {
         const display = curriculumData.settings.showPhoto ? 'block' : 'none';
         photo.style.display = display;
+        // Também esconder container pai se necessário
+        if (photo.parentElement && photo.parentElement.classList.contains('photo-wrapper')) {
+            photo.parentElement.style.display = display;
+        }
         console.log(`📸 Foto ${curriculumData.settings.showPhoto ? 'mostrada' : 'ocultada'}`);
     });
     
     // Gerenciar barras de progresso das habilidades - SELETORES MELHORADOS
     const skillProgressElements = previewContainer.querySelectorAll(
-        '.skill-progress, .progress-bar, [style*="background: #eee"], [style*="height: 8px"]'
+        '.skill-progress, .progress-bar, .skill-level, .progress, [class*="progress"], [style*="background: #"], .skill-bar, .level-bar'
     );
     skillProgressElements.forEach(progress => {
         const display = curriculumData.settings.showSkillsProgress ? 'block' : 'none';
         progress.style.display = display;
+        // Esconder também elementos pais com classe relacionada
+        if (progress.closest('.skill-item')) {
+            const skillItem = progress.closest('.skill-item');
+            skillItem.style.display = display;
+        }
         console.log(`📊 Barra de progresso ${curriculumData.settings.showSkillsProgress ? 'mostrada' : 'ocultada'}`);
     });
     
     // Gerenciar ícones de contato - SELETORES MAIS ESPECÍFICOS
     const contactIconElements = previewContainer.querySelectorAll(
-        '.contact-icon, .icon, i.fas, i.fab, [class*="fa-"]'
+        '.contact-icon, .icon, i.fas, i.fab, i.far, [class*="fa-"], .social-icon, .contact-item i'
     );
     contactIconElements.forEach(icon => {
         const display = curriculumData.settings.showContactIcons ? 'inline' : 'none';
@@ -765,18 +795,41 @@ function applySettingsToPreview() {
         console.log(`🎯 Ícone ${curriculumData.settings.showContactIcons ? 'mostrado' : 'ocultado'}`);
     });
     
-    // Gerenciar links de projetos - SELETORES MAIS ABRANGENTES
-    const projectLinkElements = previewContainer.querySelectorAll(
-        '.project-link, .project-url, a[href]:not([href^="mailto"]):not([href^="tel"]), [style*="Ver projeto"]'
-    );
+    // Gerenciar links de projetos - SELETORES MAIS ABRANGENTES E VERIFICAÇÃO INTELIGENTE
+    const projectLinkElements = previewContainer.querySelectorAll('a[href]');
+    let projectLinksProcessed = 0;
+    
     projectLinkElements.forEach(link => {
-        const display = curriculumData.settings.showProjectLinks ? 'inline' : 'none';
-        link.style.display = display;
-        console.log(`🔗 Link de projeto ${curriculumData.settings.showProjectLinks ? 'mostrado' : 'ocultado'}`);
+        const href = link.getAttribute('href');
+        const text = link.textContent.toLowerCase();
+        
+        // Verificar se é um link de projeto (não é email, telefone ou rede social básica)
+        const isProjectLink = href && 
+            !href.startsWith('mailto:') && 
+            !href.startsWith('tel:') && 
+            !href.includes('linkedin.com/in/') &&
+            !href.includes('github.com/mikaelfmts') &&
+            (text.includes('projeto') || 
+             text.includes('ver') || 
+             text.includes('demo') || 
+             text.includes('site') ||
+             href.includes('github.com') ||
+             href.includes('vercel.app') ||
+             href.includes('netlify.app') ||
+             link.classList.contains('project-link') ||
+             link.closest('.project-item') ||
+             link.closest('.project'));
+        
+        if (isProjectLink) {
+            const display = curriculumData.settings.showProjectLinks ? 'inline' : 'none';
+            link.style.display = display;
+            projectLinksProcessed++;
+            console.log(`🔗 Link de projeto "${text}" ${curriculumData.settings.showProjectLinks ? 'mostrado' : 'ocultado'}`);
+        }
     });
     
-    // Log final
-    console.log(`✅ Configurações aplicadas: ${photoElements.length} fotos, ${skillProgressElements.length} barras, ${contactIconElements.length} ícones, ${projectLinkElements.length} links`);
+    // Log final melhorado
+    console.log(`✅ Configurações aplicadas: ${photoElements.length} fotos, ${skillProgressElements.length} barras, ${contactIconElements.length} ícones, ${projectLinksProcessed} links de projeto`);
 }
 
 // Preenchimento automático de dados pessoais
@@ -2476,16 +2529,26 @@ function applyPreviewStyles(previewContainer) {
     if (mainContentDiv) {
         mainContentDiv.style.backgroundColor = backgroundColor;
     }
-      
+    
+    // Aplicar configurações de margens do documento
+    const documentMargins = settings.documentMargins || 'normal';
+    previewContainer.classList.remove('document-margins-compact', 'document-margins-normal', 'document-margins-comfortable', 'document-margins-wide');
+    previewContainer.classList.add(`document-margins-${documentMargins}`);
+    
     // Aplicar classes de tema e layout
-    previewContainer.className = `curriculum-preview curriculum-${settings.theme} layout-${settings.layout} spacing-${settings.spacing}`;
+    previewContainer.className = `curriculum-preview curriculum-${settings.theme} layout-${settings.layout} spacing-${settings.spacing} document-margins-${documentMargins}`;
     
     // Aplicar cores personalizadas se existirem
     if (settings.customColors) {
         applyCustomColorsToPreview(settings.customColors, previewContainer);
     }
     
-    console.log('Cor de fundo aplicada:', backgroundColor);
+    console.log('🎨 Estilos aplicados ao preview:', {
+        backgroundColor,
+        documentMargins,
+        theme: settings.theme,
+        layout: settings.layout
+    });
 }
 
 // Função para aplicar cores personalizadas
@@ -2510,9 +2573,10 @@ function applyCustomColors() {
         curriculumData.settings.backgroundColor = backgroundColor;
         curriculumData.settings.documentMargins = documentMargins;
         
-        console.log('Configurações atualizadas:', 
+        console.log('🎨 Aplicando cores e configurações:', 
             'Cor de fundo:', backgroundColor, 
-            'Margens:', documentMargins);
+            'Margens:', documentMargins,
+            'Cores personalizadas:', customColors);
           
         // Aplicar cores ao preview se estiver visível
         const previewContainer = document.getElementById('curriculum-preview');
@@ -2520,8 +2584,18 @@ function applyCustomColors() {
             // Aplicar cor de fundo diretamente ao container de preview
             previewContainer.style.backgroundColor = backgroundColor;
             
+            // Aplicar cor de fundo ao primeiro elemento div dentro do preview
+            const mainContentDiv = previewContainer.querySelector('div');
+            if (mainContentDiv) {
+                mainContentDiv.style.backgroundColor = backgroundColor;
+            }
+            
             // Aplicar cores personalizadas
             applyCustomColorsToPreview(customColors, previewContainer);
+            
+            // Forçar atualização do preview
+            updateSettings();
+            applySettingsToPreview();
         }
           
         showNotification('Cores e formatação aplicadas com sucesso!', 'success');
@@ -2551,7 +2625,20 @@ function applyCustomColorsToPreview(colors, container = null) {
     }
     
     // Obter cor de fundo da configuração ou do input
-    const backgroundColor = document.getElementById('background-color')?.value || '#ffffff';
+    const backgroundColor = document.getElementById('background-color')?.value || 
+                           curriculumData.settings?.backgroundColor || '#ffffff';
+    
+    // Aplicar cor de fundo diretamente no container
+    const previewContainer = document.getElementById('curriculum-preview');
+    if (previewContainer) {
+        previewContainer.style.backgroundColor = backgroundColor;
+        
+        // Aplicar também nos elementos filhos principais
+        const mainContent = previewContainer.querySelector('div');
+        if (mainContent) {
+            mainContent.style.backgroundColor = backgroundColor;
+        }
+    }
     
     const style = document.createElement('style');
     style.id = 'custom-colors-style';
@@ -2561,11 +2648,13 @@ function applyCustomColorsToPreview(colors, container = null) {
     if (existingStyle) {
         existingStyle.remove();
     }
-      style.textContent = `
+      
+    style.textContent = `
         /* Regras para impressão - garantir cores corretas no PDF */
         @media print {
             #curriculum-preview, 
             #curriculum-preview > div,
+            #curriculum-preview > div > div,
             .curriculum-preview {
                 background-color: ${backgroundColor} !important;
                 -webkit-print-color-adjust: exact !important;
@@ -2573,34 +2662,51 @@ function applyCustomColorsToPreview(colors, container = null) {
             }
         }
         
-        /* Cor de fundo do currículo */
+        /* Cor de fundo do currículo - aplicação mais ampla */
         #curriculum-preview, 
-        #curriculum-preview > div {
+        #curriculum-preview > div,
+        #curriculum-preview > div > div,
+        .curriculum-container {
             background-color: ${backgroundColor} !important;
         }
         
         /* Nome e título principal */
-        #curriculum-preview header h1 {
+        #curriculum-preview header h1,
+        #curriculum-preview h1:first-child,
+        .curriculum-name {
             color: ${colors.nameTitle} !important;
         }
         
-        #curriculum-preview header h2 {
+        #curriculum-preview header h2,
+        #curriculum-preview h2:first-of-type,
+        .curriculum-title {
             color: ${colors.nameTitle} !important;
         }
         
         /* Títulos de seção */
-        #curriculum-preview h3 {
+        #curriculum-preview h3,
+        .section-title,
+        .section-header {
             color: ${colors.sectionTitle} !important;
+            border-color: ${colors.sectionTitle} !important;
         }
         
         /* Texto principal - parágrafos e descrições */
         #curriculum-preview p,
-        #curriculum-preview span:not([style*="color"]) {
+        #curriculum-preview span:not([style*="color"]),
+        #curriculum-preview li,
+        .main-text {
             color: ${colors.mainText} !important;
         }
         
         /* Destaques - empresas, projetos, posições */
-        #curriculum-preview h4 {
+        #curriculum-preview h4,
+        #curriculum-preview h5,
+        #curriculum-preview strong,
+        #curriculum-preview b,
+        .highlight,
+        .company-name,
+        .position-title {
             color: ${colors.highlight} !important;
         }
         
@@ -2609,19 +2715,26 @@ function applyCustomColorsToPreview(colors, container = null) {
         }
         
         /* Links e contatos */
-        #curriculum-preview a {
+        #curriculum-preview a,
+        .contact-link,
+        .project-link {
             color: ${colors.link} !important;
         }
-          /* Habilidades - barras de progresso e tags */
-        #curriculum-preview .skill-progress {
+          
+        /* Habilidades - barras de progresso e tags */
+        #curriculum-preview .skill-progress,
+        #curriculum-preview .progress-bar,
+        .skill-bar {
             background: ${colors.skills} !important;
         }
         
-        #curriculum-preview .skill-tag {
+        #curriculum-preview .skill-tag,
+        .skill-item {
             color: ${colors.skills} !important;
+            border-color: ${colors.skills} !important;
         }
         
-        /* Classe auxiliares para elementos específicos */
+        /* Classes auxiliares para elementos específicos */
         .curriculum-name {
             color: ${colors.nameTitle} !important;
         }
@@ -2650,9 +2763,24 @@ function applyCustomColorsToPreview(colors, container = null) {
             color: ${colors.skills} !important;
             border-color: ${colors.skills} !important;
         }
+        
+        /* Ícones FontAwesome */
+        #curriculum-preview i.fas,
+        #curriculum-preview i.fab,
+        #curriculum-preview i.far {
+            color: ${colors.link} !important;
+        }
+        
+        /* Bordas de seção */
+        #curriculum-preview .section-divider,
+        #curriculum-preview hr {
+            border-color: ${colors.sectionTitle} !important;
+        }
     `;
     
     document.head.appendChild(style);
+    
+    console.log('🎨 Cores aplicadas ao preview:', colors, 'Background:', backgroundColor);
 }
 
 // Função para sincronizar controles de cor (input color e select)
@@ -2667,28 +2795,49 @@ function setupColorControls() {
         { colorInput: 'skills-color', preset: 'skills-color-preset' }
     ];
     
+    // Função auxiliar para aplicar cores automaticamente
+    function applyColorsAutomatically() {
+        const currentColors = {
+            nameTitle: document.getElementById('name-title-color')?.value || '#1f2937',
+            sectionTitle: document.getElementById('section-title-color')?.value || '#3b82f6',
+            mainText: document.getElementById('main-text-color')?.value || '#374151',
+            highlight: document.getElementById('highlight-color')?.value || '#10b981',
+            link: document.getElementById('link-color')?.value || '#3b82f6',
+            skills: document.getElementById('skills-color')?.value || '#8b5cf6'
+        };
+        
+        // Aplicar cor de fundo ao preview
+        const backgroundColor = document.getElementById('background-color')?.value || '#ffffff';
+        const previewContainer = document.getElementById('curriculum-preview');
+        if (previewContainer) {
+            previewContainer.style.backgroundColor = backgroundColor;
+            const mainContentDiv = previewContainer.querySelector('div');
+            if (mainContentDiv) {
+                mainContentDiv.style.backgroundColor = backgroundColor;
+            }
+        }
+        
+        // Aplicar cores personalizadas
+        applyCustomColorsToPreview(currentColors);
+        
+        // Atualizar configurações
+        curriculumData.settings.backgroundColor = backgroundColor;
+        curriculumData.settings.customColors = currentColors;
+    }
+    
     colorControls.forEach(control => {
         const colorInput = document.getElementById(control.colorInput);
         const presetSelect = document.getElementById(control.preset);
         
-        if (colorInput && presetSelect) {            // Sincronizar preset com input color
+        if (colorInput && presetSelect) {            
+            // Sincronizar preset com input color
             presetSelect.addEventListener('change', function() {
                 colorInput.value = this.value;
                 // Aplicar cores automaticamente quando preset mudar
-                setTimeout(() => {
-                    const currentColors = {
-                        nameTitle: document.getElementById('name-title-color').value,
-                        sectionTitle: document.getElementById('section-title-color').value,
-                        mainText: document.getElementById('main-text-color').value,
-                        highlight: document.getElementById('highlight-color').value,
-                        link: document.getElementById('link-color').value,
-                        skills: document.getElementById('skills-color').value
-                    };
-                    applyCustomColorsToPreview(currentColors);
-                }, 100);
+                setTimeout(applyColorsAutomatically, 50);
             });
             
-            // Atualizar preset quando input color mudar
+            // Atualizar preset quando input color mudar e aplicar cores
             colorInput.addEventListener('input', function() {
                 // Verificar se a cor corresponde a algum preset
                 const options = presetSelect.options;
@@ -2699,17 +2848,12 @@ function setupColorControls() {
                     }
                 }
                 // Aplicar cores automaticamente quando input mudar
-                setTimeout(() => {
-                    const currentColors = {
-                        nameTitle: document.getElementById('name-title-color').value,
-                        sectionTitle: document.getElementById('section-title-color').value,
-                        mainText: document.getElementById('main-text-color').value,
-                        highlight: document.getElementById('highlight-color').value,
-                        link: document.getElementById('link-color').value,
-                        skills: document.getElementById('skills-color').value
-                    };
-                    applyCustomColorsToPreview(currentColors);
-                }, 100);
+                setTimeout(applyColorsAutomatically, 50);
+            });
+            
+            // Aplicar cores também quando campo perde o foco
+            colorInput.addEventListener('change', function() {
+                setTimeout(applyColorsAutomaticamente, 50);
             });
         }
     });

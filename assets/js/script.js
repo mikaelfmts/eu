@@ -1734,9 +1734,69 @@ function isMobile() {
 
 if (isMobile()) {
     document.body.classList.add('mobile');
+    // Forçar tema escuro especialmente em mobile
+    enforceDarkTheme();
 }
 
 // Funcionalidade de tema removida - mantendo apenas modo escuro
+
+// Forçar tema escuro e remover qualquer tentativa de aplicar tema claro
+function enforceDarkTheme() {
+    // Remover qualquer classe de tema claro que possa ter sido adicionada
+    document.body.classList.remove('light-mode', 'light', 'bright');
+    document.documentElement.classList.remove('light-mode', 'light', 'bright');
+    
+    // Limpar localStorage de qualquer referência a tema claro
+    localStorage.removeItem('theme');
+    localStorage.removeItem('light-mode');
+    localStorage.removeItem('currentTheme');
+    
+    // Aplicar estilos escuros via JavaScript como backup
+    document.body.style.backgroundColor = '#010a13';
+    document.body.style.color = '#f0e6d2';
+    document.documentElement.style.backgroundColor = '#010a13';
+    document.documentElement.style.color = '#f0e6d2';
+}
+
+// Executar ao carregar a página
+document.addEventListener('DOMContentLoaded', enforceDarkTheme);
+
+// Monitorar mudanças e forçar tema escuro
+const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && 
+            (mutation.attributeName === 'class' || mutation.attributeName === 'style')) {
+            enforceDarkTheme();
+        }
+    });
+});
+
+observer.observe(document.body, { 
+    attributes: true, 
+    attributeFilter: ['class', 'style'] 
+});
+
+observer.observe(document.documentElement, { 
+    attributes: true, 
+    attributeFilter: ['class', 'style'] 
+});
+
+// Verificação periódica para garantir tema escuro (especialmente em mobile)
+setInterval(() => {
+    enforceDarkTheme();
+}, 2000); // Verificar a cada 2 segundos
+
+// Verificar quando a página fica visível novamente (mobile app switching)
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        enforceDarkTheme();
+    }
+});
+
+// Verificar em mudanças de orientação (mobile)
+window.addEventListener('orientationchange', () => {
+    setTimeout(enforceDarkTheme, 100);
+});
 
 // Efeito de cards removido
 

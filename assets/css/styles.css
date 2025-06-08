@@ -68,20 +68,64 @@
 
 html {
     scroll-behavior: smooth;
+    background: var(--background-primary) !important;
+    color: var(--text-primary) !important;
 }
 
 body {
     font-family: 'Spiegel', 'Marcellus', serif;
     line-height: 1.6;
-    color: var(--text-primary);
-    background: var(--background-primary);
+    color: var(--text-primary) !important;
+    background: var(--background-primary) !important;
     background-image: 
         url('https://lolstatic-a.akamaihd.net/frontpage/apps/prod/clash-2018/pt_BR/c9bf09f08bfd566d9b36445f5562432202cf0203/assets/img/patterns/golden-noise.png'),
-        linear-gradient(to bottom, var(--background-primary), var(--background-secondary));
+        linear-gradient(to bottom, var(--background-primary), var(--background-secondary)) !important;
     background-blend-mode: overlay;
     background-size: 500px, cover;
     min-height: 100vh;
     overflow-x: hidden;
+}
+
+/* ==================== FORÇAR TEMA ESCURO - ANTI TEMA BRANCO ==================== */
+/* Regras ultra-específicas para garantir tema escuro em TODOS os dispositivos */
+html, html *, body, body * {
+    background-color: var(--background-primary) !important;
+}
+
+/* Forçar especificamente em mobile e webkit */
+@media screen and (max-width: 768px) {
+    html {
+        background: var(--background-primary) !important;
+        background-color: var(--background-primary) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    body {
+        background: var(--background-primary) !important;
+        background-color: var(--background-primary) !important;
+        color: var(--text-primary) !important;
+        background-image: 
+            url('https://lolstatic-a.akamaihd.net/frontpage/apps/prod/clash-2018/pt_BR/c9bf09f08bfd566d9b36445f5562432202cf0203/assets/img/patterns/golden-noise.png'),
+            linear-gradient(to bottom, var(--background-primary), var(--background-secondary)) !important;
+    }
+}
+
+/* Forçar em dispositivos com tela de toque */
+@media (hover: none) and (pointer: coarse) {
+    html, body {
+        background: var(--background-primary) !important;
+        background-color: var(--background-primary) !important;
+        color: var(--text-primary) !important;
+    }
+}
+
+/* Bloquear qualquer tema claro em webkit mobile */
+@supports (-webkit-touch-callout: none) {
+    html, body {
+        background: var(--background-primary) !important;
+        background-color: var(--background-primary) !important;
+        color: var(--text-primary) !important;
+    }
 }
 
 /* ==================== ESTILOS DA SIDEBAR ==================== */
@@ -1310,8 +1354,6 @@ button:active {
     animation: spin 1.5s infinite ease-in-out reverse;
 }
 
-/* Tema claro removido - mantendo apenas modo escuro */
-
 /* Responsividade */
 @media (max-width: 768px) {
     .skills-grid, .projects-grid {
@@ -1356,8 +1398,8 @@ footer p {
     }
     
     body {
-        background: white;
-        color: black;
+        background: white !important;
+        color: black !important;
     }
     
     section {

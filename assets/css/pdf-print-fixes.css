@@ -1,126 +1,42 @@
 /* Estilos específicos para impressão e PDF */
 
-/* Configurações de página para melhor aproveitamento do espaço */
-@page {
-    size: A4;
-    margin: 0.5cm;
-    margin-top: 1cm;
-    margin-bottom: 1cm;
-}
-
 /* Ajustes de impressão para garantir que as cores de fundo apareçam no PDF */
 @media print {
-    * {
+    html, body, div, span, applet, object, iframe,
+    h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+    a, abbr, acronym, address, big, cite, code,
+    del, dfn, em, img, ins, kbd, q, s, samp,
+    small, strike, strong, sub, sup, tt, var,
+    b, u, i, center,
+    dl, dt, dd, ol, ul, li,
+    fieldset, form, label, legend,
+    table, caption, tbody, tfoot, thead, tr, th, td,
+    article, aside, canvas, details, embed, 
+    figure, figcaption, footer, header, hgroup, 
+    menu, nav, output, ruby, section, summary,
+    time, mark, audio, video {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
     
-    html, body {
-        height: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: white !important;
-    }
-    
-    body {
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-        max-width: none !important;
-    }
-    
-    /* Ajustes específicos ao currículo para melhor aproveitamento da página */
-    #curriculum-preview {
-        width: 100% !important;
-        max-width: none !important;
-        margin: 0 !important;
-        padding: 0.5cm !important;
-        box-shadow: none !important;
-        border: none !important;
-        min-height: 29.7cm !important; /* Altura A4 */
-        max-height: none !important;
+    /* Ajustes específicos ao currículo */
+    #curriculum-preview,
+    #curriculum-preview > div,
+    .curriculum-preview {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
         page-break-inside: avoid;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        font-size: 14px !important;
-        line-height: 1.4 !important;
     }
     
-    #curriculum-preview > div {
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
+    /* Prevenir quebras de página dentro de seções importantes */
+    #curriculum-preview header,
+    #curriculum-preview section,
+    #curriculum-preview .curriculum-section {
+        page-break-inside: avoid;
+        page-break-after: auto;
     }
     
-    /* Otimizar espaçamento para melhor aproveitamento da página */
-    #curriculum-preview h1 {
-        font-size: 24px !important;
-        margin: 0 0 8px 0 !important;
-        line-height: 1.2 !important;
-    }
-    
-    #curriculum-preview h2 {
-        font-size: 18px !important;
-        margin: 0 0 6px 0 !important;
-        line-height: 1.2 !important;
-    }
-    
-    #curriculum-preview h3 {
-        font-size: 16px !important;
-        margin: 12px 0 6px 0 !important;
-        line-height: 1.2 !important;
-    }
-    
-    #curriculum-preview h4 {
-        font-size: 14px !important;
-        margin: 8px 0 4px 0 !important;
-        line-height: 1.2 !important;
-    }
-    
-    #curriculum-preview p {
-        margin: 4px 0 !important;
-        line-height: 1.3 !important;
-        font-size: 13px !important;
-    }
-    
-    #curriculum-preview ul, #curriculum-preview ol {
-        margin: 6px 0 !important;
-        padding-left: 20px !important;
-    }
-    
-    #curriculum-preview li {
-        margin: 2px 0 !important;
-        line-height: 1.3 !important;
-    }
-    
-    /* Remover elementos desnecessários para impressão */
-    .no-print,
-    .btn,
-    button,
-    .action-buttons {
-        display: none !important;
-    }
-      
-    /* Melhorar a visualização de margens em PDF com configurações otimizadas */
-    .document-margins-compact {
-        padding: 0.5cm !important;
-    }
-    
-    .document-margins-normal {
-        padding: 0.8cm !important;
-    }
-    
-    .document-margins-comfortable {
-        padding: 1.2cm !important;
-    }
-    
-    .document-margins-wide {
-        padding: 1.8cm !important;
-    }
-    
-    /* Configurações específicas para diferentes temas */
+    /* Ajustes para diferentes temas de currículo para impressão */
     .curriculum-modern,
     .curriculum-creative,
     .curriculum-professional,
@@ -130,12 +46,31 @@
     .curriculum-creative-bold,
     .curriculum-consulting,
     .curriculum-media {
-        width: 100% !important;
-        max-width: none !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
+        /* Permitir cores de fundo personalizadas */
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
-}
+    
+    /* Melhorar a visualização de margens em PDF */
+    .document-margins-compact {
+        margin: 0.5cm !important;
+        padding: 0.5cm !important;
+    }
+    
+    .document-margins-normal {
+        margin: 1cm !important;
+        padding: 1cm !important;
+    }
+    
+    .document-margins-comfortable {
+        margin: 1.5cm !important;
+        padding: 1.5cm !important;
+    }
+    
+    .document-margins-wide {
+        margin: 2cm !important;
+        padding: 2cm !important;
+    }
 }
 
 /* Ajustes para cor de background */

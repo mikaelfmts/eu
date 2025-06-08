@@ -8,6 +8,7 @@
     <!-- Preconnect para performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 
     <!-- Estilos -->
     <link rel="stylesheet" href="../assets/css/styles.css">
@@ -17,7 +18,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <style>
-        /* Redesign completo da página de projetos */
+        /* Redesign melhorado da página de projetos */
+        :root {
+            --card-gradient: linear-gradient(145deg, 
+                rgba(30, 35, 40, 0.95) 0%, 
+                rgba(20, 25, 30, 0.9) 100%);
+            --card-border-gradient: linear-gradient(135deg, 
+                rgba(200, 170, 110, 0.4), 
+                rgba(200, 170, 110, 0.1), 
+                rgba(200, 170, 110, 0.4));
+            --card-hover-border-gradient: linear-gradient(135deg, 
+                #ffd700, 
+                var(--primary-color), 
+                #ffd700);
+            --card-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.5),
+                0 5px 15px rgba(200, 170, 110, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            --card-hover-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.6),
+                0 0 40px rgba(200, 170, 110, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
         body {
             background: linear-gradient(135deg, 
                 var(--background-primary) 0%, 
@@ -26,9 +49,11 @@
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
         }
         
-        /* Container de partículas adicionado aqui */
+        /* Container de partículas */
         .particles-container {
             position: fixed;
             top: 0;
@@ -52,20 +77,27 @@
                 radial-gradient(circle at 80% 20%, rgba(200, 170, 110, 0.08) 0%, transparent 50%),
                 radial-gradient(circle at 40% 40%, rgba(200, 170, 110, 0.05) 0%, transparent 50%);
             pointer-events: none;
-            z-index: 0;
+            z-index: -1;
         }
 
         .main-content {
             position: relative;
             z-index: 1;
             padding: 2rem 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
         }
 
         .hero-section {
             text-align: center;
-            padding: 4rem 2rem;
-            margin-bottom: 3rem;
+            padding: 4rem 1rem;
+            margin-bottom: 2rem;
             position: relative;
+            width: 100%;
         }
 
         .hero-title {
@@ -75,7 +107,7 @@
             font-family: 'Marcellus', serif;
             text-transform: uppercase;
             letter-spacing: 3px;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             text-shadow: 
                 0 0 20px rgba(200, 170, 110, 0.4),
                 0 0 40px rgba(200, 170, 110, 0.2);
@@ -90,17 +122,18 @@
         .hero-subtitle {
             font-size: 1.3rem;
             color: var(--text-secondary);
-            margin-bottom: 2rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 0 auto 2rem;
+            max-width: 700px;
             line-height: 1.6;
+            padding: 0 1rem;
         }
 
         .projects-container {
+            width: 100%;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 1rem;
+            box-sizing: border-box;
         }
 
         .section-title {
@@ -108,15 +141,14 @@
             color: var(--primary-color);
             font-family: 'Marcellus', serif;
             text-align: center;
-            margin: 4rem 0 3rem;
+            margin: 4rem auto 3.5rem;
             position: relative;
             text-transform: uppercase;
             letter-spacing: 2px;
             text-shadow: 0 0 15px rgba(200, 170, 110, 0.4);
-            display: inline-block;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 0 3rem;
+            display: block;
+            width: fit-content;
+            padding: 0 4rem;
         }
         
         .section-title::before,
@@ -124,7 +156,6 @@
             content: '❧';
             position: absolute;
             top: 50%;
-            transform: translateY(-50%);
             font-size: 1.5rem;
             color: var(--primary-color);
             opacity: 0.7;
@@ -138,6 +169,10 @@
         .section-title::after {
             right: 0;
             transform: translateY(-50%);
+        }
+
+        .section-title i {
+            margin-right: 0.5rem;
         }
 
         .section-title::after {
@@ -154,31 +189,32 @@
 
         .github-repos-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-            gap: 3rem;
-            margin-bottom: 4rem;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 2.5rem;
+            margin: 0 auto 4rem;
+            justify-content: center;
+            max-width: 100%;
         }
 
         .repo-card {
-            background: linear-gradient(145deg, 
-                rgba(30, 35, 40, 0.95) 0%, 
-                rgba(20, 25, 30, 0.9) 100%);
+            background: var(--card-gradient);
             border: 2px solid transparent;
-            border-image: linear-gradient(135deg, 
-                rgba(200, 170, 110, 0.4), 
-                rgba(200, 170, 110, 0.1), 
-                rgba(200, 170, 110, 0.4)) 1;
-            border-radius: 25px;
+            border-image: var(--card-border-gradient) 1;
+            border-radius: 20px;
             padding: 2.5rem;
             transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
             overflow: hidden;
             backdrop-filter: blur(20px);
-            box-shadow: 
-                0 15px 35px rgba(0, 0, 0, 0.5),
-                0 5px 15px rgba(200, 170, 110, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: var(--card-shadow);
             clip-path: polygon(0 0, 100% 0, 100% 94%, 95% 100%, 0 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 500px;
         }
 
         .repo-card::before {
@@ -195,6 +231,7 @@
             transform: scaleX(0);
             transform-origin: left;
             transition: transform 0.5s ease;
+            z-index: 1;
         }
 
         .repo-card::after {
@@ -211,15 +248,9 @@
         }
 
         .repo-card:hover {
-            transform: translateY(-15px) scale(1.03);
-            border-image: linear-gradient(135deg, 
-                #ffd700, 
-                var(--primary-color), 
-                #ffd700) 1;
-            box-shadow: 
-                0 25px 50px rgba(0, 0, 0, 0.6),
-                0 0 40px rgba(200, 170, 110, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: translateY(-10px) scale(1.02);
+            border-image: var(--card-hover-border-gradient) 1;
+            box-shadow: var(--card-hover-shadow);
             animation: card-pulse 2s infinite alternate;
         }
         
@@ -240,7 +271,7 @@
             font-size: 1.6rem;
             font-weight: 700;
             color: var(--primary-color);
-            margin-bottom: 1rem;
+            margin-bottom: 1.2rem;
             font-family: 'Marcellus', serif;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -248,6 +279,9 @@
             align-items: center;
             position: relative;
             text-shadow: 0 0 10px rgba(200, 170, 110, 0.3);
+            text-align: center;
+            justify-content: center;
+            width: 100%;
         }
         
         .repo-name::before {
@@ -269,6 +303,9 @@
             margin-bottom: 1.5rem;
             line-height: 1.6;
             font-size: 1.1rem;
+            text-align: center;
+            width: 100%;
+            min-height: 80px;
         }
 
         .repo-stats {
@@ -276,6 +313,8 @@
             gap: 2rem;
             margin: 1.5rem 0;
             justify-content: center;
+            width: 100%;
+            flex-wrap: wrap;
         }
 
         .stat {
@@ -283,6 +322,7 @@
             flex-direction: column;
             align-items: center;
             padding: 0.5rem;
+            min-width: 80px;
         }
 
         .stat-value {
@@ -298,6 +338,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-top: 0.25rem;
+            white-space: nowrap;
         }
 
         .repo-tech {
@@ -306,6 +347,9 @@
             flex-wrap: wrap;
             margin: 1.5rem 0;
             justify-content: center;
+            width: 100%;
+            min-height: 50px;
+            padding: 0 0.5rem;
         }
 
         .tech-tag {
@@ -313,18 +357,20 @@
             color: var(--primary-color);
             padding: 0.5rem 1rem;
             border-radius: 20px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             border: 1px solid rgba(200, 170, 110, 0.3);
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         .tech-tag:hover {
             background: linear-gradient(135deg, var(--primary-color), #ffd700);
             color: var(--background-primary);
-            transform: translateY(-2px);
+            transform: translateY(-2px) scale(1.05);
             box-shadow: 0 5px 15px rgba(200, 170, 110, 0.4);
         }
 
@@ -342,10 +388,25 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             transition: all 0.4s ease;
-            margin-top: 1.5rem;
+            margin-top: 2rem;
             box-shadow: 
                 0 8px 20px rgba(200, 170, 110, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .repo-link::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+            transform: scale(0);
+            opacity: 0;
+            transition: transform 0.6s ease, opacity 0.6s ease;
         }
 
         .repo-link:hover {
@@ -355,19 +416,42 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
             background: linear-gradient(135deg, #ffd700, var(--primary-color));
         }
+        
+        .repo-link:hover::after {
+            transform: scale(1);
+            opacity: 1;
+        }
 
         .loader {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border: 6px solid rgba(200, 170, 110, 0.2);
             border-radius: 50%;
             border-top-color: var(--primary-color);
             animation: spin 1s ease-in-out infinite;
             margin: 0 auto;
+            position: relative;
+        }
+        
+        .loader::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            border-radius: 50%;
+            border: 1px solid rgba(200, 170, 110, 0.4);
+            animation: pulse 1.5s ease-in-out infinite;
         }
         
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
         }
         
         .github-repos-container.loading {
@@ -376,6 +460,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            padding: 2rem 0;
+            width: 100%;
         }
         
         .loading-text {
@@ -386,25 +472,71 @@
             font-size: 1.1rem;
             text-transform: uppercase;
             letter-spacing: 1px;
+            animation: glow-text 1.5s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow-text {
+            from { text-shadow: 0 0 5px rgba(200, 170, 110, 0.3); }
+            to { text-shadow: 0 0 15px rgba(200, 170, 110, 0.7); }
         }
 
-        /* Responsive */
+        /* Melhorias na responsividade */
+        @media (max-width: 1200px) {
+            .github-repos-container {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
+        }
+        
+        @media (max-width: 991px) {
+            .github-repos-container {
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                gap: 2rem;
+            }
+            
+            .repo-stats {
+                gap: 1.5rem;
+            }
+        }
+
         @media (max-width: 768px) {
             .hero-title {
                 font-size: 2.5rem;
+                margin-bottom: 1rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 2.2rem;
+                margin: 3rem auto 2.5rem;
+                padding: 0 2.5rem;
             }
             
             .github-repos-container {
                 grid-template-columns: 1fr;
-                gap: 2rem;
+                max-width: 450px;
+                margin: 0 auto 3rem;
             }
             
             .repo-card {
                 padding: 2rem;
+                max-width: 100%;
             }
             
-            .projects-container {
-                padding: 0 1rem;
+            .repo-name {
+                font-size: 1.4rem;
+            }
+            
+            .repo-description {
+                font-size: 1rem;
+                min-height: auto;
+            }
+            
+            .stat-value {
+                font-size: 1.6rem;
             }
         }
 
@@ -413,294 +545,207 @@
                 font-size: 2rem;
             }
             
-            .hero-subtitle {
-                font-size: 1.1rem;
+            .section-title {
+                font-size: 1.8rem;
+                padding: 0 1.5rem;
             }
             
             .repo-card {
                 padding: 1.5rem;
+                border-radius: 15px;
             }
-        }
-
-        /* Estilos para melhor centralização */
-        .hero-section {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .projects-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        .github-profile-container {
-            display: flex;
-            justify-content: center;
-            margin: 3rem 0;
-        }
-
-        /* Estilos para o card do GitHub gerado dinamicamente */
-        .github-card {
-            background: linear-gradient(145deg, 
-                rgba(30, 35, 40, 0.95) 0%, 
-                rgba(20, 25, 30, 0.9) 100%);
-            border: 2px solid transparent;
-            border-image: linear-gradient(135deg, 
-                rgba(200, 170, 110, 0.4), 
-                rgba(200, 170, 110, 0.1), 
-                rgba(200, 170, 110, 0.4)) 1;
-            border-radius: 25px;
-            padding: 2.5rem;
-            backdrop-filter: blur(20px);
-            box-shadow: 
-                0 15px 35px rgba(0, 0, 0, 0.5),
-                0 5px 15px rgba(200, 170, 110, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            margin: 0 auto;
-        }
-
-        .github-stats {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .stat {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 80px;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            font-family: 'Marcellus', serif;
-            text-shadow: 0 0 10px rgba(200, 170, 110, 0.3);
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 0.5rem;
-        }
-
-        .github-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.8rem;
-            background: linear-gradient(135deg, var(--primary-color), #ffd700);
-            color: #1a1a1a;
-            padding: 1rem 2rem;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 25px rgba(200, 170, 110, 0.3);
-        }
-
-        .github-link:hover {
-            transform: translateY(-3px);
-            box-shadow: 
-                0 12px 30px rgba(200, 170, 110, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            background: linear-gradient(135deg, #ffd700, var(--primary-color));
-        }
-
-        /* Correções para mobile - garantir tema escuro */
-        @media (max-width: 768px) {
-            body {
-                background: linear-gradient(135deg, 
-                    var(--background-primary) 0%, 
-                    rgba(10, 15, 25, 1) 50%,
-                    rgba(5, 10, 20, 1) 100%) !important;
-                color: var(--text-light) !important;
-            }
-
-            .hero-section {
-                padding: 2rem 1rem;
-            }
-
-            .projects-container {
-                padding: 0 1rem;
-            }
-
-            .github-card {
-                padding: 2rem 1.5rem;
-                margin: 2rem auto;
-            }
-
-            .github-stats {
+            
+            .repo-stats {
                 gap: 1rem;
             }
-
-            .stat {
-                min-width: 70px;
-            }
-
+            
             .stat-value {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
             }
-
-            .github-link {
+            
+            .stat-label {
+                font-size: 0.8rem;
+            }
+            
+            .repo-link {
                 padding: 0.8rem 1.5rem;
                 font-size: 0.9rem;
             }
         }
 
-        /* Variáveis CSS para garantir consistência */
-        :root {
-            --background-primary: #0a0f19;
-            --text-light: #e8e8e8;
-            --primary-color: #c8aa6e;
-        }
-
-        /* Estilos para foto de perfil e menu lateral */
-        .foto-perfil {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            overflow: hidden;
-            cursor: pointer;
-            z-index: 1000;
-            border: 3px solid var(--primary-color);
-            box-shadow: 0 4px 15px rgba(200, 170, 110, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .foto-perfil:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(200, 170, 110, 0.5);
-        }
-
-        .foto-perfil img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Menu Lateral */
-        #menu-lateral {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 280px;
-            height: 100vh;
-            background: linear-gradient(180deg, 
-                rgba(10, 15, 25, 0.98) 0%, 
-                rgba(15, 20, 30, 0.95) 100%);
-            backdrop-filter: blur(20px);
-            z-index: 999;
-            padding: 100px 0 50px 0;
-            box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5);
-            border-right: 2px solid rgba(200, 170, 110, 0.3);
-            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-
-        #menu-lateral.menu-fechado {
-            transform: translateX(-100%);
-        }
-
-        #menu-lateral.menu-aberto {
-            transform: translateX(0);
-        }
-
-        #menu-lateral ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        #menu-lateral ul li {
-            margin: 0;
-        }
-
-        #menu-lateral ul li a {
+        /* Estilização para o container de perfil GitHub */
+        .github-profile-container {
+            background: var(--card-gradient);
+            border: 2px solid transparent;
+            border-image: var(--card-border-gradient) 1;
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin: 0 auto 3rem;
+            max-width: 900px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            padding: 15px 25px;
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border-left: 4px solid transparent;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            animation: fadeIn 1s ease-in-out;
         }
 
-        #menu-lateral ul li a:hover {
-            background: rgba(200, 170, 110, 0.1);
-            color: var(--primary-color);
-            border-left-color: var(--primary-color);
-            transform: translateX(5px);
-        }
-
-        #menu-lateral ul li a i {
-            margin-right: 15px;
-            width: 20px;
-            font-size: 1.1rem;
-        }
-
-        .bonequinho {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .bonequinho a {
+        .profile-header {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary-color), #ffd700);
+            gap: 2rem;
+            margin-bottom: 2rem;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
-            color: #1a1a1a;
-            font-size: 1.2rem;
-            text-decoration: none;
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 0 20px rgba(200, 170, 110, 0.4);
             transition: all 0.3s ease;
-            animation: pulse 2s infinite;
         }
 
-        .bonequinho a:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 20px rgba(200, 170, 110, 0.4);
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(200, 170, 110, 0.7);
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        .profile-info {
+            flex: 1;
+            min-width: 250px;
         }
 
-        /* Estilos para o rodapé */
+        .profile-name {
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            font-family: 'Marcellus', serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-name::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+        }
+
+        .profile-bio {
+            color: var(--text-secondary);
+            font-style: italic;
+            margin: 1rem 0;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .profile-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 100px;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(200, 170, 110, 0.3);
+        }
+
+        .stat-name {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .profile-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .profile-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(135deg, rgba(200, 170, 110, 0.2), rgba(200, 170, 110, 0.1));
+            color: var(--primary-color);
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid rgba(200, 170, 110, 0.3);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .profile-link:hover {
+            background: linear-gradient(135deg, var(--primary-color), #ffd700);
+            color: var(--background-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(200, 170, 110, 0.4);
+        }
+
+        /* Melhoria no rodapé */
         footer {
-            background: linear-gradient(135deg, 
-                rgba(10, 15, 25, 0.9) 0%, 
-                rgba(15, 20, 30, 0.95) 100%);
-            color: rgba(255, 255, 255, 0.8);
+            background: linear-gradient(180deg, 
+                rgba(10, 15, 25, 0.8) 0%, 
+                rgba(20, 25, 35, 0.9) 100%);
+            color: var(--text-secondary);
             text-align: center;
-            padding: 3rem 2rem;
-            margin-top: 5rem;
-            border-top: 2px solid rgba(200, 170, 110, 0.3);
-            backdrop-filter: blur(10px);
+            padding: 2rem 1rem;
+            margin-top: 2rem;
+            position: relative;
+            border-top: 1px solid rgba(200, 170, 110, 0.2);
+            width: 100%;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(200, 170, 110, 0.5), 
+                transparent);
         }
 
         footer p {
             margin: 0.5rem 0;
             font-size: 1rem;
+            letter-spacing: 1px;
         }
 
         footer p:first-child {
@@ -709,32 +754,116 @@
             font-size: 1.1rem;
         }
 
-        /* Melhorias adicionais para responsividade */
-        @media (max-width: 768px) {
-            .foto-perfil {
-                width: 50px;
-                height: 50px;
-                top: 15px;
-                left: 15px;
+        /* Ajustes finais de responsividade e visuais */
+    
+        /* Garantir centralização em todos os contextos */
+        html, body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Ajuste fino para menu lateral */
+        #menu-lateral.menu-aberto {
+            z-index: 1000;
+        }
+        
+        /* Melhoria visual para foto de perfil */
+        .foto-perfil {
+            z-index: 100;
+            position: fixed;
+            transition: all 0.3s ease;
+        }
+        
+        .foto-perfil:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(200, 170, 110, 0.6);
+        }
+        
+        /* Efeito visual ao carregar a página */
+        .hero-title, .hero-subtitle {
+            opacity: 0;
+            animation: fadeSlideUp 1s ease-out forwards;
+        }
+        
+        .hero-title {
+            animation-delay: 0.3s;
+        }
+        
+        .hero-subtitle {
+            animation-delay: 0.6s;
+        }
+        
+        /* Adiciona animação suave ao carregar elementos */
+        .section-title {
+            opacity: 0;
+            animation: fadeSlideUp 1s ease-out forwards;
+            animation-delay: 0.8s;
+        }
+        
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
             }
-
-            #menu-lateral {
-                width: 250px;
-                padding: 80px 0 50px 0;
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
-
-            footer {
-                padding: 2rem 1rem;
-                margin-top: 3rem;
+        }
+        
+        /* Melhorias visuais para link ativos no menu */
+        #menu-lateral a[href="projetos.html"] {
+            color: var(--primary-color);
+            text-shadow: 0 0 8px rgba(200, 170, 110, 0.5);
+            font-weight: 700;
+        }
+        
+        /* Adicionar suavização para scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Ajustes para dispositivos menores */
+        @media (max-width: 360px) {
+            .hero-title {
+                font-size: 1.8rem;
             }
-
-            footer p {
-                font-size: 0.9rem;
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .profile-name {
+                font-size: 1.5rem;
+            }
+            
+            .repo-link {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Melhorias para resolução ultrawide */
+        @media (min-width: 2000px) {
+            .projects-container {
+                max-width: 1800px;
+            }
+            
+            .github-repos-container {
+                grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
             }
         }
     </style>
     
-    <!-- Script -->
+    <!-- Scripts -->
     <script type="module" src="../assets/js/script.js"></script>
     <script src="../assets/js/page-control.js"></script>
     <script type="module" src="../assets/js/github-rate-limit.js"></script>
@@ -745,58 +874,6 @@
             initPageControl('projetos');
         });
     </script>
-
-    <!-- Inicialização específica para página de projetos -->
-    <script type="module">
-        // Aguardar que todos os scripts sejam carregados
-        window.addEventListener('DOMContentLoaded', async () => {
-            console.log('🚀 Inicializando página de projetos...');
-            
-            // Aguardar um pouco para garantir que os scripts foram carregados
-            setTimeout(async () => {
-                try {
-                    // Verificar se as funções do script.js estão disponíveis
-                    if (typeof window.loadGitHubData === 'function') {
-                        console.log('✅ Função loadGitHubData encontrada, carregando dados...');
-                        await window.loadGitHubData();
-                    } else {
-                        console.log('⚠️ Função loadGitHubData não encontrada, tentando carregamento alternativo...');
-                        
-                        // Importar e usar o sistema de rate limiting diretamente
-                        const { gitHubAPI } = await import('../assets/js/github-rate-limit.js');
-                        
-                        try {
-                            // Carregar dados do perfil
-                            const userData = await gitHubAPI.getUser('mikaelfmts');
-                            if (userData && window.updateGitHubProfile) {
-                                window.updateGitHubProfile(userData);
-                            }
-                            
-                            // Carregar repositórios
-                            const repos = await gitHubAPI.getUserRepos('mikaelfmts');
-                            if (repos && window.updateGitHubRepos) {
-                                window.updateGitHubRepos(repos);
-                            }
-                        } catch (error) {
-                            console.error('❌ Erro ao carregar dados do GitHub:', error);
-                        }
-                    }
-                } catch (error) {
-                    console.error('❌ Erro na inicialização:', error);
-                }
-            }, 1000);
-        });
-    </script>
-    
-
-        
-
-        
-
-
-            font-size: 1.4rem;
-        }
-        
     </style>
 </head>
 <body>
@@ -865,9 +942,9 @@
         <p>Construído com paixão e dedicação</p>
     </footer>
 
-    <script type="module">
-        // Script para alternar menu - tornado global
-        window.toggleMenu = function() {
+    <script>
+        // Script para alternar menu
+        function toggleMenu() {
             const menu = document.getElementById('menu-lateral');
             menu.classList.toggle('menu-aberto');
             menu.classList.toggle('menu-fechado');
@@ -907,16 +984,106 @@
             }
         }
 
-        // Sincronizar foto do perfil ao carregar a página
-        document.addEventListener('DOMContentLoaded', syncProfilePhoto);
+        // Função para renderizar o perfil do GitHub com o novo design
+        async function renderGitHubProfile() {
+            try {
+                console.log('🔄 Carregando perfil do GitHub...');
+                
+                const profileContainer = document.getElementById('github-profile');
+                if (!profileContainer) return;
+                
+                // Adicionar loader inicial
+                profileContainer.innerHTML = '<div class="loader"></div><p class="loading-text">Carregando perfil do GitHub...</p>';
+                
+                // Buscar dados do usuário do GitHub
+                const userData = await gitHubAPI.getUser('mikaelfmts');
+                
+                if (!userData) {
+                    profileContainer.innerHTML = '<p class="error-message">Não foi possível carregar o perfil do GitHub.</p>';
+                    return;
+                }
+                
+                // Formatar os dados
+                const formattedBio = userData.bio || 'Desenvolvedor Full Stack apaixonado por criar soluções elegantes e eficientes.';
+                const formattedName = userData.name || 'Mikael Ferreira';
+                const followers = userData.followers || 0;
+                const following = userData.following || 0;
+                const publicRepos = userData.public_repos || 0;
+                
+                // Construir HTML do perfil
+                const profileHTML = `
+                    <div class="profile-header">
+                        <img src="${userData.avatar_url}" alt="Foto de perfil" class="profile-avatar">
+                        <div class="profile-info">
+                            <h3 class="profile-name">${formattedName}</h3>
+                            <p class="profile-username">@${userData.login}</p>
+                            <p class="profile-bio">${formattedBio}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <span class="stat-number">${publicRepos}</span>
+                            <span class="stat-name">Repositórios</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="stat-number">${followers}</span>
+                            <span class="stat-name">Seguidores</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="stat-number">${following}</span>
+                            <span class="stat-name">Seguindo</span>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-links">
+                        <a href="${userData.html_url}" class="profile-link" target="_blank">
+                            <i class="fab fa-github"></i> Ver Perfil
+                        </a>
+                        ${userData.blog ? `
+                        <a href="${userData.blog}" class="profile-link" target="_blank">
+                            <i class="fas fa-globe"></i> Site
+                        </a>
+                        ` : ''}
+                        ${userData.email ? `
+                        <a href="mailto:${userData.email}" class="profile-link">
+                            <i class="fas fa-envelope"></i> Email
+                        </a>
+                        ` : ''}
+                    </div>
+                `;
+                
+                // Atualizar o container com o perfil
+                profileContainer.innerHTML = profileHTML;
+                console.log('✅ Perfil do GitHub carregado com sucesso');
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar o perfil do GitHub:', error);
+                const profileContainer = document.getElementById('github-profile');
+                if (profileContainer) {
+                    profileContainer.innerHTML = `
+                        <div class="error-container">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Não foi possível carregar o perfil do GitHub.</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Sincronizar foto do perfil e renderizar perfil do GitHub ao carregar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            syncProfilePhoto();
+            renderGitHubProfile();
+        });
     </script>
 
-    <!-- Sistema de Partículas -->
+    <!-- Sistema de Partículas - Versão Melhorada -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const particlesContainer = document.querySelector('.particles-container');
             
-            // Função para criar partículas
+            // Função para criar partículas com performance otimizada
             function createParticle() {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
@@ -926,25 +1093,42 @@
                 const type = types[Math.floor(Math.random() * types.length)];
                 particle.classList.add(type);
                 
-                // Tamanho aleatório
-                const size = Math.random() * 4 + 2;
+                // Tamanho aleatório variado baseado no tipo
+                let sizeBase, sizeVariation;
+                if (type === 'golden') {
+                    sizeBase = 3;
+                    sizeVariation = 4;
+                } else if (type === 'light') {
+                    sizeBase = 2;
+                    sizeVariation = 3;
+                } else {
+                    sizeBase = 4;
+                    sizeVariation = 5;
+                }
+                
+                const size = Math.random() * sizeVariation + sizeBase;
                 particle.style.width = size + 'px';
                 particle.style.height = size + 'px';
                 
-                // Posição horizontal aleatória
+                // Posição horizontal aleatória com distribuição melhorada
                 particle.style.left = Math.random() * 100 + '%';
                 particle.style.bottom = '-10px';
                 
-                // Animação de movimento
-                const duration = Math.random() * 15000 + 10000; // 10-25 segundos
-                const drift = (Math.random() - 0.5) * 100; // deriva horizontal
+                // Animação de movimento com tempos variados
+                const minDuration = 10000; // 10 segundos
+                const maxDuration = 20000; // 20 segundos
+                const duration = Math.random() * (maxDuration - minDuration) + minDuration;
+                
+                // Deriva horizontal dependendo do tipo de partícula
+                const driftFactor = type === 'golden' ? 1.2 : (type === 'light' ? 0.7 : 1.5);
+                const drift = (Math.random() - 0.5) * 100 * driftFactor;
                 
                 particle.style.animationDuration = duration + 'ms';
                 particle.style.setProperty('--drift', drift + 'px');
                 
                 particlesContainer.appendChild(particle);
                 
-                // Remover partícula após animação
+                // Remover partícula após animação para evitar vazamentos de memória
                 setTimeout(() => {
                     if (particle.parentNode) {
                         particle.parentNode.removeChild(particle);
@@ -952,10 +1136,19 @@
                 }, duration);
             }
             
-            // Criar partículas em intervalos
-            setInterval(createParticle, 300);
+            // Criar partículas em intervalos controlados
+            const createInterval = setInterval(createParticle, 300);
             
-            // CSS para animação das partículas
+            // Otimização para parar criação quando a guia não estiver visível
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    clearInterval(createInterval);
+                } else {
+                    setInterval(createParticle, 300);
+                }
+            });
+            
+            // CSS para animação melhorada das partículas
             const style = document.createElement('style');
             style.textContent = `
                 @keyframes floatUp {
@@ -967,7 +1160,7 @@
                         opacity: 1;
                     }
                     90% {
-                        opacity: 1;
+                        opacity: 0.8;
                     }
                     100% {
                         transform: translateY(-100vh) translateX(var(--drift, 0)) rotate(360deg);
@@ -978,9 +1171,24 @@
                 .particle {
                     animation: floatUp linear;
                     position: absolute;
+                    pointer-events: none;
+                    z-index: -1;
+                }
+                
+                .particle.golden {
+                    filter: drop-shadow(0 0 3px rgba(200, 170, 110, 0.8));
+                }
+                
+                .particle.light {
+                    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
                 }
             `;
             document.head.appendChild(style);
+            
+            // Criar algumas partículas iniciais
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => createParticle(), i * 100);
+            }
         });
     </script>
 

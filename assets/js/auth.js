@@ -20,7 +20,8 @@ const firebaseConfig = {
 // Lista de emails de administradores (hardcoded por segurança)
 const ADMIN_EMAILS = [
     'mikaelmts@gmail.com',
-    'mikael.fmts@gmail.com'
+    'mikael.fmts@gmail.com',
+    'mikaelmatos.adm@gmail.com'
     // Adicione outros emails de admin conforme necessário
 ];
 

@@ -7,6 +7,8 @@
     <meta name="keywords" content="desenvolvedor web, frontend, backend, portfolio, html, css, javascript, react, node.js">
     <meta name="color-scheme" content="dark">
     <meta name="supported-color-schemes" content="dark">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#010a13">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Mikael Ferreira - Portfolio</title>
     
     <!-- PWA Support -->
@@ -157,6 +159,7 @@
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
+            color: var(--text-primary); /* Garantir que textos sejam claros */
         }
 
         /* Sistema de Partículas Espaciais */
@@ -331,12 +334,26 @@
             max-width: 1200px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
+            color: var(--text-primary); /* Garantir texto claro */
         }
 
         .media-section:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
             border-color: rgba(200, 170, 110, 0.2);
+        }
+        
+        /* Garantir que os cards carregados dinamicamente tenham texto visível */
+        .media-card, .report-card {
+            color: var(--text-primary);
+        }
+        
+        .media-card-title, .report-card-title {
+            color: var(--primary-color);
+        }
+        
+        .media-card-description, .report-card-description {
+            color: var(--text-primary);
         }
 
         /* Header melhorado */
@@ -399,6 +416,24 @@
                 margin: 2rem 1rem;
                 padding: 2rem 1rem;
             }
+            
+            /* Corrigir cores de texto para mobile */
+            .section-title, 
+            .media-section h2, 
+            .media-section h3,
+            .media-section p,
+            .media-section a,
+            .loading-indicator p,
+            .btn-view-all,
+            .view-all-link,
+            .media-card-title,
+            .media-card-description,
+            .featured-media-container .title,
+            .recent-media-grid .title,
+            .recent-media-grid .description {
+                color: var(--text-primary) !important; /* Forçar cor clara para texto */
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); /* Melhorar legibilidade */
+            }
         }
 
         @media (max-width: 480px) {
@@ -408,6 +443,33 @@
             
             .nav-links {
                 gap: 0.5rem;
+            }
+            
+            /* Corrigir cores específicas para dispositivos muito pequenos */
+            body, p, h1, h2, h3, h4, h5, h6, span, a, button {
+                color: var(--text-primary);
+            }
+            
+            /* Botões e links */
+            .btn, .btn-view-all, button, 
+            .featured-media-container a, 
+            .recent-media-grid a {
+                color: var(--text-primary);
+                border-color: var(--primary-color);
+            }
+            
+            /* Corrigir cores de cards e contêineres */
+            .card, .media-card, .report-card, 
+            .featured-card, .media-container, 
+            .report-container {
+                background-color: var(--card-bg);
+                color: var(--text-primary);
+                border-color: var(--border-color);
+            }
+            
+            /* Ajuste adicional para o loader */
+            .loading-indicator {
+                color: var(--text-primary);
             }
         }
     </style>

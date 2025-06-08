@@ -461,10 +461,26 @@
             /* Corrigir cores de cards e contêineres */
             .card, .media-card, .report-card, 
             .featured-card, .media-container, 
-            .report-container {
+            .report-container,
+            /* Classes específicas dos cards dinâmicos */
+            .recent-media-card,
+            .featured-media-card {
                 background-color: var(--card-bg);
-                color: var(--text-primary);
+                color: var(--text-primary) !important;
                 border-color: var(--border-color);
+            }
+            
+            /* FORÇAR cores claras em TODOS os textos dentro de cards */
+            .media-title, .featured-title, h3.media-title, h3.featured-title,
+            .media-description, .featured-description, p.media-description, p.featured-description,
+            .report-icon, .report-preview, .featured-report-preview,
+            .media-info *, .featured-info * {
+                color: var(--text-primary) !important;
+            }
+            
+            /* Forçar cores especiais para títulos */
+            .media-title, .featured-title, h3.media-title, h3.featured-title {
+                color: var(--primary-color) !important; /* Dourado para títulos */
             }
             
             /* Ajuste adicional para o loader */

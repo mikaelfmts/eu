@@ -763,39 +763,16 @@ function applySettingsToPreview() {
         const display = curriculumData.settings.showContactIcons ? 'inline' : 'none';
         icon.style.display = display;
         console.log(`🎯 Ícone ${curriculumData.settings.showContactIcons ? 'mostrado' : 'ocultado'}`);
-    });    // Gerenciar links de projetos - IMPLEMENTAÇÃO COMPLETAMENTE REFEITA
-    // Primeiro, vamos adicionar/remover uma classe do container para controle via CSS também
-    if (curriculumData.settings.showProjectLinks) {
-        previewContainer.classList.remove('hide-project-links');
-    } else {
-        previewContainer.classList.add('hide-project-links');
-    }
+    });
     
-    // Agora selecionar todos os possíveis links de projeto com seletores abrangentes
+    // Gerenciar links de projetos - SELETORES MAIS ABRANGENTES
     const projectLinkElements = previewContainer.querySelectorAll(
-        '.project-link, .project-url, a[href*="github"], a[href*="projeto"], ' + 
-        'a[href*="vercel"], a[href*="netlify"], a[href*="heroku"], ' +
-        '.project a[href], [data-type="project-link"], ' + 
-        '.projects-section a, .project-item a'
+        '.project-link, .project-url, a[href]:not([href^="mailto"]):not([href^="tel"]), [style*="Ver projeto"]'
     );
-    
-    console.log(`🔎 Encontrados ${projectLinkElements.length} links de projetos`);
-    
-    // Aplicar visibilidade a cada link encontrado
     projectLinkElements.forEach(link => {
-        // Aplicar múltiplas propriedades para garantir que o elemento fique realmente oculto
-        if (curriculumData.settings.showProjectLinks) {
-            link.style.display = '';  // Resetar para o valor padrão
-            link.style.visibility = 'visible';
-            link.style.opacity = '1';
-            link.setAttribute('data-visible', 'true');
-        } else {
-            link.style.display = 'none';
-            link.style.visibility = 'hidden';
-            link.style.opacity = '0';
-            link.setAttribute('data-visible', 'false');
-        }
-        console.log(`🔗 Link de projeto ${curriculumData.settings.showProjectLinks ? 'mostrado' : 'ocultado'}:`, link.textContent || link.innerText);
+        const display = curriculumData.settings.showProjectLinks ? 'inline' : 'none';
+        link.style.display = display;
+        console.log(`🔗 Link de projeto ${curriculumData.settings.showProjectLinks ? 'mostrado' : 'ocultado'}`);
     });
     
     // Log final
@@ -1825,60 +1802,34 @@ window.downloadPDF = async function() {
             case 'wide': marginValue = [25, 25, 25, 25]; break;
             default: marginValue = [10, 10, 10, 10]; // normal
         }
-          // Configuração do PDF - OTIMIZADA PARA PREENCHER PÁGINA INTEIRA
+        
+        // Configuração do PDF
         const options = {
             margin: marginValue,
             filename: 'curriculo-mikael-ferreira.pdf',
             image: { 
                 type: 'jpeg', 
-                quality: 1.0   // Qualidade máxima
+                quality: 0.98 
             },
             html2canvas: { 
-                scale: 2,      // Escala maior para melhor qualidade
+                scale: 2,
                 backgroundColor: curriculumData.settings.backgroundColor || '#ffffff',
                 useCORS: true,
                 allowTaint: true,
                 logging: false,
-                // Melhor captura da página
-                windowWidth: 1200,
-                width: 210 * 3.779527559, // A4 width em pixels em 96dpi
-                height: 297 * 3.779527559, // A4 height em pixels em 96dpi
                 onclone: function(clonedDoc) {
                     // Aplicar estilos adicionais no documento clonado
                     const clonedElement = clonedDoc.querySelector('#curriculum-preview');
                     if (clonedElement) {
-                        // Garantir que o elemento preencha toda a página
-                        clonedElement.style.width = '100%';
-                        clonedElement.style.height = 'auto';
-                        clonedElement.style.minHeight = '297mm';
-                        clonedElement.style.boxSizing = 'border-box';
                         clonedElement.style.color = '#000000';
                         clonedElement.style.backgroundColor = curriculumData.settings.backgroundColor || '#ffffff';
-                        
-                        // Adicionar estilos para melhorar quebras de página
-                        const style = clonedDoc.createElement('style');
-                        style.textContent = `
-                            /* Estilos para melhorar quebras de página */
-                            section, .section {
-                                page-break-inside: avoid;
-                            }
-                            h2, h3, h4 {
-                                page-break-after: avoid;
-                            }
-                            .experience-item, .project-item, .certificate-item {
-                                page-break-inside: avoid;
-                            }
-                        `;
-                        clonedDoc.head.appendChild(style);
                     }
                 }
             },
             jsPDF: { 
                 unit: 'mm', 
                 format: 'a4', 
-                orientation: 'portrait',
-                compress: true,
-                precision: 16
+                orientation: 'portrait'
             }
         };
         
@@ -2598,7 +2549,8 @@ function applyCustomColorsToPreview(colors, container = null) {
         console.warn('Cores não fornecidas para applyCustomColorsToPreview');
         return;
     }
-      // Obter cor de fundo da configuração ou do input
+    
+    // Obter cor de fundo da configuração ou do input
     const backgroundColor = document.getElementById('background-color')?.value || '#ffffff';
     
     const style = document.createElement('style');
@@ -2608,17 +2560,6 @@ function applyCustomColorsToPreview(colors, container = null) {
     const existingStyle = document.getElementById('custom-colors-style');
     if (existingStyle) {
         existingStyle.remove();
-    }
-    
-    // Aplicar cor de fundo diretamente no elemento de preview e em seus elementos filhos
-    const previewContainer = document.getElementById('curriculum-preview');
-    if (previewContainer) {
-        previewContainer.style.backgroundColor = backgroundColor;
-        // Aplicar também em elementos internos que podem estar com fundo diferente
-        const innerElements = previewContainer.querySelectorAll('div, section, header, article');
-        innerElements.forEach(el => {
-            el.style.backgroundColor = backgroundColor;
-        });
     }
       style.textContent = `
         /* Regras para impressão - garantir cores corretas no PDF */

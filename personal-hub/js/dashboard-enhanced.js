@@ -70,8 +70,9 @@ class DashboardEnhanced {
             if (window.personalHubDashboard) {
                 window.personalHubDashboard.setEnhancedMode(false);
             }
-        }
-    }    async loadUserData() {
+        }    }
+
+    async loadUserData() {
         if (!this.user || typeof db === 'undefined') return;
         
         try {
@@ -93,11 +94,6 @@ class DashboardEnhanced {
                 }
                 
                 // Continuar com o carregamento normal se aprovado
-                this.stats = userData.stats || {};
-                this.gamification = userData.gamification || this.gamification;
-                this.loadDashboardData();
-            }
-                const userData = userDoc.data();
                 this.stats = userData.stats || {};
                 this.gamification = { ...this.gamification, ...userData.gamification };
             }

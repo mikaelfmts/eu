@@ -737,17 +737,29 @@ function applySettingsToPreview() {
     
     console.log('🎨 Aplicando configurações ao preview:', curriculumData.settings);
     
+    // APLICAR COR DE BACKGROUND
+    if (curriculumData.settings.backgroundColor) {
+        previewContainer.style.backgroundColor = curriculumData.settings.backgroundColor;
+        const curriculumDiv = previewContainer.querySelector('[class*="curriculum-"]');
+        if (curriculumDiv) {
+            curriculumDiv.style.backgroundColor = curriculumData.settings.backgroundColor;
+        }
+    }
+    
+    // APLICAR CORES PERSONALIZADAS
+    applyCustomColorsToPreview();
+    
     // Gerenciar visibilidade da foto
-    const photoElements = previewContainer.querySelectorAll('.profile-photo, .curriculum-photo, img[src*="avatar"]');
+    const photoElements = previewContainer.querySelectorAll('.profile-photo, .curriculum-photo, img[alt*="perfil"], #curriculum-photo');
     photoElements.forEach(photo => {
         const display = curriculumData.settings.showPhoto ? 'block' : 'none';
         photo.style.display = display;
         console.log(`📸 Foto ${curriculumData.settings.showPhoto ? 'mostrada' : 'ocultada'}`);
     });
     
-    // Gerenciar barras de progresso das habilidades - SELETORES MELHORADOS
+    // Gerenciar barras de progresso das habilidades
     const skillProgressElements = previewContainer.querySelectorAll(
-        '.skill-progress, .progress-bar, [style*="background: #eee"], [style*="height: 8px"]'
+        '.skill-progress, .progress-bar, [style*="background: #eee"], [style*="height: 8px"], div[style*="background: #eee"]'
     );
     skillProgressElements.forEach(progress => {
         const display = curriculumData.settings.showSkillsProgress ? 'block' : 'none';
@@ -755,7 +767,7 @@ function applySettingsToPreview() {
         console.log(`📊 Barra de progresso ${curriculumData.settings.showSkillsProgress ? 'mostrada' : 'ocultada'}`);
     });
     
-    // Gerenciar ícones de contato - SELETORES MAIS ESPECÍFICOS
+    // Gerenciar ícones de contato
     const contactIconElements = previewContainer.querySelectorAll(
         '.contact-icon, .icon, i.fas, i.fab, [class*="fa-"]'
     );
@@ -765,18 +777,92 @@ function applySettingsToPreview() {
         console.log(`🎯 Ícone ${curriculumData.settings.showContactIcons ? 'mostrado' : 'ocultado'}`);
     });
     
-    // Gerenciar links de projetos - SELETORES MAIS ABRANGENTES
+    // CORRIGIR LINKS DE PROJETOS - SELETOR MAIS ESPECÍFICO
     const projectLinkElements = previewContainer.querySelectorAll(
-        '.project-link, .project-url, a[href]:not([href^="mailto"]):not([href^="tel"]), [style*="Ver projeto"]'
+        'a[href]:not([href^="mailto"]):not([href^="tel"]), .project-link, .project-url'
     );
     projectLinkElements.forEach(link => {
-        const display = curriculumData.settings.showProjectLinks ? 'inline' : 'none';
-        link.style.display = display;
-        console.log(`🔗 Link de projeto ${curriculumData.settings.showProjectLinks ? 'mostrado' : 'ocultado'}`);
+        // Verificar se é realmente um link de projeto
+        const linkText = link.textContent.toLowerCase();
+        const isProjectLink = linkText.includes('ver projeto') || 
+                             linkText.includes('projeto') || 
+                             link.href.includes('github.com') ||
+                             link.href.includes('vercel.app') ||
+                             link.href.includes('netlify.app') ||
+                             link.classList.contains('project-link') ||
+                             link.classList.contains('project-url');
+        
+        if (isProjectLink) {
+            const display = curriculumData.settings.showProjectLinks ? 'inline' : 'none';
+            link.style.display = display;
+            console.log(`🔗 Link de projeto "${linkText}" ${curriculumData.settings.showProjectLinks ? 'mostrado' : 'ocultado'}`);
+        }
     });
     
     // Log final
     console.log(`✅ Configurações aplicadas: ${photoElements.length} fotos, ${skillProgressElements.length} barras, ${contactIconElements.length} ícones, ${projectLinkElements.length} links`);
+}
+
+// Função para aplicar cores personalizadas ao preview
+function applyCustomColorsToPreview() {
+    const previewContainer = document.getElementById('curriculum-preview');
+    if (!previewContainer) return;
+    
+    const colors = {
+        backgroundColor: document.getElementById('background-color')?.value || '#ffffff',
+        nameTitle: document.getElementById('name-title-color')?.value || '#1f2937',
+        sectionTitle: document.getElementById('section-title-color')?.value || '#3b82f6',
+        mainText: document.getElementById('main-text-color')?.value || '#374151',
+        highlight: document.getElementById('highlight-color')?.value || '#10b981',
+        link: document.getElementById('link-color')?.value || '#3b82f6',
+        skills: document.getElementById('skills-color')?.value || '#8b5cf6'
+    };
+    
+    // Aplicar cor de fundo
+    previewContainer.style.backgroundColor = colors.backgroundColor;
+    const curriculumDiv = previewContainer.querySelector('[class*="curriculum-"]');
+    if (curriculumDiv) {
+        curriculumDiv.style.backgroundColor = colors.backgroundColor;
+    }
+    
+    // Aplicar cor do nome/título
+    const nameElements = previewContainer.querySelectorAll('.curriculum-name, h1');
+    nameElements.forEach(el => el.style.color = colors.nameTitle);
+    
+    const titleElements = previewContainer.querySelectorAll('.curriculum-title, h2');
+    titleElements.forEach(el => el.style.color = colors.nameTitle);
+    
+    // Aplicar cor dos títulos de seção
+    const sectionTitleElements = previewContainer.querySelectorAll('.section-title, h3');
+    sectionTitleElements.forEach(el => el.style.color = colors.sectionTitle);
+    
+    // Aplicar cor do texto principal
+    const mainTextElements = previewContainer.querySelectorAll('.main-text, p, div');
+    mainTextElements.forEach(el => {
+        if (!el.classList.contains('curriculum-name') && 
+            !el.classList.contains('curriculum-title') && 
+            !el.classList.contains('section-title') &&
+            !el.classList.contains('highlight')) {
+            el.style.color = colors.mainText;
+        }
+    });
+    
+    // Aplicar cor dos destaques
+    const highlightElements = previewContainer.querySelectorAll('.highlight');
+    highlightElements.forEach(el => el.style.color = colors.highlight);
+    
+    // Aplicar cor dos links
+    const linkElements = previewContainer.querySelectorAll('a, .contact-link');
+    linkElements.forEach(el => el.style.color = colors.link);
+    
+    // Aplicar cor das skills/tags
+    const skillElements = previewContainer.querySelectorAll('.skill-tag, .skill-item');
+    skillElements.forEach(el => {
+        el.style.backgroundColor = colors.skills;
+        el.style.color = '#ffffff';
+    });
+    
+    console.log('🎨 Cores personalizadas aplicadas:', colors);
 }
 
 // Preenchimento automático de dados pessoais
@@ -1279,17 +1365,15 @@ window.generatePreview = function() {
         return;
     }
     
-    try {        const html = generateCurriculumHTML();
+    try {        
+        const html = generateCurriculumHTML();
         previewContainer.innerHTML = html;
         console.log('✅ Preview gerado com sucesso');
         
-        // Aplicar configurações de formatação ao preview
-        applyPreviewStyles(previewContainer);
-        
-        // Aplicar cores personalizadas automaticamente
-        if (curriculumData.settings && curriculumData.settings.customColors) {
-            applyCustomColorsToPreview(curriculumData.settings.customColors);
-        }
+        // Aplicar configurações de formatação imediatamente
+        setTimeout(() => {
+            applySettingsToPreview();
+        }, 100);
         
         showNotification('Preview gerado com sucesso!', 'success');
     } catch (error) {
@@ -1305,12 +1389,29 @@ window.refreshPreview = function() {
     const html = generateCurriculumHTML();
     previewContainer.innerHTML = html;
     
-    // Aplicar cores personalizadas automaticamente
-    if (curriculumData.settings && curriculumData.settings.customColors) {
-        applyCustomColorsToPreview(curriculumData.settings.customColors);
-    }
+    // Aplicar configurações imediatamente
+    setTimeout(() => {
+        applySettingsToPreview();
+    }, 100);
     
     showNotification('Preview atualizado!', 'success');
+};
+
+// Função para aplicar cores personalizadas (botão)
+window.applyCustomColors = function() {
+    const previewContainer = document.getElementById('curriculum-preview');
+    if (!previewContainer || !previewContainer.innerHTML.trim()) {
+        showNotification('Por favor, gere o preview primeiro', 'warning');
+        return;
+    }
+    
+    // Atualizar configurações
+    updateSettings();
+    
+    // Aplicar cores
+    applyCustomColorsToPreview();
+    
+    showNotification('Cores personalizadas aplicadas!', 'success');
 };
 
 function generateCurriculumHTML() {
@@ -1442,14 +1543,13 @@ function generateProjectsSection() {
             ${curriculumData.projects.map(project => `
                 <div style="margin-bottom: 1.5rem;">
                     <h4 class="highlight" style="margin: 0; font-size: 1.2rem;">${project.nome}</h4>
-                    <p class="main-text" style="margin: 0.5rem 0;">${project.descricao}</p>
-                    ${project.tecnologias.length > 0 ? `
+                    <p class="main-text" style="margin: 0.5rem 0;">${project.descricao}</p>                    ${project.tecnologias.length > 0 ? `
                         <div class="main-text" style="margin: 0.5rem 0;">
                             <strong>Tecnologias:</strong> ${project.tecnologias.join(', ')}
                         </div>
                     ` : ''}
                     ${project.link && curriculumData.settings.showProjectLinks ? `
-                        <a class="contact-link" href="${project.link}" style="color: ${curriculumData.settings.primaryColor}; text-decoration: none;">
+                        <a class="project-link" href="${project.link}" style="color: ${curriculumData.settings.primaryColor}; text-decoration: none; display: ${curriculumData.settings.showProjectLinks ? 'inline' : 'none'};">
                             Ver projeto →
                         </a>
                     ` : ''}
@@ -1767,43 +1867,74 @@ window.downloadPDF = async function() {
         // Criar um clone do elemento para aplicar estilos específicos de PDF
         const element = previewContainer.cloneNode(true);
         
-        // Aplicar estilos específicos para PDF
+        // Aplicar estilos específicos para PDF com melhor formatação
         element.style.backgroundColor = curriculumData.settings.backgroundColor || '#ffffff';
         element.style.color = '#000000'; // Força texto preto para PDF
         element.style.fontFamily = curriculumData.settings.fontFamily || 'Arial, sans-serif';
+        element.style.width = '210mm'; // Largura A4
+        element.style.minHeight = '297mm'; // Altura A4
+        element.style.padding = '15mm'; // Padding para margens
+        element.style.boxSizing = 'border-box';
+        element.style.lineHeight = '1.6';
+        element.style.fontSize = '14px';
         
-        // Aplicar estilos específicos para experience section
-        const experienceItems = element.querySelectorAll('.experience-item, .exp-item');
-        experienceItems.forEach(item => {
-            item.style.color = '#000000 !important';
-            item.style.backgroundColor = 'transparent';
-            
-            // Forçar cor do texto em todos os elementos filhos
-            const allElements = item.querySelectorAll('*');
-            allElements.forEach(el => {
-                el.style.color = '#000000 !important';
-            });
-        });
+        // Aplicar cores personalizadas no elemento clonado
+        const colors = {
+            backgroundColor: document.getElementById('background-color')?.value || '#ffffff',
+            nameTitle: document.getElementById('name-title-color')?.value || '#1f2937',
+            sectionTitle: document.getElementById('section-title-color')?.value || '#3b82f6',
+            mainText: document.getElementById('main-text-color')?.value || '#374151',
+            highlight: document.getElementById('highlight-color')?.value || '#10b981',
+            link: document.getElementById('link-color')?.value || '#3b82f6'
+        };
         
-        // Gerenciar visibilidade dos links de projetos
-        const projectLinks = element.querySelectorAll('.project-link, .project-url');
+        // Aplicar cores no elemento clonado
+        element.style.backgroundColor = colors.backgroundColor;
+        
+        const nameElements = element.querySelectorAll('.curriculum-name, h1');
+        nameElements.forEach(el => el.style.color = colors.nameTitle);
+        
+        const titleElements = element.querySelectorAll('.curriculum-title, h2');
+        titleElements.forEach(el => el.style.color = colors.nameTitle);
+        
+        const sectionTitleElements = element.querySelectorAll('.section-title, h3');
+        sectionTitleElements.forEach(el => el.style.color = colors.sectionTitle);
+        
+        const mainTextElements = element.querySelectorAll('.main-text, p');
+        mainTextElements.forEach(el => el.style.color = colors.mainText);
+        
+        const highlightElements = element.querySelectorAll('.highlight');
+        highlightElements.forEach(el => el.style.color = colors.highlight);
+        
+        const linkElements = element.querySelectorAll('a, .contact-link, .project-link');
+        linkElements.forEach(el => el.style.color = colors.link);
+        
+        // Gerenciar links de projetos no PDF
+        const projectLinks = element.querySelectorAll('.project-link, a[href]:not([href^="mailto"]):not([href^="tel"])');
         projectLinks.forEach(link => {
-            if (!curriculumData.settings.showProjectLinks) {
+            const linkText = link.textContent.toLowerCase();
+            const isProjectLink = linkText.includes('ver projeto') || 
+                                 linkText.includes('projeto') || 
+                                 link.href.includes('github.com') ||
+                                 link.href.includes('vercel.app') ||
+                                 link.href.includes('netlify.app');
+            
+            if (isProjectLink && !curriculumData.settings.showProjectLinks) {
                 link.style.display = 'none';
             }
         });
         
-        // Configuração de margens
+        // Configuração de margens melhorada
         const marginSetting = curriculumData.settings.documentMargins || 'normal';
         let marginValue;
         switch (marginSetting) {
-            case 'compact': marginValue = [5, 5, 5, 5]; break;
-            case 'comfortable': marginValue = [15, 15, 15, 15]; break;
-            case 'wide': marginValue = [25, 25, 25, 25]; break;
-            default: marginValue = [10, 10, 10, 10]; // normal
+            case 'compact': marginValue = [8, 8, 8, 8]; break;
+            case 'comfortable': marginValue = [20, 20, 20, 20]; break;
+            case 'wide': marginValue = [30, 30, 30, 30]; break;
+            default: marginValue = [15, 15, 15, 15]; // normal
         }
         
-        // Configuração do PDF
+        // Configuração do PDF otimizada para A4
         const options = {
             margin: marginValue,
             filename: 'curriculo-mikael-ferreira.pdf',
@@ -1812,24 +1943,29 @@ window.downloadPDF = async function() {
                 quality: 0.98 
             },
             html2canvas: { 
-                scale: 2,
-                backgroundColor: curriculumData.settings.backgroundColor || '#ffffff',
+                scale: 1.5, // Reduzido para melhor performance
+                backgroundColor: colors.backgroundColor,
                 useCORS: true,
                 allowTaint: true,
                 logging: false,
+                width: 794, // Largura A4 em pixels (210mm)
+                height: 1123, // Altura A4 em pixels (297mm)
                 onclone: function(clonedDoc) {
                     // Aplicar estilos adicionais no documento clonado
                     const clonedElement = clonedDoc.querySelector('#curriculum-preview');
                     if (clonedElement) {
                         clonedElement.style.color = '#000000';
-                        clonedElement.style.backgroundColor = curriculumData.settings.backgroundColor || '#ffffff';
+                        clonedElement.style.backgroundColor = colors.backgroundColor;
+                        clonedElement.style.width = '100%';
+                        clonedElement.style.maxWidth = 'none';
                     }
                 }
             },
             jsPDF: { 
                 unit: 'mm', 
                 format: 'a4', 
-                orientation: 'portrait'
+                orientation: 'portrait',
+                compress: true
             }
         };
         

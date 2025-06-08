@@ -1,8 +1,7 @@
 /* Estilos específicos para impressão e PDF */
 
 /* Ajustes de impressão para garantir que as cores de fundo apareçam no PDF */
-@media print {
-    html, body, div, span, applet, object, iframe,
+@media print {    html, body, div, span, applet, object, iframe,
     h1, h2, h3, h4, h5, h6, p, blockquote, pre,
     a, abbr, acronym, address, big, cite, code,
     del, dfn, em, img, ins, kbd, q, s, samp,
@@ -19,21 +18,55 @@
         print-color-adjust: exact !important;
     }
     
-    /* Ajustes específicos ao currículo */
+    /* Garantir que o documento ocupe a página inteira */
+    @page {
+        size: A4;
+        margin: 0;
+    }
+      /* Ajustes específicos ao currículo */
     #curriculum-preview,
     #curriculum-preview > div,
     .curriculum-preview {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        page-break-inside: avoid;
+        width: 100% !important;
+        height: 100% !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        padding: 15mm !important; /* Margens internas em vez de externas */
     }
-    
-    /* Prevenir quebras de página dentro de seções importantes */
-    #curriculum-preview header,
-    #curriculum-preview section,
-    #curriculum-preview .curriculum-section {
+      /* Prevenir quebras de página dentro de seções importantes */
+    #curriculum-preview header {
         page-break-inside: avoid;
         page-break-after: auto;
+    }
+    
+    /* Controle de quebras para seções */
+    #curriculum-preview section,
+    #curriculum-preview .curriculum-section {
+        page-break-inside: auto; /* Permitir quebras dentro de seções grandes */
+        page-break-before: auto;
+        page-break-after: auto;
+    }
+    
+    /* Evitar quebras em títulos e seguidos por conteúdo */
+    #curriculum-preview h1, 
+    #curriculum-preview h2, 
+    #curriculum-preview h3,
+    #curriculum-preview h4 {
+        page-break-after: avoid;
+        break-after: avoid;
+        margin-bottom: 0.5em;
+    }
+    
+    /* Evitar quebras em itens individuais */
+    #curriculum-preview .experience-item,
+    #curriculum-preview .exp-item,
+    #curriculum-preview .project-item,
+    #curriculum-preview .certificate-item {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        margin-bottom: 1em;
     }
     
     /* Ajustes para diferentes temas de currículo para impressão */

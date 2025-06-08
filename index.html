@@ -513,29 +513,34 @@
     </section>
 
     <!-- Seção de Habilidades Técnicas -->
-    <section id="habilidades">
-        <h2>Technical Skills</h2>
-        <div class="skills-info">
-            <p style="text-align: center; color: #c8aa6e; font-style: italic; margin-bottom: 1rem; padding: 0.8rem; background: rgba(200, 170, 110, 0.1); border-radius: 8px; border-left: 4px solid #c8aa6e;">
-                <i class="fab fa-github" style="margin-right: 0.5rem;"></i>
-                <strong>Dados Reais em Tempo Real:</strong> Os percentuais exibidos são calculados automaticamente através da API do GitHub, 
-                analisando linguagens, frameworks e tecnologias utilizadas nos repositórios públicos do meu perfil.
-            </p>
-            <div style="text-align: center; margin-bottom: 1rem;">
-                <button onclick="clearSkillsCache(); location.reload();" style="background: rgba(200, 170, 110, 0.2); border: 1px solid rgba(200, 170, 110, 0.5); color: #c8aa6e; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.3s ease;">
-                    <i class="fas fa-sync-alt" style="margin-right: 0.5rem;"></i>Atualizar Skills
-                </button>
+    <section id="habilidades" class="media-section">
+        <div class="container">
+            <h2 class="section-title">
+                <i class="fas fa-code"></i>
+                Technical Skills
+            </h2>
+            <div class="skills-info">
+                <p style="text-align: center; color: #c8aa6e; font-style: italic; margin-bottom: 1rem; padding: 0.8rem; background: rgba(200, 170, 110, 0.1); border-radius: 8px; border-left: 4px solid #c8aa6e;">
+                    <i class="fab fa-github" style="margin-right: 0.5rem;"></i>
+                    <strong>Dados Reais em Tempo Real:</strong> Os percentuais exibidos são calculados automaticamente através da API do GitHub, 
+                    analisando linguagens, frameworks e tecnologias utilizadas nos repositórios públicos do meu perfil.
+                </p>
+                <div style="text-align: center; margin-bottom: 1rem;">
+                    <button onclick="clearSkillsCache(); location.reload();" style="background: rgba(200, 170, 110, 0.2); border: 1px solid rgba(200, 170, 110, 0.5); color: #c8aa6e; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.3s ease;">
+                        <i class="fas fa-sync-alt" style="margin-right: 0.5rem;"></i>Atualizar Skills
+                    </button>
+                </div>
             </div>
-        </div>
-        <div class="skills-grid">
-            <!-- Loading indicator -->
-            <div id="skills-loading" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
-                <div class="loader" style="margin: 0 auto 1rem;"></div>
-                <p style="color: #c8aa6e; margin-bottom: 0.5rem;"><strong>Analisando repositórios do GitHub...</strong></p>
-                <p style="color: #a09b8c; font-size: 0.8rem; opacity: 0.8;">Coletando dados de linguagens e tecnologias em tempo real</p>
+            <div class="skills-grid">
+                <!-- Loading indicator -->
+                <div id="skills-loading" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+                    <div class="loader" style="margin: 0 auto 1rem;"></div>
+                    <p style="color: #c8aa6e; margin-bottom: 0.5rem;"><strong>Analisando repositórios do GitHub...</strong></p>
+                    <p style="color: #a09b8c; font-size: 0.8rem; opacity: 0.8;">Coletando dados de linguagens e tecnologias em tempo real</p>
+                </div>
+                
+                <!-- Skills cards will be populated dynamically -->
             </div>
-            
-            <!-- Skills cards will be populated dynamically -->
         </div>
     </section>
 
@@ -612,24 +617,29 @@
     </section>
 
     <!-- Redes Sociais -->
-    <section class="redes-sociais">
-        <h2>My Social Media</h2>
-        <div class="botoes-redes">
-            <a href="https://www.linkedin.com/in/mikaelferreira/" target="_blank" class="social-btn linkedin">
-                <i class="fab fa-linkedin"></i>
-            </a>
-            <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-btn tiktok">
-                <i class="fab fa-tiktok"></i>
-            </a>
-            <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-btn reddit">
-                <i class="fab fa-reddit"></i>
-            </a>
-            <a href="https://discord.gg/fffen2a4" target="_blank" class="social-btn discord">
-                <i class="fab fa-discord"></i>
-            </a>
-            <a href="https://github.com/mikaelfmts" target="_blank" class="social-btn github">
-                <i class="fab fa-github"></i>
-            </a>
+    <section class="redes-sociais media-section">
+        <div class="container">
+            <h2 class="section-title">
+                <i class="fas fa-share-alt"></i>
+                My Social Media
+            </h2>
+            <div class="botoes-redes">
+                <a href="https://www.linkedin.com/in/mikaelferreira/" target="_blank" class="social-btn linkedin">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-btn tiktok">
+                    <i class="fab fa-tiktok"></i>
+                </a>
+                <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-btn reddit">
+                    <i class="fab fa-reddit"></i>
+                </a>
+                <a href="https://discord.gg/fffen2a4" target="_blank" class="social-btn discord">
+                    <i class="fab fa-discord"></i>
+                </a>
+                <a href="https://github.com/mikaelfmts" target="_blank" class="social-btn github">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
         </div>
     </section>
 

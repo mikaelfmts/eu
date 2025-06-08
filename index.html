@@ -437,6 +437,12 @@
         }
 
         @media (max-width: 480px) {
+            /* FORÇAR VARIÁVEIS DE COR PARA MOBILE - SOBRESCREVER TEMA CLARO */
+            body {
+                --text-primary: #f0e6d2 !important; /* FORÇAR TEXTO CLARO NO MOBILE */
+                --text-secondary: #a09b8c !important;
+            }
+            
             .brand-text {
                 display: none;
             }

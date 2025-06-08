@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" class="dark-theme">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="supported-color-schemes" content="dark">
     <title>Projetos - Mikael Ferreira</title>
 
     <!-- Preconnect para performance -->
@@ -512,18 +514,28 @@
             .section-title {
                 font-size: 2.2rem;
                 margin: 3rem auto 2.5rem;
-                padding: 0 2.5rem;
+                padding: 0 2rem;
+                width: 90%;
             }
             
             .github-repos-container {
                 grid-template-columns: 1fr;
-                max-width: 450px;
-                margin: 0 auto 3rem;
+                max-width: 95%;
+                width: 95%;
+                margin-left: auto;
+                margin-right: auto;
+                margin-bottom: 3rem;
             }
             
             .repo-card {
                 padding: 2rem;
                 max-width: 100%;
+                width: 100%;
+            }
+            
+            .projects-container {
+                width: 100%;
+                padding: 0;
             }
             
             .repo-name {
@@ -537,6 +549,11 @@
             
             .stat-value {
                 font-size: 1.6rem;
+            }
+            
+            .main-content {
+                width: 100%;
+                padding: 1rem 0;
             }
         }
 
@@ -943,6 +960,11 @@
     </footer>
 
     <script>
+        // Garantir tema escuro na inicialização
+        document.documentElement.classList.add('dark-theme');
+        document.body.classList.remove('light-mode');
+        localStorage.setItem('theme', 'dark');
+        
         // Script para alternar menu
         function toggleMenu() {
             const menu = document.getElementById('menu-lateral');
@@ -1136,15 +1158,22 @@
                 }, duration);
             }
             
+            // Detecção de dispositivo móvel
+            const isMobileDevice = /Android|webOS|iPhone|iPad|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            // Configuração de partículas adaptável para mobile
+            const particleInterval = isMobileDevice ? 1000 : 300; // Mais lento em mobile
+            const initialParticles = isMobileDevice ? 3 : 10; // Menos partículas iniciais em mobile
+            
             // Criar partículas em intervalos controlados
-            const createInterval = setInterval(createParticle, 300);
+            const createInterval = setInterval(createParticle, particleInterval);
             
             // Otimização para parar criação quando a guia não estiver visível
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden) {
                     clearInterval(createInterval);
                 } else {
-                    setInterval(createParticle, 300);
+                    setInterval(createParticle, particleInterval);
                 }
             });
             
@@ -1185,9 +1214,9 @@
             `;
             document.head.appendChild(style);
             
-            // Criar algumas partículas iniciais
-            for (let i = 0; i < 10; i++) {
-                setTimeout(() => createParticle(), i * 100);
+            // Criar algumas partículas iniciais com base no dispositivo
+            for (let i = 0; i < initialParticles; i++) {
+                setTimeout(() => createParticle(), i * (isMobileDevice ? 300 : 100));
             }
         });
     </script>

@@ -29,15 +29,16 @@
     <!-- Font Awesome para os ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
-    <!-- Sistema Centralizado de Rate Limiting -->
-    <script type="module" src="assets/js/github-rate-limit.js"></script>
+    <!-- Carregamento otimizado para melhorar performance -->
+    <script type="module" src="assets/js/github-rate-limit.js" defer></script>
     
-    <!-- Script Principal como Módulo -->
-    <script type="module" src="assets/js/script.js"></script>
-    <script type="module" src="assets/js/media-index.js"></script>
-    <script type="module" src="assets/js/reports-index.js"></script>
-    <script type="module" src="assets/js/minerva-assistant.js"></script>
-    <script src="assets/js/page-control.js"></script>
+    <!-- Script Principal como Módulo - defer e lazy para melhorar performance -->
+    <script type="module" src="assets/js/script.js" defer></script>
+    <script type="module" src="assets/js/media-index.js" defer></script>
+    <script type="module" src="assets/js/reports-index.js" defer></script>
+    <!-- Minerva carregado posteriormente para reduzir tempo de carregamento inicial -->
+    <script type="module" src="assets/js/minerva-assistant.js" defer async></script>
+    <script src="assets/js/page-control.js" defer></script>
     
     <!-- Controle de Página -->
     <script>
@@ -953,21 +954,43 @@
                 }, duration);
             }
             
+            // Configuração de partículas
+            const PARTICLE_CONFIG = window.PARTICLE_CONFIG || {
+                MAX_PARTICLES: 15,
+                INTERVAL: 400,
+                MIN_SIZE: 2,
+                MAX_SIZE: 5,
+                MIN_DURATION: 8000,
+                MAX_DURATION: 15000
+            };
+            
+            // Detectar dispositivo móvel
+            const isMobileDevice = /Android|webOS|iPhone|iPad|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            // Ajustar configuração para mobile
+            if (isMobileDevice) {
+                // Reduzir partículas em dispositivos móveis
+                PARTICLE_CONFIG.MAX_PARTICLES = 5;
+                PARTICLE_CONFIG.INTERVAL = 1000;
+                PARTICLE_CONFIG.MIN_DURATION = 5000;
+                PARTICLE_CONFIG.MAX_DURATION = 8000;
+            }
+            
             // Criar partículas em intervalos controlados
-            let createInterval = setInterval(createParticle, 400);
+            let createInterval = setInterval(createParticle, PARTICLE_CONFIG.INTERVAL);
             
             // Otimização para parar criação quando a guia não estiver visível
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden) {
                     clearInterval(createInterval);
                 } else {
-                    createInterval = setInterval(createParticle, 400);
+                    createInterval = setInterval(createParticle, PARTICLE_CONFIG.INTERVAL);
                 }
             });
             
             // Criar algumas partículas iniciais
-            for (let i = 0; i < 15; i++) {
-                setTimeout(() => createParticle(), i * 150);
+            for (let i = 0; i < (isMobileDevice ? 3 : PARTICLE_CONFIG.MAX_PARTICLES); i++) {
+                setTimeout(() => createParticle(), i * (isMobileDevice ? 300 : 150));
             }
         });
     </script>

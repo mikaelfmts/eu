@@ -1734,6 +1734,19 @@ function isMobile() {
 
 if (isMobile()) {
     document.body.classList.add('mobile');
+    
+    // Reduzir o número de partículas para dispositivos móveis
+    window.PARTICLE_CONFIG = {
+        MAX_PARTICLES: 10,
+        INTERVAL: 1000, // Mais lento em dispositivos móveis
+        MIN_SIZE: 1,
+        MAX_SIZE: 3,
+        MIN_DURATION: 5000,
+        MAX_DURATION: 8000
+    };
+    
+    // Desativar algumas animações pesadas
+    document.documentElement.style.setProperty('--animation-speed', '0.7');
 }
 
 // Tema claro/escuro

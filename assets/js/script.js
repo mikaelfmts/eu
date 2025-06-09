@@ -836,14 +836,10 @@ function generateFallbackSkills() {
     createSkillCards(fallbackLanguageStats, fallbackTechnologyStats, fallbackTotalBytes, false);
 }
 
-// Função para criar cartões de habilidades (alternativa para a função generateSkillsCards)
-function createSkillCards(languageStats, technologyStats, totalBytes, fromCache = false) {
-    // Verificar se a função original está definida e usá-la se existir
-    if (typeof generateSkillsCards === 'function') {
-        return generateSkillsCards(languageStats, technologyStats, totalBytes, fromCache);
-    }
+// Função principal para gerar cartões de habilidades (versão aprimorada)
+function generateSkillsCards(languageStats, technologyStats, totalBytes, fromCache = false) {
+    console.log('🎨 Gerando cards de skills com dados:', { languageStats, technologyStats, totalBytes });
     
-    // Implementação alternativa
     const skillsGrid = document.querySelector('.skills-grid');
     if (!skillsGrid) {
         console.warn('❌ Elemento skills-grid não encontrado!');
@@ -865,7 +861,7 @@ function createSkillCards(languageStats, technologyStats, totalBytes, fromCache 
         if (percentage > 0.5) { // Mostrar linguagens com mais de 0.5%
             allSkills[lang] = {
                 percentage: Math.round(percentage),
-                type: 'language',
+                type: 'Linguagem',
                 bytes: bytes,
                 description: getSkillDescription(lang)
             };
@@ -877,8 +873,8 @@ function createSkillCards(languageStats, technologyStats, totalBytes, fromCache 
     Object.entries(technologyStats).forEach(([tech, score]) => {
         const percentage = Math.min(Math.round((score / maxTechScore) * 85), 95); // Max 95%
         allSkills[tech] = {
-            percentage: Math.max(percentage, 10), // Min 10%
-            type: 'technology',
+            percentage: Math.max(percentage, 15), // Min 15%
+            type: 'Tecnologia',
             score: score,
             description: getSkillDescription(tech)
         };
@@ -886,41 +882,201 @@ function createSkillCards(languageStats, technologyStats, totalBytes, fromCache 
     
     // Gerar HTML
     let skillsHTML = '';
-    Object.entries(allSkills).forEach(([name, data]) => {
+    const sortedSkills = Object.entries(allSkills).sort((a, b) => b[1].percentage - a[1].percentage);
+    
+    sortedSkills.forEach(([name, data]) => {
         const skillColor = getSkillColor(name);
         const skillIcon = getSkillIcon(name);
         
         skillsHTML += `
-            <div class="skill-card">
+            <div class="skill-card" data-skill="${name}">
                 <div class="skill-header">
-                    <span class="skill-icon" style="background: rgba(${hexToRgb(skillColor)}, 0.1); border: 1px solid rgba(${hexToRgb(skillColor)}, 0.3);">
-                        <i class="${skillIcon}"></i>
+                    <span class="skill-icon" style="background: rgba(${hexToRgb(skillColor)}, 0.15); border: 2px solid rgba(${hexToRgb(skillColor)}, 0.4);">
+                        <i class="${skillIcon}" style="color: ${skillColor};"></i>
                     </span>
                     <h3>${name}</h3>
                 </div>
+                
                 <div class="skill-level">
-                    <span class="skill-level-label">Proficiency:</span>
+                    <span class="skill-level-label">Proficiência</span>
                     <div class="skill-stars">
                         ${getSkillStars(data.percentage)}
                     </div>
                 </div>
+                
                 <div class="skill-bar">
-                    <div class="skill-progress" style="width: ${data.percentage}%; background: linear-gradient(90deg, ${skillColor}80, ${skillColor});"></div>
+                    <div class="skill-progress" style="width: ${data.percentage}%; background: linear-gradient(135deg, ${skillColor}CC, ${skillColor});"></div>
                 </div>
-                <div class="skill-percentage" style="color: ${skillColor};">${data.percentage}%</div>
+                
+                <div class="skill-percentage" style="color: ${skillColor};">
+                    ${data.percentage}%
+                </div>
+                
                 <div class="skill-description">
                     <p>${data.description}</p>
                 </div>
+                
                 <div class="skill-details">
-                    ${data.bytes ? `<span class="skill-bytes"><i class="fas fa-code"></i> ${formatBytes(data.bytes)}</span>` : ''}
-                    <span class="skill-type" style="border-color: ${skillColor};">${data.type}</span>
+                    ${data.bytes ? 
+                        `<span class="skill-bytes">
+                            <i class="fas fa-code"></i> 
+                            ${formatBytes(data.bytes)}
+                        </span>` : 
+                        `<span class="skill-bytes">
+                            <i class="fas fa-chart-line"></i> 
+                            Score: ${data.score || 'N/A'}
+                        </span>`
+                    }
+                    <span class="skill-type" style="border-color: ${skillColor}; color: ${skillColor};">
+                        ${data.type}
+                    </span>
                 </div>
             </div>
         `;
     });
     
+    // Adicionar indicador se dados vêm do cache
+    if (fromCache) {
+        skillsHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; margin-bottom: 1rem; padding: 1rem; background: rgba(200, 170, 110, 0.1); border-radius: 8px; border-left: 4px solid #c8aa6e;">
+                <p style="color: #c8aa6e; margin: 0; font-style: italic;">
+                    <i class="fas fa-clock" style="margin-right: 0.5rem;"></i>
+                    <strong>Dados do Cache:</strong> Informações obtidas do cache local. Clique em "Atualizar Skills" para buscar dados mais recentes.
+                </p>
+            </div>
+        ` + skillsHTML;
+    }
+    
     skillsGrid.innerHTML = skillsHTML;
-    console.log('✅ Skills cards gerados com sucesso!');
+    
+    // Adicionar animação de entrada
+    setTimeout(() => {
+        const cards = skillsGrid.querySelectorAll('.skill-card');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                
+                requestAnimationFrame(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                });
+            }, index * 100);
+        });
+    }, 100);
+    
+    console.log('✅ Skills cards gerados com sucesso!', { 
+        totalSkills: Object.keys(allSkills).length,
+        fromCache 
+    });
+}
+
+// Função para criar cartões de habilidades (alternativa para a função generateSkillsCards)
+function createSkillCards(languageStats, technologyStats, totalBytes, fromCache = false) {
+    // Usar a função principal se disponível
+    if (typeof generateSkillsCards === 'function') {
+        return generateSkillsCards(languageStats, technologyStats, totalBytes, fromCache);
+    }
+    
+    console.warn('⚠️ Função generateSkillsCards não encontrada, usando implementação de fallback');
+    // Fallback para implementação simples se a principal não existir
+    const skillsGrid = document.querySelector('.skills-grid');
+    if (!skillsGrid) return;
+    
+    const loadingElement = document.getElementById('skills-loading');
+    if (loadingElement) loadingElement.remove();
+    
+    let simpleHTML = '<div style="text-align: center; color: var(--text-secondary);">Skills carregadas com implementação básica</div>';
+    skillsGrid.innerHTML = simpleHTML;
+}
+
+function getSkillDescription(skill) {
+    const descriptions = {
+        'JavaScript': 'Linguagem principal para desenvolvimento web dinâmico e interativo.',
+        'HTML': 'Estruturação e marcação de páginas web modernas.',
+        'CSS': 'Estilização e design responsivo de interfaces web.',
+        'Python': 'Linguagem versátil para automação, scripts e desenvolvimento backend.',
+        'Java': 'Desenvolvimento de aplicações enterprise e sistemas robustos.',
+        'React': 'Biblioteca para criação de interfaces de usuário reativas e componentes.',
+        'Node.js': 'Runtime JavaScript para desenvolvimento de servidores e APIs.',
+        'Firebase': 'Plataforma de desenvolvimento de aplicações com backend como serviço.',
+        'Git': 'Sistema de controle de versão distribuído para colaboração em código.',
+        'Bootstrap': 'Framework CSS para desenvolvimento rápido e responsivo.',
+        'Express.js': 'Framework web minimalista para Node.js.',
+        'API REST': 'Arquitetura para criação de serviços web escaláveis.',
+        'Vue.js': 'Framework progressivo para construção de interfaces de usuário.',
+        'Angular': 'Plataforma completa para desenvolvimento de aplicações web.',
+        'MongoDB': 'Banco de dados NoSQL orientado a documentos.',
+        'MySQL': 'Sistema de gerenciamento de banco de dados relacional.',
+        'PHP': 'Linguagem para desenvolvimento web server-side.',
+        'TypeScript': 'Superset do JavaScript com tipagem estática.',
+        'Sass': 'Extensão CSS com recursos avançados de pré-processamento.',
+        'Webpack': 'Bundler de módulos para aplicações JavaScript modernas.',
+        'Docker': 'Plataforma de containerização para deployment de aplicações.',
+        'Kubernetes': 'Orquestração de containers em escala empresarial.',
+        'AWS': 'Plataforma de computação em nuvem da Amazon.',
+        'Azure': 'Serviços de nuvem da Microsoft para desenvolvimento e deployment.',
+        'VS Code': 'Editor de código-fonte otimizado para desenvolvimento web moderno.',
+        'GitHub': 'Plataforma de hospedagem e colaboração de código-fonte.',
+        'NPM': 'Gerenciador de pacotes para o ecossistema Node.js.',
+        'Yarn': 'Gerenciador de dependências rápido e confiável.',
+        'ESLint': 'Ferramenta de linting para identificação de problemas no código.',
+        'Prettier': 'Formatador de código para manter consistência de estilo.',
+        'Jest': 'Framework de testes para JavaScript com foco em simplicidade.',
+        'Cypress': 'Framework de testes end-to-end para aplicações web.',
+        'PostgreSQL': 'Sistema de banco de dados objeto-relacional avançado.',
+        'Redis': 'Estrutura de dados em memória para cache e armazenamento.',
+        'GraphQL': 'Linguagem de consulta para APIs e runtime para executar consultas.',
+        'JSON': 'Formato de intercâmbio de dados leve e legível.',
+        'XML': 'Linguagem de marcação extensível para estruturação de dados.',
+        'Markdown': 'Linguagem de marcação leve para formatação de texto.',
+        'Babel': 'Compilador JavaScript para usar recursos modernos.',
+        'Webpack': 'Bundler de módulos para otimização de aplicações.',
+        'Gulp': 'Toolkit para automação de tarefas de desenvolvimento.',
+        'Grunt': 'Task runner JavaScript para automação de workflows.',
+        'Responsive Design': 'Técnicas para criar layouts adaptativos a diferentes dispositivos.',
+        'PWA': 'Progressive Web Apps para experiências app-like na web.',
+        'SEO': 'Otimização para motores de busca e melhor indexação.',
+        'Performance': 'Otimização de performance e velocidade de carregamento.',
+        'Accessibility': 'Desenvolvimento inclusivo para todos os usuários.',
+        'UI/UX': 'Design de interfaces e experiência do usuário.'
+    };
+    
+    return descriptions[skill] || `Tecnologia utilizada no desenvolvimento de projetos modernos.`;
+}
+
+function getSkillStars(percentage) {
+    const stars = 5;
+    const filledStars = Math.round((percentage / 100) * stars);
+    let starsHTML = '';
+    
+    for (let i = 1; i <= stars; i++) {
+        if (i <= filledStars) {
+            starsHTML += '<i class="fas fa-star filled"></i>';
+        } else {
+            starsHTML += '<i class="far fa-star"></i>';
+        }
+    }
+    
+    return starsHTML;
+}
+
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? 
+        parseInt(result[1], 16) + ',' + parseInt(result[2], 16) + ',' + parseInt(result[3], 16) :
+        '200, 170, 110'; // fallback para cor dourada
 }
 
 function getSkillIcon(skill) {
@@ -934,7 +1090,44 @@ function getSkillIcon(skill) {
         'Node.js': 'fab fa-node-js',
         'Firebase': 'fas fa-fire',
         'Git': 'fab fa-git-alt',
-        'Bootstrap': 'fab fa-bootstrap'
+        'Bootstrap': 'fab fa-bootstrap',
+        'Express.js': 'fas fa-server',
+        'API REST': 'fas fa-plug',
+        'Vue.js': 'fab fa-vuejs',
+        'Angular': 'fab fa-angular',
+        'MongoDB': 'fas fa-database',
+        'MySQL': 'fas fa-database',
+        'PHP': 'fab fa-php',
+        'TypeScript': 'fab fa-js',
+        'Sass': 'fab fa-sass',
+        'Webpack': 'fas fa-box',
+        'Docker': 'fab fa-docker',
+        'Kubernetes': 'fas fa-dharmachakra',
+        'AWS': 'fab fa-aws',
+        'Azure': 'fab fa-microsoft',
+        'VS Code': 'fas fa-code',
+        'GitHub': 'fab fa-github',
+        'NPM': 'fab fa-npm',
+        'Yarn': 'fas fa-yarn',
+        'ESLint': 'fas fa-check-circle',
+        'Prettier': 'fas fa-magic',
+        'Jest': 'fas fa-vial',
+        'Cypress': 'fas fa-robot',
+        'PostgreSQL': 'fas fa-database',
+        'Redis': 'fas fa-memory',
+        'GraphQL': 'fas fa-project-diagram',
+        'JSON': 'fas fa-code',
+        'XML': 'fas fa-code',
+        'Markdown': 'fab fa-markdown',
+        'Babel': 'fas fa-language',
+        'Gulp': 'fas fa-tasks',
+        'Grunt': 'fas fa-cogs',
+        'Responsive Design': 'fas fa-mobile-alt',
+        'PWA': 'fas fa-mobile',
+        'SEO': 'fas fa-search',
+        'Performance': 'fas fa-tachometer-alt',
+        'Accessibility': 'fas fa-universal-access',
+        'UI/UX': 'fas fa-paint-brush'
     };
     
     return skillMapping[skill] || 'fas fa-code';
@@ -951,7 +1144,44 @@ function getSkillColor(skill) {
         'Node.js': '#026e00',
         'Firebase': '#ffca28',
         'Git': '#f05032',
-        'Bootstrap': '#7952b3'
+        'Bootstrap': '#7952b3',
+        'Express.js': '#000000',
+        'API REST': '#02569B',
+        'Vue.js': '#4fc08d',
+        'Angular': '#dd0031',
+        'MongoDB': '#4db33d',
+        'MySQL': '#00758f',
+        'PHP': '#777bb4',
+        'TypeScript': '#3178c6',
+        'Sass': '#cc6699',
+        'Webpack': '#8dd6f9',
+        'Docker': '#2496ed',
+        'Kubernetes': '#326ce5',
+        'AWS': '#ff9900',
+        'Azure': '#0078d4',
+        'VS Code': '#007acc',
+        'GitHub': '#181717',
+        'NPM': '#cb3837',
+        'Yarn': '#2c8ebb',
+        'ESLint': '#4b32c3',
+        'Prettier': '#f7b93e',
+        'Jest': '#c21325',
+        'Cypress': '#17202c',
+        'PostgreSQL': '#336791',
+        'Redis': '#dc382d',
+        'GraphQL': '#e10098',
+        'JSON': '#000000',
+        'XML': '#ff6600',
+        'Markdown': '#083fa1',
+        'Babel': '#f9dc3e',
+        'Gulp': '#cf4647',
+        'Grunt': '#fba919',
+        'Responsive Design': '#38a169',
+        'PWA': '#5a67d8',
+        'SEO': '#4299e1',
+        'Performance': '#ed8936',
+        'Accessibility': '#805ad5',
+        'UI/UX': '#e53e3e'
     };
     
     return skillColors[skill] || '#c8aa6e';
@@ -2878,161 +3108,191 @@ window.clearGitHubCache = function() {
     }
 };
 
-// ===== FUNÇÕES UTILITÁRIAS PARA SKILLS =====
+// ==================== FUNCIONALIDADES DO HEADER RENOVADO ====================
 
-// Função para obter descrição das habilidades
-function getSkillDescription(skill) {
-    const descriptions = {
-        // Linguagens de Programação
-        'JavaScript': 'Linguagem versátil para desenvolvimento web frontend e backend, essencial para aplicações modernas.',
-        'HTML': 'Linguagem de marcação fundamental para estruturação de páginas web e aplicações.',
-        'CSS': 'Linguagem de estilização para design responsivo e interfaces atrativas.',
-        'Python': 'Linguagem poderosa para desenvolvimento backend, automação e análise de dados.',
-        'Java': 'Linguagem robusta para aplicações enterprise e desenvolvimento backend escalável.',
-        'TypeScript': 'Superset do JavaScript que adiciona tipagem estática para projetos mais robustos.',
-        'PHP': 'Linguagem server-side amplamente utilizada para desenvolvimento web.',
-        'C#': 'Linguagem da Microsoft para desenvolvimento de aplicações robustas.',
-        'C++': 'Linguagem de alto desempenho para sistemas e aplicações críticas.',
-        'SQL': 'Linguagem para gerenciamento e consulta de bancos de dados relacionais.',
+// Inicializar funcionalidades do novo header
+function initHeroHeader() {
+    // Scroll suave para o indicador
+    const scrollIndicator = document.querySelector('.scroll-indicator');
+    if (scrollIndicator) {
+        scrollIndicator.addEventListener('click', () => {
+            const firstSection = document.querySelector('#featured-reports, section');
+            if (firstSection) {
+                firstSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    }
+
+    // Animação de entrada do hero content
+    const heroContent = document.querySelector('.hero-content');
+    if (heroContent) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 1s ease-out';
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
         
-        // Frameworks e Bibliotecas
-        'React': 'Biblioteca JavaScript para criação de interfaces de usuário dinâmicas e componentes reutilizáveis.',
-        'Vue.js': 'Framework progressivo para desenvolvimento de interfaces modernas e reativas.',
-        'Angular': 'Framework completo para aplicações web complexas e escaláveis.',
-        'Node.js': 'Runtime JavaScript para desenvolvimento backend eficiente e escalável.',
-        'Express.js': 'Framework minimalista para criação de APIs e servidores web com Node.js.',
-        'Django': 'Framework Python robusto para desenvolvimento web rápido e seguro.',
-        'Flask': 'Micro-framework Python flexível para aplicações web leves.',
-        'Spring': 'Framework Java enterprise para desenvolvimento de aplicações robustas.',
-        'Laravel': 'Framework PHP elegante para desenvolvimento web moderno.',
-        'Bootstrap': 'Framework CSS para desenvolvimento responsivo e design consistente.',
-        'Tailwind CSS': 'Framework CSS utility-first para design customizado e eficiente.',
+        observer.observe(heroContent);
+    }
+
+    // Efeito parallax sutil no background
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const heroBackground = document.querySelector('.hero-background');
         
-        // Tecnologias e Ferramentas
-        'Firebase': 'Plataforma completa para desenvolvimento de aplicações com backend gerenciado.',
-        'MongoDB': 'Banco de dados NoSQL flexível para aplicações modernas.',
-        'MySQL': 'Sistema de gerenciamento de banco de dados relacional confiável.',
-        'PostgreSQL': 'Banco de dados relacional avançado com recursos robustos.',
-        'Git': 'Sistema de controle de versão distribuído essencial para desenvolvimento colaborativo.',
-        'Docker': 'Plataforma de containerização para deployment e desenvolvimento consistente.',
-        'AWS': 'Plataforma de computação em nuvem líder para hospedagem e serviços escaláveis.',
-        'Azure': 'Plataforma de nuvem da Microsoft para soluções empresariais.',
-        'Google Cloud': 'Plataforma de nuvem do Google com serviços avançados de IA e dados.',
-        'Kubernetes': 'Orquestrador de containers para aplicações distribuídas.',
-        'Linux': 'Sistema operacional robusto para servidores e desenvolvimento.',
-        'Nginx': 'Servidor web de alta performance para aplicações modernas.',
-        'Apache': 'Servidor web confiável e amplamente utilizado.',
-        
-        // Ferramentas de Desenvolvimento
-        'VS Code': 'Editor de código moderno com extensões poderosas para desenvolvimento eficiente.',
-        'Webpack': 'Bundler de módulos para otimização de aplicações JavaScript.',
-        'Babel': 'Transpilador JavaScript para compatibilidade com diferentes navegadores.',
-        'ESLint': 'Ferramenta de linting para manter código JavaScript limpo e consistente.',
-        'Jest': 'Framework de testes JavaScript para garantir qualidade do código.',
-        'Cypress': 'Ferramenta de testes end-to-end para aplicações web.',
-        'Postman': 'Plataforma para desenvolvimento e teste de APIs.',
-        'Figma': 'Ferramenta de design colaborativo para prototipagem de interfaces.',
-        
-        // Metodologias e Práticas
-        'API REST': 'Arquitetura para desenvolvimento de APIs escaláveis e padronizadas.',
-        'GraphQL': 'Linguagem de consulta para APIs mais eficientes e flexíveis.',
-        'DevOps': 'Práticas para integração entre desenvolvimento e operações.',
-        'CI/CD': 'Integração e entrega contínua para deployment automatizado.',
-        'Agile': 'Metodologia ágil para desenvolvimento de software eficiente.',
-        'Scrum': 'Framework ágil para gerenciamento de projetos de software.',
-        
-        // Tecnologias Emergentes
-        'Machine Learning': 'Inteligência artificial para análise de dados e automação.',
-        'Blockchain': 'Tecnologia distribuída para aplicações descentralizadas.',
-        'IoT': 'Internet das Coisas para conectividade de dispositivos.',
-        'PWA': 'Progressive Web Apps para experiências web nativas.',
-        'WebAssembly': 'Tecnologia para execução de código de alta performance na web.',
-        
-        // Default para skills não mapeadas
-        'default': 'Tecnologia versátil utilizada no desenvolvimento de soluções modernas.'
-    };
-    
-    return descriptions[skill] || descriptions['default'];
+        if (heroBackground && scrolled < window.innerHeight) {
+            const speed = scrolled * 0.5;
+            heroBackground.style.transform = `translateY(${speed}px)`;
+        }
+    });
+
+    // Adicionar animação CSS se não existir
+    if (!document.querySelector('#hero-animations')) {
+        const style = document.createElement('style');
+        style.id = 'hero-animations';
+        style.textContent = `
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            @keyframes float {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-10px); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
 }
 
-// Função para gerar estrelas baseadas na porcentagem
-function getSkillStars(percentage) {
-    const stars = Math.ceil(percentage / 20); // 1-5 estrelas
-    let starsHTML = '';
-    
-    for (let i = 1; i <= 5; i++) {
-        if (i <= stars) {
-            starsHTML += '<i class="fas fa-star"></i>';
-        } else {
-            starsHTML += '<i class="far fa-star"></i>';
+// Animação de carregamento da foto de perfil
+function initProfileImageAnimation() {
+    const profileImage = document.querySelector('.profile-image');
+    if (profileImage) {
+        profileImage.addEventListener('load', () => {
+            profileImage.style.animation = 'fadeIn 0.8s ease-out';
+        });
+        
+        // Se a imagem já estiver carregada
+        if (profileImage.complete) {
+            profileImage.style.animation = 'fadeIn 0.8s ease-out';
         }
     }
-    
-    return starsHTML;
 }
 
-// Função para converter hex para RGB
-function hexToRgb(hex) {
-    // Remove o # se presente
-    hex = hex.replace('#', '');
+// Efeitos de hover melhorados para os botões de ação
+function initActionButtonEffects() {
+    const actionButtons = document.querySelectorAll('.action-btn');
     
-    // Converte para RGB
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
+    actionButtons.forEach(btn => {
+        // Efeito ripple
+        btn.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.cssText = `
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+                z-index: 1;
+            `;
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
     
-    return `${r}, ${g}, ${b}`;
-}
-
-// Função para formatar bytes em formato legível
-function formatBytes(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-// ===== FUNÇÕES DE TESTE =====
-
-// Função para testar o sistema GitHub
-window.testGitHubSystemMain = async function() {
-    try {
-        console.log('🧪 Testando sistema GitHub API (script.js)...');
-        
-        // Verificar status atual
-        const initialStatus = checkGitHubSystemStatus();
-        
-        // Testar busca de perfil
-        console.log('📝 Testando busca de perfil...');
-        const profile = await getGitHubData('profile');
-        console.log('✅ Perfil obtido:', profile.name || profile.login);
-        
-        // Testar busca de repositórios
-        console.log('📚 Testando busca de repositórios...');
-        const repos = await getGitHubData('repos');
-        console.log(`✅ ${repos.length} repositórios obtidos`);
-        
-        // Verificar status final
-        const finalStatus = checkGitHubSystemStatus();
-        
-        console.log('🎉 Teste do sistema principal concluído com sucesso!');
-        
-        return {
-            success: true,
-            profile: profile.name || profile.login,
-            reposCount: repos.length,
-            initialStatus,
-            finalStatus
-        };
-        
-    } catch (error) {
-        console.error('❌ Erro no teste do sistema principal:', error);
-        return {
-            success: false,
-            error: error.message
-        };
+    // Adicionar animação ripple se não existir
+    if (!document.querySelector('#ripple-animation')) {
+        const style = document.createElement('style');
+        style.id = 'ripple-animation';
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
     }
-};
+}
+
+// Gerenciamento de tema no header
+function updateHeaderTheme() {
+    const heroHeader = document.querySelector('.hero-header');
+    const body = document.body;
+    
+    if (heroHeader) {
+        if (body.classList.contains('light-mode')) {
+            heroHeader.style.background = `linear-gradient(135deg, 
+                #ffffff 0%, 
+                #f8f9fa 25%,
+                #e9ecef 50%,
+                #f8f9fa 75%,
+                #ffffff 100%
+            )`;
+        } else {
+            // Voltar ao tema padrão
+            heroHeader.style.background = '';
+        }
+    }
+}
+
+// Inicializar todas as funcionalidades do header renovado
+function initNewHeaderFeatures() {
+    try {
+        initHeroHeader();
+        initProfileImageAnimation();
+        initActionButtonEffects();
+        
+        // Atualizar tema quando necessário
+        const themeToggle = document.querySelector('#theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                setTimeout(updateHeaderTheme, 100);
+            });
+        }
+        
+        // Aplicar tema atual
+        updateHeaderTheme();
+        
+        console.log('✅ Header renovado inicializado com sucesso!');
+    } catch (error) {
+        console.error('❌ Erro ao inicializar header renovado:', error);
+    }
+}
+
+// Adicionar ao sistema de inicialização
+document.addEventListener('DOMContentLoaded', () => {
+    // ...existing code...
+    initNewHeaderFeatures();
+});
+
+// ==================== FIM DAS FUNCIONALIDADES DO HEADER RENOVADO ====================

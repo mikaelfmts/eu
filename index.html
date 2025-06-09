@@ -62,12 +62,28 @@
         <i id="theme-icon" class="fab fa-battle-net"></i>
     </button>
 
-    <!-- Foto do Usuário (Agora só decorativa) -->
-    <div class="foto-perfil">
-        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
-    </div>
+    <!-- Menu Horizontal -->
+    <nav id="menu-horizontal" class="horizontal-nav">
+        <div class="nav-container">
+            <div class="nav-toggle" onclick="toggleHorizontalMenu()">
+                <i class="fas fa-bars"></i>
+                <span>MENU</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="pages/curriculum.html"><i class="fas fa-scroll"></i><span>Curriculum</span></a></li>
+                <li><a href="pages/projetos.html"><i class="fas fa-code-branch"></i><span>All Projects</span></a></li>
+                <li><a href="pages/mentors.html"><i class="fas fa-users"></i><span>Mentors</span></a></li>
+                <li><a href="pages/certificates-in-progress.html"><i class="fas fa-certificate"></i><span>Certificates</span></a></li>
+                <li><a href="pages/interactive-projects.html"><i class="fas fa-project-diagram"></i><span>Interactive</span></a></li>
+                <li><a href="pages/galeria-midia.html"><i class="fas fa-images"></i><span>Media Gallery</span></a></li>
+                <li><a href="pages/relatorios-galeria.html"><i class="fas fa-chart-line"></i><span>Reports</span></a></li>
+                <li><a href="pages/games.html"><i class="fas fa-gamepad"></i><span>Games</span></a></li>
+                <li><a href="login.html" class="login-link"><i class="fas fa-user-alt"></i><span>Login</span></a></li>
+            </ul>
+        </div>
+    </nav>
 
-   <!-- Menu Lateral Oculto -->
+    <!-- Menu Lateral Oculto -->
     <nav id="menu-lateral" class="menu-fechado">
         <div class="menu-header" style="padding: 1.5rem; text-align: center; margin-bottom: 1rem; border-bottom: 1px solid rgba(200, 170, 110, 0.2);">
             <h2 style="font-family: 'Marcellus', serif; color: var(--primary-color); font-size: 1.5rem; letter-spacing: 2px;">NAVEGAÇÃO</h2>
@@ -92,42 +108,88 @@
         </div>
     </nav>
 
-    <!-- Cabeçalho -->
-    <header>
-         <h1 class="titulo-principal">
-            Mikael Ferreira
-         </h1>
-         <h2 class="subtitulo">
-            Desenvolvedor Web Full Stack  
-            <i class="fas fa-code"></i> |  
-            HTML <i class="fab fa-html5"></i> |
-            CSS <i class="fab fa-css3-alt"></i> |  
-            JavaScript <i class="fab fa-js"></i> |  
-            React <i class="fab fa-react"></i>
-        </h2>
-    </header>
-
-    <!-- Menu Horizontal -->
-    <nav id="menu-horizontal" class="horizontal-nav">
-        <div class="nav-container">
-            <div class="nav-toggle" onclick="toggleHorizontalMenu()">
-                <i class="fas fa-bars"></i>
-                <span>MENU</span>
-            </div>
-            <ul class="nav-menu">
-                <li><a href="pages/curriculum.html"><i class="fas fa-scroll"></i><span>Curriculum</span></a></li>
-                <li><a href="pages/projetos.html"><i class="fas fa-code-branch"></i><span>All Projects</span></a></li>
-                <li><a href="pages/mentors.html"><i class="fas fa-users"></i><span>Mentors</span></a></li>
-                <li><a href="pages/certificates-in-progress.html"><i class="fas fa-certificate"></i><span>Certificates</span></a></li>
-                <li><a href="pages/interactive-projects.html"><i class="fas fa-project-diagram"></i><span>Interactive</span></a></li>
-                <li><a href="pages/galeria-midia.html"><i class="fas fa-images"></i><span>Media Gallery</span></a></li>
-                <li><a href="pages/relatorios-galeria.html"><i class="fas fa-chart-line"></i><span>Reports</span></a></li>
-                <li><a href="pages/games.html"><i class="fas fa-gamepad"></i><span>Games</span></a></li>
-                <li><a href="login.html" class="login-link"><i class="fas fa-user-alt"></i><span>Login</span></a></li>
-            </ul>
+    <!-- Cabeçalho Renovado -->
+    <header class="hero-header">
+        <div class="hero-background">
+            <div class="hero-particles"></div>
         </div>
-    </nav>
-
+        
+        <div class="hero-content">
+            <!-- Foto de Perfil Integrada -->
+            <div class="profile-section">
+                <div class="profile-image-container">
+                    <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira" class="profile-image">
+                    <div class="profile-status">
+                        <i class="fas fa-circle"></i>
+                        <span>Disponível</span>
+                    </div>
+                </div>
+                
+                <div class="profile-info">
+                    <h1 class="titulo-principal">
+                        <span class="name-highlight">Mikael</span>
+                        <span class="name-accent">Ferreira</span>
+                    </h1>
+                    <div class="titulo-decoration"></div>
+                    <h2 class="subtitulo">
+                        <span class="role-badge">
+                            <i class="fas fa-code"></i>
+                            Desenvolvedor Web Full Stack & Analista de Dados
+                        </span>
+                    </h2>
+                    
+                    <div class="tech-stack">
+                        <div class="tech-item">
+                            <i class="fab fa-html5"></i>
+                            <span>HTML</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fab fa-css3-alt"></i>
+                            <span>CSS</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fab fa-js"></i>
+                            <span>JavaScript</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fab fa-react"></i>
+                            <span>React</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Data Analysis</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fab fa-python"></i>
+                            <span>Python</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="pages/curriculum.html" class="action-btn primary">
+                    <i class="fas fa-download"></i>
+                    <span>Ver Currículo</span>
+                </a>
+                <a href="pages/projetos.html" class="action-btn secondary">
+                    <i class="fas fa-code-branch"></i>
+                    <span>Projetos</span>
+                </a>
+                <a href="#featured-reports" class="action-btn tertiary">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Análises</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+            <span>Explore</span>
+        </div>
+    </header>
     <!-- Seção de Relatórios em Destaque -->
     <section id="featured-reports" class="media-section">
         <div class="container">
@@ -332,7 +394,7 @@
 <!-- Chatbot -->
 <div id="chatbot">
     <div id="chat-header" onclick="toggleChat()">
-        <i class="fas fa-crown"></i> Summoner's Chat
+        <i class="fas fa-comments"></i> Fale Comigo Aqui
     </div>
     <div id="chat-body">
         <!-- Formulário de nome (mostrado inicialmente) -->

@@ -53,12 +53,48 @@
                 radial-gradient(circle at 40% 40%, rgba(200, 170, 110, 0.05) 0%, transparent 50%);
             pointer-events: none;
             z-index: 0;
-        }
-
-        .main-content {
+        }        .main-content {
             position: relative;
             z-index: 1;
             padding: 2rem 0;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .projects-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            text-align: center;
+        }
+
+        .github-profile-container {
+            width: 100%;
+            margin: 0 auto 2rem auto;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .github-repos-container {
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .section-title {
+            text-align: center;
+            margin: 2rem auto;
+            width: 100%;
         }
 
         .hero-section {
@@ -125,20 +161,50 @@
             height: 3px;
             background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
             border-radius: 2px;
-        }
-
-        /* Responsive */
+        }        /* Responsive */
         @media (max-width: 768px) {
+            /* FORÇAR TEMA ESCURO NO MOBILE */
+            body {
+                background: #0a0f19 !important;
+                color: #ffffff !important;
+            }
+            
             .hero-title {
                 font-size: 2.5rem;
             }
             
             .projects-container {
                 padding: 0 1rem;
+                width: 100%;
+                margin: 0 auto;
+                text-align: center !important;
+            }
+            
+            .main-content {
+                width: 100%;
+                margin: 0 auto;
+                text-align: center !important;
+            }
+            
+            .github-profile-container,
+            .github-repos-container {
+                width: 100% !important;
+                margin: 0 auto !important;
+                text-align: center !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
             }
         }
 
         @media (max-width: 480px) {
+            /* FORÇAR TEMA ESCURO NO MOBILE */
+            body {
+                background: #0a0f19 !important;
+                color: #ffffff !important;
+            }
+            
             .hero-title {
                 font-size: 2rem;
             }

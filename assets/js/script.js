@@ -382,6 +382,55 @@ function toggleMenu() {
     menu.classList.toggle("menu-aberto");
 }
 
+// Função para o novo menu horizontal
+function toggleHorizontalMenu() {
+    const navMenu = document.querySelector('.nav-menu');
+    const navToggle = document.querySelector('.nav-toggle');
+    
+    if (navMenu) {
+        navMenu.classList.toggle('active');
+        
+        // Animar o ícone do toggle
+        const icon = navToggle.querySelector('i');
+        if (navMenu.classList.contains('active')) {
+            icon.className = 'fas fa-times';
+        } else {
+            icon.className = 'fas fa-bars';
+        }
+    }
+}
+
+// Fechar menu horizontal ao clicar fora dele
+document.addEventListener('click', function(event) {
+    const navMenu = document.querySelector('.nav-menu');
+    const navToggle = document.querySelector('.nav-toggle');
+    const horizontalNav = document.querySelector('.horizontal-nav');
+    
+    if (navMenu && navMenu.classList.contains('active')) {
+        if (!horizontalNav.contains(event.target)) {
+            navMenu.classList.remove('active');
+            const icon = navToggle.querySelector('i');
+            icon.className = 'fas fa-bars';
+        }
+    }
+});
+
+// Fechar menu horizontal ao redimensionar a tela
+window.addEventListener('resize', function() {
+    const navMenu = document.querySelector('.nav-menu');
+    const navToggle = document.querySelector('.nav-toggle');
+    
+    if (window.innerWidth > 768 && navMenu && navMenu.classList.contains('active')) {
+        navMenu.classList.remove('active');
+        const icon = navToggle.querySelector('i');
+        icon.className = 'fas fa-bars';
+    }
+});
+
+// Tornar as funções globais para serem acessíveis pelo HTML
+window.toggleMenu = toggleMenu;
+window.toggleHorizontalMenu = toggleHorizontalMenu;
+
 // Loading Screen
 window.addEventListener('load', () => {
     const loadingScreen = document.getElementById('loading-screen');

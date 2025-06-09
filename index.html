@@ -62,8 +62,8 @@
         <i id="theme-icon" class="fab fa-battle-net"></i>
     </button>
 
-    <!-- Foto do Usuário (Agora Aciona o Menu) -->
-    <div class="foto-perfil" onclick="toggleMenu()">
+    <!-- Foto do Usuário (Agora só decorativa) -->
+    <div class="foto-perfil">
         <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
     </div>
 
@@ -106,6 +106,27 @@
             React <i class="fab fa-react"></i>
         </h2>
     </header>
+
+    <!-- Menu Horizontal -->
+    <nav id="menu-horizontal" class="horizontal-nav">
+        <div class="nav-container">
+            <div class="nav-toggle" onclick="toggleHorizontalMenu()">
+                <i class="fas fa-bars"></i>
+                <span>MENU</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="pages/curriculum.html"><i class="fas fa-scroll"></i><span>Curriculum</span></a></li>
+                <li><a href="pages/projetos.html"><i class="fas fa-code-branch"></i><span>All Projects</span></a></li>
+                <li><a href="pages/mentors.html"><i class="fas fa-users"></i><span>Mentors</span></a></li>
+                <li><a href="pages/certificates-in-progress.html"><i class="fas fa-certificate"></i><span>Certificates</span></a></li>
+                <li><a href="pages/interactive-projects.html"><i class="fas fa-project-diagram"></i><span>Interactive</span></a></li>
+                <li><a href="pages/galeria-midia.html"><i class="fas fa-images"></i><span>Media Gallery</span></a></li>
+                <li><a href="pages/relatorios-galeria.html"><i class="fas fa-chart-line"></i><span>Reports</span></a></li>
+                <li><a href="pages/games.html"><i class="fas fa-gamepad"></i><span>Games</span></a></li>
+                <li><a href="login.html" class="login-link"><i class="fas fa-user-alt"></i><span>Login</span></a></li>
+            </ul>
+        </div>
+    </nav>
 
     <!-- Seção de Relatórios em Destaque -->
     <section id="featured-reports" class="media-section">

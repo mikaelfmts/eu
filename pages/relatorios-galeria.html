@@ -298,32 +298,33 @@
         }
     </style>
 </head>
-<body>    <!-- Foto do Usuário (Aciona o Menu) -->
-    <div class="foto-perfil" onclick="toggleMenu()">
+<body>    <!-- Foto do Usuário (Agora só decorativa) -->
+    <div class="foto-perfil">
         <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
     </div>
 
-    <!-- Menu Lateral Oculto -->
-    <nav id="menu-lateral" class="menu-fechado">
-        <ul>
-            <li><a href="../index.html"><i class="fas fa-home"></i> Home</a></li>
-            <li><a href="curriculum.html"><i class="fas fa-scroll"></i> Curriculum</a></li>
-            <li><a href="projetos.html"><i class="fas fa-code-branch"></i> All Uploaded Projects</a></li>
-            <li><a href="mentors.html"><i class="fas fa-users"></i> Mentors</a></li>
-            <li><a href="certificates-in-progress.html"><i class="fas fa-certificate"></i> Certificates in progress</a></li>
-            <li><a href="interactive-projects.html"><i class="fas fa-project-diagram"></i> Interactive Projects</a></li>
-            <li><a href="galeria-midia.html"><i class="fas fa-images"></i> Media Gallery</a></li>
-            <li><a href="relatorios-galeria.html"><i class="fas fa-chart-line"></i> Reports Gallery</a></li>
-            <li><a href="games.html"><i class="fas fa-gamepad"></i> Games</a></li>
-        </ul>
-
-        <!-- Bonequinho Dançante -->
-        <div class="bonequinho">
-            <a href="../admin.html" title="Painel Admin">
-                <i class="fas fa-user-alt"></i>
-            </a>
+    <!-- Menu Horizontal -->
+    <nav id="menu-horizontal" class="horizontal-nav">
+        <div class="nav-container">
+            <div class="nav-toggle" onclick="toggleHorizontalMenu()">
+                <i class="fas fa-bars"></i>
+                <span>MENU</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html"><i class="fas fa-home"></i><span>Home</span></a></li>
+                <li><a href="curriculum.html"><i class="fas fa-scroll"></i><span>Curriculum</span></a></li>
+                <li><a href="projetos.html"><i class="fas fa-code-branch"></i><span>All Projects</span></a></li>
+                <li><a href="mentors.html"><i class="fas fa-users"></i><span>Mentors</span></a></li>
+                <li><a href="certificates-in-progress.html"><i class="fas fa-certificate"></i><span>Certificates</span></a></li>
+                <li><a href="interactive-projects.html"><i class="fas fa-project-diagram"></i><span>Interactive</span></a></li>
+                <li><a href="galeria-midia.html"><i class="fas fa-images"></i><span>Media Gallery</span></a></li>
+                <li><a href="relatorios-galeria.html" class="active"><i class="fas fa-chart-line"></i><span>Reports</span></a></li>
+                <li><a href="games.html"><i class="fas fa-gamepad"></i><span>Games</span></a></li>                <li><a href="../login.html" class="login-link"><i class="fas fa-user-alt"></i><span>Login</span></a></li>
+            </ul>
         </div>
-    </nav>    <!-- Conteúdo Principal -->
+    </nav>
+
+    <!-- Conteúdo Principal -->
     <main class="reports-gallery-container">
         <!-- Cabeçalho -->
             <div class="reports-gallery-header">
@@ -618,12 +619,54 @@
                 menu.classList.remove('menu-aberto');
                 menu.classList.add('menu-fechado');
             }
-        });
-
-        // Inicializar controle de página
+        });        // Inicializar controle de página
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof initPageControl === 'function') {
                 initPageControl('relatorios-galeria');
+            }
+        });
+
+        // Função para o novo menu horizontal
+        function toggleHorizontalMenu() {
+            const navMenu = document.querySelector('.nav-menu');
+            const navToggle = document.querySelector('.nav-toggle');
+            
+            if (navMenu) {
+                navMenu.classList.toggle('active');
+                
+                // Animar o ícone do toggle
+                const icon = navToggle.querySelector('i');
+                if (navMenu.classList.contains('active')) {
+                    icon.className = 'fas fa-times';
+                } else {
+                    icon.className = 'fas fa-bars';
+                }
+            }
+        }
+
+        // Fechar menu horizontal ao clicar fora
+        document.addEventListener('click', function(e) {
+            const navMenu = document.querySelector('.nav-menu');
+            const navToggle = document.querySelector('.nav-toggle');
+            
+            if (navMenu && navMenu.classList.contains('active')) {
+                if (!navMenu.contains(e.target) && !navToggle.contains(e.target)) {
+                    navMenu.classList.remove('active');
+                    const icon = navToggle.querySelector('i');
+                    icon.className = 'fas fa-bars';
+                }
+            }
+        });
+
+        // Fechar menu horizontal ao redimensionar a tela
+        window.addEventListener('resize', function() {
+            const navMenu = document.querySelector('.nav-menu');
+            const navToggle = document.querySelector('.nav-toggle');
+            
+            if (window.innerWidth > 768 && navMenu && navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+                const icon = navToggle.querySelector('i');
+                icon.className = 'fas fa-bars';
             }
         });
     </script>

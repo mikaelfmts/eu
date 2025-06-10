@@ -1039,6 +1039,15 @@ body {
         margin: 0.8rem auto;
     }
     
+    /* Ajuste específico para o profile-status em mobile */
+    .profile-status {
+        position: static;
+        margin-top: 0.5rem;
+        align-self: center;
+        font-size: 0.6rem;
+        padding: 0.15rem 0.4rem;
+    }
+    
     .tech-stack {
         justify-content: center;
         gap: 0.6rem;
@@ -1103,6 +1112,13 @@ body {
     .profile-image {
         width: 80px;
         height: 80px;
+    }
+    
+    /* Ajuste adicional para o profile-status em telas muito pequenas */
+    .profile-status {
+        font-size: 0.55rem;
+        padding: 0.1rem 0.3rem;
+        margin-top: 0.3rem;
     }
     
     .titulo-principal {

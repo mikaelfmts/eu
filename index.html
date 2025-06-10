@@ -18,6 +18,8 @@
     
     <!-- Estilos -->
     <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/dashboard-layout.css">
+    <link rel="stylesheet" href="assets/css/dashboard-enhancements.css">
     <link rel="stylesheet" href="assets/css/reports-styles.css">
     <link rel="stylesheet" href="assets/css/minerva-styles.css">
 
@@ -33,6 +35,7 @@
     <script type="module" src="assets/js/reports-index.js"></script>
     <script type="module" src="assets/js/minerva-assistant.js"></script>
     <script src="assets/js/page-control.js"></script>
+    <script src="assets/js/dashboard-interactive.js"></script>
     
     <!-- Controle de Página -->
     <script>
@@ -190,206 +193,508 @@
             <span>Explore</span>
         </div>
     </header>
-    <!-- Seção de Relatórios em Destaque -->
-    <section id="featured-reports" class="media-section">
-        <div class="container">
-            <h2 class="section-title">
-                <i class="fas fa-star"></i>
-                Featured Reports
-            </h2>
-            <div id="featured-reports-loading" class="loading-indicator">
-                <div class="loader"></div>
-                <p>Carregando relatórios em destaque...</p>
-            </div>
-            <div id="featured-reports-container" class="featured-media-container">
-                <!-- Relatórios em destaque serão carregados aqui -->
-            </div>
-        </div>
-    </section>
 
-    <!-- Seção de Mídia em Destaque -->
-    <section id="featured-media" class="media-section">
-        <div class="container">
-            <h2 class="section-title">
-                <i class="fas fa-star"></i>
-                Featured Media
-            </h2>
-            <div id="featured-media-loading" class="loading-indicator">
-                <div class="loader"></div>
-                <p>Carregando mídia em destaque...</p>
-            </div>
-            <div id="featured-media-container" class="featured-media-container">
-                <!-- Mídia em destaque será carregada aqui -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Seção de Relatórios Recentes -->
-    <section id="recent-reports" class="media-section">
-        <div class="container">
-            <h2 class="section-title">
-                <i class="fas fa-chart-line"></i>
-                Recent Reports
-            </h2>
-            <div id="recent-reports-loading" class="loading-indicator">
-                <div class="loader"></div>
-                <p>Carregando relatórios recentes...</p>
-            </div>
-            <div id="recent-reports-grid" class="recent-media-grid">
-                <!-- Relatórios recentes serão carregados aqui -->
-            </div>
-            <div class="view-all-link">
-                <a href="pages/relatorios-galeria.html" class="btn-view-all">
-                    <i class="fas fa-external-link-alt"></i>
-                    Ver Todos os Relatórios
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Seção de Posts Recentes da Galeria -->
-    <section id="recent-media" class="media-section">
-        <div class="container">
-            <h2 class="section-title">
-                <i class="fas fa-images"></i>
-                Recent Media Posts
-            </h2>
-            <div id="recent-media-loading" class="loading-indicator">
-                <div class="loader"></div>
-                <p>Carregando posts recentes...</p>
-            </div>
-            <div id="recent-media-grid" class="recent-media-grid">
-                <!-- Posts recentes serão carregados aqui -->
-            </div>
-            <div class="view-all-link">
-                <a href="pages/galeria-midia.html" class="btn-view-all">
-                    <i class="fas fa-external-link-alt"></i>
-                    Ver Galeria Completa
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Seção de Habilidades Técnicas -->
-    <section id="habilidades">
-        <h2>Technical Skills</h2>
-        <div class="skills-info">
-            <p style="text-align: center; color: #c8aa6e; font-style: italic; margin-bottom: 1rem; padding: 0.8rem; background: rgba(200, 170, 110, 0.1); border-radius: 8px; border-left: 4px solid #c8aa6e;">
-                <i class="fab fa-github" style="margin-right: 0.5rem;"></i>
-                <strong>Dados Reais em Tempo Real:</strong> Os percentuais exibidos são calculados automaticamente através da API do GitHub, 
-                analisando linguagens, frameworks e tecnologias utilizadas nos repositórios públicos do meu perfil.
-            </p>
-            <div style="text-align: center; margin-bottom: 1rem;">
-                <button onclick="clearSkillsCache(); location.reload();" style="background: rgba(200, 170, 110, 0.2); border: 1px solid rgba(200, 170, 110, 0.5); color: #c8aa6e; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.3s ease;">
-                    <i class="fas fa-sync-alt" style="margin-right: 0.5rem;"></i>Atualizar Skills
-                </button>
-            </div>
-        </div>
-        <div class="skills-grid">
-            <!-- Loading indicator -->
-            <div id="skills-loading" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
-                <div class="loader" style="margin: 0 auto 1rem;"></div>
-                <p style="color: #c8aa6e; margin-bottom: 0.5rem;"><strong>Analisando repositórios do GitHub...</strong></p>
-                <p style="color: #a09b8c; font-size: 0.8rem; opacity: 0.8;">Coletando dados de linguagens e tecnologias em tempo real</p>
-            </div>
-            
-            <!-- Skills cards will be populated dynamically -->
-        </div>
-    </section>
-
-    <!-- Seção de Games - Atalho Especial -->
-    <section id="games-section" class="games-highlight">
-        <div class="games-container">
-            <div class="games-content">
-                <div class="games-icon">
-                    🎮
+    <!-- Dashboard Principal - Layout Ultra Moderno -->
+    <main class="dashboard-layout">
+        
+        <!-- Search Bar Global - Mais Limpa -->
+        <section class="dashboard-search">
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="global-search" placeholder="Buscar projetos, relatórios, skills..." class="global-search-input">
+                    <div class="search-filters">
+                        <button class="search-filter active" data-filter="all">
+                            <i class="fas fa-th"></i>
+                            <span>Tudo</span>
+                        </button>
+                        <button class="search-filter" data-filter="reports">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Reports</span>
+                        </button>
+                        <button class="search-filter" data-filter="media">
+                            <i class="fas fa-images"></i>
+                            <span>Mídia</span>
+                        </button>
+                        <button class="search-filter" data-filter="projects">
+                            <i class="fas fa-code"></i>
+                            <span>Projetos</span>
+                        </button>
+                    </div>
                 </div>
-                <h2 class="games-title">Explore Meus Jogos</h2>
-                <p class="games-description">
-                    Descubra projetos interativos e jogos desenvolvidos com JavaScript, HTML5 Canvas e muito mais!
-                </p>
-                <div class="games-features">
-                    <span class="feature-tag">🕹️ Fehuna: Códigos Perdidos</span>
-                    <span class="feature-tag">🎯 Jogos Interativos</span>
-                    <span class="feature-tag">⚡ HTML5 Canvas</span>
-                </div>
-                <a href="pages/games.html" class="games-cta-button">
-                    <span class="button-text">🚀 Jogar Agora</span>
-                    <div class="button-glow"></div>
-                </a>
             </div>
-            <div class="games-visual">
-                <div class="game-preview">
-                    <div class="pixel-art">
-                        <div class="pixel-row">
-                            <div class="pixel green"></div>
-                            <div class="pixel green"></div>
-                            <div class="pixel blue"></div>
-                            <div class="pixel blue"></div>
+        </section>
+
+        <!-- Primeira Linha - Featured Content em Layout Horizontal -->
+        <section class="dashboard-row featured-row">
+            <div class="dashboard-container">
+                
+                <!-- Card de Relatórios em Destaque -->
+                <div class="dashboard-card featured-reports-card" data-category="reports">
+                    <div class="card-header">
+                        <div class="card-icon gradient-reports">
+                            <i class="fas fa-chart-line"></i>
                         </div>
-                        <div class="pixel-row">
-                            <div class="pixel green"></div>
-                            <div class="pixel yellow"></div>
-                            <div class="pixel yellow"></div>
-                            <div class="pixel blue"></div>
+                        <div class="card-title">
+                            <h3>Featured Reports</h3>
+                            <span class="card-subtitle">Análises Destacadas</span>
                         </div>
-                        <div class="pixel-row">
-                            <div class="pixel red"></div>
-                            <div class="pixel red"></div>
-                            <div class="pixel yellow"></div>
-                            <div class="pixel yellow"></div>
+                        <div class="card-actions">
+                            <button class="card-action-btn" onclick="refreshFeaturedReports()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <a href="pages/relatorios-galeria.html" class="card-action-btn">
+                                Ver Galeria
+                            </a>
                         </div>
-                        <div class="pixel-row">
-                            <div class="pixel red"></div>
-                            <div class="pixel purple"></div>
-                            <div class="pixel purple"></div>
-                            <div class="pixel orange"></div>
+                    </div>
+                    <div class="card-content">
+                        <div id="featured-reports-loading" class="loading-indicator">
+                            <div class="advanced-loader">
+                                <div class="loader-ring"></div>
+                                <div class="loader-text">Carregando análises...</div>
+                            </div>
+                        </div>
+                        <div id="featured-reports-container" class="featured-content-grid">
+                            <!-- Relatórios em destaque serão carregados aqui -->
+                        </div>
+                        <div class="card-stats">
+                            <span class="stat-item">
+                                <i class="fas fa-eye"></i>
+                                <span id="reports-views">0</span> visualizações
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-clock"></i>
+                                <span id="reports-updated">Agora</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card de Mídia em Destaque -->
+                <div class="dashboard-card featured-media-card" data-category="media">
+                    <div class="card-header">
+                        <div class="card-icon gradient-media">
+                            <i class="fas fa-images"></i>
+                        </div>
+                        <div class="card-title">
+                            <h3>Featured Media</h3>
+                            <span class="card-subtitle">Mídia Destacada</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="card-action-btn" onclick="refreshFeaturedMedia()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <a href="pages/galeria-midia.html" class="card-action-btn">
+                                Ver Galeria
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div id="featured-media-loading" class="loading-indicator">
+                            <div class="advanced-loader">
+                                <div class="loader-ring"></div>
+                                <div class="loader-text">Carregando mídia...</div>
+                            </div>
+                        </div>
+                        <div id="featured-media-container" class="featured-content-grid">
+                            <!-- Mídia em destaque será carregada aqui -->
+                        </div>
+                        <div class="card-stats">
+                            <span class="stat-item">
+                                <i class="fas fa-heart"></i>
+                                <span id="media-likes">0</span> curtidas
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-share"></i>
+                                <span id="media-shares">0</span> compartilhamentos
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card de Games - Redesenhado -->
+                <div class="dashboard-card games-card interactive-card" data-category="projects">
+                    <div class="card-header">
+                        <div class="card-icon gradient-games">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <div class="card-title">
+                            <h3>Interactive Games</h3>
+                            <span class="card-subtitle">Jogos & Projetos</span>
+                        </div>
+                        <div class="card-actions">
+                            <div class="game-status online">
+                                <div class="status-dot"></div>
+                                <span>Online</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content games-content">
+                        <div class="games-showcase">
+                            <div class="game-preview-container">
+                                <div class="game-thumbnail">
+                                    <div class="pixel-animation">
+                                        <div class="pixel-grid">
+                                            <div class="pixel active"></div>
+                                            <div class="pixel"></div>
+                                            <div class="pixel active"></div>
+                                            <div class="pixel"></div>
+                                            <div class="pixel"></div>
+                                            <div class="pixel active"></div>
+                                            <div class="pixel"></div>
+                                            <div class="pixel active"></div>
+                                            <div class="pixel"></div>
+                                        </div>
+                                    </div>
+                                    <div class="play-overlay">
+                                        <i class="fas fa-play"></i>
+                                    </div>
+                                </div>
+                                <div class="game-info">
+                                    <h4>Fehuna: Códigos Perdidos</h4>
+                                    <p>RPG educativo com elementos de programação</p>
+                                    <div class="game-tech-stack">
+                                        <span class="tech-badge">JavaScript</span>
+                                        <span class="tech-badge">HTML5 Canvas</span>
+                                        <span class="tech-badge">WebGL</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="games-actions">
+                                <a href="pages/games.html" class="primary-game-btn">
+                                    <i class="fas fa-rocket"></i>
+                                    <span>Jogar Agora</span>
+                                    <div class="btn-glow"></div>
+                                </a>
+                                <button class="secondary-game-btn" onclick="showGameInfo()">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Mais Info</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- GitHub Profile Section -->
-    <section id="github-profile-section">
-        <h2>Meu Perfil GitHub</h2>
-        <div id="github-profile" class="github-profile-container">
-            <!-- O conteúdo será preenchido pelo JavaScript -->
-            <div class="loader"></div>
-        </div>
-    </section>
+        <!-- Segunda Linha - Recent Content Redesenhado -->
+        <section class="dashboard-row recent-row">
+            <div class="dashboard-container">
+                
+                <!-- Card Unificado de Recent Content -->
+                <div class="dashboard-card recent-unified-card" data-category="content">
+                    <div class="card-header">
+                        <div class="card-icon gradient-recent">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="card-title">
+                            <h3>Recent Activity</h3>
+                            <span class="card-subtitle">Atividades Recentes</span>
+                        </div>
+                        <div class="card-actions">
+                            <div class="activity-stats">
+                                <span class="activity-stat">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span id="total-reports">0</span>
+                                </span>
+                                <span class="activity-stat">
+                                    <i class="fas fa-images"></i>
+                                    <span id="total-media">0</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="recent-tabs">
+                            <button class="recent-tab active" data-tab="reports">
+                                <i class="fas fa-chart-bar"></i>
+                                Reports
+                            </button>
+                            <button class="recent-tab" data-tab="media">
+                                <i class="fas fa-photo-video"></i>
+                                Media
+                            </button>
+                        </div>
+                        
+                        <!-- Reports View -->
+                        <div class="recent-tab-content active" data-tab="reports">
+                            <div class="reports-grid">
+                                <div id="recent-reports-loading" class="loading-indicator">
+                                    <div class="advanced-loader">
+                                        <div class="loader-ring"></div>
+                                        <div class="loader-text">Carregando relatórios...</div>
+                                    </div>
+                                </div>
+                                <div id="recent-reports-grid" class="content-grid">
+                                    <!-- Relatórios recentes serão carregados aqui -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Media View -->
+                        <div class="recent-tab-content" data-tab="media">
+                            <div class="media-gallery">
+                                <div id="recent-media-loading" class="loading-indicator">
+                                    <div class="advanced-loader">
+                                        <div class="loader-ring"></div>
+                                        <div class="loader-text">Carregando mídia...</div>
+                                    </div>
+                                </div>
+                                <div id="recent-media-grid" class="media-grid">
+                                    <!-- Posts recentes serão carregados aqui -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <!-- GitHub Repos Section -->
-    <section id="github-repos-section">
-        <h2>Meus Repositórios GitHub</h2>
-        <div id="github-repos" class="github-repos-container">
-            <!-- O conteúdo será preenchido pelo JavaScript -->
-            <div class="loader"></div>
-        </div>
-    </section>
+        <!-- Terceira Linha - Skills & GitHub Redesenhado -->
+        <section class="dashboard-row tech-row">
+            <div class="dashboard-container">
+                
+                <!-- Card de Technical Skills Melhorado -->
+                <div class="dashboard-card skills-card enhanced-card" data-category="skills">
+                    <div class="card-header">
+                        <div class="card-icon gradient-skills">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div class="card-title">
+                            <h3>Technical Skills</h3>
+                            <span class="card-subtitle">Tecnologias & Linguagens</span>
+                        </div>
+                        <div class="card-actions">
+                            <div class="skills-summary">
+                                <span class="skill-count">
+                                    <i class="fab fa-github"></i>
+                                    <span id="total-skills">0</span> skills
+                                </span>
+                            </div>
+                            <button onclick="clearSkillsCache(); location.reload();" class="card-action-btn">
+                                <i class="fas fa-sync-alt"></i>
+                                Atualizar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="skills-info-banner">
+                            <div class="info-icon">
+                                <i class="fab fa-github"></i>
+                            </div>
+                            <div class="info-text">
+                                <span class="info-title">Dados em Tempo Real</span>
+                                <span class="info-description">Extraído automaticamente dos repositórios GitHub</span>
+                            </div>
+                        </div>
+                        
+                        <div class="skills-container">
+                            <div id="skills-loading" class="skills-loading">
+                                <div class="advanced-loader">
+                                    <div class="loader-ring"></div>
+                                    <div class="loader-text">Analisando repositórios...</div>
+                                </div>
+                            </div>
+                            <div class="skills-grid enhanced-skills-grid">
+                                <!-- Skills cards will be populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    <!-- Redes Sociais -->
-    <section class="redes-sociais">
-        <h2>My Social Media</h2>
-        <div class="botoes-redes">
-            <a href="https://www.linkedin.com/in/mikaelferreira/" target="_blank" class="social-btn linkedin">
-                <i class="fab fa-linkedin"></i>
-            </a>
-            <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-btn tiktok">
-                <i class="fab fa-tiktok"></i>
-            </a>
-            <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-btn reddit">
-                <i class="fab fa-reddit"></i>
-            </a>
-            <a href="https://discord.gg/fffen2a4" target="_blank" class="social-btn discord">
-                <i class="fab fa-discord"></i>
-            </a>
-            <a href="https://github.com/mikaelfmts" target="_blank" class="social-btn github">
-                <i class="fab fa-github"></i>
-            </a>
-        </div>
-    </section>
+                <!-- Card de GitHub Melhorado -->
+                <div class="dashboard-card github-card enhanced-card" data-category="github">
+                    <div class="card-header">
+                        <div class="card-icon gradient-github">
+                            <i class="fab fa-github"></i>
+                        </div>
+                        <div class="card-title">
+                            <h3>GitHub Activity</h3>
+                            <span class="card-subtitle">Projetos & Repositórios</span>
+                        </div>
+                        <div class="card-actions">
+                            <div class="github-stats">
+                                <span class="github-stat">
+                                    <i class="fas fa-code-branch"></i>
+                                    <span id="total-repos">0</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content github-content">
+                        <div class="github-tabs">
+                            <button class="github-tab active" data-tab="overview">
+                                <i class="fas fa-user"></i>
+                                Overview
+                            </button>
+                            <button class="github-tab" data-tab="repos">
+                                <i class="fas fa-folder"></i>
+                                Repos
+                            </button>
+                            <button class="github-tab" data-tab="activity">
+                                <i class="fas fa-chart-line"></i>
+                                Activity
+                            </button>
+                        </div>
+                        
+                        <!-- GitHub Overview -->
+                        <div class="github-tab-content active" data-tab="overview">
+                            <div id="github-profile" class="github-profile-enhanced">
+                                <div class="advanced-loader">
+                                    <div class="loader-ring"></div>
+                                    <div class="loader-text">Carregando perfil...</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- GitHub Repositories -->
+                        <div class="github-tab-content" data-tab="repos">
+                            <div class="repos-container">
+                                <div class="repos-header">
+                                    <div class="repos-filter">
+                                        <button class="filter-btn active" data-filter="all">Todos</button>
+                                        <button class="filter-btn" data-filter="recent">Recentes</button>
+                                        <button class="filter-btn" data-filter="popular">Populares</button>
+                                    </div>
+                                </div>
+                                <div id="github-repos" class="repos-grid">
+                                    <div class="advanced-loader">
+                                        <div class="loader-ring"></div>
+                                        <div class="loader-text">Carregando repositórios...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- GitHub Activity -->
+                        <div class="github-tab-content" data-tab="activity">
+                            <div class="activity-metrics">
+                                <div class="metric-item">
+                                    <div class="metric-icon">📊</div>
+                                    <div class="metric-info">
+                                        <span class="metric-label">Contribuições</span>
+                                        <span class="metric-value" id="github-contributions">0</span>
+                                    </div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-icon">⭐</div>
+                                    <div class="metric-info">
+                                        <span class="metric-label">Stars</span>
+                                        <span class="metric-value" id="github-stars">0</span>
+                                    </div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-icon">🍴</div>
+                                    <div class="metric-info">
+                                        <span class="metric-label">Forks</span>
+                                        <span class="metric-value" id="github-forks">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quarta Linha - Social e LinkedIn -->
+        <section class="dashboard-row social-row">
+            <div class="dashboard-container">
+                
+                <!-- Card de Redes Sociais -->
+                <div class="dashboard-card social-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-share-alt"></i>
+                        </div>
+                        <div class="card-title">
+                            <h3>Social Media</h3>
+                            <span class="card-subtitle">Conecte-se comigo</span>
+                        </div>
+                    </div>
+                    <div class="card-content social-content">
+                        <div class="social-grid">
+                            <a href="https://www.linkedin.com/in/mikaelferreira/" target="_blank" class="social-btn linkedin">
+                                <i class="fab fa-linkedin"></i>
+                                <span>LinkedIn</span>
+                            </a>
+                            <a href="https://github.com/mikaelfmts" target="_blank" class="social-btn github">
+                                <i class="fab fa-github"></i>
+                                <span>GitHub</span>
+                            </a>
+                            <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-btn tiktok">
+                                <i class="fab fa-tiktok"></i>
+                                <span>TikTok</span>
+                            </a>
+                            <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-btn reddit">
+                                <i class="fab fa-reddit"></i>
+                                <span>Reddit</span>
+                            </a>
+                            <a href="https://discord.gg/fffen2a4" target="_blank" class="social-btn discord">
+                                <i class="fab fa-discord"></i>
+                                <span>Discord</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card de LinkedIn -->
+                <div class="dashboard-card linkedin-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fab fa-linkedin"></i>
+                        </div>
+                        <div class="card-title">
+                            <h3>LinkedIn</h3>
+                            <span class="card-subtitle">Rede Profissional</span>
+                        </div>
+                    </div>
+                    <div class="card-content linkedin-content">
+                        <p>Acompanhe minha jornada profissional e vamos expandir nossa rede de contatos!</p>
+                        <a href="https://www.linkedin.com/in/mikaelferreira/" target="_blank" class="linkedin-connect-btn">
+                            <i class="fab fa-linkedin"></i>
+                            <span>Conectar</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card de Quick Links -->
+                <div class="dashboard-card quick-links-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div class="card-title">
+                            <h3>Quick Access</h3>
+                            <span class="card-subtitle">Acesso Rápido</span>
+                        </div>
+                    </div>
+                    <div class="card-content quick-links-content">
+                        <div class="quick-links-grid">
+                            <a href="pages/curriculum.html" class="quick-link">
+                                <i class="fas fa-scroll"></i>
+                                <span>Currículo</span>
+                            </a>
+                            <a href="pages/projetos.html" class="quick-link">
+                                <i class="fas fa-code-branch"></i>
+                                <span>Projetos</span>
+                            </a>
+                            <a href="pages/certificates-in-progress.html" class="quick-link">
+                                <i class="fas fa-certificate"></i>
+                                <span>Certificados</span>
+                            </a>
+                            <a href="pages/interactive-projects.html" class="quick-link">
+                                <i class="fas fa-project-diagram"></i>
+                                <span>Interativos</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
 
 <!-- Chatbot -->
 <div id="chatbot">

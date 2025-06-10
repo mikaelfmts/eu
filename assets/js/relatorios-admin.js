@@ -253,12 +253,12 @@ async function handleReportSubmit(event) {
             // Upload do arquivo
             embedUrl = await uploadFile(file);
         }
-        
-        const reportData = {
+          const reportData = {
             title: formData.get('title').trim(),
             description: formData.get('description').trim(),
             type: formData.get('type'),
             embedUrl: embedUrl,
+            previewImage: formData.get('previewImage').trim() || null, // Adicionar campo de imagem
             sourceType: sourceType,
             visible: formData.get('visible') === 'on',
             createdAt: serverTimestamp(),
@@ -352,17 +352,26 @@ function createReportElement(report) {
     
     const icon = typeIcons[report.type] || typeIcons.other;
     const typeLabel = typeLabels[report.type] || typeLabels.other;
-    
-    const createdAt = report.createdAt && report.createdAt.toDate ? 
+      const createdAt = report.createdAt && report.createdAt.toDate ? 
         report.createdAt.toDate().toLocaleDateString('pt-BR') : 
         'Data não disponível';
     
     div.innerHTML = `
         <div class="report-preview">
-            <div class="report-icon">
-                <i class="${icon}"></i>
-            </div>
-            <div class="report-type-label">${typeLabel}</div>
+            ${report.previewImage ? 
+                `<div style="position: relative; height: 200px; overflow: hidden; border-radius: 8px;">
+                    <img src="${report.previewImage}" 
+                         alt="Preview do ${report.title}"
+                         style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; top: 10px; right: 10px;">
+                        <div class="report-type-label">${typeLabel}</div>
+                    </div>
+                </div>` :
+                `<div class="report-icon">
+                    <i class="${icon}"></i>
+                </div>
+                <div class="report-type-label">${typeLabel}</div>`
+            }
         </div>
         <div class="p-4">
             <div class="flex justify-between items-start mb-2">
@@ -402,12 +411,12 @@ function createReportElement(report) {
 window.editReport = function(reportId) {
     const report = allReports.find(r => r.id === reportId);
     if (!report) return;
-    
-    // Preencher formulário
+      // Preencher formulário
     document.getElementById('report-title').value = report.title;
     document.getElementById('report-description').value = report.description || '';
     document.getElementById('report-type').value = report.type;
     document.getElementById('report-url').value = report.embedUrl;
+    document.getElementById('report-preview-image').value = report.previewImage || '';
     document.getElementById('report-visible').checked = report.visible;
     
     // Alterar para modo edição

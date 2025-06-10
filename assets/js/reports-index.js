@@ -135,17 +135,28 @@ function createRecentReportCard(report) {
     const createdAt = report.createdAt && report.createdAt.toDate ? 
         report.createdAt.toDate().toLocaleDateString('pt-BR') : 
         'Data não disponível';
-    
-    card.innerHTML = `
+      card.innerHTML = `
         <div class="media-preview-container">
-            <div class="report-preview">
-                <div class="report-icon">
-                    <i class="${icon}"></i>
-                </div>
-                <div class="report-type-badge">
-                    ${typeLabel}
-                </div>
-            </div>
+            ${report.previewImage ? 
+                `<div style="position: relative; height: 200px; overflow: hidden; border-radius: 8px;">
+                    <img src="${report.previewImage}" 
+                         alt="Preview do ${report.title}"
+                         style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; top: 10px; right: 10px;">
+                        <div class="report-type-badge">
+                            ${typeLabel}
+                        </div>
+                    </div>
+                </div>` :
+                `<div class="report-preview">
+                    <div class="report-icon">
+                        <i class="${icon}"></i>
+                    </div>
+                    <div class="report-type-badge">
+                        ${typeLabel}
+                    </div>
+                </div>`
+            }
         </div>
         <div class="media-info">
             <h3 class="media-title">${report.title}</h3>

@@ -219,11 +219,12 @@ class MinervaUltraAssistant {
                 "Suporte técnico para uso do site"
             ]
         };
-    }init() {
+    }    init() {
         this.createMinervaUI();
         this.setupEventListeners();
         // this.setupAdvancedFeatures(); // Função não implementada
         this.startAmbientAnimation();
+        this.setupCTABehavior(); // Nova função para controlar o CTA
           // Inicializar dados do GitHub de forma assíncrona
         this.enrichKnowledgeWithGitHub()
             .then(() => {
@@ -244,8 +245,12 @@ class MinervaUltraAssistant {
         // Criar container da Minerva Ultra
         const minervaContainer = document.createElement('div');
         minervaContainer.id = 'minerva-container';
-        minervaContainer.classList.add('minerva-container');
-        minervaContainer.innerHTML = `
+        minervaContainer.classList.add('minerva-container');        minervaContainer.innerHTML = `
+            <!-- CTA Discreto -->
+            <div class="minerva-cta" id="minerva-cta">
+                Fale com a Minerva
+            </div>
+            
             <!-- Sistema de Partículas -->
             <div class="minerva-particles">
                 <div class="minerva-particle"></div>
@@ -694,7 +699,7 @@ class MinervaUltraAssistant {
         
         // Ativar modo ultra visual
         this.activateUltraMode();
-    }    createOverlay() {
+    }createOverlay() {
         // Remover overlay existente se houver
         const existingOverlay = document.getElementById('minerva-overlay');
         if (existingOverlay) {
@@ -2063,6 +2068,27 @@ PERGUNTA DO USUÁRIO: ${question}`;
             contextualHelp: true,
             proactiveAssistance: true
         };
+    }    setupCTABehavior() {
+        const cta = document.getElementById('minerva-cta');
+        
+        if (!cta) return;
+        
+        // Animação sutil ocasional para chamar atenção (apenas quando não está ativo)
+        const addSubtleAnimation = () => {
+            if (!this.isActive) {
+                cta.classList.add('pulse');
+                
+                setTimeout(() => {
+                    cta.classList.remove('pulse');
+                }, 3000);
+            }
+        };
+        
+        // Adicionar animação sutil a cada 45 segundos
+        setInterval(addSubtleAnimation, 45000);
+        
+        // Primeira animação após 15 segundos
+        setTimeout(addSubtleAnimation, 15000);
     }
 }
 

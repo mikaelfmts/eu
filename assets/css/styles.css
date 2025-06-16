@@ -199,6 +199,21 @@ html {
     width: 80%;
 }
 
+/* LinkedIn icon special styling */
+.nav-menu a[href*="linkedin"] i {
+    color: #0a66c2; /* LinkedIn blue */
+}
+
+.nav-menu a[href*="linkedin"]:hover {
+    background: rgba(10, 102, 194, 0.1);
+    color: #0a66c2;
+    box-shadow: 0 5px 15px rgba(10, 102, 194, 0.3);
+}
+
+.nav-menu a[href*="linkedin"]:hover i {
+    color: #0a66c2;
+}
+
 /* Responsividade do Menu Horizontal */
 @media (max-width: 1024px) {
     .nav-menu a {

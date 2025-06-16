@@ -476,16 +476,26 @@
             
             const createdAt = report.createdAt && report.createdAt.toDate ? 
                 report.createdAt.toDate().toLocaleDateString('pt-BR') : 
-                'Data não disponível';
-
-            card.innerHTML = `
+                'Data não disponível';            card.innerHTML = `
                 <div class="report-card-preview">
-                    <div class="report-card-icon">
-                        <i class="${icon}"></i>
-                    </div>
-                    <div class="report-card-type">
-                        ${typeLabel}
-                    </div>
+                    ${report.previewImage ? 
+                        `<div style="position: relative; height: 100%; overflow: hidden;">
+                            <img src="${report.previewImage}" 
+                                 alt="Preview do ${report.title}"
+                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px 8px 0 0;">
+                            <div style="position: absolute; top: 10px; right: 10px;">
+                                <div class="report-card-type">
+                                    ${typeLabel}
+                                </div>
+                            </div>
+                        </div>` :
+                        `<div class="report-card-icon">
+                            <i class="${icon}"></i>
+                        </div>
+                        <div class="report-card-type">
+                            ${typeLabel}
+                        </div>`
+                    }
                 </div>
                 <div class="report-card-content">
                     <h3 class="report-card-title">${report.title}</h3>

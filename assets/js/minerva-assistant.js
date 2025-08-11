@@ -920,25 +920,85 @@ class MinervaUltraAssistant {
         const messagesContainer = document.getElementById('minerva-messages');
         const messageDiv = document.createElement('div');
         messageDiv.className = `minerva-message ${type}`;
+        const contentHTML = this.renderRichText(String(message || ''));
         
         if (type === 'user') {
             messageDiv.innerHTML = `
                 <div class="message-content user-message">
                     <i class="fas fa-user"></i>
-                    <div class="message-text">${message}</div>
+                    <div class="message-text">${contentHTML}</div>
                 </div>
             `;
         } else {
             messageDiv.innerHTML = `
                 <div class="message-content assistant-message">
                     <i class="fas fa-feather-alt"></i>
-                    <div class="message-text">${message}</div>
+                    <div class="message-text">${contentHTML}</div>
                 </div>
             `;
         }
         
         messagesContainer.appendChild(messageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // ========== RICH TEXT RENDERER (Markdown leve + Emoji) ==========
+    escapeHTML(unsafe) {
+        return unsafe
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    renderRichText(text) {
+        // 1) Escape tudo para evitar XSS
+        let html = this.escapeHTML(text);
+
+        // 2) Converte shortcodes de emoji :smile: -> 😄 (mapeamento básico)
+        const emojiMap = {
+            smile: '😄', grin: '😁', joy: '😂', wink: '😉', sunglasses: '😎',
+            fire: '🔥', star: '⭐', rocket: '🚀', heart: '❤️', hearts: '💕', clap: '👏',
+            trophy: '🏆', party_popper: '🎉', tada: '🎉', thumbs_up: '👍', thumbsup: '👍',
+            sparkle: '✨', owl: '🦉', thinking: '🤔', wave: '👋'
+        };
+        html = html.replace(/:([a-z0-9_+\-]+):/gi, (m, code) => emojiMap[code] || m);
+
+        // 3) Inline code `code`
+        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+        // 4) Bold forte: **texto** ou __texto__
+        html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/__([^_]+)__/g, '<strong>$1</strong>');
+
+        // 5) Itálico: *texto* ou _texto_
+        html = html.replace(/(^|\W)\*([^*]+)\*(?=\W|$)/g, '$1<em>$2</em>');
+        html = html.replace(/(^|\W)_([^_]+)_(?=\W|$)/g, '$1<em>$2</em>');
+
+        // 6) Links markdown [texto](url)
+        html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
+        // 7) URLs diretas
+        html = html.replace(/(https?:\/\/[\w\-._~:/?#\[\]@!$&'()*+,;=%]+)(?![^<]*>|[^<>]*<\/(?:a|code)>)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+
+        // 8) Listas simples (- ou *) por linha
+        const lines = html.split(/\r?\n/);
+        let inList = false;
+        const out = [];
+        for (const line of lines) {
+            if (/^\s*[-*]\s+/.test(line)) {
+                if (!inList) { out.push('<ul class="msg-list">'); inList = true; }
+                out.push('<li>' + line.replace(/^\s*[-*]\s+/, '') + '</li>');
+            } else {
+                if (inList) { out.push('</ul>'); inList = false; }
+                out.push(line);
+            }
+        }
+        if (inList) out.push('</ul>');
+        html = out.join('<br>');
+
+        return html;
     }
 
     async processQuestion(question) {

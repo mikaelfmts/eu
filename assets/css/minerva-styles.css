@@ -72,14 +72,14 @@
 }
 
 .minerva-owl:hover {
-    transform: scale(1.08);
-    filter: drop-shadow(0 0 30px rgba(200, 155, 60, 0.7));
+    transform: scale(1.08) rotate(-2deg);
+    filter: drop-shadow(0 0 30px rgba(200, 155, 60, 0.7)) saturate(1.1);
 }
 
 .minerva-owl.active {
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 40px rgba(200, 155, 60, 0.9));
-    animation: owlPulse 2s ease-in-out infinite;
+    transform: scale(1.1) rotate(1deg);
+    filter: drop-shadow(0 0 40px rgba(200, 155, 60, 0.9)) saturate(1.15);
+    animation: owlPulse 2s ease-in-out infinite, headTilt 6s ease-in-out infinite;
 }
 
 .minerva-owl.thinking {
@@ -229,6 +229,22 @@
     pointer-events: none;
 }
 
+/* Pálpebra (piscar) */
+.eye::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0%;
+    background: linear-gradient(to bottom, rgba(58, 46, 35, 0.95), rgba(0,0,0,0.6));
+    border-bottom-left-radius: 50%;
+    border-bottom-right-radius: 50%;
+    animation: blink 6.5s ease-in-out infinite;
+    transform-origin: top;
+    pointer-events: none;
+}
+
 .pupil {
     width: 14px;
     height: 14px;
@@ -240,8 +256,9 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+    animation: pupilBreath 3.5s ease-in-out infinite;
 }
 
 .pupil::after {
@@ -936,6 +953,52 @@ body.modal-open {
 }
 
 /* Animações */
+@keyframes owlPulse {
+    0%, 100% { transform: scale(1.1) rotate(1deg); }
+    50% { transform: scale(1.15) rotate(-1deg); }
+}
+
+@keyframes owlThinking {
+    0%, 100% { transform: translateY(0) scale(1.08); }
+    50% { transform: translateY(-2px) scale(1.1); }
+}
+
+@keyframes owlGlow {
+    0%, 100% { filter: drop-shadow(0 0 20px rgba(200, 155, 60, 0.4)); }
+    50% { filter: drop-shadow(0 0 35px rgba(200, 155, 60, 0.85)); }
+}
+
+@keyframes headTilt {
+    0%, 100% { transform: rotate(1deg); }
+    25% { transform: rotate(-1deg); }
+    50% { transform: rotate(2deg); }
+    75% { transform: rotate(0deg); }
+}
+
+@keyframes pupilBreath {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 8px rgba(0,0,0,0.6); }
+    50% { transform: translate(-50%, -50%) scale(1.07); box-shadow: 0 0 10px rgba(0,0,0,0.7); }
+}
+
+@keyframes auraRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes leftWingFlap {
+    0%, 100% { transform: rotate(-25deg); }
+    50% { transform: rotate(-15deg); }
+}
+
+@keyframes rightWingFlap {
+    0%, 100% { transform: rotate(25deg); }
+    50% { transform: rotate(15deg); }
+}
+
+@keyframes particleOrbit {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 @keyframes statusPulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
@@ -950,6 +1013,13 @@ body.modal-open {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Animação de piscar */
+@keyframes blink {
+    0%, 92%, 100% { height: 0%; }
+    94% { height: 100%; }
+    96% { height: 0%; }
 }
 
 /* Melhorias para funcionalidade de drag */

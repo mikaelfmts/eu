@@ -187,11 +187,56 @@
         </div>
         
         <!-- Scroll Indicator -->
-        <div class="scroll-indicator">
+        <a href="#professional-summary" class="scroll-indicator" aria-label="Ir para resumo profissional">
             <i class="fas fa-chevron-down"></i>
             <span>Explore</span>
-        </div>
+        </a>
     </header>
+    
+    <!-- Resumo Profissional / Destaques -->
+    <section id="professional-summary" class="media-section" aria-labelledby="summary-title">
+        <div class="container">
+            <h2 id="summary-title" class="section-title">
+                <i class="fas fa-user-tie"></i>
+                Resumo Profissional
+            </h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; align-items: start;">
+                <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; box-shadow: var(--shadow-medium);">
+                    <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 0.75rem;">
+                        Desenvolvedor Web Full Stack focado em entregar produtos performáticos, escaláveis e com excelente experiência do usuário.
+                    </p>
+                    <ul style="color: var(--text-primary); list-style: none; padding-left: 0; display: grid; gap: 0.5rem;">
+                        <li><i class="fas fa-check" style="color: var(--primary-color); margin-right: .6rem;"></i>Front-end moderno (HTML5, CSS3, JS ES6+, React)</li>
+                        <li><i class="fas fa-check" style="color: var(--primary-color); margin-right: .6rem;"></i>Back-end serverless com Firebase (Auth, Firestore, Storage)</li>
+                        <li><i class="fas fa-check" style="color: var(--primary-color); margin-right: .6rem;"></i>Integrações com GitHub, PWA e automações</li>
+                        <li><i class="fas fa-check" style="color: var(--primary-color); margin-right: .6rem;"></i>UI/UX inspirado no ecossistema Riot/LoL, responsivo</li>
+                    </ul>
+                </div>
+                <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; box-shadow: var(--shadow-medium);">
+                    <div class="github-stats" style="margin: .25rem 0 1rem; gap: 1.25rem;">
+                        <div class="stat">
+                            <span class="stat-value">5+ anos</span>
+                            <span class="stat-label">Experiência</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">40+</span>
+                            <span class="stat-label">Projetos</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">GitHub</span>
+                            <span class="stat-label">Dados em tempo real</span>
+                        </div>
+                    </div>
+                    <div style="text-align:center;">
+                        <a href="pages/curriculum.html" class="action-btn primary" style="text-decoration:none;">
+                            <i class="fas fa-file-download"></i>
+                            Baixar Currículo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
     <!-- Seção de Relatórios em Destaque -->
     <section id="featured-reports" class="media-section">
         <div class="container">

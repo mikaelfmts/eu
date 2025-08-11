@@ -19,7 +19,7 @@ class MinervaUltraAssistant {
             questionsAsked: 0,
             topics: [],
             startTime: Date.now(),
-            userPreferences: {},
+            userPreferences: { responseStyle: 'concise' },
             conversationHistory: []
         };
         
@@ -40,6 +40,31 @@ class MinervaUltraAssistant {
             },
             lastFetch: 0,
             cacheDuration: 15 * 60 * 1000 // 15 minutos cache para Minerva
+        };
+
+        // Indexador de conteúdo do site
+        this.siteIndex = new Map();
+        this.siteIndexReady = false;
+        this.siteIndexer = {
+            enabled: true,
+            ttlMs: 24 * 60 * 60 * 1000,
+            storageKey: 'minervaSiteIndex_v1',
+            pages: [
+                'index.html',
+                'admin.html',
+                'login.html',
+                'curriculo-generator.html',
+                'midia-admin.html',
+                'relatorios-admin.html',
+                'pages/curriculum.html',
+                'pages/projetos.html',
+                'pages/mentors.html',
+                'pages/linkedin.html',
+                'pages/certificates-in-progress.html',
+                'pages/interactive-projects.html',
+                'pages/galeria-midia.html',
+                'pages/relatorios-galeria.html'
+            ]
         };
         
         this.init();
@@ -224,6 +249,8 @@ class MinervaUltraAssistant {
         this.setupEventListeners();
         // this.setupAdvancedFeatures(); // Função não implementada
         this.startAmbientAnimation();
+        // Inicializa indexação de conteúdo do site para contexto aprimorado
+        this.bootstrapSiteIndexer();
           // Inicializar dados do GitHub de forma assíncrona
         this.enrichKnowledgeWithGitHub()
             .then(() => {
@@ -664,6 +691,102 @@ class MinervaUltraAssistant {
         return pageMap[page] || 'unknown';
     }
 
+    // ========== SITE INDEXER (melhor compreensão do portfolio) ==========
+    bootstrapSiteIndexer() {
+        try {
+            if (!this.siteIndexer.enabled) return;
+            // Tenta carregar do localStorage
+            const raw = localStorage.getItem(this.siteIndexer.storageKey);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (parsed.expiresAt && parsed.expiresAt > Date.now() && parsed.index) {
+                    this.siteIndex = new Map(parsed.index);
+                    this.siteIndexReady = true;
+                }
+            }
+
+            // Atualiza em background
+            this.buildSiteIndexInBackground();
+        } catch (e) {
+            console.log('⚠️ Minerva: erro ao iniciar indexador do site:', e.message);
+        }
+    }
+
+    async buildSiteIndexInBackground() {
+        try {
+            const promises = this.siteIndexer.pages.map(async (page) => {
+                const summary = await this.extractPageSummarySafe(page);
+                if (summary) this.siteIndex.set(page, summary);
+            });
+            await Promise.all(promises);
+            this.siteIndexReady = true;
+
+            // Persistir em localStorage
+            const payload = {
+                index: Array.from(this.siteIndex.entries()),
+                createdAt: Date.now(),
+                expiresAt: Date.now() + this.siteIndexer.ttlMs
+            };
+            localStorage.setItem(this.siteIndexer.storageKey, JSON.stringify(payload));
+        } catch (e) {
+            console.log('⚠️ Minerva: erro ao construir índice do site:', e.message);
+        }
+    }
+
+    async extractPageSummarySafe(url) {
+        try {
+            const res = await fetch(url, { credentials: 'omit' });
+            if (!res.ok) return null;
+            const html = await res.text();
+            const summary = this.extractSummaryFromHTML(html, url);
+            return summary;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    extractSummaryFromHTML(html, url) {
+        // Parsing leve via regex para evitar custo de DOMParser em todos browsers
+        const titleMatch = html.match(/<title>([^<]+)<\/title>/i);
+        const metas = Array.from(html.matchAll(/<meta[^>]+(name|property)=["']([^"']+)["'][^>]*?(content)=["']([^"']+)["'][^>]*>/gi))
+            .map((m) => ({ key: m[2], value: m[4] }))
+            .filter(m => /description|og:title|og:description|keywords/i.test(m.key));
+        const h2s = Array.from(html.matchAll(/<h2[^>]*>([^<]+)<\/h2>/gi)).slice(0, 8).map(m => m[1].trim());
+        const links = Array.from(html.matchAll(/<a[^>]+href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gi))
+            .slice(0, 12)
+            .map(m => ({ href: m[1], text: m[2].replace(/<[^>]+>/g, '').trim() }))
+            .filter(l => l.text && l.href);
+
+        return {
+            url,
+            title: titleMatch ? titleMatch[1].trim() : null,
+            metas,
+            sections: h2s,
+            links
+        };
+    }
+
+    getIndexedPageSummary(currentPageKey) {
+        // Mapeia chave amigável para caminho real
+        const map = {
+            home: 'index.html',
+            admin: 'admin.html',
+            login: 'login.html',
+            curriculo: 'curriculo-generator.html',
+            'midia-admin': 'midia-admin.html',
+            projetos: 'pages/projetos.html',
+            certificados: 'pages/certificates-in-progress.html',
+            galeria: 'pages/galeria-midia.html',
+            games: 'pages/games.html'
+        };
+        const path = map[currentPageKey] || 'index.html';
+        return {
+            ready: this.siteIndexReady,
+            page: path,
+            summary: this.siteIndex.get(path) || null
+        };
+    }
+
     async toggleChat() {
         if (this.isActive) {
             this.closeChat();
@@ -860,6 +983,7 @@ class MinervaUltraAssistant {
         const pageInfo = this.getDetailedPageInfo(currentPage);
         const siteFeatures = this.getCurrentSiteFeatures();
         const userBehavior = this.analyzeUserBehavior();
+        const pageIndexData = this.getIndexedPageSummary(currentPage);
         
         return {
             currentPage,
@@ -869,6 +993,7 @@ class MinervaUltraAssistant {
             knowledgeBase: this.knowledgeBase,
             userSession: this.userSession,
             githubData: this.getGitHubDataFromCache(),
+            siteIndex: pageIndexData,
             timestamp: new Date().toISOString(),
             contextLevel: "ultra-detailed"
         };
@@ -1735,6 +1860,8 @@ FOCO: Combinar conhecimento técnico profundo com orientação prática
 
 PERGUNTA DO USUÁRIO: ${question}`;
 
+            // Ajustar estilo de resposta conforme preferência do usuário
+            const concise = this.userSession?.userPreferences?.responseStyle === 'concise';
             const response = await fetch(`${this.apiEndpoint}?key=${this.apiKey}`, {
                 method: 'POST',
                 headers: {
@@ -1743,14 +1870,14 @@ PERGUNTA DO USUÁRIO: ${question}`;
                 body: JSON.stringify({
                     contents: [{
                         parts: [{
-                            text: systemPrompt
+                            text: systemPrompt + `\n\nMODO DE RESPOSTA: ${concise ? 'Conciso, direto ao ponto, com bullets quando adequado. Inclua no máximo 6 bullets e 2 parágrafos curtos.' : 'Explicativo, porém objetivo. Primeiro um resumo em 2-3 frases, depois detalhes técnicos quando necessário.'}\nFORMATAÇÃO: Use listas curtas quando fizer sentido; evite rodeios. Sempre responda em português.\n\nCONTEÚDO DO SITE INDEXADO (se disponível):\n${JSON.stringify(context.siteIndex, null, 2)}`
                         }]
                     }],
                     generationConfig: {
-                        temperature: 0.7,
+                        temperature: concise ? 0.4 : 0.7,
                         topK: 40,
                         topP: 0.95,
-                        maxOutputTokens: 400,
+                        maxOutputTokens: concise ? 280 : 500,
                     }
                 })
             });
@@ -1857,8 +1984,19 @@ PERGUNTA DO USUÁRIO: ${question}`;
             }
         }
         
-        // Análise inteligente de intenções
+        // Análise inteligente de intenções (com modo conciso)
         if (lowerQuestion.includes('site') || lowerQuestion.includes('portfolio') || lowerQuestion.includes('como foi feito') || lowerQuestion.includes('desenvolvido')) {
+            const concise = this.userSession?.userPreferences?.responseStyle === 'concise';
+            if (concise) {
+                return (
+                    "Resumo do portfolio:\n" +
+                    "- SPA com HTML5/CSS3/JS ES6+\n" +
+                    "- Backend serverless com Firebase (Auth, Firestore, Storage)\n" +
+                    "- PWA, cache offline, partículas e Minerva (IA)\n" +
+                    "- Painel admin, gerador de currículo, galeria de mídia\n\n" +
+                    "Destaque: design inspirado em LoL/Riot, responsivo e otimizado (SEO + Web Vitals)."
+                );
+            }
             return "Este portfolio foi desenvolvido com uma arquitetura moderna e tecnologias avançadas. O site é uma SPA (Single Page Application) construída com HTML5, CSS3 e JavaScript vanilla ES6+, utilizando Firebase como backend serverless para autenticação, banco de dados Firestore e storage de arquivos.\n\nPrincipais recursos: Sistema de chat em tempo real, painel administrativo completo, PWA com cache offline, sistema de partículas interativo, gerador automático de currículo, galeria de mídia administrativa e esta assistente IA powered by Google Gemini & created by Mikael.\n\nA interface foi inspirada no visual de League of Legends/Riot Games, com design responsivo e animações fluidas. Todo o código é otimizado para performance e SEO.";
         }
           if (lowerQuestion.includes('tecnologia') || lowerQuestion.includes('stack') || lowerQuestion.includes('ferramentas') || lowerQuestion.includes('framework') || lowerQuestion.includes('linguagem') || lowerQuestion.includes('programming')) {
@@ -1996,6 +2134,7 @@ PERGUNTA DO USUÁRIO: ${question}`;
         this.userSession.questionsAsked = 0;
         this.userSession.topics = [];
         this.userSession.conversationHistory = [];
+        this.userSession.userPreferences = this.userSession.userPreferences || { responseStyle: 'concise' };
           // Limpar cache se necessário
         this.conversationCache.clear();
     }

@@ -694,6 +694,23 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* Rich text na mensagem */
+.message-content code {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(200,170,110,0.25);
+    padding: 0 4px;
+    border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.85em;
+}
+
+.message-content strong { color: var(--primary-color); }
+.message-content em { opacity: 0.95; }
+.message-content a { color: #4ea1ff; text-decoration: none; }
+.message-content a:hover { text-decoration: underline; }
+.message-content .msg-list { margin: 6px 0 6px 1.2rem; padding: 0; }
+.message-content .msg-list li { margin: 2px 0; }
+
 .message.user .message-content {
     background: linear-gradient(135deg, 
         rgba(200, 170, 110, 0.15) 0%, 

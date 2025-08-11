@@ -254,7 +254,12 @@ class MinervaUltraAssistant {
                 <div class="minerva-particle"></div>
                 <div class="minerva-particle"></div>
                 <div class="minerva-particle"></div>
-            </div>              <!-- Coruja Ultra Imponente e Realista -->
+            </div>
+
+            <!-- CTA Sutil acima da Minerva -->
+            <div class="minerva-cta">Fale com a Minerva</div>
+
+            <!-- Coruja Ultra Imponente e Realista -->
             <div id="minerva-owl" class="minerva-owl" title="Clique para falar com Minerva - Assistente IA Ultra Inteligente">
                 <div class="owl-head">
                     <div class="owl-tufts">

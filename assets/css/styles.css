@@ -1416,11 +1416,11 @@ header:hover {
 }
 
 .github-repo-card {
-    background: var(--card-bg);
-    border-radius: 10px;
+    background: linear-gradient(145deg, rgba(30,35,40,0.95), rgba(20,25,30,0.9));
+    border-radius: 14px;
     padding: 20px;
-    border: 1px solid var(--border-color);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(200,170,110,0.25);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -1436,8 +1436,9 @@ header:hover {
 .github-repo-card h4 {
     margin-top: 0;
     color: var(--primary-color);
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     margin-bottom: 10px;
+    font-family: 'Marcellus', serif;
 }
 
 .repo-stats {
@@ -1997,23 +1998,19 @@ section h2::before {
 }
 
 .projeto {
-    background: var(--background-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 1rem;
-    padding: 1.5rem;
+    background: linear-gradient(145deg, rgba(30,35,40,0.95), rgba(20,25,30,0.9));
+    border: 1px solid rgba(200,170,110,0.25);
+    border-radius: 14px;
+    padding: 1.25rem;
     margin: 1rem 0;
-    transform: none !important;
-    transition: none !important;
-    animation: none !important;
-    box-shadow: none !important;
+    box-shadow: 0 10px 24px rgba(0,0,0,.25);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
 }
 
 .projeto:hover {
-    border-color: var(--border-color);
-    transform: none !important;
-    transition: none !important;
-    animation: none !important; 
-    box-shadow: none !important;
+    transform: translateY(-4px);
+    border-color: var(--primary-color);
+    box-shadow: 0 18px 36px rgba(200,170,110,.25);
 }
 
 .projeto h4 {
@@ -2056,19 +2053,17 @@ section h2::before {
 }
 
 .tech-tag {
-    background: var(--background-secondary);
-    color: var(--primary-color);
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border: 1px solid var(--border-color);
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: 6px 10px;
+    background: rgba(30,35,40,0.6);
+    border: 1px solid rgba(200,170,110,0.25);
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--text-primary);
 }
-
-.tech-tag:hover {
-    background: var(--primary-color);
-    color: white;
-}
+.tech-tag::before { content: '◈'; color: var(--primary-color); font-size: .8rem; }
 
 /* Redes Sociais */
 .redes-sociais {

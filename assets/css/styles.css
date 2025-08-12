@@ -71,8 +71,7 @@ html {
 
 /* ===== MENU HORIZONTAL MODERNO ===== */
 .horizontal-nav {
-    position: sticky;
-    top: 0;
+    position: relative;
     background: linear-gradient(135deg, 
         rgba(10, 15, 25, 0.95), 
         rgba(20, 25, 35, 0.98));
@@ -82,7 +81,7 @@ html {
         0 8px 32px rgba(0, 0, 0, 0.4),
         0 1px 0 rgba(200, 170, 110, 0.1) inset;
     z-index: 1000;
-    order: -1;
+    margin-bottom: 2rem;
     animation: menuSlideDown 0.8s ease-out;
 }
 
@@ -98,13 +97,13 @@ html {
 }
 
 .nav-container {
-    max-width: 1300px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 1rem 2rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 75px;
+    min-height: 65px;
     position: relative;
 }
 
@@ -180,14 +179,14 @@ html {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    padding: 0.8rem 1.5rem;
+    padding: 0.7rem 1.2rem;
     color: var(--text-primary);
     text-decoration: none;
     border-radius: 50px;
     font-weight: 500;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
-    letter-spacing: 1.2px;
+    letter-spacing: 1px;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     background: linear-gradient(135deg, 
@@ -335,10 +334,9 @@ html {
 @media (max-width: 768px) {
     /* Menu móvel fica fixo no topo */
     .horizontal-nav {
-        position: fixed;
+        position: sticky;
         top: 0;
-        left: 0;
-        right: 0;
+        margin-bottom: 1rem;
         z-index: 1001;
     }
     
@@ -1198,10 +1196,9 @@ body {
 @media (max-width: 768px) {
     /* Menu móvel fica fixo no topo */
     .horizontal-nav {
-        position: fixed;
+        position: sticky;
         top: 0;
-        left: 0;
-        right: 0;
+        margin-bottom: 1rem;
         z-index: 1001;
     }
     

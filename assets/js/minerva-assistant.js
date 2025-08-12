@@ -353,10 +353,10 @@ class MinervaUltraAssistant {
                 
                 <div class="minerva-input-area">
                     <div class="input-container">
-                        <input type="text" id="minerva-input" placeholder="Pergunte QUALQUER coisa para Minerva..." maxlength="1000">
+                        <input type="text" id="minerva-input" placeholder="Pergunte QUALQUER coisa para Minerva... (digite /help para comandos)" maxlength="1000" autocomplete="off">
                         <div class="input-features">
-                            <button class="feature-btn" id="voice-btn" title="Comando de voz (em breve)">
-                                <i class="fas fa-microphone"></i>
+                            <button class="feature-btn" id="voice-btn" title="Funcionalidades Avançadas">
+                                <i class="fas fa-cog"></i>
                             </button>
                             <button class="feature-btn" id="clear-btn" title="Limpar conversa">
                                 <i class="fas fa-broom"></i>
@@ -454,11 +454,20 @@ class MinervaUltraAssistant {
         // Enviar mensagem
         document.getElementById('minerva-send').addEventListener('click', () => {
             this.sendMessage();
-        });        // Enter no input
+        });        // Enter no input e comandos especiais
         document.getElementById('minerva-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
+                if (e.ctrlKey) {
+                    // Ctrl+Enter para nova linha (se implementarmos textarea)
+                    return;
+                }
                 this.sendMessage();
             }
+        });
+
+        // Suporte a comandos especiais e autocomplete
+        document.getElementById('minerva-input').addEventListener('input', (e) => {
+            this.handleSpecialCommands(e.target.value);
         });
 
         // Tecla ESC para fechar modal
@@ -481,9 +490,9 @@ class MinervaUltraAssistant {
             this.clearConversation();
         });
 
-        // Botão de voz (placeholder)
+        // Funcionalidades avançadas no botão de voz
         document.getElementById('voice-btn').addEventListener('click', () => {
-            this.showVoiceFeatureComingSoon();
+            this.showAdvancedFeatures();
         });
 
         // Mouse tracking para olhos da coruja
@@ -916,30 +925,84 @@ class MinervaUltraAssistant {
         await this.processQuestion(message);
     }
 
-    addMessage(message, type) {
+    addMessage(message, type, isTyping = false) {
         const messagesContainer = document.getElementById('minerva-messages');
+        
+        // Remover indicador de digitação anterior se existir
+        const existingTyping = messagesContainer.querySelector('.typing-indicator');
+        if (existingTyping && !isTyping) {
+            existingTyping.remove();
+        }
+        
         const messageDiv = document.createElement('div');
         messageDiv.className = `minerva-message ${type}`;
-        const contentHTML = this.renderRichText(String(message || ''));
         
-        if (type === 'user') {
+        if (isTyping) {
+            messageDiv.classList.add('typing-indicator');
             messageDiv.innerHTML = `
-                <div class="message-content user-message">
-                    <i class="fas fa-user"></i>
-                    <div class="message-text">${contentHTML}</div>
+                <div class="message-content assistant-message typing">
+                    <i class="fas fa-feather-alt"></i>
+                    <div class="typing-animation">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
                 </div>
             `;
         } else {
-            messageDiv.innerHTML = `
-                <div class="message-content assistant-message">
-                    <i class="fas fa-feather-alt"></i>
-                    <div class="message-text">${contentHTML}</div>
-                </div>
-            `;
+            const contentHTML = this.renderRichText(String(message || ''));
+            
+            if (type === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="message-content user-message">
+                        <i class="fas fa-user"></i>
+                        <div class="message-text">${contentHTML}</div>
+                    </div>
+                `;
+            } else {
+                const messageId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                messageDiv.innerHTML = `
+                    <div class="message-content assistant-message" data-message-id="${messageId}">
+                        <i class="fas fa-feather-alt"></i>
+                        <div class="message-text">${contentHTML}</div>
+                        <div class="message-actions">
+                            <button class="action-btn favorite-btn" onclick="minervaAssistant.toggleFavorite('${messageId}')" title="Favoritar mensagem">
+                                <i class="far fa-star"></i>
+                            </button>
+                            <button class="action-btn copy-btn" onclick="minervaAssistant.copyMessage('${messageId}')" title="Copiar mensagem">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="action-btn share-btn" onclick="minervaAssistant.shareMessage('${messageId}')" title="Compartilhar">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
         }
         
         messagesContainer.appendChild(messageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        // Auto-remover indicador de digitação após um tempo
+        if (isTyping) {
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 5000);
+        }
+    }
+
+    showTypingIndicator() {
+        this.addMessage('', 'assistant', true);
+    }
+
+    hideTypingIndicator() {
+        const existingTyping = document.querySelector('.typing-indicator');
+        if (existingTyping) {
+            existingTyping.remove();
+        }
     }
 
     // ========== RICH TEXT RENDERER (Markdown leve + Emoji) ==========
@@ -1003,14 +1066,21 @@ class MinervaUltraAssistant {
 
     async processQuestion(question) {
         this.startThinking();
+        this.setStatus('Processando...', 'processing');
+        this.showTypingIndicator();
         
         try {
             // Verificar cache primeiro
             const cacheKey = question.toLowerCase().trim();
             if (this.conversationCache.has(cacheKey)) {
+                // Simular tempo de resposta mesmo com cache para melhor UX
+                await new Promise(resolve => setTimeout(resolve, 800));
                 const response = this.conversationCache.get(cacheKey);
                 this.stopThinking();
+                this.hideTypingIndicator();
+                this.setStatus('Online', 'online');
                 this.addMessage(response, 'assistant');
+                this.saveToHistory(question, response);
                 return;
             }
 
@@ -1025,20 +1095,673 @@ class MinervaUltraAssistant {
             
             // Exibir resposta
             this.stopThinking();
+            this.hideTypingIndicator();
+            this.setStatus('Online', 'online');
             this.addMessage(response, 'assistant');
+            this.saveToHistory(question, response);
             
             // Atualizar sessão
             this.userSession.questionsAsked++;
             this.userSession.topics.push(question);
+            this.userSession.conversationHistory.push({
+                question,
+                response,
+                timestamp: Date.now()
+            });
               } catch (error) {
             this.stopThinking();
-            console.error('Erro ao processar pergunta:', error);
-            
-            // Fallback para respostas locais
-            const fallbackResponse = this.getFallbackResponse(question);
-            this.addMessage(fallbackResponse, 'assistant');
+            this.hideTypingIndicator();
+            this.handleError(error, question);
         }
-    }    buildContext() {
+    }
+
+    // ========== SISTEMA DE STATUS E FEEDBACK MELHORADO ==========
+    setStatus(text, type = 'online') {
+        const statusElement = document.getElementById('minerva-status');
+        const statusDot = statusElement.querySelector('.status-dot');
+        const statusText = statusElement.querySelector('.status-text');
+        
+        if (statusText) statusText.textContent = text;
+        
+        // Remover classes antigas
+        statusDot.classList.remove('active', 'processing', 'error');
+        
+        // Adicionar nova classe
+        switch(type) {
+            case 'online':
+                statusDot.classList.add('active');
+                break;
+            case 'processing':
+                statusDot.classList.add('processing');
+                break;
+            case 'error':
+                statusDot.classList.add('error');
+                break;
+        }
+    }
+
+    handleError(error, originalQuestion) {
+        console.error('Erro ao processar pergunta:', error);
+        
+        let errorMessage = '';
+        let fallbackResponse = '';
+        
+        // Diferentes tipos de erro
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            errorMessage = 'Problemas de conexão detectados';
+            this.setStatus('Offline', 'error');
+            fallbackResponse = `😔 Não foi possível conectar com a IA no momento. Mas posso responder baseado no meu conhecimento local sobre:\n\n${this.getFallbackResponse(originalQuestion)}`;
+        } else if (error.message.includes('API key')) {
+            errorMessage = 'Erro de autenticação da API';
+            this.setStatus('Erro API', 'error');
+            fallbackResponse = `🔐 Problemas temporários com a IA. Aqui está o que posso te ajudar:\n\n${this.getFallbackResponse(originalQuestion)}`;
+        } else if (error.message.includes('quota') || error.message.includes('rate limit')) {
+            errorMessage = 'Limite de uso da API atingido';
+            this.setStatus('Limite atingido', 'error');
+            fallbackResponse = `⏰ Limite temporário atingido. Resposta baseada no conhecimento local:\n\n${this.getFallbackResponse(originalQuestion)}`;
+        } else {
+            errorMessage = 'Erro interno';
+            this.setStatus('Erro', 'error');
+            fallbackResponse = `🤖 Ops! Algo deu errado, mas aqui está uma resposta baseada no meu conhecimento:\n\n${this.getFallbackResponse(originalQuestion)}`;
+        }
+        
+        // Adicionar mensagem de erro detalhada
+        this.addErrorMessage(errorMessage, fallbackResponse);
+        
+        // Tentar restaurar status depois de um tempo
+        setTimeout(() => {
+            this.setStatus('Online', 'online');
+        }, 5000);
+    }
+
+    addErrorMessage(errorType, fallbackContent) {
+        const messagesContainer = document.getElementById('minerva-messages');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'minerva-message error-message';
+        
+        errorDiv.innerHTML = `
+            <div class="message-content error-content">
+                <div class="error-header">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span class="error-type">${errorType}</span>
+                    <button class="retry-btn" onclick="this.closest('.error-message').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="error-fallback">
+                    ${this.renderRichText(fallbackContent)}
+                </div>
+            </div>
+        `;
+        
+        messagesContainer.appendChild(errorDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // ========== SISTEMA DE HISTÓRICO PERSISTENTE ==========
+    saveToHistory(question, response) {
+        try {
+            const historyKey = 'minerva_chat_history';
+            const currentHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
+            
+            const entry = {
+                id: Date.now(),
+                question,
+                response,
+                timestamp: new Date().toISOString(),
+                page: this.detectCurrentPage()
+            };
+            
+            currentHistory.unshift(entry); // Adicionar no início
+            
+            // Manter apenas os últimos 50 itens
+            if (currentHistory.length > 50) {
+                currentHistory.splice(50);
+            }
+            
+            localStorage.setItem(historyKey, JSON.stringify(currentHistory));
+        } catch (error) {
+            console.warn('Erro ao salvar histórico:', error);
+        }
+    }
+
+    loadHistory() {
+        try {
+            const historyKey = 'minerva_chat_history';
+            return JSON.parse(localStorage.getItem(historyKey) || '[]');
+        } catch (error) {
+            console.warn('Erro ao carregar histórico:', error);
+            return [];
+        }
+    }
+
+    clearHistory() {
+        try {
+            localStorage.removeItem('minerva_chat_history');
+            this.addMessage('📝 Histórico de conversas limpo com sucesso!', 'assistant');
+        } catch (error) {
+            this.addMessage('❌ Erro ao limpar histórico.', 'assistant');
+        }
+    }
+
+    exportHistory(format = 'json') {
+        try {
+            const history = this.loadHistory();
+            const favorites = JSON.parse(localStorage.getItem('minerva_favorites') || '[]');
+            const sessionInfo = this.userSession;
+            
+            const exportData = {
+                exportDate: new Date().toISOString(),
+                totalConversations: history.length,
+                totalFavorites: favorites.length,
+                sessionInfo: {
+                    questionsAsked: sessionInfo.questionsAsked,
+                    sessionDuration: Math.round((Date.now() - sessionInfo.startTime) / 1000 / 60),
+                    userPreferences: sessionInfo.userPreferences
+                },
+                history: history,
+                favorites: favorites,
+                metadata: {
+                    version: 'Minerva Ultra v2.1',
+                    exportFormat: format,
+                    userAgent: navigator.userAgent,
+                    currentPage: this.detectCurrentPage()
+                }
+            };
+            
+            let blob, filename, mimeType;
+            
+            switch (format) {
+                case 'txt':
+                    const textContent = this.generateTextExport(exportData);
+                    blob = new Blob([textContent], {type: 'text/plain'});
+                    filename = `minerva_export_${new Date().toISOString().split('T')[0]}.txt`;
+                    mimeType = 'text/plain';
+                    break;
+                    
+                case 'csv':
+                    const csvContent = this.generateCSVExport(exportData);
+                    blob = new Blob([csvContent], {type: 'text/csv'});
+                    filename = `minerva_export_${new Date().toISOString().split('T')[0]}.csv`;
+                    mimeType = 'text/csv';
+                    break;
+                    
+                default: // json
+                    blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
+                    filename = `minerva_complete_export_${new Date().toISOString().split('T')[0]}.json`;
+                    mimeType = 'application/json';
+            }
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            
+            this.addMessage(`📥 Dados exportados com sucesso em formato ${format.toUpperCase()}!\n\n**Incluído no export:**\n- ${history.length} conversas\n- ${favorites.length} favoritos\n- Informações da sessão\n- Metadados completos`, 'assistant');
+        } catch (error) {
+            this.addMessage('❌ Erro ao exportar dados.', 'assistant');
+        }
+    }
+
+    generateTextExport(data) {
+        let content = `MINERVA IA - EXPORT COMPLETO\n`;
+        content += `Data: ${new Date(data.exportDate).toLocaleString('pt-BR')}\n`;
+        content += `=`.repeat(50) + '\n\n';
+        
+        content += `RESUMO DA SESSÃO:\n`;
+        content += `- Perguntas realizadas: ${data.sessionInfo.questionsAsked}\n`;
+        content += `- Duração da sessão: ${data.sessionInfo.sessionDuration} minutos\n`;
+        content += `- Total de conversas: ${data.totalConversations}\n`;
+        content += `- Total de favoritos: ${data.totalFavorites}\n\n`;
+        
+        if (data.favorites.length > 0) {
+            content += `MENSAGENS FAVORITAS:\n`;
+            content += `=`.repeat(30) + '\n';
+            data.favorites.forEach((fav, index) => {
+                content += `${index + 1}. [${new Date(fav.timestamp).toLocaleString('pt-BR')}] - ${fav.page}\n`;
+                content += `${fav.content}\n\n`;
+            });
+        }
+        
+        content += `HISTÓRICO COMPLETO:\n`;
+        content += `=`.repeat(30) + '\n';
+        data.history.forEach((entry, index) => {
+            content += `${index + 1}. [${new Date(entry.timestamp).toLocaleString('pt-BR')}] - ${entry.page}\n`;
+            content += `P: ${entry.question}\n`;
+            content += `R: ${entry.response}\n`;
+            content += `\n${'─'.repeat(40)}\n\n`;
+        });
+        
+        return content;
+    }
+
+    generateCSVExport(data) {
+        let csv = 'Tipo,Data,Pagina,Pergunta,Resposta,Favorito\n';
+        
+        // Adicionar favoritos
+        data.favorites.forEach(fav => {
+            const row = [
+                'Favorito',
+                new Date(fav.timestamp).toLocaleString('pt-BR'),
+                fav.page,
+                '',
+                `"${fav.content.replace(/"/g, '""')}"`,
+                'Sim'
+            ].join(',');
+            csv += row + '\n';
+        });
+        
+        // Adicionar histórico
+        data.history.forEach(entry => {
+            const isFavorite = data.favorites.some(fav => fav.content === entry.response);
+            const row = [
+                'Conversa',
+                new Date(entry.timestamp).toLocaleString('pt-BR'),
+                entry.page,
+                `"${entry.question.replace(/"/g, '""')}"`,
+                `"${entry.response.replace(/"/g, '""')}"`,
+                isFavorite ? 'Sim' : 'Não'
+            ].join(',');
+            csv += row + '\n';
+        });
+        
+        return csv;
+    }
+
+    showExportOptions() {
+        const exportHTML = `
+            <div class="export-options-menu">
+                <h4>📥 Opções de Exportação</h4>
+                <p>Escolha o formato para exportar seus dados:</p>
+                <div class="export-grid">
+                    <button class="export-item" onclick="minervaAssistant.exportHistory('json')">
+                        <i class="fas fa-code"></i>
+                        <span>JSON</span>
+                        <small>Dados completos estruturados</small>
+                    </button>
+                    <button class="export-item" onclick="minervaAssistant.exportHistory('txt')">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Texto</span>
+                        <small>Formato legível e organizado</small>
+                    </button>
+                    <button class="export-item" onclick="minervaAssistant.exportHistory('csv')">
+                        <i class="fas fa-table"></i>
+                        <span>CSV</span>
+                        <small>Para planilhas (Excel, Sheets)</small>
+                    </button>
+                </div>
+                <p class="export-note">💡 Todos os formatos incluem histórico, favoritos e metadados completos</p>
+            </div>
+        `;
+        
+        this.addMessage(exportHTML, 'assistant');
+    }
+
+    // ========== SISTEMA DE COMANDOS ESPECIAIS ==========
+    handleSpecialCommands(input) {
+        const commands = {
+            '/help': () => this.showHelpCommands(),
+            '/history': () => this.showHistory(),
+            '/export': () => this.exportHistory(),
+            '/clear': () => this.clearHistory(),
+            '/status': () => this.showSystemStatus(),
+            '/debug': () => this.showDebugInfo(),
+            '/shortcuts': () => this.showKeyboardShortcuts(),
+            '/favorites': () => this.showFavorites(),
+            '/clearfavorites': () => this.clearFavorites()
+        };
+
+        // Verificar se é um comando
+        if (input.startsWith('/')) {
+            const command = input.toLowerCase().trim();
+            if (commands[command]) {
+                // Executar comando após um pequeno delay para melhor UX
+                setTimeout(() => {
+                    commands[command]();
+                    document.getElementById('minerva-input').value = '';
+                }, 100);
+            }
+        }
+    }
+
+    showHelpCommands() {
+        const helpText = `🤖 **Comandos Especiais da Minerva:**
+
+**Comandos Disponíveis:**
+- \`/help\` - Mostrar esta ajuda
+- \`/history\` - Ver histórico de conversas
+- \`/favorites\` - Ver mensagens favoritas
+- \`/export\` - Exportar histórico
+- \`/clear\` - Limpar histórico
+- \`/clearfavorites\` - Limpar favoritos
+- \`/status\` - Status do sistema
+- \`/debug\` - Informações de debug
+- \`/shortcuts\` - Atalhos de teclado
+
+**Dicas Rápidas:**
+- Use **Ctrl+Enter** para quebrar linha
+- **ESC** para fechar o chat
+- Clique no ícone 🎤 para mais funcionalidades
+- Digite \`>\` seguido de espaço para sugestões rápidas`;
+
+        this.addMessage(helpText, 'assistant');
+    }
+
+    showHistory() {
+        const history = this.loadHistory();
+        if (history.length === 0) {
+            this.addMessage('📝 Nenhum histórico encontrado.', 'assistant');
+            return;
+        }
+
+        let historyText = `📚 **Últimas ${Math.min(5, history.length)} conversas:**\n\n`;
+        
+        history.slice(0, 5).forEach((entry, index) => {
+            const date = new Date(entry.timestamp).toLocaleString('pt-BR');
+            historyText += `**${index + 1}.** ${entry.question.substring(0, 50)}${entry.question.length > 50 ? '...' : ''}\n`;
+            historyText += `   *${date} - ${entry.page}*\n\n`;
+        });
+
+        historyText += `\nTotal: **${history.length}** conversas salvas.\nUse \`/export\` para baixar o histórico completo.`;
+        
+        this.addMessage(historyText, 'assistant');
+    }
+
+    showSystemStatus() {
+        const status = {
+            isOnline: navigator.onLine,
+            cacheSize: this.conversationCache.size,
+            sessionsQuestions: this.userSession.questionsAsked,
+            uptime: Math.round((Date.now() - this.userSession.startTime) / 1000 / 60),
+            githubEnabled: this.githubIntegration.enabled,
+            siteIndexed: this.siteIndexReady
+        };
+
+        const statusText = `⚡ **Status do Sistema:**
+
+**Conexão:** ${status.isOnline ? '🟢 Online' : '🔴 Offline'}
+**Cache:** ${status.cacheSize} respostas armazenadas
+**Sessão:** ${status.sessionsQuestions} perguntas em ${status.uptime}min
+**GitHub:** ${status.githubEnabled ? '✅ Ativo' : '❌ Inativo'}
+**Indexação:** ${status.siteIndexed ? '✅ Completa' : '⏳ Em progresso'}
+
+**Recursos Ativos:**
+- 🧠 Google Gemini AI
+- 💾 Cache inteligente
+- 📱 Interface responsiva
+- 🔍 Busca contextual`;
+
+        this.addMessage(statusText, 'assistant');
+    }
+
+    showDebugInfo() {
+        const debug = {
+            userAgent: navigator.userAgent,
+            currentPage: this.detectCurrentPage(),
+            cacheKeys: Array.from(this.conversationCache.keys()).length,
+            lastInteraction: new Date(this.lastInteraction).toLocaleString('pt-BR'),
+            sessionDuration: Math.round((Date.now() - this.userSession.startTime) / 1000 / 60)
+        };
+
+        const debugText = `🔧 **Informações de Debug:**
+
+**Página:** ${debug.currentPage}
+**Navegador:** ${debug.userAgent.split(' ').pop()}
+**Cache:** ${debug.cacheKeys} entradas
+**Última Interação:** ${debug.lastInteraction}
+**Duração da Sessão:** ${debug.sessionDuration} minutos
+**Versão:** Minerva Ultra v2.1`;
+
+        this.addMessage(debugText, 'assistant');
+    }
+
+    showKeyboardShortcuts() {
+        const shortcutsText = `⌨️ **Atalhos de Teclado:**
+
+**Chat:**
+- **Enter** - Enviar mensagem
+- **Ctrl+Enter** - Nova linha (futuro)
+- **ESC** - Fechar chat
+- **/** - Comandos especiais
+
+**Comandos:**
+- **/help** - Ajuda
+- **/history** - Histórico
+- **/clear** - Limpar tudo
+- **/export** - Baixar dados
+
+**Dicas:**
+- Use \`Ctrl+F\` para buscar no histórico
+- \`F11\` para tela cheia
+- Arraste a Minerva para mover`;
+
+        this.addMessage(shortcutsText, 'assistant');
+    }
+
+    showAdvancedFeatures() {
+        const featuresHTML = `
+            <div class="advanced-features-menu">
+                <h4>🚀 Funcionalidades Avançadas</h4>
+                <div class="feature-grid">
+                    <button class="feature-item" onclick="minervaAssistant.showExportOptions()">
+                        <i class="fas fa-download"></i>
+                        Exportar Dados
+                    </button>
+                    <button class="feature-item" onclick="minervaAssistant.showHistory()">
+                        <i class="fas fa-history"></i>
+                        Ver Histórico
+                    </button>
+                    <button class="feature-item" onclick="minervaAssistant.showFavorites()">
+                        <i class="fas fa-star"></i>
+                        Favoritos
+                    </button>
+                    <button class="feature-item" onclick="minervaAssistant.clearHistory()">
+                        <i class="fas fa-trash"></i>
+                        Limpar Dados
+                    </button>
+                    <button class="feature-item" onclick="minervaAssistant.showSystemStatus()">
+                        <i class="fas fa-info-circle"></i>
+                        Status Sistema
+                    </button>
+                    <button class="feature-item" onclick="minervaAssistant.toggleFullscreen()">
+                        <i class="fas fa-expand"></i>
+                        Tela Cheia
+                    </button>
+                    <button class="feature-item" onclick="minervaAssistant.showHelpCommands()">
+                        <i class="fas fa-question-circle"></i>
+                        Comandos
+                    </button>
+                </div>
+                <p class="feature-hint">💡 Digite <code>/help</code> para ver todos os comandos</p>
+            </div>
+        `;
+
+        this.addMessage(featuresHTML, 'assistant');
+    }
+
+    toggleFullscreen() {
+        const chat = document.getElementById('minerva-chat');
+        chat.classList.toggle('fullscreen-mode');
+        
+        if (chat.classList.contains('fullscreen-mode')) {
+            this.addMessage('🖥️ Modo tela cheia ativado! Pressione ESC para sair.', 'assistant');
+        } else {
+            this.addMessage('📱 Modo normal restaurado.', 'assistant');
+        }
+    }
+
+    // ========== SISTEMA DE FAVORITOS E MENSAGENS IMPORTANTES ==========
+    toggleFavorite(messageId) {
+        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+        const favoriteBtn = messageElement.querySelector('.favorite-btn i');
+        const messageText = messageElement.querySelector('.message-text').textContent;
+        
+        try {
+            const favoritesKey = 'minerva_favorites';
+            const currentFavorites = JSON.parse(localStorage.getItem(favoritesKey) || '[]');
+            
+            const existingFavorite = currentFavorites.find(fav => fav.id === messageId);
+            
+            if (existingFavorite) {
+                // Remover dos favoritos
+                const index = currentFavorites.indexOf(existingFavorite);
+                currentFavorites.splice(index, 1);
+                favoriteBtn.className = 'far fa-star';
+                favoriteBtn.style.color = '';
+                this.showNotification('⭐ Removido dos favoritos', 'info');
+            } else {
+                // Adicionar aos favoritos
+                const favorite = {
+                    id: messageId,
+                    content: messageText,
+                    timestamp: new Date().toISOString(),
+                    page: this.detectCurrentPage()
+                };
+                
+                currentFavorites.unshift(favorite);
+                favoriteBtn.className = 'fas fa-star';
+                favoriteBtn.style.color = '#FFD700';
+                this.showNotification('⭐ Adicionado aos favoritos!', 'success');
+                
+                // Manter apenas os últimos 20 favoritos
+                if (currentFavorites.length > 20) {
+                    currentFavorites.splice(20);
+                }
+            }
+            
+            localStorage.setItem(favoritesKey, JSON.stringify(currentFavorites));
+        } catch (error) {
+            this.showNotification('❌ Erro ao gerenciar favoritos', 'error');
+        }
+    }
+
+    copyMessage(messageId) {
+        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+        const messageText = messageElement.querySelector('.message-text').textContent;
+        
+        navigator.clipboard.writeText(messageText).then(() => {
+            this.showNotification('📋 Mensagem copiada!', 'success');
+        }).catch(() => {
+            // Fallback para navegadores sem suporte ao clipboard API
+            const textArea = document.createElement('textarea');
+            textArea.value = messageText;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            this.showNotification('📋 Mensagem copiada!', 'success');
+        });
+    }
+
+    shareMessage(messageId) {
+        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+        const messageText = messageElement.querySelector('.message-text').textContent;
+        const shareText = `Resposta da Minerva IA:\n\n${messageText}\n\nVia: ${window.location.href}`;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: 'Minerva IA - Resposta',
+                text: shareText,
+                url: window.location.href
+            }).then(() => {
+                this.showNotification('📤 Compartilhado com sucesso!', 'success');
+            }).catch(() => {
+                this.fallbackShare(shareText);
+            });
+        } else {
+            this.fallbackShare(shareText);
+        }
+    }
+
+    fallbackShare(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            this.showNotification('📋 Link de compartilhamento copiado!', 'success');
+        }).catch(() => {
+            this.showNotification('❌ Erro ao compartilhar', 'error');
+        });
+    }
+
+    showFavorites() {
+        try {
+            const favoritesKey = 'minerva_favorites';
+            const favorites = JSON.parse(localStorage.getItem(favoritesKey) || '[]');
+            
+            if (favorites.length === 0) {
+                this.addMessage('⭐ Nenhuma mensagem favorita encontrada.\n\nDica: Clique na ⭐ em qualquer resposta da Minerva para adicionar aos favoritos!', 'assistant');
+                return;
+            }
+
+            let favoritesText = `⭐ **Suas Mensagens Favoritas (${favorites.length}):**\n\n`;
+            
+            favorites.slice(0, 10).forEach((fav, index) => {
+                const date = new Date(fav.timestamp).toLocaleDateString('pt-BR');
+                const preview = fav.content.length > 100 ? fav.content.substring(0, 100) + '...' : fav.content;
+                favoritesText += `**${index + 1}.** ${preview}\n`;
+                favoritesText += `   *${date} - ${fav.page}*\n\n`;
+            });
+
+            if (favorites.length > 10) {
+                favoritesText += `\n... e mais ${favorites.length - 10} favoritos.\nUse \`/export\` para ver todos.`;
+            }
+            
+            this.addMessage(favoritesText, 'assistant');
+        } catch (error) {
+            this.addMessage('❌ Erro ao carregar favoritos.', 'assistant');
+        }
+    }
+
+    clearFavorites() {
+        try {
+            localStorage.removeItem('minerva_favorites');
+            this.addMessage('⭐ Favoritos limpos com sucesso!', 'assistant');
+        } catch (error) {
+            this.addMessage('❌ Erro ao limpar favoritos.', 'assistant');
+        }
+    }
+
+    showNotification(message, type = 'info') {
+        // Criar notificação temporária
+        const notification = document.createElement('div');
+        notification.className = `minerva-notification ${type}`;
+        notification.textContent = message;
+        
+        // Estilos inline para garantir visibilidade
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            z-index: 999999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            font-family: 'Spiegel', 'Marcellus', serif;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animação de entrada
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Remover após 3 segundos
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+
+    buildContext() {
         const currentPage = this.detectCurrentPage();
         const pageInfo = this.getDetailedPageInfo(currentPage);
         const siteFeatures = this.getCurrentSiteFeatures();

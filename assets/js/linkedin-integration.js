@@ -5,6 +5,7 @@ class LinkedInIntegration {
     constructor() {
         // Configurações da API Unipile
         this.config = {
+            // Endpoint Unipile (opcional). Se indisponível, cairemos no modo embed público automaticamente
             baseUrl: 'https://1api15.unipile.com:14539/api/v1',
             accountId: 'pcbuLVQfQWyVVkirgMdHXA',
             apiKey: 'hfir4+af./MfTj5iOw/VcHhbL2v2RDeFyv5JWXL2g4XEokBMXtJk=',
@@ -12,7 +13,13 @@ class LinkedInIntegration {
                 'X-API-KEY': 'hfir4+af./MfTj5iOw/VcHhbL2v2RDeFyv5JWXL2g4XEokBMXtJk=',
                 'accept': 'application/json',
                 'Content-Type': 'application/json'
-            }
+            },
+            // Modo embed público: URLs de posts com URN (activity/share) para exibir dados reais diretamente do LinkedIn
+            publicPostUrls: [
+                // 'https://www.linkedin.com/feed/update/urn:li:activity:XXXXXXXXXXXXXXX',
+            ],
+            fallbackAvatar: 'https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg'
+        }
         };
 
         // Estado da aplicação
@@ -48,9 +55,24 @@ class LinkedInIntegration {
                 // API disponível - tentar carregar dados reais
                 await this.loadAccounts();
             } else {
-                // API indisponível - usar modo demonstração
-                console.log('🎭 Modo demonstração ativado - API Unipile indisponível');
-                this.activateDemoMode();
+                // API indisponível - tentar embed público
+                console.log('🎭 API indisponível - tentando modo embed público');
+                if (this.config.publicPostUrls && this.config.publicPostUrls.length > 0) {
+                    this.renderPublicEmbeds();
+                    this.updateAPIStatus('connected', 'Embed Público');
+                    this.updateProfileUI({
+                        name: 'Mikael Ferreira',
+                        headline: 'Desenvolvedor Web Full Stack',
+                        location: 'Brasil',
+                        avatar_url: this.config.fallbackAvatar,
+                        connections_count: '—',
+                        followers_count: '—'
+                    });
+                    this.updateUIForConnectedState();
+                } else {
+                    console.log('🎭 Modo demonstração ativado - sem URLs públicas configuradas');
+                    this.activateDemoMode();
+                }
             }
             
             console.log('✅ LinkedIn Integration inicializada com sucesso');
@@ -105,7 +127,7 @@ class LinkedInIntegration {
             name: 'Mikael Ferreira',
             headline: 'Desenvolvedor Web Full Stack',
             location: 'Brasil',
-            avatar_url: '../assets/images/perfil-photo.jpg',
+            avatar_url: this.config.fallbackAvatar,
             connections_count: '500+',
             followers_count: '1.2K'
         };
@@ -547,11 +569,15 @@ class LinkedInIntegration {
         // Atualizar informações do perfil
         document.getElementById('profile-name').textContent = profile.name || 'Mikael Ferreira';
         document.getElementById('profile-headline').textContent = profile.headline || 'Desenvolvedor Web Full Stack';
+        const loc = document.getElementById('profile-location');
+        if (loc && profile.location) {
+            loc.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${profile.location}`;
+        }
         
         // Atualizar imagem
         const profileImg = document.getElementById('profile-image');
-        if (profileImg && profile.avatar_url) {
-            profileImg.src = profile.avatar_url;
+        if (profileImg) {
+            profileImg.src = profile.avatar_url || this.config.fallbackAvatar;
         }
 
         // Atualizar estatísticas se disponíveis
@@ -624,7 +650,7 @@ class LinkedInIntegration {
 
         postDiv.innerHTML = `
             <div class="post-header">
-                <img src="${post.author?.avatar_url || '../assets/images/perfil-photo.jpg'}" 
+                <img src="${post.author?.avatar_url || this.config.fallbackAvatar}" 
                      alt="${post.author?.name || 'Usuario'}" class="post-avatar">
                 <div class="post-author-info">
                     <p class="post-author-name">${post.author?.name || 'Mikael Ferreira'}</p>
@@ -677,7 +703,7 @@ class LinkedInIntegration {
                 author: {
                     name: 'Mikael Ferreira',
                     headline: 'Desenvolvedor Web Full Stack | Portfolio Interativo',
-                    avatar_url: 'https://via.placeholder.com/50x50/0a66c2/ffffff?text=MF'
+                    avatar_url: this.config.fallbackAvatar
                 },
                 text: '🚀 Acabei de implementar uma integração completa com LinkedIn via Unipile API!\n\n✨ O que conseguimos:\n• Timeline real do LinkedIn\n• Criação de posts com mídia\n• Analytics de engagement\n• Sistema robusto de fallback\n• Interface moderna e responsiva\n\nQuando a API está indisponível, o sistema automaticamente ativa o modo demonstração, garantindo que a experiência do usuário seja sempre fluida.\n\n#WebDevelopment #API #LinkedIn #Portfolio #JavaScript',
                 published_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
@@ -690,7 +716,7 @@ class LinkedInIntegration {
                 author: {
                     name: 'Mikael Ferreira',
                     headline: 'Desenvolvedor Web Full Stack | Portfolio Interativo',
-                    avatar_url: 'https://via.placeholder.com/50x50/0a66c2/ffffff?text=MF'
+                    avatar_url: this.config.fallbackAvatar
                 },
                 text: '💡 A importância de um bom sistema de fallback no desenvolvimento!\n\nHoje implementei um mecanismo que:\n\n🔄 Detecta automaticamente quando APIs externas estão indisponíveis\n🎭 Ativa modo demonstração com dados realistas\n⚡ Mantém a experiência do usuário sem interrupções\n🛡️ Trata erros de forma elegante\n\nResultado: Uma aplicação resiliente que funciona em qualquer cenário!\n\nO que vocês acham dessa abordagem? Como vocês lidam com APIs instáveis?\n\n#Resilience #ErrorHandling #UX #API #Frontend',
                 published_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
@@ -703,7 +729,7 @@ class LinkedInIntegration {
                 author: {
                     name: 'Mikael Ferreira',
                     headline: 'Desenvolvedor Web Full Stack | Portfolio Interativo',
-                    avatar_url: 'https://via.placeholder.com/50x50/0a66c2/ffffff?text=MF'
+                    avatar_url: this.config.fallbackAvatar
                 },
                 text: '📊 Métricas interessantes do meu portfolio integrado:\n\n• 500+ conexões profissionais\n• Timeline real funcionando\n• Sistema de cache inteligente\n• 99% de uptime com fallbacks\n• Interface responsiva completa\n\nA tecnologia por trás:\n- Unipile API para LinkedIn\n- JavaScript vanilla para performance\n- CSS moderno com glassmorphism\n- Sistema de notificações em tempo real\n\nPróximo passo: Implementar agendamento de posts! 🔥\n\n#TechStats #Portfolio #Integration #Metrics',
                 published_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
@@ -716,7 +742,7 @@ class LinkedInIntegration {
                 author: {
                     name: 'Mikael Ferreira',
                     headline: 'Desenvolvedor Web Full Stack | Portfolio Interativo',
-                    avatar_url: 'https://via.placeholder.com/50x50/0a66c2/ffffff?text=MF'
+                    avatar_url: this.config.fallbackAvatar
                 },
                 text: '🎨 Design System para integrações sociais!\n\nCriei um conjunto de componentes reutilizáveis:\n\n🔵 Status indicators com animações\n📱 Cards responsivos com glassmorphism\n⚡ Loading states elegantes\n🎯 Notificações contextual\n🌙 Dark theme integrado\n\nO resultado? Uma interface coesa que funciona perfeitamente tanto com dados reais quanto em modo demonstração.\n\nDetalhes técnicos no meu GitHub! Link nos comentários.\n\n#DesignSystem #UI #UX #Frontend #CSS',
                 published_at: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
@@ -776,9 +802,9 @@ class LinkedInIntegration {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: ${type === 'success' ? 'var(--linkedin-success)' : 
-                        type === 'error' ? 'var(--linkedin-warning)' : 
-                        type === 'warning' ? '#f39c12' : 'var(--linkedin-blue)'};
+            background: ${type === 'success' ? '#16a34a' : 
+                        type === 'error' ? '#ef4444' : 
+                        type === 'warning' ? '#f59e0b' : '#0a66c2'};
             color: white;
             padding: 1rem 1.5rem;
             border-radius: 8px;

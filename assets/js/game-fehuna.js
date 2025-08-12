@@ -32,10 +32,16 @@ class FehunaGame {
             showDialog: false,
             showHelp: false,
             showMiniMap: true,
+            showCrafting: false,
+            showQuestLog: false,
+            showWorldMap: false,
             dialogText: '',
             dialogSpeaker: '',
             notifications: [],
-            currentNotification: null
+            currentNotification: null,
+            currentNPC: null,
+            currentWorkbench: null,
+            pendingPortal: null
         };
         
         // Configurações responsivas
@@ -333,6 +339,88 @@ class FehunaGame {
             ]
         };
         
+        // Sistema de Quest Dinâmico Avançado
+        this.questSystem = {
+            activeQuests: [],
+            completedQuests: [],
+            questChains: this.initializeQuestChains(),
+            questGenerationEnabled: true,
+            dailyQuests: [],
+            lastDailyReset: Date.now()
+        };
+
+        // Sistema de Crafting e Equipamentos
+        this.craftingSystem = {
+            recipes: this.initializeCraftingRecipes(),
+            materials: {},
+            workbenches: [
+                { id: 'basic_terminal', x: 350, y: 280, type: 'programming', level: 1 },
+                { id: 'advanced_server', x: 450, y: 200, type: 'hacking', level: 3 },
+                { id: 'ai_matrix', x: 600, y: 320, type: 'ai', level: 5 }
+            ]
+        };
+
+        // Sistema de Equipamentos
+        this.equipmentSystem = {
+            equipped: {
+                weapon: null,
+                armor: null,
+                accessory: null,
+                device: null
+            },
+            equipment: this.initializeEquipment()
+        };
+
+        // Sistema de Área Expandido
+        this.worldMap = {
+            currentArea: 'central_hub',
+            areas: this.initializeGameAreas(),
+            portals: [
+                { from: 'central_hub', to: 'virus_forest', x: 100, y: 400, unlocked: true },
+                { from: 'central_hub', to: 'code_academy', x: 700, y: 150, unlocked: false },
+                { from: 'central_hub', to: 'dark_web', x: 800, y: 500, unlocked: false },
+                { from: 'central_hub', to: 'ai_citadel', x: 400, y: 100, unlocked: false }
+            ],
+            fog: { enabled: true, exploredTiles: new Set() }
+        };
+
+        // Sistema de Economia
+        this.economySystem = {
+            currency: 100, // Bits (moeda digital)
+            marketPrices: {},
+            shops: this.initializeShops(),
+            tradingEnabled: true,
+            stockMarket: {
+                companies: ['CyberCorp', 'DataSoft', 'SecureNet', 'ByteInc'],
+                prices: {},
+                playerShares: {}
+            }
+        };
+
+        // Sistema de Combate Tático
+        this.tacticalCombat = {
+            enabled: false,
+            gridSize: 8,
+            playerPosition: { x: 1, y: 6 },
+            enemyPositions: [],
+            battlefield: null,
+            turnQueue: [],
+            combatPhase: 'positioning' // positioning, combat, resolution
+        };
+
+        // Sistema de Puzzles de Programação
+        this.programmingPuzzles = {
+            active: null,
+            solved: [],
+            available: this.initializeProgrammingChallenges(),
+            codeEditor: {
+                visible: false,
+                code: '',
+                language: 'javascript',
+                testCases: []
+            }
+        };
+
         // Sistema de conquistas (achievements)
         this.achievements = {
             'first_battle': {
@@ -507,6 +595,277 @@ class FehunaGame {
         this.loadAssets();
         console.log('🎮 FehunaGame inicializado com sucesso!');
     }
+
+    // ========== INICIALIZAÇÃO DOS NOVOS SISTEMAS ==========
+    
+    initializeQuestChains() {
+        return {
+            main_story: {
+                id: 'caracal_conspiracy',
+                title: 'A Conspiração Caracal',
+                description: 'Descubra a verdade por trás da invasão da IA Caracal',
+                quests: [
+                    {
+                        id: 'investigate_servers',
+                        title: 'Investigação Inicial',
+                        description: 'Analise os servidores comprometidos no Centro de Dados',
+                        objectives: [
+                            { type: 'scan_servers', target: 3, current: 0, description: 'Escaneie 3 servidores corrompidos' },
+                            { type: 'collect_logs', target: 5, current: 0, description: 'Colete 5 logs de erro' }
+                        ],
+                        rewards: { experience: 100, currency: 50, items: [{ name: 'access_token', quantity: 1 }] },
+                        unlocks: ['caracal_trail'],
+                        completed: false
+                    },
+                    {
+                        id: 'caracal_trail',
+                        title: 'Rastro do Caracal',
+                        description: 'Siga as pistas deixadas pela IA Caracal',
+                        prerequisites: ['investigate_servers'],
+                        objectives: [
+                            { type: 'decrypt_files', target: 10, current: 0, description: 'Descriptografe 10 arquivos corrompidos' },
+                            { type: 'battle_sentinels', target: 5, current: 0, description: 'Derrote 5 Sentinelas Caracal' }
+                        ],
+                        rewards: { experience: 200, currency: 100, unlocks: ['caracal_lair'] },
+                        completed: false
+                    }
+                ]
+            },
+            side_chains: {
+                academy: {
+                    id: 'code_mastery',
+                    title: 'Maestria em Código',
+                    description: 'Torne-se um mestre programador na Academia de Código',
+                    quests: [
+                        {
+                            id: 'basic_algorithms',
+                            title: 'Algoritmos Básicos',
+                            description: 'Domine os fundamentos da programação',
+                            objectives: [
+                                { type: 'solve_puzzle', target: 'sorting_algorithm', description: 'Implemente um algoritmo de ordenação' },
+                                { type: 'code_review', target: 3, current: 0, description: 'Revise 3 códigos de outros alunos' }
+                            ],
+                            rewards: { experience: 150, skill_unlock: 'advanced_debugging' },
+                            completed: false
+                        }
+                    ]
+                }
+            }
+        };
+    }
+
+    initializeCraftingRecipes() {
+        return {
+            weapons: {
+                'viral_sword': {
+                    name: 'Espada Viral',
+                    description: 'Uma lâmina que se replica ao atacar inimigos',
+                    materials: { 'virus_core': 3, 'steel_data': 2, 'encryption_crystal': 1 },
+                    workbench: 'programming',
+                    level: 3,
+                    stats: { attack: 25, special: 'virus_spread' }
+                },
+                'firewall_shield': {
+                    name: 'Escudo Firewall',
+                    description: 'Proteção que bloqueia ataques digitais',
+                    materials: { 'security_fragment': 5, 'barrier_code': 2 },
+                    workbench: 'programming',
+                    level: 2,
+                    stats: { defense: 20, special: 'reflect_damage' }
+                }
+            },
+            tools: {
+                'quantum_debugger': {
+                    name: 'Debugger Quântico',
+                    description: 'Ferramenta que revela bugs em múltiplas dimensões',
+                    materials: { 'quantum_bit': 10, 'reality_stabilizer': 1 },
+                    workbench: 'ai',
+                    level: 5,
+                    stats: { debug_power: 50, scan_range: 3 }
+                }
+            },
+            consumables: {
+                'energy_drink_v2': {
+                    name: 'Energy Drink 2.0',
+                    description: 'Bebida que restaura mana e aumenta velocidade',
+                    materials: { 'caffeine_code': 2, 'sugar_algorithm': 1 },
+                    workbench: 'basic_terminal',
+                    level: 1,
+                    effects: { mana_restore: 50, speed_boost: 1.5, duration: 300 }
+                }
+            }
+        };
+    }
+
+    initializeEquipment() {
+        return {
+            weapons: {
+                'starter_keyboard': {
+                    name: 'Teclado Iniciante',
+                    type: 'weapon',
+                    stats: { attack: 10 },
+                    description: 'Um teclado mecânico básico para batalhas digitais'
+                },
+                'hacker_blade': {
+                    name: 'Lâmina do Hacker',
+                    type: 'weapon',
+                    stats: { attack: 20, crit_chance: 0.15 },
+                    description: 'Uma espada de dados que corta através de firewalls'
+                }
+            },
+            armor: {
+                'basic_hoodie': {
+                    name: 'Moletom Básico',
+                    type: 'armor',
+                    stats: { defense: 5 },
+                    description: 'O uniforme clássico dos programadores'
+                },
+                'cyber_armor': {
+                    name: 'Armadura Cibernética',
+                    type: 'armor',
+                    stats: { defense: 25, mana_regen: 2 },
+                    description: 'Armadura high-tech com circuitos integrados'
+                }
+            }
+        };
+    }
+
+    initializeGameAreas() {
+        return {
+            'central_hub': {
+                name: 'Centro Digital',
+                description: 'O coração da cidade digital onde tudo começou',
+                size: { width: 50, height: 50 },
+                theme: 'urban_tech',
+                enemies: ['basic_virus', 'spyware_scout'],
+                resources: ['debugCodes', 'basic_materials'],
+                special_locations: ['professor_lab', 'central_market', 'training_ground']
+            },
+            'virus_forest': {
+                name: 'Floresta Viral',
+                description: 'Uma área infectada onde os vírus se multiplicam',
+                size: { width: 40, height: 40 },
+                theme: 'corrupted_nature',
+                enemies: ['mutant_virus', 'spam_bot', 'trojan_plant'],
+                resources: ['virus_core', 'corrupted_data'],
+                boss: 'forest_guardian_virus'
+            },
+            'code_academy': {
+                name: 'Academia de Código',
+                description: 'Instituição de ensino para programadores avançados',
+                size: { width: 30, height: 30 },
+                theme: 'educational',
+                enemies: ['debug_dummy', 'syntax_error'],
+                resources: ['knowledge_fragment', 'skill_book'],
+                puzzles: ['algorithm_challenge', 'code_optimization']
+            },
+            'dark_web': {
+                name: 'Deep Web',
+                description: 'As profundezas sombrias da internet',
+                size: { width: 60, height: 60 },
+                theme: 'underground',
+                enemies: ['shadow_hacker', 'black_market_bot', 'anonymizer'],
+                resources: ['illegal_code', 'dark_currency'],
+                danger_level: 'high'
+            },
+            'ai_citadel': {
+                name: 'Cidadela da IA',
+                description: 'Fortaleza onde as IAs mais poderosas residem',
+                size: { width: 80, height: 80 },
+                theme: 'futuristic',
+                enemies: ['ai_sentinel', 'neural_network', 'quantum_guardian'],
+                resources: ['ai_core', 'quantum_data'],
+                boss: 'caracal_prime'
+            }
+        };
+    }
+
+    initializeShops() {
+        return {
+            'central_market': {
+                name: 'Mercado Central',
+                location: { area: 'central_hub', x: 400, y: 300 },
+                shopkeeper: 'Vendor Bot',
+                inventory: {
+                    'debugCodes': { price: 10, stock: 50 },
+                    'encryptionKey': { price: 25, stock: 20 },
+                    'firewall': { price: 50, stock: 10 },
+                    'energy_drink': { price: 15, stock: 30 },
+                    'basic_materials': { price: 5, stock: 100 }
+                },
+                reputation_required: 0
+            },
+            'black_market': {
+                name: 'Mercado Negro',
+                location: { area: 'dark_web', x: 200, y: 150 },
+                shopkeeper: 'Shadow Dealer',
+                inventory: {
+                    'illegal_exploit': { price: 100, stock: 5 },
+                    'stealth_module': { price: 75, stock: 8 },
+                    'backdoor_key': { price: 150, stock: 3 }
+                },
+                reputation_required: 'negative'
+            }
+        };
+    }
+
+    initializeProgrammingChallenges() {
+        return {
+            'sorting_algorithm': {
+                title: 'Algoritmo de Ordenação',
+                description: 'Implemente um algoritmo eficiente para ordenar uma lista de números',
+                difficulty: 'medium',
+                language: 'javascript',
+                template: `function sortArray(arr) {
+    // Implemente seu algoritmo aqui
+    // Retorne o array ordenado
+}`,
+                testCases: [
+                    { input: [3, 1, 4, 1, 5, 9], expected: [1, 1, 3, 4, 5, 9] },
+                    { input: [5, 2, 8, 1, 9], expected: [1, 2, 5, 8, 9] },
+                    { input: [], expected: [] }
+                ],
+                hints: [
+                    'Considere usar bubble sort, merge sort ou quick sort',
+                    'Lembre-se de comparar elementos adjacentes',
+                    'O algoritmo deve funcionar para arrays vazios'
+                ],
+                rewards: { experience: 100, skill_unlock: 'sorting_mastery' }
+            },
+            'binary_search': {
+                title: 'Busca Binária',
+                description: 'Encontre um elemento em um array ordenado usando busca binária',
+                difficulty: 'medium',
+                language: 'javascript',
+                template: `function binarySearch(arr, target) {
+    // Implemente busca binária aqui
+    // Retorne o índice do elemento ou -1 se não encontrado
+}`,
+                testCases: [
+                    { input: [[1, 2, 3, 4, 5], 3], expected: 2 },
+                    { input: [[1, 2, 3, 4, 5], 6], expected: -1 },
+                    { input: [[], 1], expected: -1 }
+                ],
+                rewards: { experience: 150, currency: 50 }
+            },
+            'encryption_challenge': {
+                title: 'Desafio de Criptografia',
+                description: 'Decodifique uma mensagem usando cifra de César',
+                difficulty: 'hard',
+                language: 'javascript',
+                template: `function caesarCipher(text, shift) {
+    // Implemente a cifra de César
+    // shift pode ser positivo (criptografar) ou negativo (descriptografar)
+}`,
+                testCases: [
+                    { input: ['ABC', 1], expected: 'BCD' },
+                    { input: ['XYZ', 3], expected: 'ABC' },
+                    { input: ['Hello World!', 13], expected: 'Uryyb Jbeyq!' }
+                ],
+                rewards: { experience: 200, item: 'master_cipher', currency: 100 }
+            }
+        };
+    }
     
     // Configuração do canvas para ser responsivo
     setupCanvas() {
@@ -640,6 +999,38 @@ class FehunaGame {
             case 'E':
                 if (this.gameState === 'playing') {
                     this.checkNPCInteraction();
+                    this.checkPortalInteraction();
+                    this.checkWorkbenchInteraction();
+                }
+                break;
+            case 'c':
+            case 'C':
+                if (this.gameState === 'playing') {
+                    this.toggleCraftingInterface();
+                }
+                break;
+            case 'q':
+            case 'Q':
+                if (this.gameState === 'playing') {
+                    this.toggleQuestLog();
+                }
+                break;
+            case 'm':
+            case 'M':
+                if (this.gameState === 'playing') {
+                    this.toggleWorldMap();
+                }
+                break;
+            case 'p':
+            case 'P':
+                if (this.gameState === 'playing') {
+                    this.openProgrammingChallenge();
+                }
+                break;
+            case 't':
+            case 'T':
+                if (this.gameState === 'playing') {
+                    this.toggleTacticalCombat();
                 }
                 break;
             // Seleção de habilidades na batalha
@@ -730,6 +1121,272 @@ class FehunaGame {
             this.touchControls.joystick.active = false;
             this.touchControls.joystick.moveX = 0;
             this.touchControls.joystick.moveY = 0;
+        }
+    }
+
+    // ========== SISTEMAS DE INTERAÇÃO AVANÇADOS ==========
+
+    checkPortalInteraction() {
+        const currentArea = this.worldMap.currentArea;
+        const portals = this.worldMap.portals.filter(p => p.from === currentArea);
+        
+        portals.forEach(portal => {
+            const distance = Math.sqrt(
+                Math.pow(this.player.x - portal.x, 2) + 
+                Math.pow(this.player.y - portal.y, 2)
+            );
+            
+            if (distance < 50) {
+                if (portal.unlocked) {
+                    this.showPortalDialog(portal);
+                } else {
+                    this.showNotification('Portal bloqueado! Complete as quests necessárias.');
+                }
+            }
+        });
+    }
+
+    showPortalDialog(portal) {
+        const targetArea = this.worldMap.areas[portal.to];
+        this.ui.showDialog = true;
+        this.ui.dialogSpeaker = 'Portal Quântico';
+        this.ui.dialogText = `Deseja viajar para ${targetArea.name}?\n\n${targetArea.description}\n\nPressione ENTER para confirmar ou ESC para cancelar.`;
+        this.ui.pendingPortal = portal;
+    }
+
+    checkWorkbenchInteraction() {
+        this.craftingSystem.workbenches.forEach(workbench => {
+            const distance = Math.sqrt(
+                Math.pow(this.player.x - workbench.x, 2) + 
+                Math.pow(this.player.y - workbench.y, 2)
+            );
+            
+            if (distance < 40) {
+                this.showWorkbenchDialog(workbench);
+            }
+        });
+    }
+
+    showWorkbenchDialog(workbench) {
+        if (this.player.level >= workbench.level) {
+            this.ui.showDialog = true;
+            this.ui.dialogSpeaker = `${workbench.type.charAt(0).toUpperCase() + workbench.type.slice(1)} Terminal`;
+            this.ui.dialogText = `Terminal de ${workbench.type} - Nível ${workbench.level}\n\nPressione C para abrir a interface de crafting.`;
+            this.ui.currentWorkbench = workbench;
+        } else {
+            this.showNotification(`Nível ${workbench.level} necessário para usar este terminal.`);
+        }
+    }
+
+    toggleCraftingInterface() {
+        this.ui.showCrafting = !this.ui.showCrafting;
+        if (this.ui.showCrafting) {
+            this.ui.showInventory = false;
+            this.ui.showQuestLog = false;
+        }
+    }
+
+    toggleQuestLog() {
+        this.ui.showQuestLog = !this.ui.showQuestLog;
+        if (this.ui.showQuestLog) {
+            this.ui.showInventory = false;
+            this.ui.showCrafting = false;
+        }
+    }
+
+    toggleWorldMap() {
+        this.ui.showWorldMap = !this.ui.showWorldMap;
+        if (this.ui.showWorldMap) {
+            this.ui.showInventory = false;
+            this.ui.showCrafting = false;
+            this.ui.showQuestLog = false;
+        }
+    }
+
+    openProgrammingChallenge() {
+        const availableChallenges = Object.keys(this.programmingPuzzles.available)
+            .filter(id => !this.programmingPuzzles.solved.includes(id));
+        
+        if (availableChallenges.length > 0) {
+            const randomChallenge = availableChallenges[Math.floor(Math.random() * availableChallenges.length)];
+            this.startProgrammingChallenge(randomChallenge);
+        } else {
+            this.showNotification('Todos os desafios foram completados!');
+        }
+    }
+
+    startProgrammingChallenge(challengeId) {
+        this.programmingPuzzles.active = challengeId;
+        this.programmingPuzzles.codeEditor.visible = true;
+        this.programmingPuzzles.codeEditor.code = this.programmingPuzzles.available[challengeId].template;
+        this.gameState = 'programming';
+    }
+
+    toggleTacticalCombat() {
+        this.tacticalCombat.enabled = !this.tacticalCombat.enabled;
+        this.showNotification(`Combate tático ${this.tacticalCombat.enabled ? 'ativado' : 'desativado'}!`);
+    }
+
+    // ========== SISTEMA DE QUEST DINÂMICO ==========
+
+    updateQuestSystem() {
+        // Verificar objetivos de quests ativas
+        this.questSystem.activeQuests.forEach(quest => {
+            if (!quest.completed) {
+                this.checkQuestObjectives(quest);
+            }
+        });
+
+        // Gerar quests diárias
+        this.generateDailyQuests();
+
+        // Verificar chains de quest
+        this.updateQuestChains();
+    }
+
+    checkQuestObjectives(quest) {
+        let allCompleted = true;
+        
+        quest.objectives.forEach(objective => {
+            switch (objective.type) {
+                case 'scan_servers':
+                    // Implementar lógica de escaneamento
+                    break;
+                case 'collect_logs':
+                    // Implementar coleta de logs
+                    break;
+                case 'decrypt_files':
+                    // Implementar descriptografia
+                    break;
+                case 'battle_sentinels':
+                    // Implementar batalhas com sentinelas
+                    break;
+                case 'solve_puzzle':
+                    if (this.programmingPuzzles.solved.includes(objective.target)) {
+                        objective.current = 1;
+                    }
+                    break;
+            }
+            
+            if (objective.current < objective.target) {
+                allCompleted = false;
+            }
+        });
+
+        if (allCompleted && !quest.completed) {
+            this.completeQuest(quest);
+        }
+    }
+
+    completeQuest(quest) {
+        quest.completed = true;
+        
+        // Aplicar recompensas
+        if (quest.rewards.experience) {
+            this.player.experience += quest.rewards.experience;
+            this.showNotification(`+${quest.rewards.experience} EXP!`);
+        }
+        
+        if (quest.rewards.currency) {
+            this.economySystem.currency += quest.rewards.currency;
+            this.showNotification(`+${quest.rewards.currency} Bits!`);
+        }
+        
+        if (quest.rewards.items) {
+            quest.rewards.items.forEach(item => {
+                this.addItemToInventory(item.name, item.quantity);
+            });
+        }
+
+        // Verificar se subiu de nível
+        this.checkLevelUp();
+        
+        // Mover para quests completadas
+        this.questSystem.completedQuests.push(quest);
+        this.questSystem.activeQuests = this.questSystem.activeQuests.filter(q => q.id !== quest.id);
+        
+        this.showNotification(`Quest "${quest.title}" completada!`);
+    }
+
+    generateDailyQuests() {
+        const now = Date.now();
+        const dayInMs = 24 * 60 * 60 * 1000;
+        
+        if (now - this.questSystem.lastDailyReset > dayInMs) {
+            this.questSystem.dailyQuests = [
+                {
+                    id: 'daily_virus_hunt',
+                    title: 'Caça Diária de Vírus',
+                    description: 'Elimine 10 vírus para manter a segurança digital',
+                    objectives: [
+                        { type: 'defeat_viruses', target: 10, current: 0, description: 'Derrote 10 vírus' }
+                    ],
+                    rewards: { experience: 50, currency: 30 },
+                    deadline: now + dayInMs,
+                    completed: false
+                }
+            ];
+            
+            this.questSystem.lastDailyReset = now;
+        }
+    }
+
+    updateQuestChains() {
+        // Implementar lógica de chains de quest
+    }
+
+    // ========== SISTEMA DE CRAFTING ==========
+
+    canCraftItem(recipeId, category) {
+        const recipe = this.craftingSystem.recipes[category][recipeId];
+        if (!recipe) return false;
+
+        // Verificar nível
+        if (this.player.level < recipe.level) return false;
+
+        // Verificar materiais
+        for (const [material, needed] of Object.entries(recipe.materials)) {
+            const available = this.craftingSystem.materials[material] || 0;
+            if (available < needed) return false;
+        }
+
+        return true;
+    }
+
+    craftItem(recipeId, category) {
+        const recipe = this.craftingSystem.recipes[category][recipeId];
+        if (!this.canCraftItem(recipeId, category)) {
+            this.showNotification('Materiais ou nível insuficiente!');
+            return false;
+        }
+
+        // Consumir materiais
+        for (const [material, needed] of Object.entries(recipe.materials)) {
+            this.craftingSystem.materials[material] -= needed;
+        }
+
+        // Criar item
+        this.addItemToInventory(recipeId, 1);
+        this.showNotification(`${recipe.name} criado com sucesso!`);
+        
+        // XP de crafting
+        this.player.experience += recipe.level * 10;
+        this.checkLevelUp();
+
+        return true;
+    }
+
+    addItemToInventory(itemId, quantity) {
+        if (this.player.inventory[itemId]) {
+            this.player.inventory[itemId] += quantity;
+        } else {
+            this.player.inventory[itemId] = quantity;
+        }
+    }
+
+    checkLevelUp() {
+        while (this.player.experience >= this.player.nextLevelExp) {
+            this.levelUp();
         }
     }
       // Loop principal do jogo
@@ -891,6 +1548,9 @@ class FehunaGame {
         
         // Verificar coleta de itens
         this.checkItemCollection();
+        
+        // Atualizar sistemas novos
+        this.updateQuestSystem();
     }
     
     // Verificar proximidade com NPCs
@@ -1380,6 +2040,10 @@ class FehunaGame {
                     this.renderBattle();
                     break;
                     
+                case 'programming':
+                    this.renderProgrammingChallenge();
+                    break;
+                    
                 case 'cutscene':
                     this.renderCutscene();
                     break;
@@ -1532,6 +2196,10 @@ class FehunaGame {
         if (this.ui.showInventory) {
             this.renderInventory();
         }
+
+        // Renderizar portais e workbenches
+        this.renderPortals();
+        this.renderWorkbenches();
         
         } catch (error) {
             console.error('Erro ao renderizar jogo:', error);
@@ -1732,9 +2400,10 @@ class FehunaGame {
         this.ctx.font = '12px Arial';
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
         this.ctx.textAlign = 'left';
-        this.ctx.fillText(`Pos: (${Math.floor(this.player.x/32)}, ${Math.floor(this.player.y/32)})`, 10, this.canvas.height - 60);
-        this.ctx.fillText(`Nível: ${this.player.level} | EXP: ${this.player.experience}/${this.player.nextLevelExp}`, 10, this.canvas.height - 40);
-        this.ctx.fillText(`Pressione E perto de NPCs para interagir | I para inventário`, 10, this.canvas.height - 20);
+        this.ctx.fillText(`Pos: (${Math.floor(this.player.x/32)}, ${Math.floor(this.player.y/32)})`, 10, this.canvas.height - 80);
+        this.ctx.fillText(`Nível: ${this.player.level} | EXP: ${this.player.experience}/${this.player.nextLevelExp}`, 10, this.canvas.height - 60);
+        this.ctx.fillText(`Bits: ${this.economySystem.currency} | Área: ${this.worldMap.areas[this.worldMap.currentArea].name}`, 10, this.canvas.height - 40);
+        this.ctx.fillText(`Controles: E-Interagir | I-Inventário | Q-Quests | M-Mapa | C-Crafting | P-Código | T-Tático`, 10, this.canvas.height - 20);
     }
     
     // Renderizar horário e clima
@@ -2387,6 +3056,11 @@ class FehunaGame {
         if (this.ui.mobile && this.gameState === 'playing') {
             this.renderMobileControls();
         }
+
+        // Novas interfaces
+        this.renderWorldMap();
+        this.renderQuestLog();
+        this.renderCraftingInterface();
     }
     
     // Renderizar controles para mobile
@@ -2548,6 +3222,395 @@ class FehunaGame {
     deleteSave(slot = 0) {
         localStorage.removeItem(`fehuna_save_${slot}`);
         this.showNotification(`Save ${slot} deletado!`, 'info');
+    }
+
+    // ========== RENDERIZAÇÃO DOS NOVOS SISTEMAS ==========
+
+    renderWorldMap() {
+        if (!this.ui.showWorldMap) return;
+
+        const mapWidth = this.canvas.width * 0.8;
+        const mapHeight = this.canvas.height * 0.8;
+        const mapX = (this.canvas.width - mapWidth) / 2;
+        const mapY = (this.canvas.height - mapHeight) / 2;
+
+        // Fundo do mapa
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+        this.ctx.fillRect(mapX, mapY, mapWidth, mapHeight);
+
+        this.ctx.strokeStyle = '#c8aa6e';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(mapX, mapY, mapWidth, mapHeight);
+
+        // Título
+        this.ctx.fillStyle = '#c8aa6e';
+        this.ctx.font = 'bold 24px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Mapa Mundial de Fehuna', mapX + mapWidth/2, mapY + 40);
+
+        // Áreas disponíveis
+        const areas = Object.entries(this.worldMap.areas);
+        const areaWidth = 120;
+        const areaHeight = 80;
+        const cols = 3;
+        const startX = mapX + 50;
+        const startY = mapY + 80;
+
+        areas.forEach(([areaId, area], index) => {
+            const col = index % cols;
+            const row = Math.floor(index / cols);
+            const x = startX + col * (areaWidth + 30);
+            const y = startY + row * (areaHeight + 40);
+
+            // Fundo da área
+            const isUnlocked = this.isAreaUnlocked(areaId);
+            const isCurrent = areaId === this.worldMap.currentArea;
+            
+            this.ctx.fillStyle = isCurrent ? 'rgba(200, 170, 110, 0.3)' : 
+                               isUnlocked ? 'rgba(0, 100, 200, 0.2)' : 'rgba(100, 100, 100, 0.2)';
+            this.ctx.fillRect(x, y, areaWidth, areaHeight);
+
+            this.ctx.strokeStyle = isCurrent ? '#c8aa6e' : isUnlocked ? '#0064c8' : '#666';
+            this.ctx.lineWidth = isCurrent ? 3 : 1;
+            this.ctx.strokeRect(x, y, areaWidth, areaHeight);
+
+            // Nome da área
+            this.ctx.fillStyle = isUnlocked ? '#fff' : '#888';
+            this.ctx.font = '14px Arial';
+            this.ctx.textAlign = 'center';
+            this.wrapText(area.name, x + areaWidth/2, y + 20, areaWidth - 10, 16);
+
+            // Status
+            if (isCurrent) {
+                this.ctx.fillStyle = '#c8aa6e';
+                this.ctx.font = '12px Arial';
+                this.ctx.fillText('ATUAL', x + areaWidth/2, y + areaHeight - 10);
+            } else if (!isUnlocked) {
+                this.ctx.fillStyle = '#888';
+                this.ctx.font = '12px Arial';
+                this.ctx.fillText('BLOQUEADO', x + areaWidth/2, y + areaHeight - 10);
+            }
+        });
+
+        // Instruções
+        this.ctx.fillStyle = '#fff';
+        this.ctx.font = '14px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Pressione M para fechar', mapX + mapWidth/2, mapY + mapHeight - 20);
+    }
+
+    renderQuestLog() {
+        if (!this.ui.showQuestLog) return;
+
+        const logWidth = this.canvas.width * 0.7;
+        const logHeight = this.canvas.height * 0.8;
+        const logX = (this.canvas.width - logWidth) / 2;
+        const logY = (this.canvas.height - logHeight) / 2;
+
+        // Fundo
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.95)';
+        this.ctx.fillRect(logX, logY, logWidth, logHeight);
+
+        this.ctx.strokeStyle = '#c8aa6e';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(logX, logY, logWidth, logHeight);
+
+        // Título
+        this.ctx.fillStyle = '#c8aa6e';
+        this.ctx.font = 'bold 20px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Log de Quests', logX + logWidth/2, logY + 30);
+
+        // Quests ativas
+        let yOffset = 60;
+        this.ctx.fillStyle = '#fff';
+        this.ctx.font = 'bold 16px Arial';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText('Quests Ativas:', logX + 20, logY + yOffset);
+
+        yOffset += 30;
+        this.questSystem.activeQuests.forEach(quest => {
+            // Título da quest
+            this.ctx.fillStyle = '#4CAF50';
+            this.ctx.font = 'bold 14px Arial';
+            this.ctx.fillText(quest.title, logX + 30, logY + yOffset);
+
+            // Descrição
+            this.ctx.fillStyle = '#ccc';
+            this.ctx.font = '12px Arial';
+            this.wrapText(quest.description, logX + 30, logY + yOffset + 20, logWidth - 60, 14);
+
+            // Objetivos
+            yOffset += 50;
+            quest.objectives.forEach(objective => {
+                const completed = objective.current >= objective.target;
+                this.ctx.fillStyle = completed ? '#4CAF50' : '#FFA500';
+                this.ctx.font = '11px Arial';
+                this.ctx.fillText(`○ ${objective.description} (${objective.current}/${objective.target})`, 
+                                 logX + 50, logY + yOffset);
+                yOffset += 20;
+            });
+
+            yOffset += 10;
+        });
+
+        // Instruções
+        this.ctx.fillStyle = '#888';
+        this.ctx.font = '12px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Pressione Q para fechar', logX + logWidth/2, logY + logHeight - 20);
+    }
+
+    renderCraftingInterface() {
+        if (!this.ui.showCrafting) return;
+
+        const craftWidth = this.canvas.width * 0.8;
+        const craftHeight = this.canvas.height * 0.8;
+        const craftX = (this.canvas.width - craftWidth) / 2;
+        const craftY = (this.canvas.height - craftHeight) / 2;
+
+        // Fundo
+        this.ctx.fillStyle = 'rgba(5, 15, 25, 0.95)';
+        this.ctx.fillRect(craftX, craftY, craftWidth, craftHeight);
+
+        this.ctx.strokeStyle = '#c8aa6e';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(craftX, craftY, craftWidth, craftHeight);
+
+        // Título
+        this.ctx.fillStyle = '#c8aa6e';
+        this.ctx.font = 'bold 20px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Terminal de Crafting', craftX + craftWidth/2, craftY + 30);
+
+        // Categorias
+        const categories = Object.keys(this.craftingSystem.recipes);
+        const catWidth = 100;
+        let catX = craftX + 20;
+
+        categories.forEach((category, index) => {
+            this.ctx.fillStyle = 'rgba(200, 170, 110, 0.2)';
+            this.ctx.fillRect(catX, craftY + 50, catWidth, 30);
+
+            this.ctx.strokeStyle = '#c8aa6e';
+            this.ctx.strokeRect(catX, craftY + 50, catWidth, 30);
+
+            this.ctx.fillStyle = '#fff';
+            this.ctx.font = '12px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(category.toUpperCase(), catX + catWidth/2, craftY + 70);
+
+            catX += catWidth + 10;
+        });
+
+        // Lista de receitas (exemplo para armas)
+        const recipes = this.craftingSystem.recipes.weapons;
+        let yOffset = 100;
+
+        Object.entries(recipes).forEach(([recipeId, recipe]) => {
+            const canCraft = this.canCraftItem(recipeId, 'weapons');
+            
+            // Fundo da receita
+            this.ctx.fillStyle = canCraft ? 'rgba(76, 175, 80, 0.2)' : 'rgba(244, 67, 54, 0.2)';
+            this.ctx.fillRect(craftX + 20, craftY + yOffset, craftWidth - 40, 60);
+
+            // Nome do item
+            this.ctx.fillStyle = canCraft ? '#4CAF50' : '#F44336';
+            this.ctx.font = 'bold 14px Arial';
+            this.ctx.textAlign = 'left';
+            this.ctx.fillText(recipe.name, craftX + 30, craftY + yOffset + 20);
+
+            // Materiais necessários
+            this.ctx.fillStyle = '#ccc';
+            this.ctx.font = '11px Arial';
+            let matText = 'Materiais: ';
+            Object.entries(recipe.materials).forEach(([mat, qty]) => {
+                const available = this.craftingSystem.materials[mat] || 0;
+                matText += `${mat}(${available}/${qty}) `;
+            });
+            this.ctx.fillText(matText, craftX + 30, craftY + yOffset + 40);
+
+            yOffset += 70;
+        });
+
+        // Instruções
+        this.ctx.fillStyle = '#888';
+        this.ctx.font = '12px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Pressione C para fechar | Use números para craftear', 
+                         craftX + craftWidth/2, craftY + craftHeight - 20);
+    }
+
+    renderProgrammingChallenge() {
+        if (this.gameState !== 'programming' || !this.programmingPuzzles.codeEditor.visible) return;
+
+        // Fundo completo
+        this.ctx.fillStyle = 'rgba(0, 10, 20, 0.98)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        const challenge = this.programmingPuzzles.available[this.programmingPuzzles.active];
+        if (!challenge) return;
+
+        // Título do desafio
+        this.ctx.fillStyle = '#c8aa6e';
+        this.ctx.font = 'bold 24px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText(challenge.title, this.canvas.width/2, 40);
+
+        // Descrição
+        this.ctx.fillStyle = '#fff';
+        this.ctx.font = '14px Arial';
+        this.wrapText(challenge.description, this.canvas.width/2, 70, this.canvas.width - 100, 18);
+
+        // Área do editor (simulada)
+        const editorX = 50;
+        const editorY = 120;
+        const editorWidth = this.canvas.width - 100;
+        const editorHeight = 200;
+
+        this.ctx.fillStyle = 'rgba(30, 30, 30, 0.9)';
+        this.ctx.fillRect(editorX, editorY, editorWidth, editorHeight);
+
+        this.ctx.strokeStyle = '#4CAF50';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(editorX, editorY, editorWidth, editorHeight);
+
+        // Código template
+        this.ctx.fillStyle = '#4CAF50';
+        this.ctx.font = '12px monospace';
+        this.ctx.textAlign = 'left';
+        const codeLines = challenge.template.split('\n');
+        codeLines.forEach((line, index) => {
+            this.ctx.fillText(line, editorX + 10, editorY + 20 + index * 15);
+        });
+
+        // Casos de teste
+        const testY = editorY + editorHeight + 30;
+        this.ctx.fillStyle = '#c8aa6e';
+        this.ctx.font = 'bold 16px Arial';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText('Casos de Teste:', editorX, testY);
+
+        challenge.testCases.forEach((testCase, index) => {
+            this.ctx.fillStyle = '#ccc';
+            this.ctx.font = '12px Arial';
+            this.ctx.fillText(`${index + 1}. Input: ${JSON.stringify(testCase.input)} → Expected: ${JSON.stringify(testCase.expected)}`, 
+                             editorX, testY + 30 + index * 20);
+        });
+
+        // Instruções
+        this.ctx.fillStyle = '#FFA500';
+        this.ctx.font = '14px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Este é um preview do editor de código - Pressione ESC para voltar ao jogo', 
+                         this.canvas.width/2, this.canvas.height - 40);
+    }
+
+    isAreaUnlocked(areaId) {
+        // Implementar lógica de desbloqueio baseada em quests
+        const unlockedAreas = ['central_hub', 'virus_forest'];
+        return unlockedAreas.includes(areaId);
+    }
+
+    renderPortals() {
+        const currentArea = this.worldMap.currentArea;
+        const portals = this.worldMap.portals.filter(p => p.from === currentArea);
+        
+        portals.forEach(portal => {
+            const portalX = portal.x + this.map.offsetX;
+            const portalY = portal.y + this.map.offsetY;
+            
+            // Verificar se está visível
+            if (portalX > -50 && portalX < this.canvas.width + 50 && 
+                portalY > -50 && portalY < this.canvas.height + 50) {
+                
+                // Efeito de portal
+                const time = Date.now() * 0.005;
+                
+                if (portal.unlocked) {
+                    // Portal ativo
+                    this.ctx.fillStyle = `rgba(0, 150, 255, ${0.5 + Math.sin(time) * 0.3})`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(portalX, portalY, 30 + Math.sin(time * 2) * 5, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    // Anel externo
+                    this.ctx.strokeStyle = '#00aaff';
+                    this.ctx.lineWidth = 3;
+                    this.ctx.beginPath();
+                    this.ctx.arc(portalX, portalY, 35, 0, Math.PI * 2);
+                    this.ctx.stroke();
+                } else {
+                    // Portal bloqueado
+                    this.ctx.fillStyle = 'rgba(150, 150, 150, 0.5)';
+                    this.ctx.beginPath();
+                    this.ctx.arc(portalX, portalY, 25, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    this.ctx.strokeStyle = '#888';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.beginPath();
+                    this.ctx.arc(portalX, portalY, 25, 0, Math.PI * 2);
+                    this.ctx.stroke();
+                }
+                
+                // Indicador de interação se próximo
+                const distance = Math.sqrt(
+                    Math.pow(this.player.x - portal.x, 2) + 
+                    Math.pow(this.player.y - portal.y, 2)
+                );
+                
+                if (distance < 50) {
+                    this.ctx.fillStyle = '#FFFF00';
+                    this.ctx.font = '12px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText('E', portalX, portalY - 40);
+                }
+            }
+        });
+    }
+
+    renderWorkbenches() {
+        this.craftingSystem.workbenches.forEach(workbench => {
+            const workbenchX = workbench.x + this.map.offsetX;
+            const workbenchY = workbench.y + this.map.offsetY;
+            
+            // Verificar se está visível
+            if (workbenchX > -60 && workbenchX < this.canvas.width + 60 && 
+                workbenchY > -60 && workbenchY < this.canvas.height + 60) {
+                
+                // Base do workbench
+                this.ctx.fillStyle = '#4A4A4A';
+                this.ctx.fillRect(workbenchX - 20, workbenchY - 10, 40, 20);
+                
+                // Tela/Interface
+                this.ctx.fillStyle = '#001122';
+                this.ctx.fillRect(workbenchX - 15, workbenchY - 25, 30, 15);
+                
+                // Borda da tela
+                this.ctx.strokeStyle = '#c8aa6e';
+                this.ctx.lineWidth = 1;
+                this.ctx.strokeRect(workbenchX - 15, workbenchY - 25, 30, 15);
+                
+                // Indicador de nível
+                this.ctx.fillStyle = workbench.level <= this.player.level ? '#4CAF50' : '#F44336';
+                this.ctx.font = '10px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(`Lv.${workbench.level}`, workbenchX, workbenchY - 30);
+                
+                // Indicador de interação se próximo
+                const distance = Math.sqrt(
+                    Math.pow(this.player.x - workbench.x, 2) + 
+                    Math.pow(this.player.y - workbench.y, 2)
+                );
+                
+                if (distance < 40) {
+                    this.ctx.fillStyle = '#FFFF00';
+                    this.ctx.font = '12px Arial';
+                    this.ctx.fillText('E', workbenchX, workbenchY - 35);
+                }
+            }
+        });
     }
 }
 

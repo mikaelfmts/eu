@@ -512,6 +512,19 @@
     background: #00ff88;
     box-shadow: 0 0 10px #00ff88;
     animation: statusPulse 2s ease-in-out infinite;
+    transition: all 0.3s ease;
+}
+
+.status-dot.processing {
+    background: #ffa500;
+    box-shadow: 0 0 10px #ffa500;
+    animation: processingPulse 1s ease-in-out infinite;
+}
+
+.status-dot.error {
+    background: #ff4444;
+    box-shadow: 0 0 10px #ff4444;
+    animation: errorPulse 0.8s ease-in-out infinite;
 }
 
 .minerva-close {
@@ -711,6 +724,59 @@
 .message-content .msg-list { margin: 6px 0 6px 1.2rem; padding: 0; }
 .message-content .msg-list li { margin: 2px 0; }
 
+/* Ações das Mensagens */
+.message-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(200, 170, 110, 0.1);
+    opacity: 0;
+    transform: translateY(5px);
+    transition: all 0.3s ease;
+}
+
+.message-content:hover .message-actions {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.action-btn:hover {
+    background: rgba(200, 170, 110, 0.1);
+    color: var(--primary-color);
+    transform: scale(1.05);
+}
+
+.action-btn.favorite-btn:hover {
+    color: #FFD700;
+}
+
+.action-btn i.fas.fa-star {
+    color: #FFD700;
+}
+
+.action-btn.copy-btn:hover {
+    color: #4CAF50;
+}
+
+.action-btn.share-btn:hover {
+    color: #2196F3;
+}
+
 .message.user .message-content {
     background: linear-gradient(135deg, 
         rgba(200, 170, 110, 0.15) 0%, 
@@ -827,6 +893,267 @@
     color: var(--primary-color);
 }
 
+/* Estilos para mensagens de erro */
+.error-message .message-content {
+    background: linear-gradient(135deg, 
+        rgba(255, 68, 68, 0.1) 0%, 
+        rgba(255, 68, 68, 0.05) 100%);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.error-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: #ff4444;
+    font-weight: 600;
+}
+
+.error-header i {
+    color: #ff6666;
+}
+
+.retry-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: auto;
+    transition: all 0.2s ease;
+}
+
+.retry-btn:hover {
+    background: rgba(255, 68, 68, 0.1);
+    color: #ff4444;
+}
+
+.error-fallback {
+    color: var(--text-primary);
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 68, 68, 0.2);
+}
+
+/* Funcionalidades Avançadas */
+.advanced-features-menu {
+    background: linear-gradient(135deg, 
+        rgba(200, 170, 110, 0.1) 0%, 
+        rgba(200, 170, 110, 0.05) 100%);
+    border: 1px solid rgba(200, 170, 110, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 10px 0;
+}
+
+.advanced-features-menu h4 {
+    color: var(--primary-color);
+    margin: 0 0 15px 0;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.feature-item {
+    background: linear-gradient(135deg, 
+        rgba(200, 170, 110, 0.08) 0%, 
+        rgba(200, 170, 110, 0.03) 100%);
+    border: 1px solid rgba(200, 170, 110, 0.25);
+    color: var(--text-primary);
+    padding: 12px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.feature-item:hover {
+    background: linear-gradient(135deg, 
+        rgba(200, 170, 110, 0.15) 0%, 
+        rgba(200, 170, 110, 0.08) 100%);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(200, 170, 110, 0.2);
+}
+
+.feature-item i {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.feature-hint {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    margin: 0;
+    font-style: italic;
+}
+
+/* Opções de Exportação */
+.export-options-menu {
+    background: linear-gradient(135deg, 
+        rgba(33, 150, 243, 0.1) 0%, 
+        rgba(33, 150, 243, 0.05) 100%);
+    border: 1px solid rgba(33, 150, 243, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 10px 0;
+}
+
+.export-options-menu h4 {
+    color: #2196F3;
+    margin: 0 0 10px 0;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.export-options-menu p {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-align: center;
+    margin: 0 0 15px 0;
+}
+
+.export-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.export-item {
+    background: linear-gradient(135deg, 
+        rgba(33, 150, 243, 0.08) 0%, 
+        rgba(33, 150, 243, 0.03) 100%);
+    border: 1px solid rgba(33, 150, 243, 0.25);
+    color: var(--text-primary);
+    padding: 15px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+}
+
+.export-item:hover {
+    background: linear-gradient(135deg, 
+        rgba(33, 150, 243, 0.15) 0%, 
+        rgba(33, 150, 243, 0.08) 100%);
+    border-color: #2196F3;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(33, 150, 243, 0.25);
+}
+
+.export-item i {
+    font-size: 1.5rem;
+    color: #2196F3;
+}
+
+.export-item span {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--primary-color);
+}
+
+.export-item small {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.2;
+}
+
+.export-note {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    margin: 0;
+    font-style: italic;
+    background: rgba(33, 150, 243, 0.05);
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(33, 150, 243, 0.1);
+}
+
+/* Modo Tela Cheia */
+.minerva-chat.fullscreen-mode {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    z-index: 999999 !important;
+    transform: none !important;
+    margin: 0 !important;
+}
+
+.minerva-chat.fullscreen-mode .minerva-header {
+    border-radius: 0;
+}
+
+.minerva-chat.fullscreen-mode .minerva-input-area {
+    border-radius: 0;
+}
+
+/* Indicador de Digitação */
+.typing-animation {
+    display: flex;
+    gap: 4px;
+    padding: 10px 0;
+    align-items: center;
+}
+
+.typing-animation span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    opacity: 0.4;
+    animation: typingDots 1.4s ease-in-out infinite both;
+}
+
+.typing-animation span:nth-child(1) { animation-delay: 0s; }
+.typing-animation span:nth-child(2) { animation-delay: 0.2s; }
+.typing-animation span:nth-child(3) { animation-delay: 0.4s; }
+
+.message-content.typing {
+    background: linear-gradient(135deg, 
+        rgba(200, 170, 110, 0.08) 0%, 
+        rgba(200, 170, 110, 0.03) 100%);
+    border: 1px solid rgba(200, 170, 110, 0.2);
+}
+
+@keyframes typingDots {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.4;
+    }
+    30% {
+        transform: translateY(-10px);
+        opacity: 1;
+    }
+}
+
 /* Overlay para Modal */
 .minerva-overlay {
     position: fixed;
@@ -905,12 +1232,24 @@ body.modal-open {
         right: 15px;
     }
     
+    .minerva-owl {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .minerva-cta {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        top: -40px;
+    }
+    
     .minerva-chat {
         width: calc(100vw - 20px);
-        height: calc(100vh - 100px);
+        height: calc(100vh - 120px);
         right: 10px;
         bottom: 10px;
-        border-radius: 10px;
+        border-radius: 12px;
+        max-height: calc(100vh - 120px);
     }
     
     /* Estilos específicos para modal no mobile */
@@ -919,29 +1258,34 @@ body.modal-open {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: calc(100vw - 40px) !important;
-        height: calc(100vh - 120px) !important;
+        width: calc(100vw - 20px) !important;
+        height: calc(100vh - 80px) !important;
         z-index: 1000000 !important;
         max-width: none;
         max-height: none;
         margin: 0;
+        border-radius: 15px;
     }
     
     .minerva-header {
         padding: 12px 15px;
-        border-radius: 8px 8px 0 0;
+        border-radius: 12px 12px 0 0;
     }
     
     .minerva-title {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
+    }
+    
+    .minerva-status {
+        font-size: 0.75rem;
     }
     
     .minerva-messages {
-        padding: 15px;
+        padding: 12px;
     }
     
     .welcome-message h3 {
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
     
     .welcome-message p,
@@ -955,17 +1299,109 @@ body.modal-open {
     }
     
     .message-content {
-        max-width: 200px;
+        max-width: calc(100vw - 120px);
         font-size: 0.85rem;
+        padding: 10px 12px;
     }
     
     .minerva-input-area {
-        padding: 12px 15px;
+        padding: 10px 12px;
     }
     
     #minerva-input {
         font-size: 0.85rem;
         padding: 10px 12px;
+    }
+    
+    .input-features {
+        gap: 3px;
+    }
+    
+    .feature-btn {
+        padding: 6px;
+        font-size: 0.8rem;
+    }
+    
+    .minerva-send-btn {
+        padding: 8px 10px;
+    }
+    
+    .ai-badge {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+    }
+    
+    /* Funcionalidades avançadas mobile */
+    .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .feature-item {
+        padding: 10px 6px;
+        font-size: 0.75rem;
+    }
+    
+    .feature-item i {
+        font-size: 1rem;
+    }
+    
+    /* Chat em tela cheia no mobile */
+    .minerva-chat.fullscreen-mode {
+        width: 100vw !important;
+        height: 100vh !important;
+        border-radius: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
+        transform: none !important;
+    }
+    
+    /* Melhor touch targets */
+    .minerva-close,
+    .feature-btn,
+    .minerva-send-btn,
+    .suggestion-btn {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* Dispositivos muito pequenos */
+@media (max-width: 480px) {
+    .minerva-chat {
+        width: calc(100vw - 10px);
+        right: 5px;
+        bottom: 5px;
+    }
+    
+    .minerva-chat.modal-open {
+        width: calc(100vw - 10px) !important;
+        height: calc(100vh - 60px) !important;
+    }
+    
+    .minerva-title {
+        font-size: 0.85rem;
+    }
+    
+    .message-content {
+        max-width: calc(100vw - 80px);
+        font-size: 0.8rem;
+    }
+    
+    .welcome-message h3 {
+        font-size: 0.9rem;
+    }
+    
+    .welcome-message p,
+    .welcome-message li {
+        font-size: 0.75rem;
+    }
+    
+    #minerva-input {
+        font-size: 0.8rem;
     }
 }
 
@@ -1019,6 +1455,30 @@ body.modal-open {
 @keyframes statusPulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
+}
+
+@keyframes processingPulse {
+    0%, 100% { 
+        opacity: 1; 
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.7; 
+        transform: scale(1.2);
+    }
+}
+
+@keyframes errorPulse {
+    0%, 100% { 
+        opacity: 1; 
+        transform: scale(1);
+        box-shadow: 0 0 10px #ff4444;
+    }
+    50% { 
+        opacity: 0.8; 
+        transform: scale(1.1);
+        box-shadow: 0 0 15px #ff4444;
+    }
 }
 
 @keyframes messageSlideIn {

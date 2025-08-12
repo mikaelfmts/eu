@@ -19,7 +19,6 @@ class LinkedInIntegration {
                 // 'https://www.linkedin.com/feed/update/urn:li:activity:XXXXXXXXXXXXXXX',
             ],
             fallbackAvatar: 'https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg'
-        }
         };
 
         // Estado da aplicação
@@ -81,6 +80,52 @@ class LinkedInIntegration {
             console.log('🎭 Ativando modo demonstração devido a erro');
             this.activateDemoMode();
         }
+    }
+
+    // Renderiza embeds públicos de posts do LinkedIn usando iframes oficiais
+    renderPublicEmbeds() {
+        const feedContainer = document.getElementById('posts-feed');
+        if (!feedContainer) return;
+        feedContainer.innerHTML = '';
+
+        const urls = this.config.publicPostUrls || [];
+        if (urls.length === 0) {
+            this.showFallbackPosts();
+            return;
+        }
+
+        urls.slice(0, 6).forEach((url) => {
+            const urnMatch = url.match(/urn:li:(activity|share):[0-9]+/);
+            const embedSrc = urnMatch
+                ? `https://www.linkedin.com/embed/feed/update/${urnMatch[0]}`
+                : url.startsWith('https://www.linkedin.com/embed/')
+                    ? url
+                    : '';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'post-item';
+            wrapper.style.cssText = 'background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 0; overflow: hidden;';
+
+            if (embedSrc) {
+                wrapper.innerHTML = `
+                    <div style="position: relative; width: 100%;">
+                        <iframe src="${embedSrc}" height="600" width="100%" frameborder="0" allowfullscreen title="Post do LinkedIn"></iframe>
+                    </div>
+                `;
+            } else {
+                wrapper.innerHTML = `
+                    <div style="padding:1rem; text-align:center; color: var(--text-secondary);">
+                        <i class="fab fa-linkedin" style="color:#0a66c2; font-size:1.5rem;"></i>
+                        <p style="margin-top:.5rem;">URL de post inválida.</p>
+                    </div>
+                `;
+            }
+
+            feedContainer.appendChild(wrapper);
+        });
+
+        const loadMore = document.querySelector('.load-more-container');
+        if (loadMore) loadMore.style.display = 'none';
     }
 
     async checkAPIStatus() {

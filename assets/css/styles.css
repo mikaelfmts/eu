@@ -685,6 +685,19 @@ body {
     align-items: center;
 }
 
+/* Glow sutil e elegante atrás da foto */
+.profile-image-container::after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,170,110,0.25) 0%, rgba(200,170,110,0.08) 40%, transparent 70%);
+    filter: blur(8px);
+    animation: pulse-glow 4s ease-in-out infinite;
+}
+
 .profile-image {
     width: 120px; /* Reduzido de 160px */
     height: 120px; /* Reduzido de 160px */
@@ -910,6 +923,111 @@ body {
     font-size: 0.9rem;
     animation: bounce 2s infinite;
     cursor: pointer;
+}
+
+/* Marquee de tecnologias */
+#tech-marquee.media-section.alt {
+    background: linear-gradient(135deg, rgba(10,20,40,0.4), rgba(10,20,40,0.25));
+}
+
+.marquee {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.marquee-track {
+    display: flex;
+    gap: 2rem;
+    padding: 0.5rem 0;
+    will-change: transform;
+    animation: marquee-scroll 18s linear infinite;
+}
+
+.marquee-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: rgba(30,35,40,0.6);
+    border: 1px solid rgba(200,170,110,0.25);
+    border-radius: 999px;
+    color: var(--text-primary);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.marquee-item i { color: var(--primary-color); font-size: 1.1rem; }
+
+@keyframes marquee-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* Grade de destaques profissionais */
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+}
+
+.feature-card {
+    background: linear-gradient(145deg, rgba(30,35,40,0.95), rgba(20,25,30,0.9));
+    border: 1px solid rgba(200,170,110,0.25);
+    border-radius: 14px;
+    padding: 1.25rem;
+    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+    box-shadow: 0 10px 24px rgba(0,0,0,.25);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary-color);
+    box-shadow: 0 18px 36px rgba(200,170,110,.25);
+}
+
+.feature-card .card-icon {
+    width: 48px; height: 48px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 12px;
+    background: rgba(200,170,110,.12);
+    border: 1px solid rgba(200,170,110,.25);
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.feature-card h4 { color: var(--text-primary); margin: .25rem 0; font-family: 'Marcellus', serif; }
+.feature-card p { color: var(--text-secondary); font-size: .95rem; }
+.feature-card .card-actions { margin-top: .5rem; display: flex; gap: .5rem; }
+.feature-card .card-actions a { text-decoration: none; }
+
+/* Botão flutuante LinkedIn */
+.floating-cta {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 1002;
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .8rem 1.1rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #0077b5, #005885);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: 0 10px 24px rgba(0, 119, 181, .35);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.floating-cta:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(0,119,181,.45); }
+.floating-cta i { font-size: 1.1rem; }
+
+@media (max-width: 480px) {
+  .floating-cta { right: .8rem; bottom: .8rem; padding: .7rem 1rem; }
 }
 
 .scroll-indicator i {

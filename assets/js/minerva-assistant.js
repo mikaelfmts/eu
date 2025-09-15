@@ -9,7 +9,14 @@ class MinervaUltraAssistant {
         this.messageHistory = [];
         this.knowledgeBase = this.initializeKnowledgeBase();
         this.apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
-        this.apiKey = 'AIzaSyDMxTyUdbZ41HgiLb-3hE4mrTZ3GnlnJuE'; // Google Gemini API Key
+        // Google Gemini API Key (pode ser sobrescrita via localStorage: 'minerva_gemini_api_key')
+        this.apiKey = 'AIzaSyCfxFIko7Ku2H1d6NA31OL7wl888zcR06Q';
+        try {
+            const overrideKey = localStorage.getItem('minerva_gemini_api_key');
+            if (overrideKey && typeof overrideKey === 'string' && overrideKey.trim().length > 20) {
+                this.apiKey = overrideKey.trim();
+            }
+        } catch {}
         this.conversationCache = new Map();
         this.lastInteraction = Date.now();
         this.isActive = false;
@@ -59,7 +66,6 @@ class MinervaUltraAssistant {
                 'pages/curriculum.html',
                 'pages/projetos.html',
                 'pages/mentors.html',
-                'pages/linkedin.html',
                 'pages/certificates-in-progress.html',
                 'pages/interactive-projects.html',
                 'pages/galeria-midia.html',
@@ -67,6 +73,27 @@ class MinervaUltraAssistant {
             ]
         };
         
+        // Limitação de taxa do Gemini (10 req/min -> ~1 a cada 6s)
+    this._geminiQueue = [];
+    this._geminiProcessing = false;
+    this._geminiMinInterval = 9000; // 9s entre requisições (≈6,6/min) para margem ainda mais segura
+    this._geminiLastRequest = 0;
+    // Controle adicional por janela (token bucket simples)
+    this._geminiWindowMs = 60000; // 1 minuto
+    this._geminiWindowStart = Date.now();
+    this._geminiUsedInWindow = 0;
+    this._geminiMaxPerWindow = 10; // limite por minuto da versão free
+    this._geminiCooldownUntil = 0; // timestamp até quando devemos aguardar após 429
+    // Deduplicação e throttle de UI
+    this._inflightQuestions = new Map(); // cacheKey -> Promise
+    this._lastUserAskAt = 0;
+    // Controle global persistente
+    this._globalRateKey = 'minerva_gemini_rate';
+    this._globalLockKey = 'minerva_gemini_lock';
+
+    // Novo ciclo de chave: limpar estado de rate/lock para evitar locks antigos
+    this._resetGeminiRateState();
+
         this.init();
     }    initializeKnowledgeBase() {
         return {
@@ -260,6 +287,17 @@ class MinervaUltraAssistant {
             .catch(error => {
                 console.log('⚠️ Minerva: Falha na inicialização do GitHub, continuando sem integração:', error.message);
             });
+    }
+    _resetGeminiRateState() {
+        try {
+            localStorage.removeItem(this._globalRateKey);
+            localStorage.removeItem(this._globalLockKey);
+        } catch {}
+        this._geminiWindowStart = Date.now();
+        this._geminiUsedInWindow = 0;
+        this._geminiCooldownUntil = 0;
+        this._geminiQueue = [];
+        this._geminiProcessing = false;
     }
 
     createMinervaUI() {
@@ -912,6 +950,41 @@ class MinervaUltraAssistant {
         const message = customMessage || input.value.trim();
         
         if (!message) return;
+        // Throttle básico para evitar spam de Enter
+        const now = Date.now();
+        if (!customMessage && (now - this._lastUserAskAt) < 2000) {
+            this.showNotification('⏳ Aguarde 2s antes de enviar outra pergunta.', 'info');
+            return;
+        }
+        this._lastUserAskAt = now;
+        // Evitar enfileirar demais quando sistema está em cooldown ou bloqueio global
+        if (now < this._geminiCooldownUntil || this._isLockedGlobally() || this._geminiQueue.length >= 6) {
+            this.addMessage('⏰ Estou processando muitas solicitações agora. Vou responder com base no meu conhecimento local enquanto espero o limite da API liberar.', 'assistant');
+            // Responde com fallback sem tocar na API
+            const fallback = this.getFallbackResponse(message);
+            this.addMessage(fallback, 'assistant');
+            return;
+        }
+        // Checagem de janela global via localStorage antes de aceitar a pergunta
+        try {
+            const key = this._globalRateKey;
+            const now2 = Date.now();
+            let win = {};
+            try { win = JSON.parse(localStorage.getItem(key) || '{}'); } catch {}
+            let start = typeof win.start === 'number' ? win.start : now2;
+            let used = typeof win.used === 'number' ? win.used : 0;
+            if (now2 - start >= this._geminiWindowMs) {
+                start = now2;
+                used = 0;
+            }
+            // margem forte: só permitir até 5 por minuto globalmente
+            if (used >= 5) {
+                this.addMessage('🛑 A API atingiu o limite seguro por minuto. Responderei com base no conhecimento local para evitar bloqueios.', 'assistant');
+                const fallback = this.getFallbackResponse(message);
+                this.addMessage(fallback, 'assistant');
+                return;
+            }
+        } catch {}
         
         // Limpar input se não for mensagem customizada
         if (!customMessage) {
@@ -1084,11 +1157,25 @@ class MinervaUltraAssistant {
                 return;
             }
 
+            // Se já houver uma pergunta idêntica em processamento, aguardar a mesma resposta
+            if (this._inflightQuestions.has(cacheKey)) {
+                const inflight = this._inflightQuestions.get(cacheKey);
+                const response = await inflight;
+                this.stopThinking();
+                this.hideTypingIndicator();
+                this.setStatus('Online', 'online');
+                this.addMessage(response, 'assistant');
+                this.saveToHistory(question, response);
+                return;
+            }
+
             // Construir contexto
             const context = this.buildContext();
             
             // Consultar Google Gemini API
-            const response = await this.queryGemini(question, context);
+            const inflightPromise = this.queryGemini(question, context);
+            this._inflightQuestions.set(cacheKey, inflightPromise);
+            const response = await inflightPromise.finally(() => this._inflightQuestions.delete(cacheKey));
             
             // Cache da resposta
             this.conversationCache.set(cacheKey, response);
@@ -2497,6 +2584,231 @@ class MinervaUltraAssistant {
 
     // ========== END GITHUB INTEGRATION ==========
 
+    // Worker da fila para chamadas Gemini respeitando 10 req/min
+    _processGeminiQueue() {
+        if (this._geminiProcessing) return;
+        const next = this._geminiQueue.shift();
+        if (!next) return;
+        this._geminiProcessing = true;
+        const now = Date.now();
+
+        // Se houver bloqueio global pós-429, reagendar
+        if (this._isLockedGlobally()) {
+            const delay = Math.max(0, this._getGlobalLockUntil() - now);
+            this._geminiQueue.unshift(next);
+            this._geminiProcessing = false;
+            setTimeout(() => this._processGeminiQueue(), delay + 25);
+            return;
+        }
+
+        // Reset da janela se necessário
+        if (now - this._geminiWindowStart >= this._geminiWindowMs) {
+            this._geminiWindowStart = now;
+            this._geminiUsedInWindow = 0;
+        }
+
+        // Se estivermos em cooldown (pós-429), reagendar
+        if (now < this._geminiCooldownUntil) {
+            const delay = this._geminiCooldownUntil - now;
+            this._geminiQueue.unshift(next);
+            this._geminiProcessing = false;
+            setTimeout(() => this._processGeminiQueue(), delay + 25);
+            return;
+        }
+
+        // Se excedeu a janela atual (margem local de 8), reagendar para o início da próxima janela
+        if (this._geminiUsedInWindow >= 8) {
+            const delayToNextWindow = (this._geminiWindowStart + this._geminiWindowMs) - now;
+            this._geminiQueue.unshift(next);
+            this._geminiProcessing = false;
+            setTimeout(() => this._processGeminiQueue(), Math.max(0, delayToNextWindow) + 25);
+            return;
+        }
+
+        const wait = Math.max(0, this._geminiMinInterval - (now - this._geminiLastRequest));
+
+        setTimeout(async () => {
+            try {
+                this._geminiLastRequest = Date.now();
+                const { body, attempts } = next;
+                // Reservar slot local e global ANTES do fetch
+                this._geminiUsedInWindow += 1;
+                let reservedGlobal = false;
+                let globalKeyStart = 0;
+                try {
+                    const key = this._globalRateKey;
+                    const now2 = Date.now();
+                    let win = {};
+                    try { win = JSON.parse(localStorage.getItem(key) || '{}'); } catch {}
+                    let start = typeof win.start === 'number' ? win.start : now2;
+                    let used = typeof win.used === 'number' ? win.used : 0;
+                    if (now2 - start >= this._geminiWindowMs) {
+                        start = now2;
+                        used = 0;
+                    }
+                    // margem global de 5 por minuto
+                    if (used >= 5) {
+                        const delayToNextWindow = (start + this._geminiWindowMs) - now2;
+                        // desfaz reserva local
+                        this._geminiUsedInWindow = Math.max(0, this._geminiUsedInWindow - 1);
+                        this._geminiQueue.unshift(next);
+                        this._geminiProcessing = false;
+                        setTimeout(() => this._processGeminiQueue(), Math.max(0, delayToNextWindow) + 50);
+                        return;
+                    }
+                    used += 1;
+                    globalKeyStart = start;
+                    reservedGlobal = true;
+                    localStorage.setItem(key, JSON.stringify({ start, used }));
+                } catch {}
+                const response = await fetch(`${this.apiEndpoint}?key=${this.apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (response.status === 429) {
+                    // Respeitar Retry-After quando presente
+                    const retryAfterHeader = response.headers.get('retry-after');
+                    const retryAfterSec = retryAfterHeader ? parseInt(retryAfterHeader, 10) : NaN;
+                    const retryDelayMs = Number.isFinite(retryAfterSec) ? retryAfterSec * 1000 : Math.min(30000, this._geminiMinInterval * 2);
+                    // Ativar cooldown para evitar rajadas
+                    this._geminiCooldownUntil = Date.now() + retryDelayMs;
+                    this._bump429Lock(retryDelayMs);
+                    // Devolver slots (local e global) já que a requisição não foi aceita
+                    this._geminiUsedInWindow = Math.max(0, this._geminiUsedInWindow - 1);
+                    try {
+                        if (reservedGlobal) {
+                            const key = this._globalRateKey;
+                            let win = {};
+                            try { win = JSON.parse(localStorage.getItem(key) || '{}'); } catch {}
+                            if (win && win.start === globalKeyStart && typeof win.used === 'number') {
+                                win.used = Math.max(0, win.used - 1);
+                                localStorage.setItem(key, JSON.stringify(win));
+                            }
+                        }
+                    } catch {}
+
+                    if ((attempts || 0) < 3) {
+                        // Reenfileirar com backoff exponencial simples
+                        setTimeout(() => {
+                            this._geminiQueue.unshift({ body, attempts: (attempts || 0) + 1, resolve: next.resolve, reject: next.reject });
+                            this._geminiProcessing = false;
+                            this._processGeminiQueue();
+                        }, retryDelayMs);
+                        return; // não prossegue resolução agora
+                    } else {
+                        await response.text().catch(() => '');
+                        next.reject(new Error('Rate limit do Gemini excedido, tente novamente em alguns segundos'));
+                    }
+                } else if (!response.ok) {
+                    const errorText = await response.text();
+                    // Devolver slots em erros não-OK
+                    this._geminiUsedInWindow = Math.max(0, this._geminiUsedInWindow - 1);
+                    try {
+                        if (reservedGlobal) {
+                            const key = this._globalRateKey;
+                            let win = {};
+                            try { win = JSON.parse(localStorage.getItem(key) || '{}'); } catch {}
+                            if (win && win.start === globalKeyStart && typeof win.used === 'number') {
+                                win.used = Math.max(0, win.used - 1);
+                                localStorage.setItem(key, JSON.stringify(win));
+                            }
+                        }
+                    } catch {}
+                    if (response.status === 401) {
+                        next.reject(new Error('Chave API do Gemini inválida ou expirada'));
+                    } else if (response.status === 403) {
+                        next.reject(new Error('Acesso negado à API do Gemini'));
+                    } else {
+                        next.reject(new Error(`Erro na API do Gemini: ${response.status} - ${errorText}`));
+                    }
+                } else {
+                    const data = await response.json();
+                    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+                        next.resolve(data.candidates[0].content.parts[0].text);
+                    } else {
+                        // Devolver slots em formato inesperado
+                        this._geminiUsedInWindow = Math.max(0, this._geminiUsedInWindow - 1);
+                        try {
+                            if (reservedGlobal) {
+                                const key = this._globalRateKey;
+                                let win = {};
+                                try { win = JSON.parse(localStorage.getItem(key) || '{}'); } catch {}
+                                if (win && win.start === globalKeyStart && typeof win.used === 'number') {
+                                    win.used = Math.max(0, win.used - 1);
+                                    localStorage.setItem(key, JSON.stringify(win));
+                                }
+                            }
+                        } catch {}
+                        next.reject(new Error('Formato de resposta inesperado do Gemini'));
+                    }
+                }
+            } catch (e) {
+                // Devolver slots em exceção
+                this._geminiUsedInWindow = Math.max(0, this._geminiUsedInWindow - 1);
+                try {
+                    const key = this._globalRateKey;
+                    let win = {};
+                    try { win = JSON.parse(localStorage.getItem(key) || '{}'); } catch {}
+                    if (win && typeof win.used === 'number') {
+                        win.used = Math.max(0, win.used - 1);
+                        localStorage.setItem(key, JSON.stringify(win));
+                    }
+                } catch {}
+                next.reject(e);
+            } finally {
+                // Liberar processamento e agendar próximo
+                this._geminiProcessing = false;
+                this._processGeminiQueue();
+            }
+        }, wait);
+    }
+
+    // Helpers de bloqueio global pós-429
+    _getGlobalLockUntil() {
+        try {
+            const raw = localStorage.getItem(this._globalLockKey);
+            if (!raw) return 0;
+            const obj = JSON.parse(raw);
+            return typeof obj.until === 'number' ? obj.until : 0;
+        } catch { return 0; }
+    }
+    _isLockedGlobally() {
+        return Date.now() < this._getGlobalLockUntil();
+    }
+    _setGlobalLockUntil(untilTs, consecutive429 = 1) {
+        try {
+            localStorage.setItem(this._globalLockKey, JSON.stringify({ until: untilTs, consecutive429, last: Date.now() }));
+        } catch {}
+    }
+    _bump429Lock(baseDelayMs) {
+        try {
+            const raw = localStorage.getItem(this._globalLockKey);
+            let consecutive = 0;
+            let until = 0;
+            if (raw) {
+                const obj = JSON.parse(raw);
+                consecutive = (obj && typeof obj.consecutive429 === 'number') ? obj.consecutive429 : 0;
+                until = (obj && typeof obj.until === 'number') ? obj.until : 0;
+            }
+            consecutive = Math.min(consecutive + 1, 10);
+            // backoff exponencial com jitter: min(30min, base*2^n + 0-2s)
+            const jitter = Math.floor(Math.random() * 2000);
+            const proposed = Date.now() + Math.min(30 * 60 * 1000, baseDelayMs * Math.pow(2, consecutive)) + jitter;
+            const nextUntil = Math.max(until, proposed);
+            this._setGlobalLockUntil(nextUntil, consecutive);
+        } catch {}
+    }
+
+    // Enfileira uma chamada ao Gemini com corpo pronto
+    _enqueueGeminiCall(body) {
+        return new Promise((resolve, reject) => {
+            this._geminiQueue.push({ body, resolve, reject, attempts: 0 });
+            this._processGeminiQueue();
+        });
+    }
+
     async queryGemini(question, context) {
         try {
             // Tentar enriquecer com dados do GitHub se necessário
@@ -2645,53 +2957,23 @@ PERGUNTA DO USUÁRIO: ${question}`;
 
             // Ajustar estilo de resposta conforme preferência do usuário
             const concise = this.userSession?.userPreferences?.responseStyle === 'concise';
-            const response = await fetch(`${this.apiEndpoint}?key=${this.apiKey}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: systemPrompt + `\n\nMODO DE RESPOSTA: ${concise ? 'Conciso, direto ao ponto, com bullets quando adequado. Inclua no máximo 6 bullets e 2 parágrafos curtos.' : 'Explicativo, porém objetivo. Primeiro um resumo em 2-3 frases, depois detalhes técnicos quando necessário.'}\nFORMATAÇÃO: Use listas curtas quando fizer sentido; evite rodeios. Sempre responda em português.\n\nCONTEÚDO DO SITE INDEXADO (se disponível):\n${JSON.stringify(context.siteIndex, null, 2)}`
-                        }]
-                    }],
-                    generationConfig: {
-                        temperature: concise ? 0.4 : 0.7,
-                        topK: 40,
-                        topP: 0.95,
-                        maxOutputTokens: concise ? 280 : 500,
-                    }
-                })
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Gemini API Error Details:', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    body: errorText
-                });
-                
-                if (response.status === 401) {
-                    throw new Error('Chave API do Gemini inválida ou expirada');
-                } else if (response.status === 429) {
-                    throw new Error('Rate limit do Gemini excedido, tente novamente em alguns segundos');
-                } else if (response.status === 403) {
-                    throw new Error('Acesso negado à API do Gemini');
-                } else {
-                    throw new Error(`Erro na API do Gemini: ${response.status} - ${errorText}`);
+            const body = {
+                contents: [{
+                    parts: [{
+                        text: systemPrompt + `\n\nMODO DE RESPOSTA: ${concise ? 'Conciso, direto ao ponto, com bullets quando adequado. Inclua no máximo 6 bullets e 2 parágrafos curtos.' : 'Explicativo, porém objetivo. Primeiro um resumo em 2-3 frases, depois detalhes técnicos quando necessário.'}\nFORMATAÇÃO: Use listas curtas quando fizer sentido; evite rodeios. Sempre responda em português.\n\nCONTEÚDO DO SITE INDEXADO (se disponível):\n${JSON.stringify(context.siteIndex, null, 2)}`
+                    }]
+                }],
+                generationConfig: {
+                    temperature: concise ? 0.4 : 0.7,
+                    topK: 40,
+                    topP: 0.95,
+                    maxOutputTokens: concise ? 280 : 500,
                 }
-            }
+            };
 
-            const data = await response.json();
-            
-            // Verifica se a resposta tem o formato esperado do Gemini
-            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-                return data.candidates[0].content.parts[0].text;
-            } else {
-                throw new Error('Formato de resposta inesperado do Gemini');
-            }
+            // Chamada via fila com rate limit/backoff
+            const text = await this._enqueueGeminiCall(body);
+            return text;
             
         } catch (error) {
             console.error('Erro completo na API do Gemini:', error);

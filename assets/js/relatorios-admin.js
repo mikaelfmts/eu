@@ -230,12 +230,18 @@ async function handleReportSubmit(event) {
     
     try {
         const formData = new FormData(event.target);
-        const sourceType = document.querySelector('input[name="source-type"]:checked').value;
+        // Utilitário para obter string com trim de forma segura
+        const getTrim = (name) => {
+            const v = formData.get(name);
+            return typeof v === 'string' ? v.trim() : '';
+        };
+
+        const sourceType = document.querySelector('input[name="source-type"]:checked')?.value || 'url';
         
         let embedUrl = '';
         
         if (sourceType === 'url') {
-            embedUrl = formData.get('embedUrl').trim();
+            embedUrl = getTrim('embedUrl');
             if (!embedUrl) {
                 throw new Error('URL do relatório é obrigatória');
             }
@@ -253,16 +259,18 @@ async function handleReportSubmit(event) {
             // Upload do arquivo
             embedUrl = await uploadFile(file);
         }
-          const reportData = {
-            title: formData.get('title').trim(),
-            description: formData.get('description').trim(),
-            type: formData.get('type'),
-            embedUrl: embedUrl,
-            previewImage: formData.get('previewImage').trim() || null, // Adicionar campo de imagem
-            sourceType: sourceType,
-            visible: formData.get('visible') === 'on',
-            createdAt: serverTimestamp(),
-            createdBy: currentUser.uid        };
+                    const reportData = {
+                        title: getTrim('title'),
+                        description: getTrim('description'),
+                        type: getTrim('type'),
+                        embedUrl: embedUrl,
+                        // Campo opcional: URL de imagem de prévia
+                        previewImage: (getTrim('previewImage') || null),
+                        sourceType: sourceType,
+                        visible: formData.get('visible') === 'on',
+                        createdAt: serverTimestamp(),
+                        createdBy: currentUser?.uid || 'anon'
+                    };
 
         if (!reportData.title || !reportData.type || !reportData.embedUrl) {
             throw new Error('Título, tipo e origem do relatório são obrigatórios');
@@ -478,23 +486,29 @@ async function loadFeaturedReportsSelect() {
     if (!select) return;
     
     try {
+        // Evitar índice composto exigido combinando where + orderBy; ordenar no cliente
         const q = query(
-            collection(db, 'relatorios_posts'), 
-            where('visible', '==', true),
-            orderBy('title')
+            collection(db, 'relatorios_posts'),
+            where('visible', '==', true)
         );
         const querySnapshot = await getDocs(q);
         
         select.innerHTML = '<option value="">Selecione um relatório</option>';
-        
-        querySnapshot.forEach(doc => {
-            const report = { id: doc.id, ...doc.data() };
+
+        // Montar lista e ordenar por título no cliente
+        const reports = [];
+        querySnapshot.forEach(d => {
+            reports.push({ id: d.id, ...d.data() });
+        });
+        reports.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+
+        for (const report of reports) {
             const option = document.createElement('option');
             option.value = report.id;
-            option.textContent = report.title;
+            option.textContent = report.title || '(Sem título)';
             option.dataset.report = JSON.stringify(report);
             select.appendChild(option);
-        });
+        }
         
     } catch (error) {
         console.error('Erro ao carregar relatórios para seleção:', error);

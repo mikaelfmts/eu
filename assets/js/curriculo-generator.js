@@ -775,6 +775,9 @@ function applySettingsToPreview() {
         console.log(`🔗 Link de projeto ${curriculumData.settings.showProjectLinks ? 'mostrado' : 'ocultado'}`);
     });
     
+    // Reaplicar classes/estilos globais do preview (tema, layout, spacing, fonte, margens)
+    applyPreviewStyles(previewContainer);
+
     // Log final
     console.log(`✅ Configurações aplicadas: ${photoElements.length} fotos, ${skillProgressElements.length} barras, ${contactIconElements.length} ícones, ${projectLinkElements.length} links`);
 }
@@ -1304,6 +1307,8 @@ window.refreshPreview = function() {
     
     const html = generateCurriculumHTML();
     previewContainer.innerHTML = html;
+    // Aplicar configurações gerais ao preview (tema, layout, espaçamento, fonte, margens, cores)
+    applyPreviewStyles(previewContainer);
     
     // Aplicar cores personalizadas automaticamente
     if (curriculumData.settings && curriculumData.settings.customColors) {
@@ -2461,6 +2466,7 @@ function applyPreviewStyles(previewContainer) {
     const settings = curriculumData.settings;
     
     previewContainer.style.setProperty('--primary-color', settings.primaryColor);
+    previewContainer.style.setProperty('--theme-primary', settings.primaryColor);
     previewContainer.style.fontFamily = `${settings.fontFamily}, sans-serif`;
     
     // Obter cor de fundo da configuração ou do input
@@ -2475,10 +2481,20 @@ function applyPreviewStyles(previewContainer) {
     const mainContentDiv = previewContainer.querySelector('div');
     if (mainContentDiv) {
         mainContentDiv.style.backgroundColor = backgroundColor;
+        // Aplicar margens (como padding) conforme seleção
+        const marginSetting = settings.documentMargins || 'normal';
+        let paddingCSS = '20px';
+        switch (marginSetting) {
+            case 'compact': paddingCSS = '10px'; break;
+            case 'comfortable': paddingCSS = '30px'; break;
+            case 'wide': paddingCSS = '40px'; break;
+            default: paddingCSS = '20px';
+        }
+        mainContentDiv.style.padding = paddingCSS;
     }
       
-    // Aplicar classes de tema e layout
-    previewContainer.className = `curriculum-preview curriculum-${settings.theme} layout-${settings.layout} spacing-${settings.spacing}`;
+    // Aplicar classes de tema, layout, espaçamento e tamanho de fonte
+    previewContainer.className = `curriculum-preview curriculum-${settings.theme} layout-${settings.layout} spacing-${settings.spacing} font-size-${settings.fontSize}`;
     
     // Aplicar cores personalizadas se existirem
     if (settings.customColors) {
@@ -2561,7 +2577,7 @@ function applyCustomColorsToPreview(colors, container = null) {
     if (existingStyle) {
         existingStyle.remove();
     }
-      style.textContent = `
+    style.textContent = `
         /* Regras para impressão - garantir cores corretas no PDF */
         @media print {
             #curriculum-preview, 
@@ -2595,7 +2611,7 @@ function applyCustomColorsToPreview(colors, container = null) {
         
         /* Texto principal - parágrafos e descrições */
         #curriculum-preview p,
-        #curriculum-preview span:not([style*="color"]) {
+        #curriculum-preview span {
             color: ${colors.mainText} !important;
         }
         

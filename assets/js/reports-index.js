@@ -283,10 +283,34 @@ function createFeaturedReportCard(report) {
 }
 
 // Função global para abrir relatórios
-window.openReport = function(report) {
+async function resolveEmbedUrl(report) {
+    // Se a origem for URL, retornar diretamente
+    if (!report || !report.sourceType || report.sourceType === 'url') {
+        return report?.embedUrl || '';
+    }
+
+    // Para arquivos, o embedUrl contém o ID do documento em relatorios_files
+    try {
+        const fileDocRef = doc(db, 'relatorios_files', report.embedUrl);
+        const fileSnap = await getDoc(fileDocRef);
+        if (fileSnap.exists()) {
+            const data = fileSnap.data();
+            // Se já é Data URL, podemos usar direto no iframe para PDF/HTML
+            if (typeof data.data === 'string' && data.data.startsWith('data:')) {
+                return data.data;
+            }
+        }
+    } catch (e) {
+        console.error('Erro ao resolver arquivo do relatório:', e);
+    }
+    return '';
+}
+
+window.openReport = async function(report) {
     // Criar modal para exibir o relatório
     const modal = document.createElement('div');
     modal.className = 'report-modal';
+    const resolvedUrl = await resolveEmbedUrl(report);
     modal.innerHTML = `
         <div class="report-modal-content">
             <div class="report-modal-header">
@@ -296,7 +320,7 @@ window.openReport = function(report) {
                 </button>
             </div>
             <div class="report-modal-body">
-                <iframe src="${report.embedUrl}" 
+                <iframe src="${resolvedUrl || report.embedUrl || ''}" 
                         frameborder="0" 
                         allowfullscreen 
                         class="report-iframe">

@@ -56,6 +56,74 @@
     <div id="loading-screen">
         <div class="loader"></div>
     </div>
+    <!-- Banner de Aviso de Atualização / Bugs -->
+    <div id="update-banner" class="update-banner" role="status" aria-live="polite" style="display:none;">
+        <div class="update-banner-content">
+            <div class="update-banner-icon">
+                <i class="fas fa-tools"></i>
+            </div>
+            <div class="update-banner-text">
+                <strong>Em Constante Evolução:</strong> Este site está em atualização contínua e podem ocorrer pequenos bugs de desempenho. <span class="update-banner-highlight">Se notar algo estranho</span>, por favor me reporte pelo chat — sua mensagem será registrada no meu banco de dados para melhorias.
+            </div>
+            <button id="dismiss-update-banner" class="update-banner-close" aria-label="Fechar aviso">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    <style>
+        .update-banner { 
+            position: sticky; top:0; z-index: 1200; 
+            background: linear-gradient(90deg, rgba(10,14,39,0.92), rgba(30,27,36,0.88));
+            border-bottom: 1px solid rgba(200,170,110,0.25);
+            backdrop-filter: blur(6px);
+            font-family: 'Marcellus', serif;
+            animation: slideDown 0.6s ease;
+        }
+        .update-banner-content { 
+            max-width: 1250px; margin:0 auto; padding: .85rem 1.2rem; 
+            display:flex; gap:1rem; align-items: flex-start; position:relative; 
+        }
+        .update-banner-icon { 
+            color:#c8aa6e; font-size:1.3rem; line-height:1; margin-top:.15rem; 
+            text-shadow:0 0 6px rgba(200,170,110,0.4);
+        }
+        .update-banner-text { 
+            color:#e7e2d5; font-size:.9rem; line-height:1.5; flex:1; 
+        }
+        .update-banner-text strong { color:#c8aa6e; font-weight:600; }
+        .update-banner-highlight { color:#ffcf70; font-weight:500; }
+        .update-banner-close { 
+            background: rgba(200,170,110,0.12); border:1px solid rgba(200,170,110,0.3); 
+            color:#c8aa6e; width:34px; height:34px; border-radius:8px; cursor:pointer; 
+            display:flex; align-items:center; justify-content:center; transition:.25s; 
+        }
+        .update-banner-close:hover { background: rgba(200,170,110,0.22); }
+        @media (max-width: 720px){
+            .update-banner-content { flex-direction: column; padding: .95rem .9rem 1rem; }
+            .update-banner-close { position:absolute; top:8px; right:8px; }
+        }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+    </style>
+    <script>
+        (function(){
+            const KEY = 'dismissUpdateBannerV1';
+            const banner = document.getElementById('update-banner');
+            const btn = document.getElementById('dismiss-update-banner');
+            try {
+                const dismissed = localStorage.getItem(KEY);
+                if(!dismissed){
+                    // Mostrar levemente atrasado para não competir com o loading
+                    setTimeout(()=>{ banner.style.display='block'; }, 600);
+                }
+                btn.addEventListener('click', ()=>{
+                    banner.style.opacity='0';
+                    banner.style.transition='opacity .35s ease';
+                    setTimeout(()=>{ banner.style.display='none'; }, 380);
+                    localStorage.setItem(KEY, Date.now());
+                });
+            } catch(e){ console.warn('Persistência do banner indisponível', e); }
+        })();
+    </script>
 
     <!-- Theme Toggle Button -->
     <button id="theme-toggle" onclick="toggleTheme()">

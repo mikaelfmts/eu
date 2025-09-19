@@ -184,10 +184,9 @@ function createFeaturedMediaCard(media) {
     const card = document.createElement('div');
     card.className = 'featured-media-card';
     
-    const mediaType = media.type || '';
-    const isVideo = mediaType.startsWith('video/') || 
-                   mediaType === 'video' ||
-                   /\.(mp4|webm|ogg|avi|mov)$/i.test(media.url);
+    const mediaType = (media.type || '').toLowerCase();
+    const url = media.url || '';
+    const isVideo = mediaType.startsWith('video/') || mediaType === 'video' || /\.(mp4|webm|ogg|avi|mov)(\?|$)/i.test(url);
     
     let mediaElement = '';
     if (isVideo) {
@@ -216,7 +215,7 @@ function createFeaturedMediaCard(media) {
         <div class="featured-info">
             <h3 class="featured-title">${media.title}</h3>
             <p class="featured-description">${media.description}</p>
-            <button class="btn-view-featured" onclick="openFeaturedModal('${media.url}', '${media.type}', '${media.title}', '${media.description}')">
+            <button class="btn-view-featured" onclick="openFeaturedModal('${url.replace(/'/g, "&#39;")}', '${mediaType.replace(/'/g, "&#39;")}', '${(media.title||'').replace(/'/g, "&#39;")}', '${(media.description||'').replace(/'/g, "&#39;")}')">
                 <i class="fas fa-expand"></i>
                 Ver em Tela Cheia
             </button>
@@ -231,22 +230,38 @@ window.openFeaturedModal = function(url, type, title, description) {
     // Criar modal
     const modal = document.createElement('div');
     modal.className = 'featured-modal';
+    const safeTitle = title || '';
+    const safeDesc = description || '';
+    const isYouTube = /(?:youtube\.com|youtu\.be)\/.+/i.test(url);
+    const isImage = /(\.(png|jpe?g|gif|webp|avif|svg))(\?|$)/i.test(url) || type.startsWith('image/');
+    const isVideo = /(\.(mp4|webm|ogg|avi|mov))(\?|$)/i.test(url) || type.startsWith('video/');
+
+    let mediaHtml = '';
+    if (isImage) {
+        mediaHtml = `<img src="${url}" alt="${safeTitle}" class="featured-modal-media">`;
+    } else if (isVideo) {
+        const mime = type && type.startsWith('video/') ? type : 'video/mp4';
+        mediaHtml = `<video controls autoplay class="featured-modal-media"><source src="${url}" type="${mime}"></video>`;
+    } else if (isYouTube) {
+        // Embed YouTube com parâmetros seguros
+        const ytUrl = url.replace('watch?v=', 'embed/');
+        mediaHtml = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin-bottom:1rem;"><iframe src="${ytUrl}" frameborder="0" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%"></iframe></div>`;
+    } else {
+        // Fallback para iframe genérico
+        mediaHtml = `<iframe src="${url}" class="featured-modal-media" style="width:100%;height:60vh;border:0;border-radius:8px;"></iframe>`;
+    }
+
     modal.innerHTML = `
-        <div class="featured-modal-content">
+        <div class="featured-modal-content" role="dialog" aria-modal="true" aria-label="${safeTitle}">
             <div class="featured-modal-header">
-                <h2>${title}</h2>
-                <button class="featured-modal-close" onclick="closeFeaturedModal()">
+                <h2>${safeTitle}</h2>
+                <button class="featured-modal-close" onclick="closeFeaturedModal()" aria-label="Fechar">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="featured-modal-body">
-                ${type === 'video' ? 
-                    `<video controls autoplay class="featured-modal-media">
-                        <source src="${url}" type="video/mp4">
-                    </video>` :
-                    `<img src="${url}" alt="${title}" class="featured-modal-media">`
-                }
-                <p class="featured-modal-description">${description}</p>
+                ${mediaHtml}
+                ${safeDesc ? `<p class="featured-modal-description">${safeDesc}</p>` : ''}
             </div>
         </div>
         <div class="featured-modal-backdrop" onclick="closeFeaturedModal()"></div>
@@ -255,7 +270,10 @@ window.openFeaturedModal = function(url, type, title, description) {
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
     
-    // Adicionar evento de teclado
+    // Foco acessível no botão fechar
+    const closeBtn = modal.querySelector('.featured-modal-close');
+    if (closeBtn) { setTimeout(()=> closeBtn.focus(), 0); }
+    // Eventos de teclado
     document.addEventListener('keydown', handleModalKeydown);
 };
 

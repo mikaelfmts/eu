@@ -3,8 +3,10 @@
 /* Container Principal - Movível como AssistiveTouch */
 #minerva-container {
     position: fixed;
-    bottom: 120px; /* Acima do chat existente */
-    right: 20px;
+    top: calc(50% - 40px); /* Centralizado verticalmente (80px de altura) */
+    left: 20px;
+    right: auto;
+    bottom: auto;
     z-index: 1000;
     font-family: 'Marcellus', serif;
     user-select: none;
@@ -390,13 +392,13 @@
     transform: translateX(-50%);
     display: none;
     gap: 4px;
-    background: linear-gradient(135deg, 
-        rgba(0, 102, 255, 0.9) 0%, 
-        rgba(0, 150, 255, 0.9) 100%);
+    background: linear-gradient(135deg,
+        rgba(200, 170, 110, 0.92) 0%,
+        rgba(255, 207, 112, 0.92) 100%);
     padding: 8px 12px;
     border-radius: 20px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 15px rgba(0, 102, 255, 0.4);
+    border: 2px solid rgba(200, 170, 110, 0.35);
+    box-shadow: 0 4px 15px rgba(200, 170, 110, 0.35), 0 0 12px rgba(255, 207, 112, 0.25);
 }
 
 .thinking-dots::before {
@@ -409,30 +411,45 @@
     height: 0;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
-    border-top: 8px solid rgba(0, 102, 255, 0.9);
+    border-top: 8px solid rgba(200, 170, 110, 0.92);
 }
 
 .thinking-dots span {
     width: 8px;
     height: 8px;
-    background: linear-gradient(135deg, 
-        #ffffff 0%, 
-        #e0e0e0 100%);
+    background: linear-gradient(135deg,
+        #fff5da 0%,
+        #f0e6d2 100%);
     border-radius: 50%;
     display: inline-block;
     animation: advancedThinkingDots 1.6s ease-in-out infinite both;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35), 0 0 6px rgba(255, 207, 112, 0.35);
 }
 
 .thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
 .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
 .thinking-dots span:nth-child(3) { animation-delay: 0s; }
 
+/* Animação das bolinhas de pensamento com pulso dourado */
+@keyframes advancedThinkingDots {
+    0%, 80%, 100% {
+        transform: translateY(0) scale(0.8);
+        filter: drop-shadow(0 0 0 rgba(200,170,110,0));
+        opacity: 0.85;
+    }
+    40% {
+        transform: translateY(-3px) scale(1);
+        filter: drop-shadow(0 0 8px rgba(255,207,112,0.6));
+        opacity: 1;
+    }
+}
+
 /* Chat Ultra Evoluído - Estilo Consistente com o Site */
 .minerva-chat {
     position: fixed;
     bottom: 20px;
-    right: 20px;
+    left: 20px;
+    right: auto;
     width: 380px;
     max-width: calc(100vw - 40px);
     height: 500px;
@@ -1228,8 +1245,10 @@ body.modal-open {
 /* Responsividade Mobile */
 @media (max-width: 768px) {
     #minerva-container {
-        bottom: 20px;
-        right: 15px;
+        top: calc(50% - 35px); /* Centralizado para 70px de altura no mobile */
+        left: 15px;
+        right: auto;
+        bottom: auto;
     }
     
     .minerva-owl {
@@ -1246,7 +1265,8 @@ body.modal-open {
     .minerva-chat {
         width: calc(100vw - 20px);
         height: calc(100vh - 120px);
-        right: 10px;
+        left: 10px;
+        right: auto;
         bottom: 10px;
         border-radius: 12px;
         max-height: calc(100vh - 120px);
@@ -1373,7 +1393,8 @@ body.modal-open {
 @media (max-width: 480px) {
     .minerva-chat {
         width: calc(100vw - 10px);
-        right: 5px;
+        left: 5px;
+        right: auto;
         bottom: 5px;
     }
     

@@ -637,12 +637,8 @@ class MinervaUltraAssistant {
             
             let finalX, finalY;
             
-            // Snap horizontal para a borda mais próxima
-            if (centerX < screenCenter) {
-                finalX = 20; // Margem da esquerda
-            } else {
-                finalX = window.innerWidth - rect.width - 20; // Margem da direita
-            }
+            // Snap horizontal: preferir borda esquerda
+            finalX = 20;
             
             // Manter Y atual mas dentro dos limites
             finalY = Math.max(20, Math.min(window.innerHeight - rect.height - 20, rect.top));

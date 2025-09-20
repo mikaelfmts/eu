@@ -417,6 +417,9 @@ class MinervaUltraAssistant {
         // Inserir no body
         document.body.appendChild(minervaContainer);
 
+        // Criar botão de toggle separado e mais visível
+        this.createToggleButton();
+
         // Aplicar estilos dinâmicos adicionais
         this.applyDynamicStyles();
     }
@@ -543,7 +546,59 @@ class MinervaUltraAssistant {
         
         // Configurar funcionalidade de drag (AssistiveTouch)
         this.setupDragFunctionality();
-    }    setupDragFunctionality() {
+    }
+
+    createToggleButton() {
+        const toggleBtn = document.createElement('button');
+        toggleBtn.id = 'minerva-toggle';
+        toggleBtn.className = 'minerva-toggle-btn';
+        toggleBtn.title = 'Esconder Minerva';
+        toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        document.body.appendChild(toggleBtn);
+
+        let isHidden = false;
+        const container = document.getElementById('minerva-container');
+
+        // Função para posicionar o botão relativo à Minerva
+        this.updateToggleButtonPosition = () => {
+            const containerRect = container.getBoundingClientRect();
+            toggleBtn.style.left = (containerRect.right + 15) + 'px';
+            toggleBtn.style.top = (containerRect.top + 10) + 'px';
+        };
+
+        // Posicionar inicialmente
+        this.updateToggleButtonPosition();
+
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            if (!isHidden) {
+                // Esconder lateralmente - deixar só um pouquinho visível
+                container.style.transform = 'translateX(-95%)';
+                // Botão também bem escondido mas acessível
+                toggleBtn.style.transform = 'translateX(-85%)';
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                toggleBtn.title = 'Mostrar Minerva';
+                isHidden = true;
+                
+                // Fechar chat se estiver aberto
+                const chat = document.getElementById('minerva-chat');
+                if (chat && !chat.classList.contains('hidden')) {
+                    this.closeChat();
+                }
+            } else {
+                // Mostrar completamente
+                container.style.transform = 'translateX(0)';
+                // Mostrar o botão completamente também
+                toggleBtn.style.transform = 'translateX(0)';
+                toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                toggleBtn.title = 'Esconder Minerva';
+                isHidden = false;
+            }
+        });
+    }
+
+    setupDragFunctionality() {
         const container = document.getElementById('minerva-container');
         const owlButton = container.querySelector('.minerva-owl');
         
@@ -612,6 +667,11 @@ class MinervaUltraAssistant {
             container.style.top = newY + 'px';
             container.style.right = 'auto';
             container.style.bottom = 'auto';
+            
+            // Atualizar posição do botão de toggle durante o drag
+            if (this.updateToggleButtonPosition) {
+                this.updateToggleButtonPosition();
+            }
         };
 
         const endDrag = () => {
@@ -646,6 +706,13 @@ class MinervaUltraAssistant {
             container.style.left = finalX + 'px';
             container.style.top = finalY + 'px';
             
+            // Atualizar posição do botão após snap
+            if (this.updateToggleButtonPosition) {
+                setTimeout(() => {
+                    this.updateToggleButtonPosition();
+                }, 50);
+            }
+            
             // Remover classe de snapping após animação
             setTimeout(() => {
                 container.classList.remove('snapping');
@@ -668,6 +735,13 @@ class MinervaUltraAssistant {
         document.addEventListener('mouseup', () => {
             if (isDragging) {
                 endDrag();
+            }
+        });
+
+        // Atualizar posição do botão quando a janela for redimensionada
+        window.addEventListener('resize', () => {
+            if (this.updateToggleButtonPosition) {
+                this.updateToggleButtonPosition();
             }
         });
 

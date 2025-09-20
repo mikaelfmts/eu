@@ -32,6 +32,7 @@
     <script type="module" src="assets/js/media-index.js"></script>
     <script type="module" src="assets/js/reports-index.js"></script>
     <script type="module" src="assets/js/minerva-assistant.js"></script>
+    <script defer src="assets/js/i18n.js"></script>
     <script src="assets/js/page-control.js"></script>
     
     <!-- Controle de Página -->
@@ -60,17 +61,13 @@
                 <div style="font-size:2.5rem; color:#c8aa6e; text-shadow:0 0 20px rgba(200,170,110,0.4); letter-spacing:1px; font-family:'Marcellus', serif;">
                     <i class="fas fa-chess-king"></i>
                 </div>
-                <h1 style="margin:0; font-size:1.9rem; color:#f0e6d2; font-family:'Marcellus', serif;">
-                    Bem-vindo ao Portfólio de <span style="color:#c8aa6e;">Mikael Ferreira</span>
-                </h1>
-                <p style="margin:0; color:#bfb7a4; max-width:680px; line-height:1.6;">
-                    Projetos, análises de dados e experiências interativas — tudo em um só lugar. Clique abaixo para acessar a página inicial.
-                </p>
+                <h1 style="margin:0; font-size:1.9rem; color:#f0e6d2; font-family:'Marcellus', serif;" data-i18n="overlay.title">Bem-vindo ao Portfólio de <span style="color:#c8aa6e;">Mikael Ferreira</span></h1>
+                <p style="margin:0; color:#bfb7a4; max-width:680px; line-height:1.6;" data-i18n="overlay.subtitle">Projetos, análises de dados e experiências interativas — tudo em um só lugar. Clique abaixo para acessar a página inicial.</p>
                 <button id="enter-portfolio" style="margin-top:.6rem; background: linear-gradient(135deg, #c8aa6e, #ffcf70); color:#1e2328; border: none; padding: .85rem 1.2rem; border-radius: 12px; cursor: pointer; font-weight:600; letter-spacing:.4px; box-shadow: 0 10px 25px rgba(200,170,110,0.25); transition: transform .2s ease, box-shadow .2s ease;">
                     <i class="fas fa-door-open" style="margin-right:.5rem;"></i>
-                    Acessar página inicial do portfólio
+                    <span data-i18n="overlay.button">Acessar página inicial do portfólio</span>
                 </button>
-                <div style="color:#8f8a7a; font-size:.8rem; margin-top:.5rem;">Dica: você pode acessar a qualquer momento pelo endereço direto.</div>
+                <div style="color:#8f8a7a; font-size:.8rem; margin-top:.5rem;" data-i18n="overlay.tip">Dica: você pode acessar a qualquer momento pelo endereço direto.</div>
             </div>
         </div>
     </div>
@@ -181,25 +178,27 @@
     <button id="theme-toggle" onclick="toggleTheme()">
         <i id="theme-icon" class="fab fa-battle-net"></i>
     </button>
+    <!-- Language Toggle Button -->
+    <button id="lang-toggle" title="Switch language" style="position: fixed; top: 70px; right: 20px; z-index: 1100; background: rgba(15,18,34,.7); color:#c8aa6e; border:1px solid rgba(200,170,110,.4); border-radius:8px; padding:.45rem .6rem; cursor:pointer;">EN</button>
 
     <!-- Menu Horizontal -->
     <nav id="menu-horizontal" class="horizontal-nav">
         <div class="nav-container">
             <div class="nav-toggle" onclick="toggleHorizontalMenu()">
                 <i class="fas fa-bars"></i>
-                <span>MENU</span>
+                <span data-i18n="nav.menu">MENU</span>
             </div>
             <ul class="nav-menu">
-                <li><a href="pages/curriculum.html"><i class="fas fa-scroll"></i><span>Curriculum</span></a></li>
-                <li><a href="pages/projetos.html"><i class="fas fa-code-branch"></i><span>All Projects</span></a></li>
-                <li><a href="pages/mentors.html"><i class="fas fa-users"></i><span>Mentors</span></a></li>
-                <li><a href="https://www.linkedin.com/in/mikaelferreira/" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i><span>LinkedIn</span></a></li>
-                <li><a href="pages/certificates-in-progress.html"><i class="fas fa-certificate"></i><span>Certificates</span></a></li>
-                <li><a href="pages/interactive-projects.html"><i class="fas fa-project-diagram"></i><span>Interactive</span></a></li>
-                <li><a href="pages/galeria-midia.html"><i class="fas fa-images"></i><span>Media Gallery</span></a></li>
-                <li><a href="pages/relatorios-galeria.html"><i class="fas fa-chart-line"></i><span>Reports</span></a></li>
-                <li><a href="pages/games.html"><i class="fas fa-gamepad"></i><span>Games</span></a></li>
-                <li><a href="login.html" class="login-link"><i class="fas fa-user-alt"></i><span>Login</span></a></li>
+                <li><a href="pages/curriculum.html"><i class="fas fa-scroll"></i><span data-i18n="nav.curriculum">Curriculum</span></a></li>
+                <li><a href="pages/projetos.html"><i class="fas fa-code-branch"></i><span data-i18n="nav.allProjects">All Projects</span></a></li>
+                <li><a href="pages/mentors.html"><i class="fas fa-users"></i><span data-i18n="nav.mentors">Mentors</span></a></li>
+                <li><a href="https://www.linkedin.com/in/mikaelferreira/" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i><span data-i18n="nav.linkedin">LinkedIn</span></a></li>
+                <li><a href="pages/certificates-in-progress.html"><i class="fas fa-certificate"></i><span data-i18n="nav.certificates">Certificates</span></a></li>
+                <li><a href="pages/interactive-projects.html"><i class="fas fa-project-diagram"></i><span data-i18n="nav.interactive">Interactive</span></a></li>
+                <li><a href="pages/galeria-midia.html"><i class="fas fa-images"></i><span data-i18n="nav.mediaGallery">Media Gallery</span></a></li>
+                <li><a href="pages/relatorios-galeria.html"><i class="fas fa-chart-line"></i><span data-i18n="nav.reports">Reports</span></a></li>
+                <li><a href="pages/games.html"><i class="fas fa-gamepad"></i><span data-i18n="nav.games">Games</span></a></li>
+                <li><a href="login.html" class="login-link"><i class="fas fa-user-alt"></i><span data-i18n="nav.login">Login</span></a></li>
             </ul>
         </div>
     </nav>
@@ -468,25 +467,15 @@
 
     <!-- Seção de Habilidades Técnicas -->
     <section id="habilidades">
-        <h2>Technical Skills</h2>
+        <h2 data-i18n="skills.title">Technical Skills</h2>
         <div class="skills-info">
-            <div style="text-align:center; margin-bottom: 0.8rem;">
-                <button onclick="clearSkillsCache(); location.reload();" style="background: rgba(200, 170, 110, 0.2); border: 1px solid rgba(200, 170, 110, 0.5); color: #c8aa6e; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.3s ease;">
-                    <i class="fas fa-sync-alt" style="margin-right: 0.5rem;"></i>Atualizar Skills
+            <div style="text-align: center; margin-bottom: 1rem;">
+                <button onclick="window.clearSkillsCache?.(); location.reload();" style="background: rgba(200, 170, 110, 0.2); border: 1px solid rgba(200, 170, 110, 0.5); color: #c8aa6e; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.3s ease;">
+                    <i class="fas fa-sync-alt" style="margin-right: 0.5rem;"></i>
+                    <span data-i18n="skills.update">Atualizar Skills</span>
                 </button>
             </div>
-            <div class="skills-explainer" style="display:grid; gap: 10px; background: rgba(15, 18, 34, 0.55); border: 1px solid rgba(200,170,110,0.25); border-radius: 10px; padding: 12px 14px;">
-                <div style="display:flex; align-items:center; gap:.6rem; color:#f0e6d2;">
-                    <i class="fas fa-lightbulb" style="color:#c8aa6e"></i>
-                    <strong>Como calculo cada métrica:</strong>
-                </div>
-                <ul style="margin:0; padding-left: 1.1rem; color:#bfb7a4; line-height:1.55;">
-                    <li><strong>Proficiência</strong>: derivada do percentual da barra, mapeada em 0–5 estrelas. A barra resulta da proporção de <em>bytes de código</em> por linguagem (via GitHub API) em relação ao total analisado. Para tecnologias (ex.: React, Node.js), uso um <em>score</em> relativo (ver abaixo) e normalizo para 15–95%.</li>
-                    <li><strong>Porcentagem</strong>: para linguagens, é <code>bytes_da_linguagem / bytes_totais</code> × 100. Para tecnologias, é <code>score_da_tecnologia / score_máximo</code> × 85, limitado entre 15% e 95% para evitar extremos.</li>
-                    <li><strong>Score</strong> (apenas tecnologias): soma ponderada de evidências encontradas nos repositórios (nome/descrição, linguagem principal, presença de termos como “api”, “backend”, “react”, etc.). Esse score é usado para ordenar a relevância entre tecnologias.</li>
-                    <li><strong>Dados em tempo real</strong>: as métricas são calculadas a partir dos meus repositórios públicos. Você pode forçar uma atualização clicando em “Atualizar Skills”. Em caso de limite da API, valores de fallback consistentes são exibidos.</li>
-                </ul>
-            </div>
+            <div class="skills-explainer" style="display:grid; gap: 10px; background: rgba(15, 18, 34, 0.55); border: 1px solid rgba(200,170,110,0.25); border-radius: 10px; padding: 12px 14px;" data-i18n="skills.explainer.html"></div>
         </div>
         <div class="skills-grid">
             <!-- Loading indicator -->

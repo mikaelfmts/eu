@@ -325,7 +325,7 @@ class MinervaUltraAssistant {
             <div class="minerva-cta">Fale com a Minerva</div>
 
             <!-- Coruja Ultra Imponente e Realista -->
-            <div id="minerva-owl" class="minerva-owl" title="Clique para falar com Minerva - Assistente IA Ultra Inteligente">
+            <div id="minerva-owl" class="minerva-owl" title="Clique para falar com Minerva - Assistente IA Ultra Inteligente" role="button" tabindex="0" aria-label="Abrir Minerva, assistente virtual" aria-controls="minerva-chat">
                 <div class="owl-head">
                     <div class="owl-tufts">
                         <div class="tuft-left"></div>
@@ -357,7 +357,7 @@ class MinervaUltraAssistant {
                         <span class="status-dot active"></span>
                         <span class="status-text">Online</span>
                     </div>
-                    <button class="minerva-close" id="minerva-close">
+                    <button class="minerva-close" id="minerva-close" aria-label="Fechar chat da Minerva">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -393,14 +393,14 @@ class MinervaUltraAssistant {
                     <div class="input-container">
                         <input type="text" id="minerva-input" placeholder="Pergunte QUALQUER coisa para Minerva... (digite /help para comandos)" maxlength="1000" autocomplete="off">
                         <div class="input-features">
-                            <button class="feature-btn" id="voice-btn" title="Funcionalidades Avançadas">
+                            <button class="feature-btn" id="voice-btn" title="Funcionalidades Avançadas" aria-label="Funcionalidades avançadas">
                                 <i class="fas fa-cog"></i>
                             </button>
-                            <button class="feature-btn" id="clear-btn" title="Limpar conversa">
+                            <button class="feature-btn" id="clear-btn" title="Limpar conversa" aria-label="Limpar conversa">
                                 <i class="fas fa-broom"></i>
                             </button>
                         </div>
-                        <button id="minerva-send" class="minerva-send-btn">
+                        <button id="minerva-send" class="minerva-send-btn" aria-label="Enviar mensagem">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
@@ -416,6 +416,20 @@ class MinervaUltraAssistant {
 
         // Inserir no body
         document.body.appendChild(minervaContainer);
+        
+        // Restaurar posição salva (se existir)
+        try {
+            const posRaw = localStorage.getItem('minerva_pos');
+            if (posRaw) {
+                const pos = JSON.parse(posRaw);
+                if (typeof pos.left === 'number' && typeof pos.top === 'number') {
+                    minervaContainer.style.left = pos.left + 'px';
+                    minervaContainer.style.top = pos.top + 'px';
+                    minervaContainer.style.right = 'auto';
+                    minervaContainer.style.bottom = 'auto';
+                }
+            }
+        } catch {}
 
         // Criar botão de toggle separado e mais visível
         this.createToggleButton();
@@ -553,9 +567,11 @@ class MinervaUltraAssistant {
         toggleBtn.id = 'minerva-toggle';
         toggleBtn.className = 'minerva-toggle-btn';
         toggleBtn.title = 'Esconder Minerva';
+        toggleBtn.setAttribute('aria-label', 'Esconder Minerva');
         toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
         document.body.appendChild(toggleBtn);
 
+        // Estado inicial conforme preferências salvas e device
         let isHidden = false;
         const container = document.getElementById('minerva-container');
 
@@ -569,6 +585,22 @@ class MinervaUltraAssistant {
         // Posicionar inicialmente
         this.updateToggleButtonPosition();
 
+        // Restaurar estado hidden do localStorage ou aplicar padrão mobile
+        try {
+            const pref = localStorage.getItem('minerva_hidden');
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            if (pref === '1' || (isMobile && pref !== '0')) {
+                container.style.transform = 'translateX(-95%)';
+                toggleBtn.style.transform = 'translateX(-85%)';
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                toggleBtn.title = 'Mostrar Minerva';
+                toggleBtn.setAttribute('aria-label', 'Mostrar Minerva');
+                isHidden = true;
+                // Garantir posicionamento atualizado após transform
+                setTimeout(() => this.updateToggleButtonPosition(), 50);
+            }
+        } catch {}
+
         toggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             
@@ -579,7 +611,9 @@ class MinervaUltraAssistant {
                 toggleBtn.style.transform = 'translateX(-85%)';
                 toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
                 toggleBtn.title = 'Mostrar Minerva';
+                toggleBtn.setAttribute('aria-label', 'Mostrar Minerva');
                 isHidden = true;
+                try { localStorage.setItem('minerva_hidden', '1'); } catch {}
                 
                 // Fechar chat se estiver aberto
                 const chat = document.getElementById('minerva-chat');
@@ -593,7 +627,9 @@ class MinervaUltraAssistant {
                 toggleBtn.style.transform = 'translateX(0)';
                 toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
                 toggleBtn.title = 'Esconder Minerva';
+                toggleBtn.setAttribute('aria-label', 'Esconder Minerva');
                 isHidden = false;
+                try { localStorage.setItem('minerva_hidden', '0'); } catch {}
             }
         });
     }
@@ -705,6 +741,10 @@ class MinervaUltraAssistant {
             
             container.style.left = finalX + 'px';
             container.style.top = finalY + 'px';
+            // Persistir posição após snap
+            try {
+                localStorage.setItem('minerva_pos', JSON.stringify({ left: finalX, top: finalY }));
+            } catch {}
             
             // Atualizar posição do botão após snap
             if (this.updateToggleButtonPosition) {
@@ -737,6 +777,42 @@ class MinervaUltraAssistant {
                 endDrag();
             }
         });
+
+        // Salvar posição também quando terminar drag via mouseup/touchend
+        const persistCurrentPosition = () => {
+            const rect = container.getBoundingClientRect();
+            try {
+                localStorage.setItem('minerva_pos', JSON.stringify({ left: Math.round(rect.left), top: Math.round(rect.top) }));
+            } catch {}
+        };
+        document.addEventListener('mouseup', persistCurrentPosition);
+        document.addEventListener('touchend', persistCurrentPosition);
+
+        // Suporte a teclado na coruja
+        owlButton.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.toggleChat();
+            }
+        });
+
+        // Intenção por scroll (desktop): abrir após 50% de rolagem uma única vez
+        let intentShown = false;
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        if (!isMobile) {
+            const onScrollIntent = () => {
+                const scrolled = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight;
+                if (!intentShown && scrolled >= 0.5) {
+                    intentShown = true;
+                    const hiddenPref = localStorage.getItem('minerva_hidden') === '1';
+                    if (!hiddenPref && !this.isActive) {
+                        this.toggleChat();
+                    }
+                    window.removeEventListener('scroll', onScrollIntent);
+                }
+            };
+            window.addEventListener('scroll', onScrollIntent, { passive: true });
+        }
 
         // Atualizar posição do botão quando a janela for redimensionada
         window.addEventListener('resize', () => {
@@ -775,18 +851,20 @@ class MinervaUltraAssistant {
             particles.classList.add('active');
         }
 
-        // Animação sutil da coruja quando inativa
+        // Respeitar prefers-reduced-motion
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (prefersReduced) return;
+
+        // Animação sutil da coruja quando inativa (menos frequente)
         setInterval(() => {
             if (!this.isActive && !this.isThinking) {
                 const owl = document.getElementById('minerva-owl');
-                if (owl && Math.random() < 0.3) {
+                if (owl && Math.random() < 0.15) {
                     owl.style.animation = 'owlGlow 2s ease-in-out';
-                    setTimeout(() => {
-                        owl.style.animation = '';
-                    }, 2000);
+                    setTimeout(() => { owl.style.animation = ''; }, 2000);
                 }
             }
-        }, 8000);
+        }, 12000);
     }
 
     detectCurrentPage() {
@@ -924,13 +1002,17 @@ class MinervaUltraAssistant {
         owl.classList.add('active');
         container.classList.add('ultra-active');
         
-        this.isActive = true;
+    this.isActive = true;
         this.isUltraMode = true;
+    try { document.getElementById('minerva-owl')?.setAttribute('aria-expanded', 'true'); } catch {}
         
-        // Focar no input
+        // Acessibilidade: foco e trap de tab
+        this._lastFocusEl = document.activeElement;
         setTimeout(() => {
-            document.getElementById('minerva-input').focus();
-        }, 400);
+            const input = document.getElementById('minerva-input');
+            if (input) input.focus();
+            this._enableFocusTrap();
+        }, 300);
         
         // Saudação contextual
         if (this.userSession.questionsAsked === 0) {
@@ -991,9 +1073,49 @@ class MinervaUltraAssistant {
         owl.classList.remove('active', 'thinking', 'processing');
         container.classList.remove('ultra-active');
         
-        this.isActive = false;
+    this.isActive = false;
         this.isUltraMode = false;
         this.isThinking = false;
+    try { document.getElementById('minerva-owl')?.setAttribute('aria-expanded', 'false'); } catch {}
+
+        // Remover trap e restaurar foco
+        this._disableFocusTrap();
+        if (this._lastFocusEl && typeof this._lastFocusEl.focus === 'function') {
+            try { this._lastFocusEl.focus(); } catch {}
+        } else {
+            const toggleBtn = document.getElementById('minerva-toggle');
+            if (toggleBtn) toggleBtn.focus();
+        }
+    }
+
+    _enableFocusTrap() {
+        const chat = document.getElementById('minerva-chat');
+        if (!chat) return;
+        const selectors = 'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])';
+        const focusables = Array.from(chat.querySelectorAll(selectors)).filter(el => !el.hasAttribute('disabled'));
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        this._trapHandler = (e) => {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault(); last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault(); first.focus();
+                }
+            } else if (e.key === 'Escape') {
+                this.closeChat();
+            }
+        };
+        chat.addEventListener('keydown', this._trapHandler);
+    }
+
+    _disableFocusTrap() {
+        const chat = document.getElementById('minerva-chat');
+        if (chat && this._trapHandler) {
+            chat.removeEventListener('keydown', this._trapHandler);
+            this._trapHandler = null;
+        }
     }
 
     activateUltraMode() {

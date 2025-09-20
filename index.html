@@ -54,8 +54,6 @@
     
     <!-- Overlay de Entrada do Portfólio -->
     <div id="entry-overlay" style="position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 5000; background: radial-gradient(1200px 600px at 70% 20%, rgba(200,170,110,0.08), transparent), linear-gradient(135deg, #0a0e27 0%, #1e1b24 30%, #2b1810 60%, #1a0e0e 100%);">
-        <!-- Camada de partículas -->
-        <div id="entry-particles" aria-hidden="true" style="position:absolute; inset:0; overflow:hidden; pointer-events:none;"></div>
         <div class="entry-card" style="position:relative; max-width:860px; width:92%; margin:0 auto; padding:2.2rem 1.8rem; background: rgba(15, 18, 34, 0.7); border:1px solid rgba(200,170,110,0.25); border-radius:16px; box-shadow: 0 25px 80px rgba(0,0,0,0.6), 0 0 40px rgba(200,170,110,0.15); text-align:center;">
             <div style="position:absolute; inset: -2px; border-radius:16px; padding:2px; pointer-events:none; background: linear-gradient(135deg, rgba(200,170,110,0.35), rgba(255,207,112,0.25)); -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;"></div>
             <div style="display:flex; flex-direction:column; gap:1rem; align-items:center;">
@@ -80,40 +78,12 @@
         (function(){
             const KEY = 'portfolioEntrySeen_v1';
             const overlay = document.getElementById('entry-overlay');
-            const particlesLayer = document.getElementById('entry-particles');
             const show = () => { overlay.style.display = 'flex'; document.body.style.overflow = 'hidden'; };
             const hide = () => { overlay.style.opacity = '0'; overlay.style.transition = 'opacity .35s ease'; setTimeout(()=>{ overlay.style.display='none'; document.body.style.overflow='auto'; }, 360); };
-            const createParticles = (count = 60) => {
-                if (!particlesLayer || particlesLayer.dataset.populated) return;
-                const colors = ['#c8aa6e', '#ffcf70', '#d8c59a', '#f0e6d2'];
-                const frag = document.createDocumentFragment();
-                for (let i = 0; i < count; i++) {
-                    const p = document.createElement('div');
-                    const size = Math.random() * 3 + 1; // 1-4px
-                    const left = Math.random() * 100;
-                    const top = Math.random() * 100;
-                    const delay = Math.random() * 6;
-                    const duration = 6 + Math.random() * 8; // 6-14s
-                    const color = colors[Math.floor(Math.random() * colors.length)];
-                    p.style.cssText = `position:absolute;width:${size}px;height:${size}px;left:${left}%;top:${top}%;background:${color};border-radius:50%;opacity:.7;filter:drop-shadow(0 0 6px ${color}55);animation:entryFloat ${duration}s ease-in-out ${delay}s infinite;`;
-                    frag.appendChild(p);
-                }
-                particlesLayer.appendChild(frag);
-                particlesLayer.dataset.populated = '1';
-            };
-            // Injetar keyframes no head uma vez
-            (function injectKF(){
-                if (document.getElementById('entry-float-kf')) return;
-                const style = document.createElement('style');
-                style.id = 'entry-float-kf';
-                style.textContent = `@keyframes entryFloat{0%,100%{transform:translateY(0) translateX(0);opacity:.65}25%{transform:translateY(-12px) translateX(4px);opacity:.85}50%{transform:translateY(-4px) translateX(-6px);opacity:.8}75%{transform:translateY(-10px) translateX(2px);opacity:.9}}`;
-                document.head.appendChild(style);
-            })();
             try {
                 // Exibe uma vez por sessão
                 if (!sessionStorage.getItem(KEY)) {
                     show();
-                    createParticles(window.innerWidth < 480 ? 40 : window.innerWidth < 1024 ? 55 : 70);
                 }
                 document.getElementById('enter-portfolio').addEventListener('click', () => {
                     sessionStorage.setItem(KEY, '1');
@@ -129,7 +99,6 @@
             } catch(e){
                 // Se storage indisponível, apenas mostra e fecha no clique
                 show();
-                createParticles(50);
                 document.getElementById('enter-portfolio').addEventListener('click', hide);
             }
         })();
@@ -262,7 +231,7 @@
     </nav>
 
     <!-- Cabeçalho Renovado -->
-    <header class="hero-header">
+    <header class="hero-header compact-hero">
         <div class="hero-background">
             <div class="hero-particles"></div>
         </div>

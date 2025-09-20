@@ -729,7 +729,7 @@ body {
 /* ===== HEADER RENOVADO ===== */
 .hero-header {
     position: relative;
-    min-height: 70vh; /* Reduzido de 100vh para 70vh */
+    min-height: 56vh; /* mais discreto */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -741,7 +741,7 @@ body {
         var(--background-secondary) 75%,
         var(--background-primary) 100%
     );
-    margin-bottom: 2rem; /* Adicionar margem inferior */
+    margin-bottom: 1.25rem;
 }
 
 .hero-background {
@@ -777,8 +777,8 @@ body {
     position: relative;
     z-index: 2;
     text-align: center;
-    max-width: 1000px; /* Reduzido de 1200px */
-    padding: 1.5rem; /* Reduzido de 2rem */
+    max-width: 920px;
+    padding: 1.1rem;
     margin: 0 auto;
 }
 
@@ -787,8 +787,38 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 2.5rem; /* Reduzido de 3rem */
-    margin-bottom: 2rem; /* Reduzido de 3rem */
+    gap: 1.6rem;
+    margin-bottom: 1.2rem;
+}
+
+/* Variante compacta do header */
+.compact-hero .hero-background .hero-particles { display: none; }
+.compact-hero .hero-content { max-width: 860px; text-align: left; }
+.compact-hero .profile-section { justify-content: flex-start; gap: 1.2rem; }
+.compact-hero .profile-image { width: 72px; height: 72px; }
+.compact-hero .profile-image-container::after { width: 110px; height: 110px; filter: blur(5px); background: radial-gradient(circle, rgba(200,170,110,0.12) 0%, rgba(200,170,110,0.05) 35%, transparent 70%); }
+.compact-hero .profile-status {
+    position: static; /* tira do canto da imagem */
+    margin-top: 6px;
+    align-self: center;
+    font-size: 0.7rem;
+    padding: 0.18rem 0.5rem;
+    border-radius: 10px;
+}
+.compact-hero .titulo-principal { font-size: clamp(1.2rem, 2.4vw, 1.8rem); margin-bottom: 0.4rem; }
+.compact-hero .titulo-decoration { display: none; }
+.compact-hero .role-badge { padding: 0.35rem 0.75rem; font-size: clamp(0.8rem, 1.4vw, 0.95rem); }
+.compact-hero .tech-stack { gap: 0.5rem; margin-top: 0.6rem; }
+.compact-hero .tech-item span { font-size: 0.8em; opacity: 0.9; }
+.compact-hero .action-btn { padding: 0.55rem 0.8rem; font-size: 0.9rem; }
+.compact-hero .quick-actions { gap: 0.6rem; }
+
+@media (max-width: 768px) {
+    .compact-hero .hero-content { max-width: 94%; }
+    .compact-hero .profile-section { align-items: center; gap: 1rem; }
+    .compact-hero .profile-image { width: 68px; height: 68px; }
+    .compact-hero .role-badge { font-size: 0.85rem; }
+    .compact-hero .action-btn { padding: 0.5rem 0.7rem; font-size: 0.85rem; }
 }
 
 .profile-image-container {
@@ -803,44 +833,40 @@ body {
     content: '';
     position: absolute;
     z-index: 1;
-    width: 160px;
-    height: 160px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(200,170,110,0.25) 0%, rgba(200,170,110,0.08) 40%, transparent 70%);
-    filter: blur(8px);
-    animation: pulse-glow 4s ease-in-out infinite;
+    background: radial-gradient(circle, rgba(200,170,110,0.18) 0%, rgba(200,170,110,0.06) 40%, transparent 70%);
+    filter: blur(6px);
+    animation: none;
 }
 
 .profile-image {
-    width: 120px; /* Reduzido de 160px */
-    height: 120px; /* Reduzido de 160px */
+    width: 84px;
+    height: 84px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid var(--primary-color); /* Borda simples dourada */
+    border: 2px solid rgba(200, 170, 110, 0.6); /* borda mais sutil */
     position: relative;
     z-index: 2;
-    box-shadow: 
-        0 0 20px rgba(200, 170, 110, 0.4),
-        0 5px 15px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .profile-image:hover {
-    transform: scale(1.05);
-    box-shadow: 
-        0 0 30px rgba(200, 170, 110, 0.6),
-        0 8px 25px rgba(0, 0, 0, 0.4);
+    transform: scale(1.03);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
 .profile-status {
     position: absolute;
-    bottom: 5px;
-    right: 5px;
+    bottom: 2px;
+    right: 2px;
     background: var(--background-secondary);
-    border: 2px solid var(--primary-color);
-    border-radius: 15px;
-    padding: 0.2rem 0.6rem;
-    font-size: 0.7rem;
+    border: 1px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 0.15rem 0.45rem;
+    font-size: 0.65rem;
     color: var(--text-primary);
     z-index: 3;
 }
@@ -858,30 +884,30 @@ body {
 
 .titulo-principal {
     font-family: 'Marcellus', serif;
-    font-size: clamp(2rem, 4vw, 3rem); /* Reduzido */
-    margin: 0 0 0.8rem 0;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    line-height: 1.1;
+    font-size: clamp(1.4rem, 2.8vw, 2.1rem);
+    margin: 0 0 0.5rem 0;
+    letter-spacing: 1px;
+    text-transform: none;
+    line-height: 1.12;
 }
 
 .name-highlight {
     color: var(--text-primary);
-    text-shadow: 0 0 15px rgba(240, 230, 210, 0.4);
+    text-shadow: none;
 }
 
 .name-accent {
     color: var(--primary-color);
-    text-shadow: 0 0 20px rgba(200, 170, 110, 0.5);
+    text-shadow: none;
 }
 
 .titulo-decoration {
-    width: 80px; /* Reduzido de 100px */
-    height: 3px; /* Reduzido de 4px */
-    background: linear-gradient(90deg, var(--primary-color), #f0c674, var(--primary-color));
-    margin: 0.8rem 0;
+    width: 64px;
+    height: 2px;
+    background: rgba(200, 170, 110, 0.5);
+    margin: 0.6rem 0;
     border-radius: 2px;
-    animation: pulse-glow 3s ease-in-out infinite;
+    animation: none;
 }
 
 .role-badge {
@@ -892,8 +918,8 @@ body {
         rgba(200, 170, 110, 0.08) 100%);
     border: 1px solid rgba(200, 170, 110, 0.3);
     border-radius: 20px;
-    padding: 0.6rem 1.2rem; /* Reduzido */
-    font-size: clamp(0.9rem, 1.8vw, 1.1rem); /* Reduzido */
+    padding: 0.4rem 0.9rem;
+    font-size: clamp(0.85rem, 1.6vw, 1rem);
     color: var(--text-primary);
     font-weight: 500;
     letter-spacing: 0.5px;
@@ -909,8 +935,8 @@ body {
 /* ===== TECH STACK ===== */
 .tech-stack {
     display: flex;
-    gap: 0.8rem; /* Reduzido de 1rem */
-    margin-top: 1.5rem; /* Reduzido de 2rem */
+    gap: 0.6rem;
+    margin-top: 1rem;
     flex-wrap: wrap;
 }
 

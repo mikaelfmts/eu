@@ -3,8 +3,8 @@
 /* Container Principal - Movível como AssistiveTouch */
 #minerva-container {
     position: fixed;
-    top: calc(50% - 40px); /* Centralizado verticalmente (80px de altura) */
-    left: 20px;
+    top: calc(50% - 34px); /* ajustado para nova altura de ~68px */
+    left: 16px;
     right: auto;
     bottom: auto;
     z-index: 1000;
@@ -63,8 +63,8 @@
 
 /* Coruja Minerva - Ultra Imponente e Realista - Apenas Cabeça */
 .minerva-owl {
-    width: 80px;
-    height: 80px;
+    width: 68px;
+    height: 68px;
     cursor: pointer;
     position: relative;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1245,15 +1245,15 @@ body.modal-open {
 /* Responsividade Mobile */
 @media (max-width: 768px) {
     #minerva-container {
-        top: calc(50% - 35px); /* Centralizado para 70px de altura no mobile */
-        left: 15px;
+        top: calc(50% - 32px); /* central para ~64-68px */
+        left: 12px;
         right: auto;
         bottom: auto;
     }
     
     .minerva-owl {
-        width: 70px;
-        height: 70px;
+        width: 64px;
+        height: 64px;
     }
     
     .minerva-cta {

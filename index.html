@@ -470,14 +470,22 @@
     <section id="habilidades">
         <h2>Technical Skills</h2>
         <div class="skills-info">
-            <p style="text-align: center; color: #c8aa6e; font-style: italic; margin-bottom: 1rem; padding: 0.8rem; background: rgba(200, 170, 110, 0.1); border-radius: 8px; border-left: 4px solid #c8aa6e;">
-                <i class="fab fa-github" style="margin-right: 0.5rem;"></i>
-                <strong>Real-time data:</strong> The percentages displayed are calculated automatically through the GitHub API, analyzing languages, frameworks, and technologies used in the public repositories on my profile.
-            </p>
-            <div style="text-align: center; margin-bottom: 1rem;">
+            <div style="text-align:center; margin-bottom: 0.8rem;">
                 <button onclick="clearSkillsCache(); location.reload();" style="background: rgba(200, 170, 110, 0.2); border: 1px solid rgba(200, 170, 110, 0.5); color: #c8aa6e; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.3s ease;">
                     <i class="fas fa-sync-alt" style="margin-right: 0.5rem;"></i>Atualizar Skills
                 </button>
+            </div>
+            <div class="skills-explainer" style="display:grid; gap: 10px; background: rgba(15, 18, 34, 0.55); border: 1px solid rgba(200,170,110,0.25); border-radius: 10px; padding: 12px 14px;">
+                <div style="display:flex; align-items:center; gap:.6rem; color:#f0e6d2;">
+                    <i class="fas fa-lightbulb" style="color:#c8aa6e"></i>
+                    <strong>Como calculo cada métrica:</strong>
+                </div>
+                <ul style="margin:0; padding-left: 1.1rem; color:#bfb7a4; line-height:1.55;">
+                    <li><strong>Proficiência</strong>: derivada do percentual da barra, mapeada em 0–5 estrelas. A barra resulta da proporção de <em>bytes de código</em> por linguagem (via GitHub API) em relação ao total analisado. Para tecnologias (ex.: React, Node.js), uso um <em>score</em> relativo (ver abaixo) e normalizo para 15–95%.</li>
+                    <li><strong>Porcentagem</strong>: para linguagens, é <code>bytes_da_linguagem / bytes_totais</code> × 100. Para tecnologias, é <code>score_da_tecnologia / score_máximo</code> × 85, limitado entre 15% e 95% para evitar extremos.</li>
+                    <li><strong>Score</strong> (apenas tecnologias): soma ponderada de evidências encontradas nos repositórios (nome/descrição, linguagem principal, presença de termos como “api”, “backend”, “react”, etc.). Esse score é usado para ordenar a relevância entre tecnologias.</li>
+                    <li><strong>Dados em tempo real</strong>: as métricas são calculadas a partir dos meus repositórios públicos. Você pode forçar uma atualização clicando em “Atualizar Skills”. Em caso de limite da API, valores de fallback consistentes são exibidos.</li>
+                </ul>
             </div>
         </div>
         <div class="skills-grid">

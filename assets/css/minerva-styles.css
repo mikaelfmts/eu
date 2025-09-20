@@ -1257,10 +1257,9 @@ body.modal-open {
     }
     
     .minerva-cta {
-        font-size: 0.6rem;
-        padding: 3px 6px;
-        top: -38px;
-        opacity: 0.6;
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        top: -40px;
     }
     
     .minerva-chat {
@@ -1615,16 +1614,6 @@ body.modal-open {
     pointer-events: none;
     z-index: 1001;
     animation: ctaFadeIn 0.8s ease-out 0.5s both;
-}
-
-/* Respeitar prefers-reduced-motion: reduzir animações e transições */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-    }
 }
 
 /* Animação de entrada para o CTA */

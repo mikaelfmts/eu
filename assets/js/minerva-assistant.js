@@ -21,7 +21,11 @@ class MinervaUltraAssistant {
         this.lastInteraction = Date.now();
         this.isActive = false;
         this.isThinking = false;
-        this.isUltraMode = false;
+    this.isUltraMode = false;
+    // Estado: se a Minerva está escondida na lateral
+    this.isHidden = false;
+    // Memória do estado anterior ao abrir o chat (para restaurar após fechar)
+    this.wasHiddenBeforeOpen = false;
         this.userSession = {
             questionsAsked: 0,
             topics: [],
@@ -433,6 +437,8 @@ class MinervaUltraAssistant {
                 z-index: 99999 !important;
                 pointer-events: none;
             }
+                /* Neutraliza transform do container quando o chat está aberto como modal */
+                .minerva-container.chat-open { transform: none !important; }
             
             .minerva-owl, .minerva-chat {
                 pointer-events: auto;
@@ -556,7 +562,6 @@ class MinervaUltraAssistant {
         toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
         document.body.appendChild(toggleBtn);
 
-        let isHidden = false;
         const container = document.getElementById('minerva-container');
 
         // Função para posicionar o botão relativo à Minerva
@@ -572,14 +577,14 @@ class MinervaUltraAssistant {
         toggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             
-            if (!isHidden) {
+            if (!this.isHidden) {
                 // Esconder lateralmente - deixar só um pouquinho visível
                 container.style.transform = 'translateX(-95%)';
                 // Botão também bem escondido mas acessível
                 toggleBtn.style.transform = 'translateX(-85%)';
                 toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
                 toggleBtn.title = 'Mostrar Minerva';
-                isHidden = true;
+                this.isHidden = true;
                 
                 // Fechar chat se estiver aberto
                 const chat = document.getElementById('minerva-chat');
@@ -593,7 +598,7 @@ class MinervaUltraAssistant {
                 toggleBtn.style.transform = 'translateX(0)';
                 toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
                 toggleBtn.title = 'Esconder Minerva';
-                isHidden = false;
+                this.isHidden = false;
             }
         });
     }
@@ -914,6 +919,21 @@ class MinervaUltraAssistant {
         const chat = document.getElementById('minerva-chat');
         const owl = document.getElementById('minerva-owl');
         const container = document.querySelector('.minerva-container');
+        const toggleBtn = document.getElementById('minerva-toggle');
+        
+        // Se estiver escondida na lateral, revele antes de abrir o modal
+        this.wasHiddenBeforeOpen = this.isHidden;
+        if (this.isHidden) {
+            container.style.transform = 'translateX(0)';
+            this.isHidden = false;
+            if (toggleBtn) {
+                toggleBtn.style.transform = 'translateX(0)';
+                toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                toggleBtn.title = 'Esconder Minerva';
+            }
+        }
+        // Garante que nenhum transform afete o modal
+        container.classList.add('chat-open');
         
         // Criar overlay para escurecer o fundo
         this.createOverlay();
@@ -982,6 +1002,7 @@ class MinervaUltraAssistant {
         const chat = document.getElementById('minerva-chat');
         const owl = document.getElementById('minerva-owl');
         const container = document.querySelector('.minerva-container');
+        const toggleBtn = document.getElementById('minerva-toggle');
         
         // Remover modal e overlay
         chat.classList.add('hidden');
@@ -989,7 +1010,19 @@ class MinervaUltraAssistant {
         this.removeOverlay();
         
         owl.classList.remove('active', 'thinking', 'processing');
-        container.classList.remove('ultra-active');
+        container.classList.remove('ultra-active', 'chat-open');
+        
+        // Se estava escondida antes de abrir, volta a esconder
+        if (this.wasHiddenBeforeOpen) {
+            container.style.transform = 'translateX(-95%)';
+            if (toggleBtn) {
+                toggleBtn.style.transform = 'translateX(-85%)';
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                toggleBtn.title = 'Mostrar Minerva';
+            }
+            this.isHidden = true;
+            this.wasHiddenBeforeOpen = false;
+        }
         
         this.isActive = false;
         this.isUltraMode = false;

@@ -1982,25 +1982,30 @@ window.addEventListener('offline', function() {
 
 // Função para alternar a visibilidade do chat
 function toggleChat() {
-    let chatBody = document.getElementById("chat-body");
-    let isVisible = chatBody.style.display === "block";
+    const chatbot = document.getElementById("chatbot");
+    const chatBody = document.getElementById("chat-body");
+    const isOpen = chatbot.classList.contains("chat-open");
     
-    chatBody.style.display = isVisible ? "none" : "block";
-    
-    // Se o chat estiver abrindo e não tivermos um usuário ainda, focar no campo de nome
-    if (!isVisible && !currentUserName) {
-        setTimeout(() => {
-            const nameInput = document.getElementById('name-input');
-            if (nameInput) nameInput.focus();
-        }, 100);
-    }
-    
-    // Se o chat estiver abrindo e já tivermos um usuário, focar no campo de mensagem
-    if (!isVisible && currentUserName) {
-        setTimeout(() => {
-            const chatInput = document.getElementById('chat-input');
-            if (chatInput) chatInput.focus();
-        }, 100);
+    if (isOpen) {
+        chatbot.classList.remove("chat-open");
+    } else {
+        chatbot.classList.add("chat-open");
+        
+        // Se o chat estiver abrindo e não tivermos um usuário ainda, focar no campo de nome
+        if (!currentUserName) {
+            setTimeout(() => {
+                const nameInput = document.getElementById('name-input');
+                if (nameInput) nameInput.focus();
+            }, 100);
+        }
+        
+        // Se o chat estiver abrindo e já tivermos um usuário, focar no campo de mensagem
+        if (currentUserName) {
+            setTimeout(() => {
+                const chatInput = document.getElementById('chat-input');
+                if (chatInput) chatInput.focus();
+            }, 100);
+        }
     }
 }
 

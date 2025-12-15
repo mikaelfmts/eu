@@ -22,10 +22,7 @@ class MinervaUltraAssistant {
         this.isActive = false;
         this.isThinking = false;
     this.isUltraMode = false;
-    // Estado: se a Minerva está escondida na lateral
-    this.isHidden = false;
-    // Memória do estado anterior ao abrir o chat (para restaurar após fechar)
-    this.wasHiddenBeforeOpen = false;
+    // Minerva agora é fixa, não precisa de estado de esconder
         this.userSession = {
             questionsAsked: 0,
             topics: [],
@@ -325,8 +322,7 @@ class MinervaUltraAssistant {
                 <div class="minerva-particle"></div>
             </div>
 
-            <!-- CTA Sutil acima da Minerva -->
-            <div class="minerva-cta">Fale com a Minerva</div>
+            <!-- CTA removido - Minerva agora é widget bolinha -->
 
             <!-- Coruja Ultra Imponente e Realista -->
             <div id="minerva-owl" class="minerva-owl" title="Clique para falar com Minerva - Assistente IA Ultra Inteligente">
@@ -421,8 +417,7 @@ class MinervaUltraAssistant {
         // Inserir no body
         document.body.appendChild(minervaContainer);
 
-        // Criar botão de toggle separado e mais visível
-        this.createToggleButton();
+        // Minerva agora é fixa, não precisa de botão toggle
 
         // Aplicar estilos dinâmicos adicionais
         this.applyDynamicStyles();
@@ -444,14 +439,7 @@ class MinervaUltraAssistant {
                 transform: none !important; 
             }
             
-            /* Estado escondido da Minerva */
-            .minerva-container.minerva-hidden {
-                transform: translateX(calc(-100% + 20px)) !important;
-            }
-            
-            .minerva-container.minerva-hidden.dragging {
-                transform: none !important;
-            }
+            /* Minerva agora é fixa, sem estados de esconder */
             
             .minerva-owl, .minerva-chat {
                 pointer-events: auto;
@@ -461,44 +449,7 @@ class MinervaUltraAssistant {
                 display: none !important;
             }
             
-            /* Botão de toggle - estilos profissionais */
-            .minerva-toggle-btn {
-                position: fixed !important;
-                z-index: 100000 !important;
-                background: rgba(0, 0, 0, 0.7) !important;
-                border: 2px solid var(--primary-gold, #C89B3C) !important;
-                border-radius: 50% !important;
-                width: 40px !important;
-                height: 40px !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                cursor: pointer !important;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-                color: var(--primary-gold, #C89B3C) !important;
-                font-size: 16px !important;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-                pointer-events: auto !important;
-            }
-            
-            .minerva-toggle-btn:hover {
-                background: rgba(200, 155, 60, 0.2) !important;
-                transform: scale(1.1) !important;
-                box-shadow: 0 4px 12px rgba(200, 155, 60, 0.4) !important;
-            }
-            
-            .minerva-toggle-btn:active {
-                transform: scale(0.95) !important;
-            }
-            
-            /* Estado escondido do botão toggle */
-            .minerva-toggle-btn.minerva-toggle-hidden {
-                transform: translateX(calc(-100% + 15px)) !important;
-            }
-            
-            .minerva-toggle-btn.minerva-toggle-hidden:hover {
-                transform: translateX(calc(-100% + 15px)) scale(1.1) !important;
-            }
+            /* Botão toggle removido - Minerva agora é fixa */
             
             /* Animações específicas para ultra mode */
             .minerva-container.ultra-active .minerva-particles {
@@ -542,14 +493,9 @@ class MinervaUltraAssistant {
             
             /* Responsividade para mobile */
             @media (max-width: 768px) {
-                .minerva-toggle-btn {
-                    width: 36px !important;
-                    height: 36px !important;
-                    font-size: 14px !important;
-                }
-                
-                .minerva-container.minerva-hidden {
-                    transform: translateX(calc(-100% + 15px)) !important;
+                #minerva-container {
+                    bottom: 90px;
+                    right: 1rem;
                 }
             }
         `;
@@ -615,330 +561,10 @@ class MinervaUltraAssistant {
         // Detectar quando o usuário fica inativo
         this.setupIdleDetection();
         
-        // Configurar funcionalidade de drag (AssistiveTouch)
-        this.setupDragFunctionality();
+        // Minerva agora é fixa, não precisa de drag
     }
 
-    createToggleButton() {
-        // Verificar se o botão já existe
-        let toggleBtn = document.getElementById('minerva-toggle');
-        if (toggleBtn) {
-            toggleBtn.remove();
-        }
-
-        toggleBtn = document.createElement('button');
-        toggleBtn.id = 'minerva-toggle';
-        toggleBtn.className = 'minerva-toggle-btn';
-        toggleBtn.setAttribute('aria-label', 'Esconder/Mostrar Minerva');
-        toggleBtn.setAttribute('role', 'button');
-        toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
-        document.body.appendChild(toggleBtn);
-
-        const container = document.getElementById('minerva-container');
-        if (!container) {
-            console.error('Minerva: Container não encontrado');
-            return;
-        }
-
-        // Função robusta para posicionar o botão relativo à Minerva
-        this.updateToggleButtonPosition = () => {
-            if (!container || !toggleBtn) return;
-            
-            try {
-                const containerRect = container.getBoundingClientRect();
-                const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-                const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-                
-                // Posição absoluta considerando scroll
-                const left = containerRect.right + scrollX + 15;
-                const top = containerRect.top + scrollY + 10;
-                
-                // Garantir que o botão não saia da tela
-                const maxLeft = window.innerWidth + scrollX - toggleBtn.offsetWidth - 10;
-                const maxTop = window.innerHeight + scrollY - toggleBtn.offsetHeight - 10;
-                
-                toggleBtn.style.left = Math.min(left, maxLeft) + 'px';
-                toggleBtn.style.top = Math.max(10, Math.min(top, maxTop)) + 'px';
-            } catch (error) {
-                console.warn('Minerva: Erro ao atualizar posição do botão toggle:', error);
-            }
-        };
-
-        // Posicionar inicialmente
-        this.updateToggleButtonPosition();
-
-        // Handler de toggle melhorado
-        const handleToggle = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            if (!container) return;
-            
-            // Prevenir toggle durante drag
-            if (container.classList.contains('dragging')) {
-                return;
-            }
-            
-            // Fechar chat se estiver aberto antes de esconder
-            const chat = document.getElementById('minerva-chat');
-            if (chat && !chat.classList.contains('hidden') && !this.isHidden) {
-                this.closeChat();
-                // Aguardar fechamento do chat antes de esconder
-                setTimeout(() => {
-                    this.toggleMinervaVisibility();
-                }, 300);
-                return;
-            }
-            
-            this.toggleMinervaVisibility();
-        };
-
-        toggleBtn.addEventListener('click', handleToggle);
-        
-        // Prevenir que o toggle interfira com o drag
-        toggleBtn.addEventListener('mousedown', (e) => {
-            e.stopPropagation();
-        });
-
-        // Atualizar posição em eventos relevantes
-        const updatePosition = () => {
-            if (this.updateToggleButtonPosition) {
-                requestAnimationFrame(() => {
-                    this.updateToggleButtonPosition();
-                });
-            }
-        };
-
-        window.addEventListener('resize', updatePosition);
-        window.addEventListener('scroll', updatePosition, { passive: true });
-        
-        // Observar mudanças no container (para quando for arrastado)
-        if (window.ResizeObserver) {
-            const resizeObserver = new ResizeObserver(updatePosition);
-            resizeObserver.observe(container);
-        }
-    }
-
-    toggleMinervaVisibility() {
-        const container = document.getElementById('minerva-container');
-        const toggleBtn = document.getElementById('minerva-toggle');
-        
-        if (!container || !toggleBtn) return;
-
-        if (!this.isHidden) {
-            // Esconder lateralmente
-            container.classList.add('minerva-hidden');
-            toggleBtn.classList.add('minerva-toggle-hidden');
-            toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
-            toggleBtn.setAttribute('aria-label', 'Mostrar Minerva');
-            toggleBtn.title = 'Mostrar Minerva';
-            this.isHidden = true;
-        } else {
-            // Mostrar completamente
-            container.classList.remove('minerva-hidden');
-            toggleBtn.classList.remove('minerva-toggle-hidden');
-            toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
-            toggleBtn.setAttribute('aria-label', 'Esconder Minerva');
-            toggleBtn.title = 'Esconder Minerva';
-            this.isHidden = false;
-        }
-        
-        // Atualizar posição após mudança de estado
-        if (this.updateToggleButtonPosition) {
-            requestAnimationFrame(() => {
-                this.updateToggleButtonPosition();
-            });
-        }
-    }
-
-    setupDragFunctionality() {
-        const container = document.getElementById('minerva-container');
-        const owlButton = container.querySelector('.minerva-owl');
-        
-        let isDragging = false;
-        let dragStarted = false;
-        let startX, startY, initialX, initialY;
-        let dragThreshold = 5; // pixels de movimento necessários para começar o drag
-        let downX, downY; // posição inicial do mouse/touch
-
-        // Prevenir comportamentos padrão
-        container.addEventListener('dragstart', (e) => e.preventDefault());
-        container.addEventListener('selectstart', (e) => e.preventDefault());
-
-        // Funções auxiliares
-        const getDistance = (x1, y1, x2, y2) => {
-            return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-        };
-
-        const startDrag = (clientX, clientY) => {
-            isDragging = true;
-            dragStarted = false;
-            downX = clientX;
-            downY = clientY;
-            startX = clientX;
-            startY = clientY;
-            
-            // Se estiver escondida, temporariamente mostrar para drag funcionar
-            if (this.isHidden) {
-                container.classList.remove('minerva-hidden');
-                const toggleBtn = document.getElementById('minerva-toggle');
-                if (toggleBtn) {
-                    toggleBtn.classList.remove('minerva-toggle-hidden');
-                }
-            }
-            
-            const rect = container.getBoundingClientRect();
-            initialX = rect.left;
-            initialY = rect.top;
-            
-            // Adicionar cursor de movimento apenas quando começar o drag
-            document.body.style.cursor = 'grabbing';
-        };
-
-        const drag = (clientX, clientY) => {
-            if (!isDragging) return;
-            
-            // Verificar se moveu o suficiente para ser considerado drag
-            const distance = getDistance(downX, downY, clientX, clientY);
-            
-            if (!dragStarted && distance < dragThreshold) {
-                return; // Ainda não é um drag, pode ser apenas um clique
-            }
-            
-            if (!dragStarted) {
-                dragStarted = true;
-                container.classList.add('dragging');
-            }
-            
-            const deltaX = clientX - startX;
-            const deltaY = clientY - startY;
-            
-            let newX = initialX + deltaX;
-            let newY = initialY + deltaY;
-            
-            // Limites da tela
-            const containerWidth = container.offsetWidth;
-            const containerHeight = container.offsetHeight;
-            const maxX = window.innerWidth - containerWidth;
-            const maxY = window.innerHeight - containerHeight;
-            
-            newX = Math.max(0, Math.min(maxX, newX));
-            newY = Math.max(0, Math.min(maxY, newY));
-            
-            container.style.left = newX + 'px';
-            container.style.top = newY + 'px';
-            container.style.right = 'auto';
-            container.style.bottom = 'auto';
-            
-            // Atualizar posição do botão de toggle durante o drag
-            if (this.updateToggleButtonPosition) {
-                this.updateToggleButtonPosition();
-            }
-        };
-
-        const endDrag = () => {
-            if (!isDragging) return;
-            
-            isDragging = false;
-            document.body.style.cursor = '';
-            
-            // Se não foi um drag real (movimento insuficiente), é um clique
-            if (!dragStarted) {
-                // Não abrir chat se estiver escondida - apenas mostrar
-                if (this.isHidden) {
-                    this.toggleMinervaVisibility();
-                } else {
-                    this.toggleChat();
-                }
-                return;
-            }
-            
-            dragStarted = false;
-            container.classList.remove('dragging');
-            container.classList.add('snapping');
-            
-            // Snap para as bordas (como AssistiveTouch)
-            const rect = container.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const screenCenter = window.innerWidth / 2;
-            
-            let finalX, finalY;
-            
-            // Snap horizontal: preferir borda esquerda
-            finalX = 20;
-            
-            // Manter Y atual mas dentro dos limites
-            finalY = Math.max(20, Math.min(window.innerHeight - rect.height - 20, rect.top));
-            
-            container.style.left = finalX + 'px';
-            container.style.top = finalY + 'px';
-            
-            // Restaurar estado de esconder se estava escondida antes do drag
-            if (this.isHidden && !container.classList.contains('minerva-hidden')) {
-                container.classList.add('minerva-hidden');
-            }
-            
-            // Atualizar posição do botão após snap
-            if (this.updateToggleButtonPosition) {
-                setTimeout(() => {
-                    this.updateToggleButtonPosition();
-                }, 50);
-            }
-            
-            // Remover classe de snapping após animação
-            setTimeout(() => {
-                container.classList.remove('snapping');
-            }, 400);
-        };
-
-        // Mouse events
-        owlButton.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            startDrag(e.clientX, e.clientY);
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                drag(e.clientX, e.clientY);
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            if (isDragging) {
-                endDrag();
-            }
-        });
-
-        // Atualizar posição do botão quando a janela for redimensionada
-        window.addEventListener('resize', () => {
-            if (this.updateToggleButtonPosition) {
-                this.updateToggleButtonPosition();
-            }
-        });
-
-        // Touch events para mobile
-        owlButton.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const touch = e.touches[0];
-            startDrag(touch.clientX, touch.clientY);
-        });
-
-        document.addEventListener('touchmove', (e) => {
-            if (isDragging) {
-                e.preventDefault();
-                const touch = e.touches[0];
-                drag(touch.clientX, touch.clientY);
-            }
-        });
-
-        document.addEventListener('touchend', () => {
-            if (isDragging) {
-                endDrag();
-            }
-        });
-    }
+    // Funções de toggle e drag removidas - Minerva agora é fixa
 
     startAmbientAnimation() {
         // Iniciar partículas
@@ -1086,21 +712,7 @@ class MinervaUltraAssistant {
         const chat = document.getElementById('minerva-chat');
         const owl = document.getElementById('minerva-owl');
         const container = document.querySelector('.minerva-container');
-        const toggleBtn = document.getElementById('minerva-toggle');
         
-        // Se estiver escondida na lateral, revele antes de abrir o modal
-        this.wasHiddenBeforeOpen = this.isHidden;
-        if (this.isHidden) {
-            // Usar o método de toggle para garantir consistência
-            container.classList.remove('minerva-hidden');
-            if (toggleBtn) {
-                toggleBtn.classList.remove('minerva-toggle-hidden');
-                toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
-                toggleBtn.setAttribute('aria-label', 'Esconder Minerva');
-                toggleBtn.title = 'Esconder Minerva';
-            }
-            this.isHidden = false;
-        }
         // Garante que nenhum transform afete o modal
         container.classList.add('chat-open');
         
@@ -1180,26 +792,6 @@ class MinervaUltraAssistant {
         
         owl.classList.remove('active', 'thinking', 'processing');
         container.classList.remove('ultra-active', 'chat-open');
-        
-        // Se estava escondida antes de abrir, volta a esconder
-        if (this.wasHiddenBeforeOpen) {
-            container.classList.add('minerva-hidden');
-            if (toggleBtn) {
-                toggleBtn.classList.add('minerva-toggle-hidden');
-                toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
-                toggleBtn.setAttribute('aria-label', 'Mostrar Minerva');
-                toggleBtn.title = 'Mostrar Minerva';
-            }
-            this.isHidden = true;
-            this.wasHiddenBeforeOpen = false;
-            
-            // Atualizar posição após esconder
-            if (this.updateToggleButtonPosition) {
-                requestAnimationFrame(() => {
-                    this.updateToggleButtonPosition();
-                });
-            }
-        }
         
         this.isActive = false;
         this.isUltraMode = false;

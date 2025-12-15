@@ -1,30 +1,21 @@
 /* Estilos para Minerva - Assistente Virtual Ultra Evoluída */
 
-/* Container Principal - Movível como AssistiveTouch */
+/* Container Principal - Widget Fixo no Canto Inferior Direito */
 #minerva-container {
     position: fixed;
-    top: calc(50% - 34px); /* ajustado para nova altura de ~68px */
-    left: 16px;
-    right: auto;
-    bottom: auto;
-    z-index: 1000;
+    bottom: 100px; /* Acima do chat widget */
+    right: 2rem;
+    left: auto;
+    top: auto;
+    z-index: 1001; /* Acima do chat */
     font-family: 'Marcellus', serif;
     user-select: none;
     -webkit-user-drag: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-#minerva-container.dragging {
-    transition: none;
-    transform: scale(1.1);
-    filter: drop-shadow(0 10px 30px rgba(200, 155, 60, 0.5));
-}
-
-#minerva-container.snapping {
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    pointer-events: none;
 }
 
 /* Sistema de Partículas da Minerva */
@@ -61,21 +52,36 @@
 .minerva-particle:nth-child(5) { top: 50%; left: 5%; animation-delay: 2s; }
 .minerva-particle:nth-child(6) { top: 60%; right: 5%; animation-delay: 2.5s; }
 
-/* Coruja Minerva - Ultra Imponente e Realista - Apenas Cabeça */
+/* Coruja Minerva - Widget Bolinha Fixo */
 .minerva-owl {
-    width: 68px;
-    height: 68px;
+    width: 60px;
+    height: 60px;
     cursor: pointer;
     position: relative;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    filter: drop-shadow(0 0 20px rgba(200, 155, 60, 0.4));
-    transform-origin: center bottom;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 4px 12px rgba(200, 155, 60, 0.5));
+    transform-origin: center;
     z-index: 2;
+    pointer-events: auto;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200, 155, 60, 0.2) 0%, rgba(10, 20, 40, 0.9) 70%);
+    border: 2px solid var(--primary-gold, #C89B3C);
+    box-shadow: 0 0 20px rgba(200, 155, 60, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Esconder CTA - não necessário no widget bolinha */
+.minerva-cta {
+    display: none !important;
 }
 
 .minerva-owl:hover {
-    transform: scale(1.08) rotate(-2deg);
-    filter: drop-shadow(0 0 30px rgba(200, 155, 60, 0.7)) saturate(1.1);
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 25px rgba(200, 155, 60, 0.8)) saturate(1.1);
+    box-shadow: 0 0 30px rgba(200, 155, 60, 0.6);
 }
 
 .minerva-owl.active {
@@ -113,7 +119,7 @@
     animation: auraRotate 8s linear infinite;
 }
 
-/* Cabeça da Coruja - Formato Realista */
+/* Cabeça da Coruja - Formato Realista - Ajustado para widget bolinha */
 .owl-head {
     width: 100%;
     height: 100%;
@@ -124,57 +130,57 @@
         #7A6247 75%, 
         #5C4A36 100%);
     border-radius: 50% 50% 45% 45%;
-    border: 3px solid #C89B3C;
+    border: 2px solid #C89B3C;
     position: relative;
     box-shadow: 
-        inset 0 -10px 20px rgba(0, 0, 0, 0.3),
-        inset 0 8px 15px rgba(200, 155, 60, 0.2),
-        0 0 25px rgba(200, 155, 60, 0.4);
+        inset 0 -8px 15px rgba(0, 0, 0, 0.3),
+        inset 0 6px 12px rgba(200, 155, 60, 0.2),
+        0 0 20px rgba(200, 155, 60, 0.4);
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* Tufos de Penas (Orelhas) */
+/* Tufos de Penas (Orelhas) - Ajustado para widget bolinha */
 .owl-tufts {
     position: absolute;
-    top: -5px;
+    top: -3px;
     left: 50%;
     transform: translateX(-50%);
-    width: 80px;
-    height: 20px;
+    width: 60px;
+    height: 12px;
     z-index: 2;
 }
 
 .tuft-left,
 .tuft-right {
     position: absolute;
-    width: 8px;
-    height: 12px;
+    width: 5px;
+    height: 8px;
     background: linear-gradient(45deg, #3E2F20, #4A3B2A);
     border-radius: 50% 50% 0 0;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .tuft-left {
-    left: 20px;
+    left: 15px;
     transform: rotate(-15deg);
 }
 
 .tuft-right {
-    right: 20px;
+    right: 15px;
     transform: rotate(15deg);
 }
 
-/* Cabeça da Coruja */
+/* Cabeça da Coruja - Ajustado para widget bolinha */
 .owl-head::before {
     content: '';
     position: absolute;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 70px;
-    height: 70px;
+    width: 56px;
+    height: 56px;
     background: linear-gradient(135deg, 
         #4A3B2A 0%, 
         #5C4A36 25%, 
@@ -182,41 +188,41 @@
         #7A6247 75%, 
         #5C4A36 100%);
     border-radius: 50% 50% 45% 45%;
-    border: 3px solid #C89B3C;
+    border: 2px solid #C89B3C;
     box-shadow: 
-        inset 0 -10px 20px rgba(0, 0, 0, 0.3),
-        inset 0 8px 15px rgba(200, 155, 60, 0.2),
-        0 0 25px rgba(200, 155, 60, 0.4);
+        inset 0 -8px 15px rgba(0, 0, 0, 0.3),
+        inset 0 6px 12px rgba(200, 155, 60, 0.2),
+        0 0 20px rgba(200, 155, 60, 0.4);
     z-index: 1;
 }
 
-/* Olhos da Coruja - Mais Expressivos e Realistas */
+/* Olhos da Coruja - Ajustado para widget bolinha */
 .owl-eyes {
     position: absolute;
-    top: 20px;
+    top: 14px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 8px;
+    gap: 5px;
     z-index: 3;
 }
 
 .eye {
-    width: 24px;
-    height: 24px;
+    width: 16px;
+    height: 16px;
     background: radial-gradient(circle at 30% 30%, 
         #ffffff 0%, 
         #f5f5f5 30%, 
         #e8e8e8 70%,
         #d0d0d0 100%);
     border-radius: 50%;
-    border: 2px solid #2A1F17;
+    border: 1.5px solid #2A1F17;
     position: relative;
     overflow: hidden;
     box-shadow: 
-        inset 0 -3px 6px rgba(0, 0, 0, 0.2),
-        0 3px 8px rgba(0, 0, 0, 0.3),
-        0 0 15px rgba(200, 155, 60, 0.3);
+        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+        0 2px 6px rgba(0, 0, 0, 0.3),
+        0 0 10px rgba(200, 155, 60, 0.3);
 }
 
 .eye::before {
@@ -248,8 +254,8 @@
 }
 
 .pupil {
-    width: 14px;
-    height: 14px;
+    width: 9px;
+    height: 9px;
     background: radial-gradient(circle at 25% 25%, 
         #1a1a1a 0%, 
         #000000 70%);
@@ -259,7 +265,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
     animation: pupilBreath 3.5s ease-in-out infinite;
 }
 
@@ -274,10 +280,10 @@
     border-radius: 50%;
 }
 
-/* Bico da Coruja - Mais Detalhado e Realista */
+/* Bico da Coruja - Ajustado para widget bolinha */
 .owl-beak {
     position: absolute;
-    top: 48px;
+    top: 38px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 3;
@@ -291,22 +297,22 @@
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 8px solid #D2691E;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 5px solid #D2691E;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
 }
 
 .owl-beak::after {
     content: '';
     position: absolute;
-    top: 6px;
+    top: 4px;
     left: 50%;
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-left: 3px solid transparent;
-    border-right: 3px solid transparent;
+    border-left: 2px solid transparent;
+    border-right: 2px solid transparent;
     border-top: 5px solid #B8860B;
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }

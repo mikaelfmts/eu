@@ -2483,46 +2483,89 @@ section {
     color: white;
 }
 
-/* Chatbot - Estilo League of Legends */
+/* Chatbot - Widget Bolinha Fixo */
 #chatbot {
     position: fixed;
     bottom: 2rem;
     right: 2rem;
-    width: 300px;
-    background: rgba(10, 20, 40, 0.9);
-    border: 2px solid var(--primary-color);
-    border-radius: 0;
-    overflow: hidden;
-    box-shadow: 0 0 20px rgba(200, 170, 110, 0.3);
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, rgba(200, 155, 60, 0.2) 0%, rgba(10, 20, 40, 0.9) 70%);
+    border: 2px solid var(--primary-color, #C89B3C);
+    border-radius: 50%;
+    overflow: visible;
+    box-shadow: 0 4px 12px rgba(200, 170, 110, 0.5);
     z-index: 1000;
     font-family: 'Spiegel', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#chatbot:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(200, 170, 110, 0.6);
+    filter: drop-shadow(0 0 25px rgba(200, 155, 60, 0.8));
 }
 
 #chat-header {
-    background: linear-gradient(to right, #1e2328, #433d2b);
-    color: var(--primary-color);
-    padding: 1rem;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color, #C89B3C);
     cursor: pointer;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-bottom: 1px solid var(--primary-color);
+    font-size: 24px;
+    padding: 0;
+    background: transparent;
+    border: none;
     position: relative;
 }
 
+#chat-header i {
+    font-size: 28px;
+    color: var(--primary-color, #C89B3C);
+    text-shadow: 0 0 10px rgba(200, 155, 60, 0.6);
+}
+
 #chat-header::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(to right, transparent, var(--primary-color), transparent);
+    display: none;
 }
 
 #chat-body {
     display: none;
+    position: fixed;
+    bottom: 90px;
+    right: 2rem;
+    width: 350px;
+    max-height: 500px;
+    background: rgba(10, 20, 40, 0.95);
+    border: 2px solid var(--primary-color, #C89B3C);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    z-index: 1002;
     padding: 1rem;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+#chatbot.chat-open #chat-body {
+    display: block;
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 #chat-messages {

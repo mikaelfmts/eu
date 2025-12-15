@@ -501,8 +501,15 @@ class MinervaUltraAssistant {
         `;
         document.head.appendChild(style);
     }    setupEventListeners() {
-        // O clique da coruja será gerenciado dentro do setupDragFunctionality
-        // para compatibilidade com drag
+        // Clique na coruja para abrir/fechar chat
+        const owlButton = document.getElementById('minerva-owl');
+        if (owlButton) {
+            owlButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleChat();
+            });
+        }
 
         // Fechar chat
         document.getElementById('minerva-close').addEventListener('click', () => {

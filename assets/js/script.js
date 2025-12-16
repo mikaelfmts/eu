@@ -1697,8 +1697,8 @@ async function setUserName() {
     document.getElementById('name-form').style.display = 'none';
     document.getElementById('chat-area').style.display = 'block';
     
-    // Atualizar header do chat
-    document.getElementById('chat-header').innerHTML = `🤖 Chat - ${currentUserName}`;
+    // Header do chat permanece apenas com o ícone (sem nome do visitante)
+    // Não atualizar o header para evitar nomes grandes que ficam tortos
     
     // Carregar mensagens anteriores
     loadChatMessages();

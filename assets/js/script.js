@@ -26,11 +26,11 @@ function incrementRateLimit() {
 // Dados estáticos de fallback para quando a API não estiver disponível
 const GITHUB_FALLBACK_DATA = {
     profile: {
-        login: "MikaelFMTS",
-        name: "Mikael Ferreira",
+        login: "ferrerajs",
+        name: "ferrera.js",
         bio: "Desenvolvedor Web Full Stack | JavaScript | React | Node.js | Apaixonado por tecnologia e inovação",
         avatar_url: "https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg",
-        html_url: "https://github.com/MikaelFMTS",
+        html_url: "https://github.com/ferrerajs",
         public_repos: 25,
         followers: 12,
         following: 15,
@@ -44,7 +44,7 @@ const GITHUB_FALLBACK_DATA = {
         {
             name: "portfolio-website",
             description: "Portfolio pessoal desenvolvido com HTML, CSS, JavaScript e integração com Firebase",
-            html_url: "https://github.com/MikaelFMTS/portfolio-website",
+            html_url: "https://github.com/ferrerajs/portfolio-website",
             language: "JavaScript",
             stargazers_count: 5,
             forks_count: 2,
@@ -54,7 +54,7 @@ const GITHUB_FALLBACK_DATA = {
         {
             name: "react-dashboard",
             description: "Dashboard administrativo desenvolvido em React com integração de APIs",
-            html_url: "https://github.com/MikaelFMTS/react-dashboard",
+            html_url: "https://github.com/ferrerajs/react-dashboard",
             language: "JavaScript",
             stargazers_count: 8,
             forks_count: 3,
@@ -64,7 +64,7 @@ const GITHUB_FALLBACK_DATA = {
         {
             name: "node-api-rest",
             description: "API RESTful desenvolvida em Node.js com Express e MongoDB",
-            html_url: "https://github.com/MikaelFMTS/node-api-rest",
+            html_url: "https://github.com/ferrerajs/node-api-rest",
             language: "JavaScript",
             stargazers_count: 12,
             forks_count: 4,
@@ -74,7 +74,7 @@ const GITHUB_FALLBACK_DATA = {
         {
             name: "css-animations-library",
             description: "Biblioteca de animações CSS modernas e responsivas",
-            html_url: "https://github.com/MikaelFMTS/css-animations-library",
+            html_url: "https://github.com/ferrerajs/css-animations-library",
             language: "CSS",
             stargazers_count: 15,
             forks_count: 6,
@@ -84,7 +84,7 @@ const GITHUB_FALLBACK_DATA = {
         {
             name: "js-utils-collection",
             description: "Coleção de utilitários JavaScript para desenvolvimento web",
-            html_url: "https://github.com/MikaelFMTS/js-utils-collection",
+            html_url: "https://github.com/ferrerajs/js-utils-collection",
             language: "JavaScript",
             stargazers_count: 7,
             forks_count: 2,
@@ -165,7 +165,7 @@ async function getGitHubData(type, forceRefresh = false) {
                 }
             }
             
-            const response = await makeGitHubRequest('https://api.github.com/users/mikaelfmts', !forceRefresh);
+            const response = await makeGitHubRequest('https://api.github.com/users/ferrerajs', !forceRefresh);
             return await response.json();
             
         } else if (type === 'repos') {
@@ -177,7 +177,7 @@ async function getGitHubData(type, forceRefresh = false) {
                 }
             }
             
-            const response = await makeGitHubRequest('https://api.github.com/users/mikaelfmts/repos?sort=updated&per_page=10', !forceRefresh);
+            const response = await makeGitHubRequest('https://api.github.com/users/ferrerajs/repos?sort=updated&per_page=10', !forceRefresh);
             return await response.json();
         }
         
@@ -520,7 +520,7 @@ function displayRepositories(repos) {
 // Função para buscar dados do GitHub
 async function fetchGitHubData() {
     // Nome de usuário do GitHub (altere para o seu)
-    const username = "mikaelfmts";
+    const username = "ferrerajs";
     
     // Verificar cache primeiro
     const cachedData = getFromCache();
@@ -573,7 +573,7 @@ async function fetchGitHubData() {
                 followers: 1,
                 following: 0,
                 avatar_url: "https://avatars.githubusercontent.com/u/142128917?v=4",
-                html_url: "https://github.com/mikaelfmts"
+                html_url: "https://github.com/ferrerajs"
             };
             updateGitHubProfile(realProfile);
         }
@@ -737,9 +737,9 @@ async function analyzeSkillsFromRepos(username) {
 
 // Função para usar dados de fallback
 function useFallbackData() {
-    console.log('📊 Iniciando useFallbackData com dados REAIS do mikaelfmts...');
+    console.log('📊 Iniciando useFallbackData com dados REAIS do ferrerajs...');
     
-    // Dados REAIS do perfil do mikaelfmts (obtidos da API GitHub)
+    // Dados REAIS do perfil do ferrerajs (obtidos da API GitHub)
     const fallbackProfile = {
         name: "Mikael Ferreira",
         bio: null,
@@ -759,12 +759,12 @@ function useFallbackData() {
         updateGitHubProfile(fallbackProfile);
     }, 1000);
     
-    // Dados REAIS dos repositórios do mikaelfmts (obtidos da API GitHub)
+    // Dados REAIS dos repositórios do ferrerajs (obtidos da API GitHub)
     const fallbackRepos = [
         {
             name: "api",
             description: "API desenvolvida em JavaScript",
-            html_url: "https://github.com/mikaelfmts/api",
+            html_url: "https://github.com/ferrerajs/api",
             language: "JavaScript",
             stargazers_count: 1,
             forks_count: 0
@@ -772,7 +772,7 @@ function useFallbackData() {
         {
             name: "backendapiv2",
             description: "Backend API v2",
-            html_url: "https://github.com/mikaelfmts/backendapiv2",
+            html_url: "https://github.com/ferrerajs/backendapiv2",
             language: null,
             stargazers_count: 0,
             forks_count: 0
@@ -780,7 +780,7 @@ function useFallbackData() {
         {
             name: "botauthentic",
             description: "bot-authentic",
-            html_url: "https://github.com/mikaelfmts/botauthentic",
+            html_url: "https://github.com/ferrerajs/botauthentic",
             language: null,
             stargazers_count: 0,
             forks_count: 0
@@ -788,7 +788,7 @@ function useFallbackData() {
         {
             name: "eu",
             description: "Portfolio pessoal",
-            html_url: "https://github.com/mikaelfmts/eu",
+            html_url: "https://github.com/ferrerajs/eu",
             language: "JavaScript",
             stargazers_count: 1,
             forks_count: 0
@@ -796,7 +796,7 @@ function useFallbackData() {
         {
             name: "portfolio",
             description: "Portfolio atualizado",
-            html_url: "https://github.com/mikaelfmts/portfolio",
+            html_url: "https://github.com/ferrerajs/portfolio",
             language: "JavaScript",
             stargazers_count: 0,
             forks_count: 0
@@ -804,7 +804,7 @@ function useFallbackData() {
         {
             name: "seu-site-perfil",
             description: "Site de perfil pessoal",
-            html_url: "https://github.com/mikaelfmts/seu-site-perfil",
+            html_url: "https://github.com/ferrerajs/seu-site-perfil",
             language: "HTML",
             stargazers_count: 0,
             forks_count: 0
@@ -816,7 +816,7 @@ function useFallbackData() {
 }
 
 function generateFallbackSkills() {
-    // Dados REAIS de fallback baseados no perfil mikaelfmts
+    // Dados REAIS de fallback baseados no perfil ferrerajs
     const fallbackLanguageStats = {
         JavaScript: 70.5,  // Maior proporção baseada nos repositórios JS
         HTML: 20.2,        // Site/perfil tem bastante HTML
@@ -832,7 +832,7 @@ function generateFallbackSkills() {
     
     const fallbackTotalBytes = 1024 * 750; // 750KB mais realista
     
-    console.log('🎨 Gerando skills de fallback baseadas no perfil mikaelfmts...');
+    console.log('🎨 Gerando skills de fallback baseadas no perfil ferrerajs...');
     createSkillCards(fallbackLanguageStats, fallbackTechnologyStats, fallbackTotalBytes, false);
 }
 

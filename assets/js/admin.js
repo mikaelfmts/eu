@@ -346,7 +346,7 @@ function displayMessages(messages) {
                         <p class="text-xs opacity-75 mt-1">${hora}</p>
                     </div>
                 </div>
-                  <!-- Resposta do Mikael (se existir) -->
+                  <!-- Resposta do ferrera.js (se existir) -->
                 ${message.resposta ? `
                     <div class="flex justify-start mb-2">
                         <div class="message-bubble admin-message bg-gray-200 text-gray-800 p-3 rounded-lg">

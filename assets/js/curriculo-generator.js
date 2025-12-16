@@ -47,7 +47,7 @@ function checkAuthentication() {
                 // Verificar se é usuário autorizado
                 checkAdminPermissions(user).then(isAdmin => {
                     if (!isAdmin) {
-                        showNotification('Acesso negado. Apenas Mikael pode acessar esta página.', 'error');
+                        showNotification('Acesso negado. Apenas ferrera.js pode acessar esta página.', 'error');
                         setTimeout(() => {
                             window.location.href = 'index.html';
                         }, 2000);
@@ -101,7 +101,7 @@ let curriculumData = {
 };
 
 // Configuração unificada do GitHub API e Cache
-const GITHUB_USERNAME = 'MikaelFMTS';
+const GITHUB_USERNAME = 'ferrerajs';
 
 // Configuração do Cache do GitHub - Sistema Unificado
 const GITHUB_CACHE_CONFIG = {
@@ -117,15 +117,15 @@ const GITHUB_CACHE_CONFIG = {
 // Dados de fallback para quando a API não estiver disponível
 const GITHUB_FALLBACK_DATA = {
     profile: {
-        login: 'MikaelFMTS',
-        name: 'Mikael Ferreira',
+        login: 'ferrerajs',
+        name: 'ferrera.js',
         avatar_url: 'https://avatars.githubusercontent.com/u/85969748?v=4',
         bio: 'Desenvolvedor Web Full Stack apaixonado por tecnologia',
         location: 'Brasil',
         public_repos: 15,
         followers: 5,
         following: 10,
-        html_url: 'https://github.com/MikaelFMTS',
+        html_url: 'https://github.com/ferrerajs',
         blog: '',
         company: null
     },
@@ -133,9 +133,9 @@ const GITHUB_FALLBACK_DATA = {
         {
             id: 1,
             name: 'portfolio',
-            full_name: 'MikaelFMTS/portfolio',
+            full_name: 'ferrerajs/portfolio',
             description: 'Meu portfólio pessoal desenvolvido com HTML, CSS e JavaScript',
-            html_url: 'https://github.com/MikaelFMTS/portfolio',
+            html_url: 'https://github.com/ferrerajs/portfolio',
             language: 'JavaScript',
             stargazers_count: 3,
             forks_count: 0,
@@ -145,9 +145,9 @@ const GITHUB_FALLBACK_DATA = {
         {
             id: 2,
             name: 'curriculo-generator',
-            full_name: 'MikaelFMTS/curriculo-generator',
+            full_name: 'ferrerajs/curriculo-generator',
             description: 'Gerador de currículo dinâmico com Firebase',
-            html_url: 'https://github.com/MikaelFMTS/curriculo-generator',
+            html_url: 'https://github.com/ferrerajs/curriculo-generator',
             language: 'JavaScript',
             stargazers_count: 2,
             forks_count: 1,
@@ -162,7 +162,7 @@ const LINKEDIN_PROFILE_URL = 'https://www.linkedin.com/in/mikaelferreira/';
 const LINKEDIN_USERNAME = 'mikaelferreira';
 
 const LINKEDIN_FALLBACK_DATA = {
-    name: 'Mikael Ferreira',
+    name: 'ferrera.js',
     headline: 'Desenvolvedor Web Full Stack',
     location: 'Brasil',
     summary: 'Desenvolvedor apaixonado por tecnologia, especializado em desenvolvimento web full stack com foco em JavaScript, React, Node.js e Firebase.',
@@ -787,11 +787,11 @@ window.autoFillPersonalData = async function() {
     try {
         // Dados básicos do site
         const siteData = {
-            nomeCompleto: 'Mikael Ferreira',
+            nomeCompleto: 'ferrera.js',
             tituloProfissional: 'Desenvolvedor Web Full Stack',
-            email: 'mikael@exemplo.com', // Substitua pelo email real
-            github: 'https://github.com/MikaelFMTS',
-            linkedin: 'https://linkedin.com/in/mikael-ferreira', // Substitua pelo LinkedIn real
+            email: 'ferrera.js@exemplo.com', // Substitua pelo email real
+            github: 'https://github.com/ferrerajs',
+            linkedin: 'https://linkedin.com/in/ferrera-js', // Substitua pelo LinkedIn real
             localizacao: 'Brasil',
             resumoProfissional: 'Desenvolvedor web apaixonado por criar soluções inovadoras e experiências digitais excepcionais. Especializado em frontend e backend, com foco em tecnologias modernas e boas práticas de desenvolvimento.'
         };
@@ -908,7 +908,7 @@ window.syncGitHubPhoto = async function() {
 };
 
 window.syncGitHubPhotoManually = async function() {
-    const username = prompt('Digite o username do GitHub:', curriculumData.personalInfo.github || 'mikaelfmts');
+    const username = prompt('Digite o username do GitHub:', curriculumData.personalInfo.github || 'ferrerajs');
     if (!username) return;
     
     try {
@@ -949,7 +949,7 @@ window.loadGitHubProjects = async function() {
         
         // Processar repositórios
         repos.forEach(repo => {
-            if (!repo.fork && repo.name.toLowerCase() !== 'mikaelfmts') {
+            if (!repo.fork && repo.name.toLowerCase() !== 'ferrerajs') {
                 const project = {
                     id: `github-${repo.id}`,
                     nome: repo.name,
@@ -1345,7 +1345,7 @@ function generateCurriculumHTML() {
                 font-style: italic;
                 opacity: 0.7;
             ">
-                <span>Portfólio: mikaelfmts.github.io/eu • Atualizado em ${today}</span>
+                <span>Portfólio: ferrerajs.github.io/eu • Atualizado em ${today}</span>
             </div>
             
             ${generateHeaderSection()}
@@ -1362,10 +1362,10 @@ function generateCurriculumHTML() {
                 color: #64748b;
                 font-size: 0.8rem;
             ">
-                <p style="margin: 0;">Currículo gerado via Portfolio Profissional • Mikael Ferreira • mikaelfmts.github.io/eu</p>
+                <p style="margin: 0;">Currículo gerado via Portfolio Profissional • ferrera.js • ferrerajs.github.io/eu</p>
                 <p style="margin-top: 0.3rem; font-size: 0.75rem; opacity: 0.8;">Referências e comprovações de certificações disponíveis mediante solicitação.</p>
                 <p style="margin-top: 0.5rem; font-size: 0.65rem; color: #94a3b8;">
-                    Portfolio desenvolvido com HTML5, CSS3, JavaScript, Firebase, RESTful APIs e GitHub Actions • GitHub: github.com/MikaelFMTS
+                    Portfolio desenvolvido com HTML5, CSS3, JavaScript, Firebase, RESTful APIs e GitHub Actions • GitHub: github.com/ferrerajs
                 </p>
             </footer>
         </div>
@@ -1410,7 +1410,7 @@ function generateHeaderSection() {
                 ${personal.localizacao ? `<span class="contact-link"><i class="fas fa-map-marker-alt"></i> ${personal.localizacao}</span>` : ''}            </div>
             ${personal.resumoProfissional ? `<p class="main-text" style="margin-top: 1rem; font-style: italic; max-width: 600px; margin-left: auto; margin-right: auto;">${personal.resumoProfissional}</p>` : ''}
             <div style="font-size: 0.65rem; color: #999; text-align: center; margin-top: 0.5rem;">
-                <span>Mais informações e projetos completos disponíveis em: mikaelfmts.github.io/eu</span>
+                <span>Mais informações e projetos completos disponíveis em: ferrerajs.github.io/eu</span>
             </div>
         </header>
     `;
@@ -1811,7 +1811,7 @@ window.downloadPDF = async function() {
         // Configuração do PDF
         const options = {
             margin: marginValue,
-            filename: 'curriculo-mikael-ferreira.pdf',
+            filename: 'curriculo-ferrera-js.pdf',
             image: { 
                 type: 'jpeg', 
                 quality: 0.98 
@@ -2930,7 +2930,7 @@ window.exportHTML = function() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Currículo - Mikael Ferreira</title>
+    <title>Currículo - ferrera.js</title>
     <style>
         body {
             font-family: ${curriculumData.settings.fontFamily || 'Arial, sans-serif'};
@@ -2963,7 +2963,7 @@ window.exportHTML = function() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'curriculo-mikael-ferreira.html';
+        a.download = 'curriculo-ferrera-js.html';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -3053,7 +3053,7 @@ window.exportWord = function() {
                 children: [
                     // Cabeçalho
                     new docx.Paragraph({
-                        text: data.personalData.nomeCompleto || 'Mikael Ferreira',
+                        text: data.personalData.nomeCompleto || 'ferrera.js',
                         style: "heading1",
                         alignment: docx.AlignmentType.CENTER
                     }),
@@ -3195,7 +3195,7 @@ window.exportWord = function() {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'curriculo-mikael-ferreira.docx';
+            a.download = 'curriculo-ferrera-js.docx';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -3222,7 +3222,7 @@ function exportWordAsText() {
         const data = gatherAllData();
         
         // Criar conteúdo do documento Word como texto
-        let wordContent = `CURRÍCULO - ${data.personalData.nomeCompleto || 'Mikael Ferreira'}\n\n`;
+        let wordContent = `CURRÍCULO - ${data.personalData.nomeCompleto || 'ferrera.js'}\n\n`;
         
         // Dados pessoais
         wordContent += `DADOS PESSOAIS\n`;
@@ -3303,7 +3303,7 @@ function exportWordAsText() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'curriculo-mikael-ferreira.docx';
+        a.download = 'curriculo-ferrera-js.docx';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -3334,7 +3334,7 @@ window.exportJSON = function() {
                 exportDate: new Date().toISOString(),
                 exportFormat: 'JSON',
                 version: '1.0',
-                generator: 'Curriculo Generator - Mikael Ferreira'
+                generator: 'Curriculo Generator - ferrera.js'
             }
         };
         
@@ -3346,7 +3346,7 @@ window.exportJSON = function() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'curriculo-mikael-ferreira.json';
+        a.download = 'curriculo-ferrera-js.json';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

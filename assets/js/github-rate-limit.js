@@ -25,7 +25,7 @@ export const GITHUB_CONFIG = {
     
     // GitHub API
     BASE_URL: 'https://api.github.com',
-    USERNAME: 'mikael-ferreira'
+    USERNAME: 'ferrerajs'
 };
 
 // ==================== SISTEMA DE RATE LIMITING ====================

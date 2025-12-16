@@ -1,6 +1,6 @@
-/* Importando fontes da Riot Games/League of Legends */
-@import url('https://fonts.googleapis.com/css2?family=Beaufort+for+LOL:wght@400;500;700&family=Spiegel:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Marcellus&display=swap');
+/* Importando fontes retrô estilo Pac-Man */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
 /* Estilos para o sistema de partículas */
 .particles-container {
@@ -48,21 +48,22 @@
 }
 
 :root {
-    --primary-color: #c8aa6e; /* Dourado LOL */
-    --secondary-color: #0a1428; /* Azul escuro LOL */
-    --accent-color: #1e2328; /* Preto com toque azulado */
-    --text-primary: #f0e6d2; /* Dourado claro para texto */
-    --text-secondary: #a09b8c; /* Dourado acinzentado para texto secundário */
-    --background-primary: #010a13; /* Fundo muito escuro com azul */
-    --background-secondary: #0a1428; /* Fundo escuro azulado secundário */
-    --border-color: #3c3c41; /* Borda escura com toque azulado */
-    --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.5);
-    --shadow-medium: 0 8px 12px rgba(0, 0, 0, 0.6);
-    --shadow-heavy: 0 20px 25px rgba(0, 0, 0, 0.7);
-    --gradient-primary: linear-gradient(135deg, #c8aa6e 0%, #785a28 100%); /* Gradiente dourado */
-    --gradient-accent: linear-gradient(135deg, #0a1428 0%, #091428 100%); /* Gradiente azul escuro */
-    --card-bg: rgba(30, 35, 40, 0.8); /* Fundo de card escuro */
-    --nav-bg: rgba(1, 10, 19, 0.95); /* Fundo de navegação escuro */
+    /* Cores retrô estilo Pac-Man */
+    --primary-color: #FFD700; /* Amarelo Pac-Man */
+    --secondary-color: #2121DE; /* Azul dos fantasmas */
+    --accent-color: #000000; /* Preto */
+    --text-primary: #FFFFFF; /* Branco */
+    --text-secondary: #CCCCCC; /* Cinza claro */
+    --background-primary: #000000; /* Fundo preto */
+    --background-secondary: #1a1a1a; /* Fundo escuro */
+    --border-color: #FFD700; /* Borda amarela */
+    --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.8);
+    --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.9);
+    --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 1);
+    --gradient-primary: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); /* Gradiente amarelo */
+    --gradient-accent: linear-gradient(135deg, #2121DE 0%, #0000FF 100%); /* Gradiente azul */
+    --card-bg: rgba(26, 26, 26, 0.95); /* Fundo de card escuro */
+    --nav-bg: rgba(0, 0, 0, 0.98); /* Fundo de navegação preto */
 }
 
 html {
@@ -72,28 +73,11 @@ html {
 /* ===== MENU HORIZONTAL MODERNO ===== */
 .horizontal-nav {
     position: relative;
-    background: linear-gradient(135deg, 
-        rgba(10, 15, 25, 0.95), 
-        rgba(20, 25, 35, 0.98));
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(200, 170, 110, 0.3);
-    box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.4),
-        0 1px 0 rgba(200, 170, 110, 0.1) inset;
+    background: #000000;
+    border-bottom: 3px solid var(--primary-color);
+    box-shadow: 0 4px 0 rgba(255, 215, 0, 0.3);
     z-index: 1000;
     margin-bottom: 2rem;
-    animation: menuSlideDown 0.8s ease-out;
-}
-
-@keyframes menuSlideDown {
-    from {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
 }
 
 .nav-container {
@@ -133,7 +117,7 @@ html {
     color: var(--text-primary);
     font-size: 1rem;
     cursor: pointer;
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1.5px;
@@ -261,7 +245,7 @@ html {
 }
 
 .nav-menu a span {
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
     position: relative;
     z-index: 1;
     white-space: nowrap;
@@ -415,17 +399,15 @@ html {
 }
 
 body {
-    font-family: 'Spiegel', 'Marcellus', serif;
+    font-family: 'VT323', monospace;
     line-height: 1.6;
     color: var(--text-primary);
-    background: var(--background-primary);
-    background-image: 
-        url('https://lolstatic-a.akamaihd.net/frontpage/apps/prod/clash-2018/pt_BR/c9bf09f08bfd566d9b36445f5562432202cf0203/assets/img/patterns/golden-noise.png'),
-        linear-gradient(to bottom, var(--background-primary), var(--background-secondary));
-    background-blend-mode: overlay;
-    background-size: 500px, cover;
+    background: #000000;
     min-height: 100vh;
     overflow-x: hidden;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
 }
 
 /* ==================== ESTILOS DA SIDEBAR ==================== */
@@ -464,7 +446,7 @@ body {
 }
 
 .sidebar-header h2 {
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
     color: var(--primary-color);
     font-size: 1.5rem;
     letter-spacing: 2px;
@@ -518,7 +500,7 @@ body {
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    animation: dance 2s ease-in-out infinite;
+    animation: dance 1s ease-in-out infinite;
 }
 
 .bonequinho a {
@@ -544,8 +526,7 @@ body {
 
 @keyframes dance {
     0%, 100% { transform: translateX(-50%) rotate(0deg); }
-    25% { transform: translateX(-50%) rotate(-5deg); }
-    75% { transform: translateX(-50%) rotate(5deg); }
+    50% { transform: translateX(-50%) rotate(5deg); }
 }
 
 /* Conteúdo principal com sidebar */
@@ -626,7 +607,7 @@ body {
     background: linear-gradient(90deg, 
         rgba(200, 170, 110, 0) 0%, 
         rgba(200, 170, 110, 0.03) 100%);
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
 }
 
 #menu-lateral a::before {
@@ -729,18 +710,12 @@ body {
 /* ===== HEADER RENOVADO ===== */
 .hero-header {
     position: relative;
-    min-height: 56vh; /* mais discreto */
+    min-height: 56vh;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background: linear-gradient(135deg, 
-        var(--background-primary) 0%, 
-        var(--background-secondary) 25%,
-        #0f1b2e 50%,
-        var(--background-secondary) 75%,
-        var(--background-primary) 100%
-    );
+    background: #000000;
     margin-bottom: 1.25rem;
 }
 
@@ -766,11 +741,7 @@ body {
 }
 
 .hero-particles {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="0.5" fill="%23c8aa6e" opacity="0.2"/><circle cx="80" cy="40" r="0.3" fill="%23f0e6d2" opacity="0.15"/><circle cx="40" cy="80" r="0.8" fill="%23c8aa6e" opacity="0.25"/></svg>') repeat;
-    animation: float 25s ease-in-out infinite;
+    display: none; /* Removido para simplificar */
 }
 
 .hero-content {
@@ -805,7 +776,7 @@ body {
     padding: 0.18rem 0.5rem;
     border-radius: 10px;
 }
-.compact-hero .titulo-principal { font-size: clamp(1.2rem, 2.4vw, 1.8rem); margin-bottom: 0.4rem; }
+.compact-hero .titulo-principal { font-size: clamp(0.7rem, 1.2vw, 0.9rem); margin-bottom: 0.3rem; }
 .compact-hero .titulo-decoration { display: none; }
 .compact-hero .role-badge { padding: 0.35rem 0.75rem; font-size: clamp(0.8rem, 1.4vw, 0.95rem); }
 .compact-hero .tech-stack { gap: 0.5rem; margin-top: 0.6rem; }
@@ -830,32 +801,25 @@ body {
 
 /* Glow sutil e elegante atrás da foto */
 .profile-image-container::after {
-    content: '';
-    position: absolute;
-    z-index: 1;
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(200,170,110,0.18) 0%, rgba(200,170,110,0.06) 40%, transparent 70%);
-    filter: blur(6px);
-    animation: none;
+    display: none; /* Removido para simplificar */
 }
 
 .profile-image {
     width: 84px;
     height: 84px;
-    border-radius: 50%;
+    border-radius: 0;
     object-fit: cover;
-    border: 2px solid rgba(200, 170, 110, 0.6); /* borda mais sutil */
+    border: 3px solid var(--primary-color);
     position: relative;
     z-index: 2;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 4px 4px 0 rgba(255, 215, 0, 0.3);
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
 }
 
 .profile-image:hover {
-    transform: scale(1.03);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    box-shadow: 6px 6px 0 rgba(255, 215, 0, 0.5);
 }
 
 .profile-status {
@@ -874,7 +838,7 @@ body {
 .profile-status i {
     color: #22c55e;
     margin-right: 0.3rem;
-    animation: pulse 2s infinite;
+    animation: none; /* Simplificado */
 }
 
 .profile-info {
@@ -883,22 +847,23 @@ body {
 }
 
 .titulo-principal {
-    font-family: 'Marcellus', serif;
-    font-size: clamp(1.4rem, 2.8vw, 2.1rem);
-    margin: 0 0 0.5rem 0;
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+    margin: 0 0 0.3rem 0;
     letter-spacing: 1px;
-    text-transform: none;
-    line-height: 1.12;
+    text-transform: uppercase;
+    line-height: 1.2;
+    color: var(--primary-color);
 }
 
 .name-highlight {
-    color: var(--text-primary);
-    text-shadow: none;
+    color: var(--primary-color);
+    text-shadow: 2px 2px 0 #000000;
 }
 
 .name-accent {
-    color: var(--primary-color);
-    text-shadow: none;
+    color: var(--text-primary);
+    text-shadow: 2px 2px 0 #000000;
 }
 
 .titulo-decoration {
@@ -913,17 +878,17 @@ body {
 .role-badge {
     display: inline-flex;
     align-items: center;
-    background: linear-gradient(135deg, 
-        rgba(200, 170, 110, 0.15) 0%, 
-        rgba(200, 170, 110, 0.08) 100%);
-    border: 1px solid rgba(200, 170, 110, 0.3);
-    border-radius: 20px;
+    background: #000000;
+    border: 2px solid var(--primary-color);
+    border-radius: 0;
     padding: 0.4rem 0.9rem;
-    font-size: clamp(0.85rem, 1.6vw, 1rem);
-    color: var(--text-primary);
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    backdrop-filter: blur(10px);
+    font-size: clamp(0.75rem, 1.2vw, 0.9rem);
+    color: var(--primary-color);
+    font-weight: 400;
+    letter-spacing: 1px;
+    font-family: 'Press Start 2P', monospace;
+    text-transform: uppercase;
+    box-shadow: 4px 4px 0 rgba(255, 215, 0, 0.3);
 }
 
 .role-badge i {
@@ -944,19 +909,18 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0.8rem; /* Reduzido de 1rem */
-    background: rgba(30, 35, 40, 0.6);
-    border: 1px solid rgba(200, 170, 110, 0.2);
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-    min-width: 70px; /* Reduzido de 80px */
+    padding: 0.8rem;
+    background: #000000;
+    border: 2px solid var(--primary-color);
+    border-radius: 0;
+    transition: none;
+    min-width: 70px;
+    box-shadow: 3px 3px 0 rgba(255, 215, 0, 0.3);
 }
 
 .tech-item:hover {
-    transform: translateY(-3px);
+    box-shadow: 5px 5px 0 rgba(255, 215, 0, 0.5);
     border-color: var(--primary-color);
-    background: rgba(200, 170, 110, 0.1);
 }
 
 .tech-item i {
@@ -1060,7 +1024,7 @@ body {
     align-items: center;
     color: var(--text-secondary);
     font-size: 0.9rem;
-    animation: bounce 2s infinite;
+    animation: none; /* Simplificado */
     cursor: pointer;
 }
 
@@ -1080,7 +1044,7 @@ body {
     gap: 2rem;
     padding: 0.5rem 0;
     will-change: transform;
-    animation: marquee-scroll 18s linear infinite;
+    animation: marquee-scroll 12s linear infinite;
 }
 
 .marquee-item {
@@ -1088,11 +1052,13 @@ body {
     align-items: center;
     gap: 0.5rem;
     padding: 0.6rem 1rem;
-    background: rgba(30,35,40,0.6);
-    border: 1px solid rgba(200,170,110,0.25);
-    border-radius: 999px;
-    color: var(--text-primary);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    background: #000000;
+    border: 2px solid var(--primary-color);
+    border-radius: 0;
+    color: var(--primary-color);
+    box-shadow: 3px 3px 0 rgba(255, 215, 0, 0.3);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.7rem;
 }
 
 .marquee-item i { color: var(--primary-color); font-size: 1.1rem; }
@@ -1110,19 +1076,19 @@ body {
 }
 
 .feature-card {
-    background: linear-gradient(145deg, rgba(30,35,40,0.95), rgba(20,25,30,0.9));
-    border: 1px solid rgba(200,170,110,0.25);
-    border-radius: 14px;
+    background: #000000;
+    border: 3px solid var(--primary-color);
+    border-radius: 0;
     padding: 1.25rem;
-    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
-    box-shadow: 0 10px 24px rgba(0,0,0,.25);
+    transition: none;
+    box-shadow: 4px 4px 0 rgba(255, 215, 0, 0.3);
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
 }
 
 .feature-card:hover {
-    transform: translateY(-4px);
+    box-shadow: 6px 6px 0 rgba(255, 215, 0, 0.5);
     border-color: var(--primary-color);
     box-shadow: 0 18px 36px rgba(200,170,110,.25);
 }
@@ -1472,7 +1438,7 @@ header:hover {
 
 .titulo-principal {
     color: var(--primary-color);
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
     font-size: clamp(2rem, 4vw, 3rem);
     font-weight: 700;
     margin: 0 0 0.5rem 0;
@@ -1576,7 +1542,7 @@ header:hover {
     color: var(--primary-color);
     font-size: 1.15rem;
     margin-bottom: 10px;
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
 }
 
 .repo-stats {
@@ -1856,7 +1822,7 @@ section h2 {
     margin-bottom: 2rem;
     text-align: center;
     position: relative;
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
     text-transform: uppercase;
     letter-spacing: 2px;
     text-shadow: 0 0 10px rgba(200, 170, 110, 0.3);
@@ -2006,7 +1972,7 @@ section h2::before {
     font-weight: 700;
     margin-bottom: 1.5rem;
     color: var(--primary-color);
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
     text-transform: uppercase;
     letter-spacing: 2px;
     text-shadow: 0 0 10px rgba(200, 170, 110, 0.4);
@@ -2273,7 +2239,7 @@ button {
     overflow: hidden;
     text-transform: uppercase;
     letter-spacing: 1px;
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
     box-shadow: 0 0 10px rgba(200, 170, 110, 0.3);
 }
 
@@ -2350,7 +2316,7 @@ button:active {
     content: 'Carregando...';
     margin-top: 80px;
     color: var(--primary-color);
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
     text-transform: uppercase;
     letter-spacing: 2px;
     animation: pulse 1.5s infinite;
@@ -2462,13 +2428,19 @@ section {
     position: fixed;
     top: 1rem;
     right: 1rem;
-    background: var(--background-secondary);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
+    background: #000000;
+    border: 3px solid var(--primary-color);
+    color: var(--primary-color);
     padding: 0.5rem;
-    border-radius: 50%;
+    border-radius: 0;
     cursor: pointer;
     z-index: 1000;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 3px 3px 0 rgba(255, 215, 0, 0.3);
     width: 40px;
     height: 40px;
     display: flex;
@@ -2478,9 +2450,9 @@ section {
 }
 
 #theme-toggle:hover {
-    transform: rotate(180deg);
     background: var(--primary-color);
-    color: white;
+    color: #000000;
+    box-shadow: 5px 5px 0 rgba(255, 215, 0, 0.5);
 }
 
 /* Chatbot - Widget Bolinha Profissional */
@@ -2502,7 +2474,7 @@ section {
         inset 0 0 20px rgba(200, 155, 60, 0.1),
         0 4px 15px rgba(0, 0, 0, 0.3);
     z-index: 1000;
-    font-family: 'Spiegel', sans-serif;
+    font-family: 'VT323', monospace;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
@@ -2730,8 +2702,6 @@ section {
 
 .name-input-area button:active {
     transform: translateY(0);
-}
-    box-shadow: 0 4px 8px rgba(0, 102, 255, 0.3);
 }
 
 /* Estilos para mensagens - Estilo LoL */
@@ -3543,11 +3513,11 @@ section {
 .games-icon {
     font-size: 4rem;
     margin-bottom: 1rem;
-    animation: bounce 2s infinite;
+    animation: none; /* Simplificado */
 }
 
 .games-title {
-    font-family: 'Beaufort for LOL', serif;
+    font-family: 'Press Start 2P', monospace;
     font-size: 3rem;
     font-weight: 700;
     color: var(--primary-color);
@@ -3940,7 +3910,7 @@ section {
 
 .skill-header h3 {
     font-size: 1.5rem;
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
     color: var(--text-primary);
     font-weight: 600;
     letter-spacing: 1px;
@@ -4035,7 +4005,7 @@ section {
     text-align: center;
     margin-bottom: 1rem;
     text-shadow: 0 0 10px currentColor;
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
 }
 
 /* Skill Description */
@@ -4240,7 +4210,7 @@ section {
 
 .skill-header h3 {
     font-size: 1.4rem;
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
     color: var(--text-primary);
     font-weight: 600;
     letter-spacing: 1px;
@@ -4340,7 +4310,7 @@ section {
 }
 
 .section-title {
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
     font-size: 2rem;
     color: var(--primary-color);
     text-align: center;
@@ -4482,7 +4452,7 @@ section {
 }
 
 .media-title {
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
     color: var(--primary-color);
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
@@ -4623,7 +4593,7 @@ section {
 }
 
 .featured-title {
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
     color: var(--primary-color);
     font-size: 1.4rem;
     margin-bottom: 0.5rem;
@@ -4710,7 +4680,7 @@ section {
 
 .featured-modal-header h2 {
     color: var(--primary-color);
-    font-family: 'Marcellus', serif;
+    font-family: 'VT323', monospace;
     margin: 0;
 }
 

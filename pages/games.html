@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Jogos desenvolvidos por Mikael Ferreira - Desenvolvedor Web Full Stack">
-    <title>Games - Mikael Ferreira</title>
+    <meta name="description" content="Jogos desenvolvidos por ferrera.js - Desenvolvedor Web Full Stack">
+    <title>Games - ferrera.js</title>
     
     <!-- PWA Support -->
     <link rel="manifest" href="../manifest.json">
@@ -44,7 +44,7 @@
             margin-bottom: 30px;
             padding: 30px 0;
             border-bottom: 2px solid var(--primary-color);
-            animation: fadeInDown 1s ease;
+            animation: none;
         }
         
         .game-header h1 {
@@ -232,21 +232,7 @@
             box-sizing: border-box;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        /* Animações removidas para melhor performance */
         
         /* Responsividade para mobile */
         @media (max-width: 768px) {
@@ -272,7 +258,7 @@
     <div class="particles-container"></div>
       <!-- Foto do Usuário (Agora só decorativa) -->
     <div class="foto-perfil">
-        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
+        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de ferrera.js">
     </div>
 
     <!-- Menu Horizontal -->
@@ -305,7 +291,7 @@
     <div class="game-container">
         <div class="game-header">
             <h1><i class="fas fa-gamepad"></i> Portal de Jogos</h1>
-            <p>Experimente as aventuras digitais desenvolvidas por Mikael Ferreira, combinando programação e narrativas criativas.</p>
+            <p>Experimente as aventuras digitais desenvolvidas por ferrera.js, combinando programação e narrativas criativas.</p>
         </div>
         
         <div class="game-card">
@@ -482,7 +468,7 @@
     
     <!-- Rodapé -->
     <footer>
-        <p>© 2025 Mikael Ferreira <i class="fas fa-chess-rook"></i></p>
+        <p>© 2025 ferrera.js <i class="fas fa-chess-rook"></i></p>
     </footer>
       <script>
         // Variável global para a instância do jogo

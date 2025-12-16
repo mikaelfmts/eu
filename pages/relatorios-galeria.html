@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeria de Relatórios - Mikael Ferreira</title>
+    <title>Galeria de Relatórios - ferrera.js</title>
     
     <!-- PWA Support -->
     <link rel="manifest" href="../manifest.json">
-    <meta name="theme-color" content="#0066ff">
+    <meta name="theme-color" content="#FFD700">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Relatórios">
@@ -176,13 +176,10 @@
         .loading-spinner i {
             font-size: 3rem;
             color: var(--primary-color);
-            animation: spin 1s linear infinite;
+            animation: none;
         }
         
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+        /* Animação removida para melhor performance */
         
         .no-reports {
             text-align: center;
@@ -300,7 +297,7 @@
 </head>
 <body>    <!-- Foto do Usuário (Agora só decorativa) -->
     <div class="foto-perfil">
-        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
+        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de ferrera.js">
     </div>
 
     <!-- Menu Horizontal -->

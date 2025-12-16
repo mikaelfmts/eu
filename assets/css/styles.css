@@ -50,7 +50,7 @@
 :root {
     /* Cores retrô estilo Pac-Man */
     --primary-color: #FFD700; /* Amarelo Pac-Man */
-    --secondary-color: #2121DE; /* Azul dos fantasmas */
+    --secondary-color: #FFA500; /* Laranja complementar */
     --accent-color: #000000; /* Preto */
     --text-primary: #FFFFFF; /* Branco */
     --text-secondary: #CCCCCC; /* Cinza claro */
@@ -61,7 +61,7 @@
     --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.9);
     --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 1);
     --gradient-primary: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); /* Gradiente amarelo */
-    --gradient-accent: linear-gradient(135deg, #2121DE 0%, #0000FF 100%); /* Gradiente azul */
+    --gradient-accent: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); /* Gradiente dourado */
     --card-bg: rgba(26, 26, 26, 0.95); /* Fundo de card escuro */
     --nav-bg: rgba(0, 0, 0, 0.98); /* Fundo de navegação preto */
 }
@@ -285,7 +285,7 @@ html {
 
 /* LinkedIn icon special styling */
 .nav-menu a[href*="linkedin"] i {
-    color: #0a66c2; /* LinkedIn blue */
+    color: var(--primary-color); /* Dourado do tema */
 }
 
 .nav-menu a[href*="linkedin"]:hover {
@@ -740,6 +740,107 @@ body {
         radial-gradient(circle at 80% 70%, rgba(200, 170, 110, 0.05) 0%, transparent 50%);
 }
 
+/* Grid de fundo estilo Pac-Man */
+.pacman-grid-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(255, 215, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 215, 0, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.3;
+    z-index: 0;
+}
+
+/* Frame pixelado para a foto */
+.pixel-border-frame {
+    position: relative;
+    padding: 4px;
+    background: #000000;
+    border: 3px solid var(--primary-color);
+    box-shadow: 
+        4px 4px 0 rgba(255, 215, 0, 0.3),
+        inset 0 0 0 2px #000000;
+}
+
+.pixel-border-frame::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 1px solid var(--primary-color);
+    opacity: 0.5;
+}
+
+/* Texto pixelado */
+.pixel-text {
+    font-family: 'Press Start 2P', monospace;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+/* Underline pixelado */
+.pixel-underline {
+    width: 100%;
+    height: 3px;
+    background: var(--primary-color);
+    margin-top: 0.5rem;
+    box-shadow: 2px 2px 0 #000000;
+}
+
+/* Botões pixelados */
+.pixel-btn {
+    border-radius: 0 !important;
+    box-shadow: 4px 4px 0 rgba(255, 215, 0, 0.3) !important;
+    transition: none !important;
+}
+
+.pixel-btn:hover {
+    transform: translate(2px, 2px) !important;
+    box-shadow: 2px 2px 0 rgba(255, 215, 0, 0.3) !important;
+}
+
+.pixel-btn:active {
+    transform: translate(4px, 4px) !important;
+    box-shadow: 0 0 0 rgba(255, 215, 0, 0.3) !important;
+}
+
+/* Seta pixelada */
+.pixel-arrow {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    text-shadow: 2px 2px 0 #000000;
+    animation: none;
+}
+
+/* Status dot */
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #22c55e;
+    border: 1px solid #000000;
+    margin-right: 0.3rem;
+    box-shadow: 0 0 4px #22c55e;
+}
+
+/* Container do nome */
+.name-container {
+    margin-bottom: 0.5rem;
+}
+
+/* Container do role */
+.role-container {
+    margin-bottom: 0.8rem;
+}
+
 .hero-particles {
     display: none; /* Removido para simplificar */
 }
@@ -1115,7 +1216,7 @@ body {
     gap: .6rem;
     padding: .8rem 1.1rem;
     border-radius: 999px;
-    background: linear-gradient(135deg, #0077b5, #005885);
+    background: linear-gradient(135deg, var(--primary-color), #FFA500);
     color: #fff;
     border: 1px solid rgba(255,255,255,0.2);
     text-decoration: none;
@@ -2452,8 +2553,8 @@ section {
     position: fixed;
     bottom: 2rem;
     right: 2rem;
-    width: 64px;
-    height: 64px;
+    width: 48px;
+    height: 48px;
     background: linear-gradient(135deg, 
         rgba(200, 155, 60, 0.15) 0%, 
         rgba(10, 20, 40, 0.95) 50%,
@@ -2507,7 +2608,7 @@ section {
 }
 
 #chat-header i {
-    font-size: 30px;
+    font-size: 22px;
     color: var(--primary-color, #C89B3C);
     text-shadow: 
         0 0 15px rgba(200, 155, 60, 0.8),
@@ -2552,7 +2653,7 @@ section {
 
 #chatbot.chat-open #chat-body {
     display: block;
-    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: none;
 }
 
 @keyframes slideUp {
@@ -2811,9 +2912,9 @@ section {
 
 .certificados h3 {
     font-size: 18px;
-    color: #002c8b;
+    color: var(--primary-color);
     margin-bottom: 10px;
-    border-bottom: 2px solid #002c8b;
+    border-bottom: 2px solid var(--primary-color);
     padding-bottom: 5px;
 }
 
@@ -3646,8 +3747,8 @@ section {
 }
 
 .pixel.blue { 
-    background: #0099ff; 
-       box-shadow: 0 0 10px #0099ff;
+    background: var(--primary-color); 
+       box-shadow: 0 0 10px var(--primary-color);
 }
 
 .pixel.yellow { 

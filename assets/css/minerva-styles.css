@@ -21,7 +21,7 @@
 /* Responsividade Mobile - Minerva acima do chat */
 @media (max-width: 768px) {
     #minerva-container {
-        bottom: 100px;
+        bottom: 70px;
         right: 1.5rem;
     }
     
@@ -67,8 +67,8 @@
 
 /* Coruja Minerva - Widget Bolinha Profissional */
 .minerva-owl {
-    width: 64px;
-    height: 64px;
+    width: 48px;
+    height: 48px;
     cursor: pointer;
     position: relative;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -503,16 +503,16 @@
         inset 0 1px 0 rgba(240, 230, 210, 0.1);
     font-family: 'Spiegel', 'Marcellus', serif;
     z-index: 1001;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    transform: translateY(20px);
-    opacity: 0;
+    transition: none;
+    transform: none;
+    opacity: 1;
     pointer-events: none;
     display: flex;
     flex-direction: column;
 }
 
 .minerva-chat:not(.hidden) {
-    transform: translateY(0);
+    transform: none;
     opacity: 1;
     pointer-events: all;
 }
@@ -589,8 +589,8 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #00ff88;
-    box-shadow: 0 0 10px #00ff88;
+    background: var(--primary-color, #FFD700);
+    box-shadow: 0 0 10px var(--primary-color, #FFD700);
     animation: statusPulse 2s ease-in-out infinite;
     transition: all 0.3s ease;
 }
@@ -812,7 +812,7 @@
 
 .message-content strong { color: var(--primary-color); }
 .message-content em { opacity: 0.95; }
-.message-content a { color: #4ea1ff; text-decoration: none; }
+.message-content a { color: var(--primary-color, #FFD700); text-decoration: none; }
 .message-content a:hover { text-decoration: underline; }
 .message-content .msg-list { margin: 6px 0 6px 1.2rem; padding: 0; }
 .message-content .msg-list li { margin: 2px 0; }
@@ -867,7 +867,7 @@
 }
 
 .action-btn.share-btn:hover {
-    color: #2196F3;
+    color: var(--primary-color, #FFD700);
 }
 
 .message.user .message-content {
@@ -1108,7 +1108,7 @@
 }
 
 .export-options-menu h4 {
-    color: #2196F3;
+    color: var(--primary-color, #FFD700);
     margin: 0 0 10px 0;
     font-size: 1rem;
     text-align: center;
@@ -1149,14 +1149,14 @@
     background: linear-gradient(135deg, 
         rgba(33, 150, 243, 0.15) 0%, 
         rgba(33, 150, 243, 0.08) 100%);
-    border-color: #2196F3;
+    border-color: var(--primary-color, #FFD700);
     transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(33, 150, 243, 0.25);
 }
 
 .export-item i {
     font-size: 1.5rem;
-    color: #2196F3;
+    color: var(--primary-color, #FFD700);
 }
 
 .export-item span {

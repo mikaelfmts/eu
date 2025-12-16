@@ -9,7 +9,7 @@
     
     <!-- PWA Support -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0066ff">
+    <meta name="theme-color" content="#FFD700">
     
     <!-- Preconnect para performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -226,35 +226,43 @@
         </div>
     </nav>
 
-    <!-- Cabeçalho Renovado -->
+    <!-- Cabeçalho Renovado - Estilo Pac-Man -->
     <header class="hero-header compact-hero">
         <div class="hero-background">
-            <!-- Hero particles removido para simplificar -->
+            <div class="pacman-grid-bg"></div>
         </div>
         
         <div class="hero-content">
-            <!-- Foto de Perfil Integrada -->
+            <!-- Container Principal do Perfil -->
             <div class="profile-section">
+                <!-- Foto de Perfil com Borda Pixelada -->
                 <div class="profile-image-container">
-                    <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de ferrera.js" class="profile-image">
+                    <div class="pixel-border-frame">
+                        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de ferrera.js" class="profile-image">
+                    </div>
                     <div class="profile-status">
-                        <i class="fas fa-circle"></i>
-                        <span>Disponível</span>
+                        <span class="status-dot"></span>
+                        <span>Online</span>
                     </div>
                 </div>
                 
+                <!-- Informações do Perfil -->
                 <div class="profile-info">
-                    <h1 class="titulo-principal">
-                        <span class="name-highlight">ferrera.js</span>
-                    </h1>
-                    <div class="titulo-decoration"></div>
-                    <h2 class="subtitulo">
+                    <div class="name-container">
+                        <h1 class="titulo-principal">
+                            <span class="name-highlight pixel-text">ferrera.js</span>
+                        </h1>
+                        <div class="pixel-underline"></div>
+                    </div>
+                    
+                    <div class="role-container">
                         <span class="role-badge">
                             <i class="fas fa-code"></i>
-                            Software Engineer & Data Analyst
+                            <span>Software Engineer & Data Analyst</span>
                         </span>
-                    </h2>
+                    </div>
                     
+                    <!-- Tech Stack em Grid Pixelado -->
                     <div class="tech-stack">
                         <div class="tech-item">
                             <i class="fab fa-html5"></i>
@@ -266,7 +274,7 @@
                         </div>
                         <div class="tech-item">
                             <i class="fab fa-js"></i>
-                            <span>JavaScript</span>
+                            <span>JS</span>
                         </div>
                         <div class="tech-item">
                             <i class="fab fa-react"></i>
@@ -274,7 +282,7 @@
                         </div>
                         <div class="tech-item">
                             <i class="fas fa-chart-line"></i>
-                            <span>Data Analysis</span>
+                            <span>Data</span>
                         </div>
                         <div class="tech-item">
                             <i class="fab fa-python"></i>
@@ -284,27 +292,26 @@
                 </div>
             </div>
             
-            <!-- Quick Actions -->
+            <!-- Quick Actions com Estilo Pixelado -->
             <div class="quick-actions">
-                <a href="pages/curriculum.html" class="action-btn primary">
+                <a href="pages/curriculum.html" class="action-btn primary pixel-btn">
                     <i class="fas fa-download"></i>
-                    <span>See Curriculum</span>
+                    <span>Curriculum</span>
                 </a>
-                <a href="pages/projetos.html" class="action-btn secondary">
+                <a href="pages/projetos.html" class="action-btn secondary pixel-btn">
                     <i class="fas fa-code-branch"></i>
                     <span>Projects</span>
                 </a>
-                <a href="pages/relatorios-galeria.html" class="action-btn tertiary">
+                <a href="pages/relatorios-galeria.html" class="action-btn tertiary pixel-btn">
                     <i class="fas fa-chart-line"></i>
                     <span>Analysis</span>
                 </a>
             </div>
         </div>
         
-        <!-- Scroll Indicator -->
+        <!-- Scroll Indicator Pixelado -->
         <a href="#professional-summary" class="scroll-indicator" aria-label="Ir para resumo profissional">
-            <i class="fas fa-chevron-down"></i>
-            <span>Explore</span>
+            <div class="pixel-arrow">▼</div>
         </a>
     </header>
     

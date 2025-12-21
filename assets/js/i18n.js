@@ -57,7 +57,7 @@ const translations = {
     'nav.games': 'Games',
     'nav.login': 'Login',
 
-    'overlay.title': 'Welcome to <span style="color:#c8aa6e;">ferrera.js</span>'s Portfolio',
+    'overlay.title': 'Welcome to <span style="color:#c8aa6e;">ferrera.js</span>\'s Portfolio',
     'overlay.subtitle': 'Projects, data analysis and interactive experiences — all in one place. Click below to enter the home page.',
     'overlay.button': 'Enter portfolio home page',
     'overlay.tip': 'Tip: you can access it anytime by the direct address.',

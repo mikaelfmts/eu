@@ -607,17 +607,26 @@ class MinervaUltraAssistant {
         const container = document.getElementById('minerva-container');
         const owlButton = container.querySelector('.minerva-owl');
         
+        if (!container || !owlButton) {
+            console.error('Minerva: elementos não encontrados para drag');
+            return;
+        }
+        
         let isDragging = false;
         let dragStarted = false;
         let startX, startY, initialX, initialY;
-        let dragThreshold = 5; // pixels de movimento necessários para começar o drag
-        let downX, downY; // posição inicial do mouse/touch
+        let dragThreshold = 5;
+        let downX, downY;
+        let dragTimeout = null;
 
         // Prevenir comportamentos padrão
+        container.setAttribute('draggable', 'false');
+        owlButton.setAttribute('draggable', 'false');
         container.addEventListener('dragstart', (e) => e.preventDefault());
-        container.addEventListener('selectstart', (e) => e.preventDefault());
+        container.addEventListener('selectstart', (e) => {
+            if (isDragging) e.preventDefault();
+        });
 
-        // Funções auxiliares
         const getDistance = (x1, y1, x2, y2) => {
             return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
         };
@@ -634,23 +643,23 @@ class MinervaUltraAssistant {
             initialX = rect.left;
             initialY = rect.top;
             
-            // Adicionar cursor de movimento apenas quando começar o drag
-            document.body.style.cursor = 'grabbing';
+            container.style.transition = 'none';
+            document.body.style.userSelect = 'none';
         };
 
         const drag = (clientX, clientY) => {
             if (!isDragging) return;
             
-            // Verificar se moveu o suficiente para ser considerado drag
             const distance = getDistance(downX, downY, clientX, clientY);
             
             if (!dragStarted && distance < dragThreshold) {
-                return; // Ainda não é um drag, pode ser apenas um clique
+                return;
             }
             
             if (!dragStarted) {
                 dragStarted = true;
                 container.classList.add('dragging');
+                document.body.style.cursor = 'grabbing';
             }
             
             const deltaX = clientX - startX;
@@ -659,7 +668,6 @@ class MinervaUltraAssistant {
             let newX = initialX + deltaX;
             let newY = initialY + deltaY;
             
-            // Limites da tela
             const containerWidth = container.offsetWidth;
             const containerHeight = container.offsetHeight;
             const maxX = window.innerWidth - containerWidth;
@@ -672,53 +680,47 @@ class MinervaUltraAssistant {
             container.style.top = newY + 'px';
             container.style.right = 'auto';
             container.style.bottom = 'auto';
-            
-            // Atualizar posição do botão de toggle durante o drag
-            if (this.updateToggleButtonPosition) {
-                this.updateToggleButtonPosition();
-            }
         };
 
         const endDrag = () => {
             if (!isDragging) return;
             
+            const wasDragStarted = dragStarted;
             isDragging = false;
+            dragStarted = false;
             document.body.style.cursor = '';
+            document.body.style.userSelect = '';
             
-            // Se não foi um drag real (movimento insuficiente), é um clique
-            if (!dragStarted) {
+            container.classList.remove('dragging');
+            
+            if (!wasDragStarted) {
+                // Foi um clique, não drag
                 this.toggleChat();
                 return;
             }
             
-            dragStarted = false;
-            container.classList.remove('dragging');
+            // Snap para as bordas
             container.classList.add('snapping');
+            container.style.transition = 'all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
             
-            // Snap para as bordas (como AssistiveTouch)
             const rect = container.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const screenCenter = window.innerWidth / 2;
             
             let finalX, finalY;
             
-            // Snap horizontal: preferir borda esquerda
-            finalX = 20;
+            // Snap para esquerda ou direita
+            if (centerX < screenCenter) {
+                finalX = 16;
+            } else {
+                finalX = window.innerWidth - rect.width - 16;
+            }
             
-            // Manter Y atual mas dentro dos limites
             finalY = Math.max(20, Math.min(window.innerHeight - rect.height - 20, rect.top));
             
             container.style.left = finalX + 'px';
             container.style.top = finalY + 'px';
             
-            // Atualizar posição do botão após snap
-            if (this.updateToggleButtonPosition) {
-                setTimeout(() => {
-                    this.updateToggleButtonPosition();
-                }, 50);
-            }
-            
-            // Remover classe de snapping após animação
             setTimeout(() => {
                 container.classList.remove('snapping');
             }, 400);
@@ -733,21 +735,54 @@ class MinervaUltraAssistant {
 
         document.addEventListener('mousemove', (e) => {
             if (isDragging) {
+                e.preventDefault();
                 drag(e.clientX, e.clientY);
             }
         });
 
-        document.addEventListener('mouseup', () => {
+        document.addEventListener('mouseup', (e) => {
             if (isDragging) {
+                e.preventDefault();
                 endDrag();
             }
         });
-
-        // Atualizar posição do botão quando a janela for redimensionada
-        window.addEventListener('resize', () => {
-            if (this.updateToggleButtonPosition) {
-                this.updateToggleButtonPosition();
+        
+        // Touch events para mobile
+        owlButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            startDrag(touch.clientX, touch.clientY);
+        }, { passive: false });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                drag(touch.clientX, touch.clientY);
             }
+        }, { passive: false });
+        
+        document.addEventListener('touchend', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                endDrag();
+            }
+        }, { passive: false });
+
+        // Atualizar posição no resize
+        window.addEventListener('resize', () => {
+            const rect = container.getBoundingClientRect();
+            const maxX = window.innerWidth - rect.width - 16;
+            const maxY = window.innerHeight - rect.height - 20;
+            
+            if (rect.left > maxX) {
+                container.style.left = maxX + 'px';
+            }
+            if (rect.top > maxY) {
+                container.style.top = maxY + 'px';
+            }
+        });
+    }
         });
 
         // Touch events para mobile

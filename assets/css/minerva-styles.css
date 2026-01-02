@@ -1,37 +1,33 @@
-/* Estilos para Minerva - Assistente Virtual Ultra Evoluída */
+/* Estilos para Minerva - Assistente Virtual Pac-Man Edition */
 
-/* Container Principal - Widget Fixo no Canto Inferior Direito */
+/* Container Principal - Movível como AssistiveTouch */
 #minerva-container {
     position: fixed;
-    bottom: 100px; /* Acima do chat widget */
-    right: 2rem;
-    left: auto;
-    top: auto;
-    z-index: 1001; /* Acima do chat */
-    font-family: 'Marcellus', serif;
+    top: calc(50% - 34px);
+    left: 16px;
+    right: auto;
+    bottom: auto;
+    z-index: 1000;
+    font-family: 'Press Start 2P', 'Courier New', monospace;
     user-select: none;
     -webkit-user-drag: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* Responsividade Mobile - Minerva acima do chat */
-@media (max-width: 768px) {
-    #minerva-container {
-        bottom: 70px;
-        right: 1.5rem;
-    }
-    
-    #chatbot {
-        bottom: 1.5rem;
-        right: 1.5rem;
-    }
+#minerva-container.dragging {
+    transition: none;
+    transform: scale(1.15) rotate(5deg);
+    filter: drop-shadow(0 15px 40px rgba(255, 215, 0, 0.8));
 }
 
-/* Sistema de Partículas da Minerva */
+#minerva-container.snapping {
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Sistema de Partículas da Minerva - Pac-Dots */
 .minerva-particles {
     position: absolute;
     top: -30px;
@@ -50,90 +46,82 @@
 
 .minerva-particle {
     position: absolute;
-    width: 4px;
-    height: 4px;
-    background: linear-gradient(45deg, #C89B3C, #F0E6D2);
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, #FFD700, #FFA500);
     border-radius: 50%;
-    animation: float 3s ease-in-out infinite;
-    box-shadow: 0 0 10px rgba(200, 155, 60, 0.6);
+    animation: pelletFloat 2s ease-in-out infinite, pelletGlow 1s ease-in-out infinite;
+    box-shadow: 
+        0 0 15px rgba(255, 215, 0, 0.8),
+        0 0 25px rgba(255, 215, 0, 0.4);
+}
+
+@keyframes pelletFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-10px) scale(1.2); }
+}
+
+@keyframes pelletGlow {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
 }
 
 .minerva-particle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
-.minerva-particle:nth-child(2) { top: 30%; right: 15%; animation-delay: 0.5s; }
-.minerva-particle:nth-child(3) { bottom: 25%; left: 20%; animation-delay: 1s; }
-.minerva-particle:nth-child(4) { bottom: 35%; right: 10%; animation-delay: 1.5s; }
-.minerva-particle:nth-child(5) { top: 50%; left: 5%; animation-delay: 2s; }
-.minerva-particle:nth-child(6) { top: 60%; right: 5%; animation-delay: 2.5s; }
+.minerva-particle:nth-child(2) { top: 30%; right: 15%; animation-delay: 0.2s; background: radial-gradient(circle, #00FFFF, #00BFFF); }
+.minerva-particle:nth-child(3) { bottom: 25%; left: 20%; animation-delay: 0.4s; background: radial-gradient(circle, #FFB8FF, #FF69B4); }
+.minerva-particle:nth-child(4) { bottom: 35%; right: 10%; animation-delay: 0.6s; background: radial-gradient(circle, #FF0000, #FF4500); }
+.minerva-particle:nth-child(5) { top: 50%; left: 5%; animation-delay: 0.8s; background: radial-gradient(circle, #FFB852, #FF8C00); }
+.minerva-particle:nth-child(6) { top: 60%; right: 5%; animation-delay: 1s; background: radial-gradient(circle, #FFD700, #FFA500); }
 
-/* Coruja Minerva - Widget Bolinha Profissional */
+/* Pac-Man Minerva - Ultra Imponente */
 .minerva-owl {
-    width: 48px;
-    height: 48px;
+    width: 68px;
+    height: 68px;
     cursor: pointer;
     position: relative;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    filter: drop-shadow(0 6px 20px rgba(200, 155, 60, 0.6));
-    transform-origin: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.6));
+    transform-origin: center center;
     z-index: 2;
-    pointer-events: auto;
-    border-radius: 50%;
-    background: linear-gradient(135deg, 
-        rgba(200, 155, 60, 0.15) 0%, 
-        rgba(10, 20, 40, 0.95) 50%,
-        rgba(200, 155, 60, 0.1) 100%);
-    border: 3px solid var(--primary-gold, #C89B3C);
-    box-shadow: 
-        0 0 25px rgba(200, 155, 60, 0.5),
-        inset 0 0 20px rgba(200, 155, 60, 0.1),
-        0 4px 15px rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-}
-
-/* Esconder CTA - não necessário no widget bolinha */
-.minerva-cta {
-    display: none !important;
 }
 
 .minerva-owl:hover {
-    transform: scale(1.08);
-    filter: drop-shadow(0 0 30px rgba(200, 155, 60, 0.9)) saturate(1.15);
-    box-shadow: 
-        0 0 35px rgba(200, 155, 60, 0.7),
-        inset 0 0 25px rgba(200, 155, 60, 0.15),
-        0 6px 20px rgba(0, 0, 0, 0.4);
-    border-color: #F0E6D2;
-}
-
-.minerva-owl:active {
-    transform: scale(1.05);
-    transition: transform 0.1s ease;
+    transform: scale(1.12) rotate(-5deg);
+    filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.9));
 }
 
 .minerva-owl.active {
-    transform: scale(1.1) rotate(1deg);
-    filter: drop-shadow(0 0 40px rgba(200, 155, 60, 0.9)) saturate(1.15);
-    animation: owlPulse 2s ease-in-out infinite, headTilt 6s ease-in-out infinite;
+    transform: scale(1.15) rotate(2deg);
+    filter: drop-shadow(0 0 50px rgba(255, 215, 0, 1));
+    animation: pacmanBounce 0.6s ease-in-out infinite;
+}
+
+@keyframes pacmanBounce {
+    0%, 100% { transform: scale(1.15) rotate(0deg); }
+    50% { transform: scale(1.2) rotate(5deg); }
 }
 
 .minerva-owl.thinking {
-    animation: owlThinking 1.5s ease-in-out infinite;
+    animation: pacmanMunch 0.4s steps(2) infinite;
 }
 
-/* Aura Mágica Ultra Imponente */
+@keyframes pacmanMunch {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(-10deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* Aura Mágica Pac-Man */
 .minerva-owl::before {
     content: '';
     position: absolute;
-    top: -15px;
-    left: -15px;
-    right: -15px;
-    bottom: -15px;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
     background: radial-gradient(circle, 
-        rgba(200, 155, 60, 0.1) 0%, 
-        rgba(240, 230, 210, 0.05) 50%, 
+        rgba(255, 215, 0, 0.3) 0%, 
+        rgba(255, 165, 0, 0.15) 40%, 
         transparent 70%);
     border-radius: 50%;
     opacity: 0;
@@ -145,71 +133,112 @@
 .minerva-owl.active::before,
 .minerva-owl:hover::before {
     opacity: 1;
-    animation: auraRotate 8s linear infinite;
+    animation: auraRotate 4s linear infinite;
 }
 
-/* Cabeça da Coruja - Formato Realista - Ajustado para widget bolinha */
+@keyframes auraRotate {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+/* Corpo do Pac-Man */
 .owl-head {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, 
-        #4A3B2A 0%, 
-        #5C4A36 25%, 
-        #6B5540 50%, 
-        #7A6247 75%, 
-        #5C4A36 100%);
-    border-radius: 50% 50% 45% 45%;
-    border: 2px solid #C89B3C;
+    background: radial-gradient(circle at 30% 30%, 
+        #FFEB3B 0%, 
+        #FFD700 40%, 
+        #FFA500 100%);
+    border-radius: 50%;
+    border: 3px solid #000000;
     position: relative;
     box-shadow: 
-        inset 0 -8px 15px rgba(0, 0, 0, 0.3),
-        inset 0 6px 12px rgba(200, 155, 60, 0.2),
-        0 0 20px rgba(200, 155, 60, 0.4);
+        inset -8px -8px 15px rgba(0, 0, 0, 0.3),
+        inset 8px 8px 15px rgba(255, 255, 255, 0.4),
+        0 0 30px rgba(255, 215, 0, 0.6),
+        0 0 50px rgba(255, 215, 0, 0.3);
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
-/* Tufos de Penas (Orelhas) - Ajustado para widget bolinha */
-.owl-tufts {
+/* Boca do Pac-Man (corte triangular) */
+.owl-head::before {
+    content: '';
     position: absolute;
-    top: -3px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 12px;
-    z-index: 2;
+    top: 50%;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 20px 0 20px 25px;
+    border-color: transparent transparent transparent #000000;
+    transform: translateY(-50%);
+    animation: mouthOpen 0.6s ease-in-out infinite;
+}
+
+@keyframes mouthOpen {
+    0%, 100% { 
+        border-width: 20px 0 20px 25px;
+        opacity: 1;
+    }
+    50% { 
+        border-width: 2px 0 2px 25px;
+        opacity: 0.8;
+    }
+}
+
+/* Olho do Pac-Man */
+.owl-head::after {
+    content: '';
+    position: absolute;
+    top: 20%;
+    right: 50%;
+    width: 8px;
+    height: 8px;
+    background: #000000;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Tufos de Penas (Ocultos no tema Pac-Man) */
+.owl-tufts {
+    display: none;
 }
 
 .tuft-left,
 .tuft-right {
+    display: none;
+}
     position: absolute;
-    width: 5px;
-    height: 8px;
+    width: 8px;
+    height: 12px;
     background: linear-gradient(45deg, #3E2F20, #4A3B2A);
     border-radius: 50% 50% 0 0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .tuft-left {
-    left: 15px;
+    left: 20px;
     transform: rotate(-15deg);
 }
 
 .tuft-right {
-    right: 15px;
+    right: 20px;
     transform: rotate(15deg);
 }
 
-/* Cabeça da Coruja - Ajustado para widget bolinha */
+/* Cabeça da Coruja */
 .owl-head::before {
     content: '';
     position: absolute;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 56px;
-    height: 56px;
+    width: 70px;
+    height: 70px;
     background: linear-gradient(135deg, 
         #4A3B2A 0%, 
         #5C4A36 25%, 
@@ -217,41 +246,41 @@
         #7A6247 75%, 
         #5C4A36 100%);
     border-radius: 50% 50% 45% 45%;
-    border: 2px solid #C89B3C;
+    border: 3px solid #C89B3C;
     box-shadow: 
-        inset 0 -8px 15px rgba(0, 0, 0, 0.3),
-        inset 0 6px 12px rgba(200, 155, 60, 0.2),
-        0 0 20px rgba(200, 155, 60, 0.4);
+        inset 0 -10px 20px rgba(0, 0, 0, 0.3),
+        inset 0 8px 15px rgba(200, 155, 60, 0.2),
+        0 0 25px rgba(200, 155, 60, 0.4);
     z-index: 1;
 }
 
-/* Olhos da Coruja - Ajustado para widget bolinha */
+/* Olhos da Coruja - Mais Expressivos e Realistas */
 .owl-eyes {
     position: absolute;
-    top: 14px;
+    top: 20px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 5px;
+    gap: 8px;
     z-index: 3;
 }
 
 .eye {
-    width: 16px;
-    height: 16px;
+    width: 24px;
+    height: 24px;
     background: radial-gradient(circle at 30% 30%, 
         #ffffff 0%, 
         #f5f5f5 30%, 
         #e8e8e8 70%,
         #d0d0d0 100%);
     border-radius: 50%;
-    border: 1.5px solid #2A1F17;
+    border: 2px solid #2A1F17;
     position: relative;
     overflow: hidden;
     box-shadow: 
-        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
-        0 2px 6px rgba(0, 0, 0, 0.3),
-        0 0 10px rgba(200, 155, 60, 0.3);
+        inset 0 -3px 6px rgba(0, 0, 0, 0.2),
+        0 3px 8px rgba(0, 0, 0, 0.3),
+        0 0 15px rgba(200, 155, 60, 0.3);
 }
 
 .eye::before {
@@ -283,8 +312,8 @@
 }
 
 .pupil {
-    width: 9px;
-    height: 9px;
+    width: 14px;
+    height: 14px;
     background: radial-gradient(circle at 25% 25%, 
         #1a1a1a 0%, 
         #000000 70%);
@@ -294,7 +323,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
     animation: pupilBreath 3.5s ease-in-out infinite;
 }
 
@@ -309,10 +338,10 @@
     border-radius: 50%;
 }
 
-/* Bico da Coruja - Ajustado para widget bolinha */
+/* Bico da Coruja - Mais Detalhado e Realista */
 .owl-beak {
     position: absolute;
-    top: 38px;
+    top: 48px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 3;
@@ -326,22 +355,22 @@
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-left: 3px solid transparent;
-    border-right: 3px solid transparent;
-    border-top: 5px solid #D2691E;
-    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 8px solid #D2691E;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
 }
 
 .owl-beak::after {
     content: '';
     position: absolute;
-    top: 4px;
+    top: 6px;
     left: 50%;
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-left: 2px solid transparent;
-    border-right: 2px solid transparent;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
     border-top: 5px solid #B8860B;
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
@@ -479,40 +508,42 @@
     }
 }
 
-/* Chat Ultra Evoluído - Estilo Consistente com o Site - COMPACTO */
+/* Chat Ultra Evoluído - Estilo Pac-Man - COMPACTO */
 .minerva-chat {
     position: fixed;
     bottom: 20px;
     left: 20px;
     right: auto;
-    width: 320px;
+    width: 340px;
     max-width: calc(100vw - 40px);
-    height: 420px;
+    height: 450px;
     max-height: calc(100vh - 40px);
-    background: var(--card-bg);
-    backdrop-filter: blur(20px);
-    border: 2px solid;
+    background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.95) 0%, 
+        rgba(26, 26, 46, 0.95) 100%);
+    backdrop-filter: blur(25px);
+    border: 3px solid;
     border-image: linear-gradient(135deg, 
-        var(--primary-color), 
-        rgba(200, 170, 110, 0.4),
-        var(--primary-color)) 1;
-    border-radius: 15px;
+        #FFD700, 
+        #FFA500,
+        #FFD700) 1;
+    border-radius: 20px;
     box-shadow: 
-        0 25px 50px rgba(0, 0, 0, 0.8),
-        0 0 30px rgba(200, 170, 110, 0.2),
-        inset 0 1px 0 rgba(240, 230, 210, 0.1);
-    font-family: 'Spiegel', 'Marcellus', serif;
+        0 30px 60px rgba(0, 0, 0, 0.9),
+        0 0 40px rgba(255, 215, 0, 0.4),
+        inset 0 2px 0 rgba(255, 215, 0, 0.2);
+    font-family: 'Press Start 2P', 'Courier New', monospace;
     z-index: 1001;
-    transition: none;
-    transform: none;
-    opacity: 1;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(20px);
+    opacity: 0;
     pointer-events: none;
     display: flex;
     flex-direction: column;
 }
 
 .minerva-chat:not(.hidden) {
-    transform: none;
+    transform: translateY(0);
     opacity: 1;
     pointer-events: all;
 }
@@ -523,82 +554,75 @@
 
 .minerva-header {
     background: linear-gradient(135deg, 
-        rgba(10, 20, 40, 0.95) 0%, 
-        rgba(30, 35, 40, 0.98) 50%,
-        rgba(10, 20, 40, 0.95) 100%);
-    border-bottom: 2px solid rgba(200, 155, 60, 0.3);
-    padding: 16px 20px;
+        rgba(255, 215, 0, 0.9) 0%, 
+        rgba(255, 165, 0, 0.9) 100%);
+    border-bottom: 3px solid #000000;
+    padding: 14px 18px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-radius: 20px 20px 0 0;
+    border-radius: 17px 17px 0 0;
     box-shadow: 
-        0 4px 20px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(200, 155, 60, 0.2);
-    backdrop-filter: blur(10px);
-    position: relative;
-}
-
-.minerva-header::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, 
-        transparent 0%,
-        rgba(200, 155, 60, 0.5) 50%,
-        transparent 100%);
+        0 4px 15px rgba(0, 0, 0, 0.4),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.2);
 }
 
 .minerva-title {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: #F0E6D2;
-    text-shadow: 
-        0 0 15px rgba(200, 155, 60, 0.8),
-        0 2px 8px rgba(0, 0, 0, 0.5);
-    letter-spacing: 0.5px;
+    font-weight: 800;
+    font-size: 0.75rem;
+    color: #000000;
+    text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .minerva-title i {
-    font-size: 1.4rem;
-    color: var(--primary-color, #C89B3C);
-    filter: drop-shadow(0 0 10px rgba(200, 155, 60, 0.8));
-    animation: iconGlow 2s ease-in-out infinite;
+    font-size: 1.3rem;
+    color: #000000;
+    animation: iconPulse 2s ease-in-out infinite;
 }
 
-@keyframes iconGlow {
-    0%, 100% { filter: drop-shadow(0 0 10px rgba(200, 155, 60, 0.8)); }
-    50% { filter: drop-shadow(0 0 20px rgba(200, 155, 60, 1)); }
+@keyframes iconPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
 }
 
 .minerva-status {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
+    gap: 8px;
+    font-size: 0.65rem;
+    color: #000000;
+    text-transform: uppercase;
 }
 
 .status-dot {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background: var(--primary-color, #FFD700);
-    box-shadow: 0 0 10px var(--primary-color, #FFD700);
-    animation: statusPulse 2s ease-in-out infinite;
+    background: #00ff00;
+    box-shadow: 
+        0 0 15px #00ff00,
+        0 0 25px #00ff00;
+    animation: statusPulse 1.5s ease-in-out infinite;
     transition: all 0.3s ease;
+    border: 2px solid #000000;
+}
+
+@keyframes statusPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.7; }
 }
 
 .status-dot.processing {
-    background: #ffa500;
-    box-shadow: 0 0 10px #ffa500;
-    animation: processingPulse 1s ease-in-out infinite;
+    background: #ffff00;
+    box-shadow: 
+        0 0 15px #ffff00,
+        0 0 25px #ffff00;
+    animation: processingPulse 0.8s ease-in-out infinite;
 }
 
 .status-dot.error {
@@ -608,63 +632,67 @@
 }
 
 .minerva-close {
-    background: rgba(200, 155, 60, 0.1);
-    border: 1px solid rgba(200, 155, 60, 0.3);
-    color: var(--text-secondary, #F0E6D2);
+    background: none;
+    border: none;
+    color: var(--text-secondary);
     cursor: pointer;
-    padding: 8px;
+    padding: 5px;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 0.9rem;
+    transition: all 0.3s ease;
 }
 
 .minerva-close:hover {
-    background: rgba(200, 155, 60, 0.2);
-    border-color: var(--primary-color, #C89B3C);
-    color: var(--primary-color, #C89B3C);
-    transform: scale(1.1) rotate(90deg);
-    box-shadow: 0 0 15px rgba(200, 155, 60, 0.5);
+    background: rgba(200, 170, 110, 0.1);
+    color: var(--primary-color);
+    transform: scale(1.1);
 }
 
-.minerva-close:active {
-    transform: scale(0.95) rotate(90deg);
-}
-
-/* Área de Mensagens - Modernizada */
+/* Área de Mensagens - Estilo Labirinto Pac-Man */
 .minerva-messages {
     flex: 1;
-    padding: 24px;
+    padding: 20px;
     overflow-y: auto;
-    background: linear-gradient(180deg, 
-        rgba(10, 20, 40, 0.98) 0%,
-        rgba(15, 25, 45, 0.95) 50%,
-        rgba(10, 20, 40, 0.98) 100%);
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            rgba(33, 33, 222, 0.08) 0px,
+            rgba(33, 33, 222, 0.08) 3px,
+            transparent 3px,
+            transparent 25px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(33, 33, 222, 0.08) 0px,
+            rgba(33, 33, 222, 0.08) 3px,
+            transparent 3px,
+            transparent 25px
+        ),
+        linear-gradient(135deg, 
+            rgba(0, 0, 0, 0.95) 0%, 
+            rgba(10, 10, 30, 0.95) 100%);
     scrollbar-width: thin;
-    scrollbar-color: var(--primary-color) transparent;
+    scrollbar-color: #FFD700 transparent;
 }
 
 .minerva-messages::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
 }
 
 .minerva-messages::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
 }
 
 .minerva-messages::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 3px;
-    box-shadow: 0 0 5px rgba(200, 170, 110, 0.5);
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    border-radius: 4px;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    border: 2px solid #000000;
 }
 
 .minerva-messages::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, var(--primary-color), #785a28);
+    background: linear-gradient(135deg, #FFEB3B, #FFD700);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
 }
 
 .minerva-welcome {
@@ -778,44 +806,66 @@
 }
 
 .message.user .message-avatar {
-    background: linear-gradient(135deg, var(--primary-color), #785a28);
-    color: var(--secondary-color);
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #000000;
+    border: 2px solid #000000;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
 }
 
 .message.minerva .message-avatar {
-    background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
-    color: var(--primary-color);
-    box-shadow: 0 0 15px rgba(200, 170, 110, 0.3);
+    background: linear-gradient(135deg, #00FFFF, #0080FF);
+    color: #000000;
+    border: 2px solid #000000;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
 }
 
 .message-content {
-    background: rgba(30, 35, 40, 0.6);
-    padding: 12px 15px;
+    background: rgba(10, 10, 30, 0.8);
+    padding: 14px 16px;
     border-radius: 15px;
-    border: 1px solid rgba(200, 170, 110, 0.2);
-    color: var(--text-primary);
-    font-size: 0.9rem;
-    line-height: 1.4;
-    max-width: 250px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    color: #FFEB3B;
+    font-size: 0.7rem;
+    line-height: 1.6;
+    max-width: 260px;
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 215, 0, 0.1);
 }
 
 /* Rich text na mensagem */
 .message-content code {
-    background: rgba(0,0,0,0.35);
-    border: 1px solid rgba(200,170,110,0.25);
-    padding: 0 4px;
-    border-radius: 4px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
     font-size: 0.85em;
+    color: #00FFFF;
 }
 
-.message-content strong { color: var(--primary-color); }
-.message-content em { opacity: 0.95; }
-.message-content a { color: var(--primary-color, #FFD700); text-decoration: none; }
-.message-content a:hover { text-decoration: underline; }
-.message-content .msg-list { margin: 6px 0 6px 1.2rem; padding: 0; }
-.message-content .msg-list li { margin: 2px 0; }
+.message-content strong { 
+    color: #FFD700; 
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+.message-content em { 
+    opacity: 0.9; 
+    color: #FFEB3B;
+}
+.message-content a { 
+    color: #00FFFF; 
+    text-decoration: none;
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+.message-content a:hover { 
+    text-decoration: underline; 
+    color: #FFB8FF;
+}
+.message-content .msg-list { margin: 8px 0 8px 1.5rem; padding: 0; }
+.message-content .msg-list li { 
+    margin: 4px 0;
+    color: #FFC107;
+}
 
 /* Ações das Mensagens */
 .message-actions {
@@ -867,19 +917,29 @@
 }
 
 .action-btn.share-btn:hover {
-    color: var(--primary-color, #FFD700);
+    color: #2196F3;
 }
 
 .message.user .message-content {
     background: linear-gradient(135deg, 
-        rgba(200, 170, 110, 0.15) 0%, 
-        rgba(200, 170, 110, 0.08) 100%);
-    border-color: rgba(200, 170, 110, 0.4);
+        rgba(255, 215, 0, 0.25) 0%, 
+        rgba(255, 165, 0, 0.15) 100%);
+    border-color: rgba(255, 215, 0, 0.5);
     border-radius: 15px 15px 5px 15px;
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.5),
+        0 0 15px rgba(255, 215, 0, 0.3);
 }
 
 .message.minerva .message-content {
     border-radius: 15px 15px 15px 5px;
+    background: linear-gradient(135deg, 
+        rgba(33, 33, 222, 0.2) 0%, 
+        rgba(0, 255, 255, 0.1) 100%);
+    border-color: rgba(0, 255, 255, 0.4);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.5),
+        0 0 15px rgba(0, 255, 255, 0.3);
 }
 
 .minerva-input-area {
@@ -1108,7 +1168,7 @@
 }
 
 .export-options-menu h4 {
-    color: var(--primary-color, #FFD700);
+    color: #2196F3;
     margin: 0 0 10px 0;
     font-size: 1rem;
     text-align: center;
@@ -1149,14 +1209,14 @@
     background: linear-gradient(135deg, 
         rgba(33, 150, 243, 0.15) 0%, 
         rgba(33, 150, 243, 0.08) 100%);
-    border-color: var(--primary-color, #FFD700);
+    border-color: #2196F3;
     transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(33, 150, 243, 0.25);
 }
 
 .export-item i {
     font-size: 1.5rem;
-    color: var(--primary-color, #FFD700);
+    color: #2196F3;
 }
 
 .export-item span {
@@ -1267,7 +1327,7 @@
     visibility: visible;
 }
 
-/* Modal da Minerva - Design Moderno */
+/* Modal da Minerva */
 .minerva-chat.modal-open {
     position: fixed !important;
     top: 50% !important;
@@ -1275,20 +1335,13 @@
     transform: translate(-50%, -50%) !important;
     bottom: auto !important;
     right: auto !important;
-    width: 480px !important;
-    height: 650px !important;
+    width: 450px !important;
+    height: 600px !important;
     max-width: 90vw !important;
-    max-height: 85vh !important;
+    max-height: 80vh !important;
     margin: 0 !important;
     z-index: 99999 !important;
-    animation: modalZoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    border-radius: 20px !important;
-    overflow: hidden;
-    box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.5),
-        0 0 40px rgba(200, 155, 60, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
+    animation: modalZoomIn 0.3s ease-out;
 }
 
 /* Garantir que todos os elementos filhos do modal tenham z-index adequado */
@@ -1325,7 +1378,152 @@ body.modal-open {
     }
 }
 
-/* Responsividade Mobile - Estilos consolidados acima */
+/* Responsividade Mobile */
+@media (max-width: 768px) {
+    #minerva-container {
+        top: calc(50% - 32px); /* central para ~64-68px */
+        left: 12px;
+        right: auto;
+        bottom: auto;
+    }
+    
+    .minerva-owl {
+        width: 64px;
+        height: 64px;
+    }
+    
+    .minerva-cta {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        top: -40px;
+    }
+    
+    .minerva-chat {
+        width: calc(100vw - 24px);
+        height: calc(100vh - 130px);
+        left: 10px;
+        right: auto;
+        bottom: 10px;
+        border-radius: 12px;
+        max-height: calc(100vh - 130px);
+    }
+    
+    /* Estilos específicos para modal no mobile */
+    .minerva-chat.modal-open {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: calc(100vw - 20px) !important;
+        height: calc(100vh - 80px) !important;
+        z-index: 1000000 !important;
+        max-width: none;
+        max-height: none;
+        margin: 0;
+        border-radius: 15px;
+    }
+    
+    .minerva-header {
+        padding: 12px 15px;
+        border-radius: 12px 12px 0 0;
+    }
+    
+    .minerva-title {
+        font-size: 0.9rem;
+    }
+    
+    .minerva-status {
+        font-size: 0.75rem;
+    }
+    
+    .minerva-messages {
+        padding: 12px;
+    }
+    
+    .welcome-message h3 {
+        font-size: 0.95rem;
+    }
+    
+    .welcome-message p,
+    .welcome-message li {
+        font-size: 0.8rem;
+    }
+    
+    .suggestion-btn {
+        font-size: 0.75rem;
+        padding: 8px 10px;
+    }
+    
+    .message-content {
+        max-width: calc(100vw - 120px);
+        font-size: 0.85rem;
+        padding: 10px 12px;
+    }
+    
+    .minerva-input-area {
+        padding: 10px 12px;
+    }
+    
+    #minerva-input {
+        font-size: 0.85rem;
+        padding: 10px 12px;
+    }
+    
+    .input-features {
+        gap: 3px;
+    }
+    
+    .feature-btn {
+        padding: 6px;
+        font-size: 0.8rem;
+    }
+    
+    .minerva-send-btn {
+        padding: 8px 10px;
+    }
+    
+    .ai-badge {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+    }
+    
+    /* Funcionalidades avançadas mobile */
+    .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .feature-item {
+        padding: 10px 6px;
+        font-size: 0.75rem;
+    }
+    
+    .feature-item i {
+        font-size: 1rem;
+    }
+    
+    /* Chat em tela cheia no mobile */
+    .minerva-chat.fullscreen-mode {
+        width: 100vw !important;
+        height: 100vh !important;
+        border-radius: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
+        transform: none !important;
+    }
+    
+    /* Melhor touch targets */
+    .minerva-close,
+    .feature-btn,
+    .minerva-send-btn,
+    .suggestion-btn {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
 
 /* Dispositivos muito pequenos */
 @media (max-width: 480px) {

@@ -433,7 +433,7 @@ button > * {
 .curriculum-tech {
     font-family: 'Fira Sans', sans-serif;
     background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
-    color: var(--primary-color, #FFD700);
+    color: #00ff88;
     font-size: 13px;
     line-height: 1.4;
 }

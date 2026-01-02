@@ -26,11 +26,11 @@ function incrementRateLimit() {
 // Dados estáticos de fallback para quando a API não estiver disponível
 const GITHUB_FALLBACK_DATA = {
     profile: {
-        login: "ferrerajs",
-        name: "ferrera.js",
+        login: "mikaeldmts",
+        name: "Mikael Ferreira",
         bio: "Desenvolvedor Web Full Stack | JavaScript | React | Node.js | Apaixonado por tecnologia e inovação",
         avatar_url: "https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg",
-        html_url: "https://github.com/ferrerajs",
+        html_url: "https://github.com/mikaeldmts",
         public_repos: 25,
         followers: 12,
         following: 15,
@@ -44,7 +44,7 @@ const GITHUB_FALLBACK_DATA = {
         {
             name: "portfolio-website",
             description: "Portfolio pessoal desenvolvido com HTML, CSS, JavaScript e integração com Firebase",
-            html_url: "https://github.com/ferrerajs/portfolio-website",
+            html_url: "https://github.com/mikaeldmts/portfolio-website",
             language: "JavaScript",
             stargazers_count: 5,
             forks_count: 2,
@@ -54,7 +54,7 @@ const GITHUB_FALLBACK_DATA = {
         {
             name: "react-dashboard",
             description: "Dashboard administrativo desenvolvido em React com integração de APIs",
-            html_url: "https://github.com/ferrerajs/react-dashboard",
+            html_url: "https://github.com/mikaeldmts/react-dashboard",
             language: "JavaScript",
             stargazers_count: 8,
             forks_count: 3,
@@ -64,7 +64,7 @@ const GITHUB_FALLBACK_DATA = {
         {
             name: "node-api-rest",
             description: "API RESTful desenvolvida em Node.js com Express e MongoDB",
-            html_url: "https://github.com/ferrerajs/node-api-rest",
+            html_url: "https://github.com/mikaeldmts/node-api-rest",
             language: "JavaScript",
             stargazers_count: 12,
             forks_count: 4,
@@ -74,7 +74,7 @@ const GITHUB_FALLBACK_DATA = {
         {
             name: "css-animations-library",
             description: "Biblioteca de animações CSS modernas e responsivas",
-            html_url: "https://github.com/ferrerajs/css-animations-library",
+            html_url: "https://github.com/mikaeldmts/css-animations-library",
             language: "CSS",
             stargazers_count: 15,
             forks_count: 6,
@@ -84,7 +84,7 @@ const GITHUB_FALLBACK_DATA = {
         {
             name: "js-utils-collection",
             description: "Coleção de utilitários JavaScript para desenvolvimento web",
-            html_url: "https://github.com/ferrerajs/js-utils-collection",
+            html_url: "https://github.com/mikaeldmts/js-utils-collection",
             language: "JavaScript",
             stargazers_count: 7,
             forks_count: 2,
@@ -165,7 +165,7 @@ async function getGitHubData(type, forceRefresh = false) {
                 }
             }
             
-            const response = await makeGitHubRequest('https://api.github.com/users/ferrerajs', !forceRefresh);
+            const response = await makeGitHubRequest('https://api.github.com/users/mikaeldmts', !forceRefresh);
             return await response.json();
             
         } else if (type === 'repos') {
@@ -177,7 +177,7 @@ async function getGitHubData(type, forceRefresh = false) {
                 }
             }
             
-            const response = await makeGitHubRequest('https://api.github.com/users/ferrerajs/repos?sort=updated&per_page=10', !forceRefresh);
+            const response = await makeGitHubRequest('https://api.github.com/users/mikaeldmts/repos?sort=updated&per_page=10', !forceRefresh);
             return await response.json();
         }
         
@@ -520,7 +520,7 @@ function displayRepositories(repos) {
 // Função para buscar dados do GitHub
 async function fetchGitHubData() {
     // Nome de usuário do GitHub (altere para o seu)
-    const username = "ferrerajs";
+    const username = "mikaelfmts";
     
     // Verificar cache primeiro
     const cachedData = getFromCache();
@@ -573,7 +573,7 @@ async function fetchGitHubData() {
                 followers: 1,
                 following: 0,
                 avatar_url: "https://avatars.githubusercontent.com/u/142128917?v=4",
-                html_url: "https://github.com/ferrerajs"
+                html_url: "https://github.com/mikaeldmts"
             };
             updateGitHubProfile(realProfile);
         }
@@ -737,9 +737,9 @@ async function analyzeSkillsFromRepos(username) {
 
 // Função para usar dados de fallback
 function useFallbackData() {
-    console.log('📊 Iniciando useFallbackData com dados REAIS do ferrerajs...');
+    console.log('📊 Iniciando useFallbackData com dados REAIS do mikaelfmts...');
     
-    // Dados REAIS do perfil do ferrerajs (obtidos da API GitHub)
+    // Dados REAIS do perfil do mikaelfmts (obtidos da API GitHub)
     const fallbackProfile = {
         name: "Mikael Ferreira",
         bio: null,
@@ -747,7 +747,7 @@ function useFallbackData() {
         followers: 1,
         following: 0,
         avatar_url: "https://avatars.githubusercontent.com/u/142128917?v=4",
-        html_url: "https://github.com/mikaelfmts"
+        html_url: "https://github.com/mikaeldmts"
     };
     
     console.log('✅ Dados do perfil real:', fallbackProfile);
@@ -759,12 +759,12 @@ function useFallbackData() {
         updateGitHubProfile(fallbackProfile);
     }, 1000);
     
-    // Dados REAIS dos repositórios do ferrerajs (obtidos da API GitHub)
+    // Dados REAIS dos repositórios do mikaeldmts (obtidos da API GitHub)
     const fallbackRepos = [
         {
             name: "api",
             description: "API desenvolvida em JavaScript",
-            html_url: "https://github.com/ferrerajs/api",
+            html_url: "https://github.com/mikaeldmts/api",
             language: "JavaScript",
             stargazers_count: 1,
             forks_count: 0
@@ -772,7 +772,7 @@ function useFallbackData() {
         {
             name: "backendapiv2",
             description: "Backend API v2",
-            html_url: "https://github.com/ferrerajs/backendapiv2",
+            html_url: "https://github.com/mikaeldmts/backendapiv2",
             language: null,
             stargazers_count: 0,
             forks_count: 0
@@ -780,7 +780,7 @@ function useFallbackData() {
         {
             name: "botauthentic",
             description: "bot-authentic",
-            html_url: "https://github.com/ferrerajs/botauthentic",
+            html_url: "https://github.com/mikaeldmts/botauthentic",
             language: null,
             stargazers_count: 0,
             forks_count: 0
@@ -788,7 +788,7 @@ function useFallbackData() {
         {
             name: "eu",
             description: "Portfolio pessoal",
-            html_url: "https://github.com/ferrerajs/eu",
+            html_url: "https://github.com/mikaeldmts/eu",
             language: "JavaScript",
             stargazers_count: 1,
             forks_count: 0
@@ -796,7 +796,7 @@ function useFallbackData() {
         {
             name: "portfolio",
             description: "Portfolio atualizado",
-            html_url: "https://github.com/ferrerajs/portfolio",
+            html_url: "https://github.com/mikaeldmts/portfolio",
             language: "JavaScript",
             stargazers_count: 0,
             forks_count: 0
@@ -804,7 +804,7 @@ function useFallbackData() {
         {
             name: "seu-site-perfil",
             description: "Site de perfil pessoal",
-            html_url: "https://github.com/ferrerajs/seu-site-perfil",
+            html_url: "https://github.com/mikaeldmts/seu-site-perfil",
             language: "HTML",
             stargazers_count: 0,
             forks_count: 0
@@ -816,7 +816,7 @@ function useFallbackData() {
 }
 
 function generateFallbackSkills() {
-    // Dados REAIS de fallback baseados no perfil ferrerajs
+    // Dados REAIS de fallback baseados no perfil mikaelfmts
     const fallbackLanguageStats = {
         JavaScript: 70.5,  // Maior proporção baseada nos repositórios JS
         HTML: 20.2,        // Site/perfil tem bastante HTML
@@ -832,7 +832,7 @@ function generateFallbackSkills() {
     
     const fallbackTotalBytes = 1024 * 750; // 750KB mais realista
     
-    console.log('🎨 Gerando skills de fallback baseadas no perfil ferrerajs...');
+    console.log('🎨 Gerando skills de fallback baseadas no perfil mikaelfmts...');
     createSkillCards(fallbackLanguageStats, fallbackTechnologyStats, fallbackTotalBytes, false);
 }
 
@@ -1697,8 +1697,8 @@ async function setUserName() {
     document.getElementById('name-form').style.display = 'none';
     document.getElementById('chat-area').style.display = 'block';
     
-    // Header do chat permanece apenas com o ícone (sem nome do visitante)
-    // Não atualizar o header para evitar nomes grandes que ficam tortos
+    // Atualizar header do chat
+    document.getElementById('chat-header').innerHTML = `🤖 Chat - ${currentUserName}`;
     
     // Carregar mensagens anteriores
     loadChatMessages();
@@ -1748,6 +1748,7 @@ function loadChatMessages() {
         // Escutar mudanças em tempo real
         messagesListener = onSnapshot(q, (snapshot) => {
             const chatMessages = document.getElementById('chat-messages');
+            const wasNearBottom = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < 40;
             // Limpar mensagens anteriores (exceto mensagens do sistema)
             const systemMessages = Array.from(chatMessages.querySelectorAll('.system-message'));
             chatMessages.innerHTML = '';
@@ -1790,13 +1791,18 @@ function loadChatMessages() {
                     return timestampA - timestampB;
                 });
                 
-                // Exibir mensagens na ordem correta
+                // Exibir mensagens na ordem correta, com separadores por dia
                 messages.forEach((msg) => {
                     displayMessage(msg.data, msg.id);
                 });
             }
             
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            if (wasNearBottom) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                hideNewMessagesBadge();
+            } else {
+                showNewMessagesBadge();
+            }
         }, (error) => {
             console.error('Erro ao carregar mensagens:', error);
             addSystemMessage('Erro ao carregar mensagens anteriores. Mas você pode enviar novas mensagens normalmente.', 'error');
@@ -1807,52 +1813,128 @@ function loadChatMessages() {
     }
 }
 
+// Helpers para separadores por dia
+function getDateKeyFromMessageHora(hora) {
+    let d;
+    if (hora && typeof hora.toDate === 'function') d = hora.toDate();
+    else if (hora instanceof Date) d = hora;
+    else d = new Date();
+    const key = d.toISOString().slice(0,10);
+    return { key, date: d };
+}
+
+function formatDateLabel(d) {
+    const today = new Date();
+    const yd = new Date(); yd.setDate(today.getDate()-1);
+    const isSameDay = (a,b)=> a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+    if (isSameDay(d, today)) return 'Hoje';
+    if (isSameDay(d, yd)) return 'Ontem';
+    return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+function ensureDateSeparator(container, dateKey, label) {
+    if (!container.querySelector(`.date-separator[data-date="${dateKey}"]`)) {
+        const sep = document.createElement('div');
+        sep.className = 'date-separator';
+        sep.dataset.date = dateKey;
+        sep.textContent = label;
+        container.appendChild(sep);
+    }
+}
+
 // Função para exibir mensagem na interface
 function displayMessage(messageData, messageId) {
     const chatMessages = document.getElementById('chat-messages');
     if (!chatMessages) return;
-    
-    // Verificar se a mensagem já existe na interface (evitar duplicatas)
-    if (document.querySelector(`[data-message-id="${messageId}"]`)) {
-        return;
-    }
-    
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message user-message ${messageData.respondido ? 'responded' : ''}`;
-    messageDiv.dataset.messageId = messageId;
-    
+
+    // Detectar se está próximo do fim para autoscroll condicional
+    const nearBottom = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < 40;
+
+    // Buscar se já existe o elemento da mensagem
+    let messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+
     // Tratar corretamente o timestamp do Firestore
     let hora;
     if (messageData.hora) {
         if (typeof messageData.hora.toDate === 'function') {
-            // Caso seja um timestamp do Firestore
             hora = messageData.hora.toDate().toLocaleTimeString();
         } else if (messageData.hora instanceof Date) {
-            // Caso seja um objeto Date normal
             hora = messageData.hora.toLocaleTimeString();
         } else {
-            // Fallback
             hora = new Date().toLocaleTimeString();
         }
     } else {
         hora = new Date().toLocaleTimeString();
     }
-    
-    messageDiv.innerHTML = `
-        <div class="message-content">
-            <strong>Você:</strong> ${messageData.mensagem}
-        </div>
-        <div class="message-time">${hora}</div>
-        ${messageData.resposta ? `
-            <div class="admin-response">
-                <strong>Mikael:</strong> ${messageData.resposta}
+
+    if (!messageDiv) {
+        // Criar nova mensagem
+        messageDiv = document.createElement('div');
+        messageDiv.className = `message user-message ${messageData.respondido ? 'responded' : ''}`;
+        messageDiv.dataset.messageId = messageId;
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                <strong>Você:</strong> ${messageData.mensagem}
             </div>
-        ` : ''}
-    `;
-    
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+            <div class="message-time">${hora}</div>
+            ${messageData.resposta ? `
+                <div class="admin-response">
+                    <strong>Mikael:</strong> ${messageData.resposta}
+                </div>
+            ` : ''}
+        `;
+        // Inserir separador por dia antes, se necessário
+        const { key, date } = getDateKeyFromMessageHora(messageData.hora);
+        ensureDateSeparator(chatMessages, key, formatDateLabel(date));
+        chatMessages.appendChild(messageDiv);
+    } else {
+        // Atualizar mensagem existente (ex.: chegou a resposta do admin)
+        messageDiv.classList.toggle('responded', !!messageData.respondido);
+        // Atualizar hora se necessário
+        const timeEl = messageDiv.querySelector('.message-time');
+        if (timeEl) timeEl.textContent = hora;
+        // Atualizar conteúdo do usuário (caso tenha sido ajustado localmente)
+        const contentEl = messageDiv.querySelector('.message-content');
+        if (contentEl) contentEl.innerHTML = `<strong>Você:</strong> ${messageData.mensagem}`;
+        // Inserir/atualizar resposta do admin
+        if (messageData.resposta) {
+            let adminEl = messageDiv.querySelector('.admin-response');
+            if (!adminEl) {
+                adminEl = document.createElement('div');
+                adminEl.className = 'admin-response';
+                messageDiv.appendChild(adminEl);
+            }
+            adminEl.innerHTML = `<strong>Mikael:</strong> ${messageData.resposta}`;
+        }
+    }
+
+    // Autoscroll somente se usuário estava perto do final
+    if (nearBottom) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 }
+
+// Badge "novas mensagens"
+function getOrCreateNewMessagesBadge() {
+    const chatBody = document.getElementById('chat-body');
+    if (!chatBody) return null;
+    let badge = chatBody.querySelector('.new-messages-badge');
+    if (!badge) {
+        badge = document.createElement('button');
+        badge.className = 'new-messages-badge';
+        badge.type = 'button';
+        badge.innerHTML = '<i class="fas fa-arrow-down"></i> Novas mensagens';
+        badge.addEventListener('click', ()=>{
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            hideNewMessagesBadge();
+        });
+        chatBody.appendChild(badge);
+    }
+    return badge;
+}
+function showNewMessagesBadge(){ const b = getOrCreateNewMessagesBadge(); if(b) b.style.display='inline-flex'; }
+function hideNewMessagesBadge(){ const b = getOrCreateNewMessagesBadge(); if(b) b.style.display='none'; }
 
 // Função para enviar mensagem
 async function sendMessage() {
@@ -1982,30 +2064,25 @@ window.addEventListener('offline', function() {
 
 // Função para alternar a visibilidade do chat
 function toggleChat() {
-    const chatbot = document.getElementById("chatbot");
-    const chatBody = document.getElementById("chat-body");
-    const isOpen = chatbot.classList.contains("chat-open");
+    let chatBody = document.getElementById("chat-body");
+    let isVisible = chatBody.style.display === "block";
     
-    if (isOpen) {
-        chatbot.classList.remove("chat-open");
-    } else {
-        chatbot.classList.add("chat-open");
-        
-        // Se o chat estiver abrindo e não tivermos um usuário ainda, focar no campo de nome
-        if (!currentUserName) {
-            setTimeout(() => {
-                const nameInput = document.getElementById('name-input');
-                if (nameInput) nameInput.focus();
-            }, 100);
-        }
-        
-        // Se o chat estiver abrindo e já tivermos um usuário, focar no campo de mensagem
-        if (currentUserName) {
-            setTimeout(() => {
-                const chatInput = document.getElementById('chat-input');
-                if (chatInput) chatInput.focus();
-            }, 100);
-        }
+    chatBody.style.display = isVisible ? "none" : "block";
+    
+    // Se o chat estiver abrindo e não tivermos um usuário ainda, focar no campo de nome
+    if (!isVisible && !currentUserName) {
+        setTimeout(() => {
+            const nameInput = document.getElementById('name-input');
+            if (nameInput) nameInput.focus();
+        }, 100);
+    }
+    
+    // Se o chat estiver abrindo e já tivermos um usuário, focar no campo de mensagem
+    if (!isVisible && currentUserName) {
+        setTimeout(() => {
+            const chatInput = document.getElementById('chat-input');
+            if (chatInput) chatInput.focus();
+        }, 100);
     }
 }
 

@@ -15,7 +15,7 @@ const translations = {
     'nav.games': 'Jogos',
     'nav.login': 'Entrar',
 
-    'overlay.title': 'Bem-vindo ao Portfólio de <span style="color:#c8aa6e;">ferrera.js</span>',
+    'overlay.title': 'Bem-vindo ao Portfólio de <span style="color:#c8aa6e;">Mikael Ferreira</span>',
     'overlay.subtitle': 'Projetos, análises de dados e experiências interativas — tudo em um só lugar. Clique abaixo para acessar a página inicial.',
     'overlay.button': 'Acessar página inicial do portfólio',
     'overlay.tip': 'Dica: você pode acessar a qualquer momento pelo endereço direto.',
@@ -57,7 +57,7 @@ const translations = {
     'nav.games': 'Games',
     'nav.login': 'Login',
 
-    'overlay.title': 'Welcome to <span style="color:#c8aa6e;">ferrera.js</span>\'s Portfolio',
+    'overlay.title': 'Welcome to <span style="color:#c8aa6e;">Mikael Ferreira</span>’s Portfolio',
     'overlay.subtitle': 'Projects, data analysis and interactive experiences — all in one place. Click below to enter the home page.',
     'overlay.button': 'Enter portfolio home page',
     'overlay.tip': 'Tip: you can access it anytime by the direct address.',

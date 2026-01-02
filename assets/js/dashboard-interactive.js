@@ -822,7 +822,7 @@ function createProfileHTML() {
     return `
         <div class="profile-card">
             <div class="profile-avatar">
-                <img src="https://github.com/mikaelfmts.png" alt="Profile Avatar">
+                <img src="https://github.com/mikaeldmts.png" alt="Profile Avatar">
             </div>
             <div class="profile-info">
                 <div class="profile-name">Mikael Ferreira</div>
@@ -952,7 +952,7 @@ function openMedia(title) {
 function openRepository(name) {
     showNotification(`Abrindo repositório: ${name}`, 'info');
     setTimeout(() => {
-        window.open(`https://github.com/mikaelfmts/${name}`, '_blank');
+        window.open(`https://github.com/mikaeldmts/${name}`, '_blank');
     }, 500);
 }
 

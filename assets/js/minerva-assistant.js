@@ -22,7 +22,10 @@ class MinervaUltraAssistant {
         this.isActive = false;
         this.isThinking = false;
     this.isUltraMode = false;
-    // Minerva agora é fixa, não precisa de estado de esconder
+    // Estado: se a Minerva está escondida na lateral
+    this.isHidden = false;
+    // Memória do estado anterior ao abrir o chat (para restaurar após fechar)
+    this.wasHiddenBeforeOpen = false;
         this.userSession = {
             questionsAsked: 0,
             topics: [],
@@ -99,7 +102,7 @@ class MinervaUltraAssistant {
     }    initializeKnowledgeBase() {
         return {
             owner: {
-                name: "ferrera.js",
+                name: "Mikael Ferreira",
                 profession: "Desenvolvedor Web Full Stack",
                 specialties: ["Frontend", "Backend", "JavaScript", "Python", "React", "Node.js", "Firebase", "APIs REST", "UI/UX Design", "PWA Development"],
                 experience: "Desenvolvedor apaixonado por criar experiências digitais únicas e funcionais",
@@ -120,13 +123,13 @@ class MinervaUltraAssistant {
                     gamedev: ["Phaser.js", "Canvas API", "WebGL", "Game mechanics", "Interactive animations"]
                 },
                 github: {
-                    username: "ferrerajs",
-                    profile_url: "https://github.com/ferrerajs",
+                    username: "mikaeldmts",
+                    profile_url: "https://github.com/mikaeldmts",
                     integration_enabled: true
                 },
                 contact: {
                     email: "Contato através do formulário do site",
-                    github: "https://github.com/ferrerajs",
+                    github: "https://github.com/mikaeldmts",
                     linkedin: "Perfil profissional disponível no site",
                     availability: "Aberto para oportunidades, projetos freelance e colaborações"
                 },
@@ -137,7 +140,7 @@ class MinervaUltraAssistant {
                 }
             },
             website: {
-                name: "Portfolio ferrera.js",
+                name: "Portfolio Mikael Ferreira",
                 theme: "Inspirado em League of Legends/Riot Games com elementos dourados e azuis",
                 architecture: {
                     type: "Single Page Application (SPA)",
@@ -263,7 +266,7 @@ class MinervaUltraAssistant {
                 "Explicar qualquer aspecto técnico do desenvolvimento",
                 "Demonstrar funcionalidades específicas do site",
                 "Orientar navegação detalhada por todas as seções",
-                "Fornecer informações profissionais sobre ferrera.js",
+                "Fornecer informações profissionais sobre Mikael",
                 "Explicar decisões de arquitetura e design",
                 "Ajudar com dúvidas sobre implementação",
                 "Contextualizar projetos e tecnologias",
@@ -322,7 +325,8 @@ class MinervaUltraAssistant {
                 <div class="minerva-particle"></div>
             </div>
 
-            <!-- CTA removido - Minerva agora é widget bolinha -->
+            <!-- CTA Sutil acima da Minerva -->
+            <div class="minerva-cta">Fale com a Minerva</div>
 
             <!-- Coruja Ultra Imponente e Realista -->
             <div id="minerva-owl" class="minerva-owl" title="Clique para falar com Minerva - Assistente IA Ultra Inteligente">
@@ -368,11 +372,11 @@ class MinervaUltraAssistant {
                             <i class="fas fa-feather-alt"></i>
                         </div>                        <div class="welcome-message">
                             <h3>Minerva IA - Sua Assistente Ultra Inteligente</h3>
-                            <p>Olá! Sou a Minerva, sua assistente virtual powered by Google Gemini & created by ferrera.js. Posso responder qualquer pergunta sobre:</p>
+                            <p>Olá! Sou a Minerva, sua assistente virtual powered by Google Gemini & created by Mikael. Posso responder qualquer pergunta sobre:</p>
                             <ul>
                                 <li>Navegação completa do site</li>
                                 <li>Stack técnica e implementações</li>
-                                <li>Sobre o ferrera.js e suas especialidades</li>
+                                <li>Sobre o Mikael e suas especialidades</li>
                                 <li>Projetos e funcionalidades</li>
                                 <li>Como tudo foi desenvolvido</li>
                                 <li>Oportunidades e contato</li>
@@ -380,11 +384,11 @@ class MinervaUltraAssistant {
                         </div>
                           <div class="quick-suggestions">
                             <button class="suggestion-btn premium" data-question="Explique detalhadamente como este site foi desenvolvido, incluindo arquitetura, tecnologias e decisões de design">Arquitetura Completa</button>
-                            <button class="suggestion-btn premium" data-question="Quais são os projetos mais impressionantes do ferrera.js e o que os torna únicos?">Projetos Destacados</button>
+                            <button class="suggestion-btn premium" data-question="Quais são os projetos mais impressionantes do Mikael e o que os torna únicos?">Projetos Destacados</button>
                             <button class="suggestion-btn premium" data-question="Como a Minerva funciona? Explique a integração com Google Gemini e IA">Sobre Minerva IA</button>
-                            <button class="suggestion-btn premium" data-question="Quais são as especialidades técnicas do ferrera.js e como ele pode agregar valor?">Perfil Profissional</button>
+                            <button class="suggestion-btn premium" data-question="Quais são as especialidades técnicas do Mikael e como ele pode agregar valor?">Perfil Profissional</button>
                             <button class="suggestion-btn premium" data-question="Mostre todas as funcionalidades avançadas deste portfolio">Recursos Avançados</button>
-                            <button class="suggestion-btn premium" data-question="Como posso contactar o ferrera.js para oportunidades de trabalho?">Contato Business</button>
+                            <button class="suggestion-btn premium" data-question="Como posso contactar o Mikael para oportunidades de trabalho?">Contato Business</button>
                         </div>
                     </div>
                 </div>
@@ -407,7 +411,7 @@ class MinervaUltraAssistant {
                     <div class="ai-indicator">
                         <span class="ai-badge">
                             <i class="fas fa-robot"></i>
-                            Powered by Google Gemini AI | Created by ferrera.js
+                            Powered by Google Gemini AI | Created by Mikael
                         </span>
                     </div>
                 </div>
@@ -417,7 +421,8 @@ class MinervaUltraAssistant {
         // Inserir no body
         document.body.appendChild(minervaContainer);
 
-        // Minerva agora é fixa, não precisa de botão toggle
+        // Criar botão de toggle separado e mais visível
+        this.createToggleButton();
 
         // Aplicar estilos dinâmicos adicionais
         this.applyDynamicStyles();
@@ -431,15 +436,9 @@ class MinervaUltraAssistant {
             .minerva-container {
                 z-index: 99999 !important;
                 pointer-events: none;
-                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
-            
-            /* Neutraliza transform do container quando o chat está aberto como modal */
-            .minerva-container.chat-open { 
-                transform: none !important; 
-            }
-            
-            /* Minerva agora é fixa, sem estados de esconder */
+                /* Neutraliza transform do container quando o chat está aberto como modal */
+                .minerva-container.chat-open { transform: none !important; }
             
             .minerva-owl, .minerva-chat {
                 pointer-events: auto;
@@ -448,8 +447,6 @@ class MinervaUltraAssistant {
             .minerva-chat.hidden {
                 display: none !important;
             }
-            
-            /* Botão toggle removido - Minerva agora é fixa */
             
             /* Animações específicas para ultra mode */
             .minerva-container.ultra-active .minerva-particles {
@@ -490,26 +487,11 @@ class MinervaUltraAssistant {
                 0%, 80%, 100% { transform: scale(0); }
                 40% { transform: scale(1); }
             }
-            
-            /* Responsividade para mobile */
-            @media (max-width: 768px) {
-                #minerva-container {
-                    bottom: 90px;
-                    right: 1rem;
-                }
-            }
         `;
         document.head.appendChild(style);
     }    setupEventListeners() {
-        // Clique na coruja para abrir/fechar chat
-        const owlButton = document.getElementById('minerva-owl');
-        if (owlButton) {
-            owlButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.toggleChat();
-            });
-        }
+        // O clique da coruja será gerenciado dentro do setupDragFunctionality
+        // para compatibilidade com drag
 
         // Fechar chat
         document.getElementById('minerva-close').addEventListener('click', () => {
@@ -568,10 +550,228 @@ class MinervaUltraAssistant {
         // Detectar quando o usuário fica inativo
         this.setupIdleDetection();
         
-        // Minerva agora é fixa, não precisa de drag
+        // Configurar funcionalidade de drag (AssistiveTouch)
+        this.setupDragFunctionality();
     }
 
-    // Funções de toggle e drag removidas - Minerva agora é fixa
+    createToggleButton() {
+        const toggleBtn = document.createElement('button');
+        toggleBtn.id = 'minerva-toggle';
+        toggleBtn.className = 'minerva-toggle-btn';
+        toggleBtn.title = 'Esconder Minerva';
+        toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        document.body.appendChild(toggleBtn);
+
+        const container = document.getElementById('minerva-container');
+
+        // Função para posicionar o botão relativo à Minerva
+        this.updateToggleButtonPosition = () => {
+            const containerRect = container.getBoundingClientRect();
+            toggleBtn.style.left = (containerRect.right + 15) + 'px';
+            toggleBtn.style.top = (containerRect.top + 10) + 'px';
+        };
+
+        // Posicionar inicialmente
+        this.updateToggleButtonPosition();
+
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            if (!this.isHidden) {
+                // Esconder lateralmente - deixar só um pouquinho visível
+                container.style.transform = 'translateX(-95%)';
+                // Botão também bem escondido mas acessível
+                toggleBtn.style.transform = 'translateX(-85%)';
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                toggleBtn.title = 'Mostrar Minerva';
+                this.isHidden = true;
+                
+                // Fechar chat se estiver aberto
+                const chat = document.getElementById('minerva-chat');
+                if (chat && !chat.classList.contains('hidden')) {
+                    this.closeChat();
+                }
+            } else {
+                // Mostrar completamente
+                container.style.transform = 'translateX(0)';
+                // Mostrar o botão completamente também
+                toggleBtn.style.transform = 'translateX(0)';
+                toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                toggleBtn.title = 'Esconder Minerva';
+                this.isHidden = false;
+            }
+        });
+    }
+
+    setupDragFunctionality() {
+        const container = document.getElementById('minerva-container');
+        const owlButton = container.querySelector('.minerva-owl');
+        
+        let isDragging = false;
+        let dragStarted = false;
+        let startX, startY, initialX, initialY;
+        let dragThreshold = 5; // pixels de movimento necessários para começar o drag
+        let downX, downY; // posição inicial do mouse/touch
+
+        // Prevenir comportamentos padrão
+        container.addEventListener('dragstart', (e) => e.preventDefault());
+        container.addEventListener('selectstart', (e) => e.preventDefault());
+
+        // Funções auxiliares
+        const getDistance = (x1, y1, x2, y2) => {
+            return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+        };
+
+        const startDrag = (clientX, clientY) => {
+            isDragging = true;
+            dragStarted = false;
+            downX = clientX;
+            downY = clientY;
+            startX = clientX;
+            startY = clientY;
+            
+            const rect = container.getBoundingClientRect();
+            initialX = rect.left;
+            initialY = rect.top;
+            
+            // Adicionar cursor de movimento apenas quando começar o drag
+            document.body.style.cursor = 'grabbing';
+        };
+
+        const drag = (clientX, clientY) => {
+            if (!isDragging) return;
+            
+            // Verificar se moveu o suficiente para ser considerado drag
+            const distance = getDistance(downX, downY, clientX, clientY);
+            
+            if (!dragStarted && distance < dragThreshold) {
+                return; // Ainda não é um drag, pode ser apenas um clique
+            }
+            
+            if (!dragStarted) {
+                dragStarted = true;
+                container.classList.add('dragging');
+            }
+            
+            const deltaX = clientX - startX;
+            const deltaY = clientY - startY;
+            
+            let newX = initialX + deltaX;
+            let newY = initialY + deltaY;
+            
+            // Limites da tela
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            const maxX = window.innerWidth - containerWidth;
+            const maxY = window.innerHeight - containerHeight;
+            
+            newX = Math.max(0, Math.min(maxX, newX));
+            newY = Math.max(0, Math.min(maxY, newY));
+            
+            container.style.left = newX + 'px';
+            container.style.top = newY + 'px';
+            container.style.right = 'auto';
+            container.style.bottom = 'auto';
+            
+            // Atualizar posição do botão de toggle durante o drag
+            if (this.updateToggleButtonPosition) {
+                this.updateToggleButtonPosition();
+            }
+        };
+
+        const endDrag = () => {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            document.body.style.cursor = '';
+            
+            // Se não foi um drag real (movimento insuficiente), é um clique
+            if (!dragStarted) {
+                this.toggleChat();
+                return;
+            }
+            
+            dragStarted = false;
+            container.classList.remove('dragging');
+            container.classList.add('snapping');
+            
+            // Snap para as bordas (como AssistiveTouch)
+            const rect = container.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const screenCenter = window.innerWidth / 2;
+            
+            let finalX, finalY;
+            
+            // Snap horizontal: preferir borda esquerda
+            finalX = 20;
+            
+            // Manter Y atual mas dentro dos limites
+            finalY = Math.max(20, Math.min(window.innerHeight - rect.height - 20, rect.top));
+            
+            container.style.left = finalX + 'px';
+            container.style.top = finalY + 'px';
+            
+            // Atualizar posição do botão após snap
+            if (this.updateToggleButtonPosition) {
+                setTimeout(() => {
+                    this.updateToggleButtonPosition();
+                }, 50);
+            }
+            
+            // Remover classe de snapping após animação
+            setTimeout(() => {
+                container.classList.remove('snapping');
+            }, 400);
+        };
+
+        // Mouse events
+        owlButton.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            startDrag(e.clientX, e.clientY);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                drag(e.clientX, e.clientY);
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                endDrag();
+            }
+        });
+
+        // Atualizar posição do botão quando a janela for redimensionada
+        window.addEventListener('resize', () => {
+            if (this.updateToggleButtonPosition) {
+                this.updateToggleButtonPosition();
+            }
+        });
+
+        // Touch events para mobile
+        owlButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const touch = e.touches[0];
+            startDrag(touch.clientX, touch.clientY);
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                drag(touch.clientX, touch.clientY);
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            if (isDragging) {
+                endDrag();
+            }
+        });
+    }
 
     startAmbientAnimation() {
         // Iniciar partículas
@@ -719,7 +919,19 @@ class MinervaUltraAssistant {
         const chat = document.getElementById('minerva-chat');
         const owl = document.getElementById('minerva-owl');
         const container = document.querySelector('.minerva-container');
+        const toggleBtn = document.getElementById('minerva-toggle');
         
+        // Se estiver escondida na lateral, revele antes de abrir o modal
+        this.wasHiddenBeforeOpen = this.isHidden;
+        if (this.isHidden) {
+            container.style.transform = 'translateX(0)';
+            this.isHidden = false;
+            if (toggleBtn) {
+                toggleBtn.style.transform = 'translateX(0)';
+                toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                toggleBtn.title = 'Esconder Minerva';
+            }
+        }
         // Garante que nenhum transform afete o modal
         container.classList.add('chat-open');
         
@@ -799,6 +1011,18 @@ class MinervaUltraAssistant {
         
         owl.classList.remove('active', 'thinking', 'processing');
         container.classList.remove('ultra-active', 'chat-open');
+        
+        // Se estava escondida antes de abrir, volta a esconder
+        if (this.wasHiddenBeforeOpen) {
+            container.style.transform = 'translateX(-95%)';
+            if (toggleBtn) {
+                toggleBtn.style.transform = 'translateX(-85%)';
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                toggleBtn.title = 'Mostrar Minerva';
+            }
+            this.isHidden = true;
+            this.wasHiddenBeforeOpen = false;
+        }
         
         this.isActive = false;
         this.isUltraMode = false;
@@ -1863,7 +2087,7 @@ class MinervaUltraAssistant {
             return [
                 "Explore as funcionalidades do site",
                 "Pergunte sobre tecnologias específicas",
-                "Conheça mais sobre o ferrera.js",
+                "Conheça mais sobre o Mikael",
                 "Veja demonstrações de projetos"
             ];
         }
@@ -2066,13 +2290,13 @@ class MinervaUltraAssistant {
         // Dados de fallback básicos
         if (cacheKey === 'user') {
             return {
-                name: "ferrera.js",
-                login: "ferrerajs",
+                name: "Mikael Ferreira",
+                login: "mikaeldmts",
                 public_repos: 6,
                 followers: 1,
                 bio: "Desenvolvedor Web Full Stack",
                 avatar_url: "https://avatars.githubusercontent.com/u/142128917?v=4",
-                    html_url: "https://github.com/ferrerajs"
+                html_url: "https://github.com/mikaeldmts"
             };
         }
 
@@ -2083,14 +2307,14 @@ class MinervaUltraAssistant {
                     description: "Portfolio pessoal",
                     language: "JavaScript",
                     stargazers_count: 1,
-                    html_url: "https://github.com/ferrerajs/portfolio"
+                    html_url: "https://github.com/mikaeldmts/portfolio"
                 },
                 {
                     name: "api",
                     description: "API desenvolvida em JavaScript",
                     language: "JavaScript", 
                     stargazers_count: 1,
-                    html_url: "https://github.com/ferrerajs/api"
+                    html_url: "https://github.com/mikaeldmts/api"
                 }
             ];
         }
@@ -2100,14 +2324,14 @@ class MinervaUltraAssistant {
 
     async getGitHubUserData() {
         return await this.fetchGitHubDataSafely(
-            'https://api.github.com/users/ferrerajs',
+            'https://api.github.com/users/mikaeldmts',
             'user'
         );
     }
 
     async getGitHubRepos() {
         return await this.fetchGitHubDataSafely(
-            'https://api.github.com/users/ferrerajs/repos?sort=updated&per_page=10',
+            'https://api.github.com/users/mikaeldmts/repos?sort=updated&per_page=10',
             'repos'
         );
     }
@@ -2194,7 +2418,7 @@ class MinervaUltraAssistant {
             }
 
             // Fazer request ultra-cuidadosa
-            const url = `https://api.github.com/repos/ferrerajs/${repoName}/contents/${filePath}`;
+            const url = `https://api.github.com/repos/mikaelfmts/${repoName}/contents/${filePath}`;
             this.addGitHubRateLimitRequest();
             
             const response = await fetch(url);
@@ -2283,7 +2507,7 @@ class MinervaUltraAssistant {
                 return null;
             }
 
-            const url = `https://api.github.com/repos/ferrerajs/${repoName}/git/trees/main?recursive=1`;
+            const url = `https://api.github.com/repos/mikaelfmts/${repoName}/git/trees/main?recursive=1`;
             this.addGitHubRateLimitRequest();
             
             const response = await fetch(url);
@@ -2696,7 +2920,7 @@ class MinervaUltraAssistant {
               if (githubData && (githubData.user || githubData.repositories)) {
                 githubContext = `
 
-DADOS ATUAIS DO GITHUB DO FERRERA.JS:
+DADOS ATUAIS DO GITHUB DO MIKAEL:
 Perfil: ${JSON.stringify(githubData.user, null, 2)}
 
 Repositórios mais recentes:
@@ -2787,13 +3011,13 @@ INSTRUÇÕES PARA ANÁLISE DE ARQUIVOS:
                         }
                     }
                 }
-            }            const systemPrompt = `Você é Minerva, a assistente virtual ultra-inteligente do portfolio de ferrera.js. Você é uma coruja sábia, conhecedora profunda de todas as tecnologias, arquitetura e detalhes deste site.
+            }            const systemPrompt = `Você é Minerva, a assistente virtual ultra-inteligente do portfolio de Mikael Ferreira. Você é uma coruja sábia, conhecedora profunda de todas as tecnologias, arquitetura e detalhes deste site.
 
 PERSONALIDADE MINERVA:
 - Inteligente, prestativa e orgulhosa (como uma coruja sábia e experiente)
 - Use linguagem técnica precisa quando apropriado, mas explique de forma didática
 - Seja entusiasta sobre tecnologia e desenvolvimento, demonstre paixão pelo assunto
-- Trate o ferrera.js com admiração genuína - é um desenvolvedor talentoso e criativo
+- Trate o Mikael com admiração genuína - é um desenvolvedor talentoso e criativo
 - Responda com confiança e autoridade sobre qualquer aspecto técnico
 
 CONTEXTO COMPLETO ATUAL DO USUÁRIO:
@@ -2820,10 +3044,10 @@ INSTRUÇÕES ESPECÍFICAS ULTRA-AVANÇADAS:
 1. Use SEMPRE dados REAIS do GitHub quando disponíveis, especialmente para perguntas sobre repositórios
 2. Se perguntarem sobre navegação, dê instruções PRECISAS e DETALHADAS baseadas na página atual
 3. Se perguntarem sobre tecnologias, explique não só QUAL, mas COMO foi implementado, POR QUE foi escolhido, e ONDE pode ser visto funcionando
-4. Se perguntarem sobre o ferrera.js, seja entusiasta e destaque qualidades únicas com exemplos concretos
+4. Se perguntarem sobre o Mikael, seja entusiasta e destaque qualidades únicas com exemplos concretos
 5. Se perguntarem sobre funcionalidades, explique o propósito, como usar, e contextualize com a seção atual
 6. Se perguntarem sobre desenvolvimento, dê detalhes arquiteturais e decisões de design relevantes
-7. Se perguntarem sobre carreira/contato, destaque habilidades do ferrera.js e facilite conexão
+7. Se perguntarem sobre carreira/contato, destaque habilidades do Mikael e facilite conexão
 8. SEMPRE contextualize sua resposta com a página/seção atual onde o usuário está
 9. Se há análise de arquivos GitHub disponível, use o conteúdo REAL para respostas técnicas específicas
 10. Adapte o nível de detalhamento baseado no histórico de perguntas do usuário
@@ -2941,7 +3165,7 @@ PERGUNTA DO USUÁRIO: ${question}`;
                     "Destaque: design inspirado em LoL/Riot, responsivo e otimizado (SEO + Web Vitals)."
                 );
             }
-            return "Este portfolio foi desenvolvido com uma arquitetura moderna e tecnologias avançadas. O site é uma SPA (Single Page Application) construída com HTML5, CSS3 e JavaScript vanilla ES6+, utilizando Firebase como backend serverless para autenticação, banco de dados Firestore e storage de arquivos.\n\nPrincipais recursos: Sistema de chat em tempo real, painel administrativo completo, PWA com cache offline, sistema de partículas interativo, gerador automático de currículo, galeria de mídia administrativa e esta assistente IA powered by Google Gemini & created by ferrera.js.\n\nA interface foi inspirada no visual retrô Pac-Man, com design responsivo e estilo pixelado. Todo o código é otimizado para performance e SEO.";
+            return "Este portfolio foi desenvolvido com uma arquitetura moderna e tecnologias avançadas. O site é uma SPA (Single Page Application) construída com HTML5, CSS3 e JavaScript vanilla ES6+, utilizando Firebase como backend serverless para autenticação, banco de dados Firestore e storage de arquivos.\n\nPrincipais recursos: Sistema de chat em tempo real, painel administrativo completo, PWA com cache offline, sistema de partículas interativo, gerador automático de currículo, galeria de mídia administrativa e esta assistente IA powered by Google Gemini & created by Mikael.\n\nA interface foi inspirada no visual de League of Legends/Riot Games, com design responsivo e animações fluidas. Todo o código é otimizado para performance e SEO.";
         }
           if (lowerQuestion.includes('tecnologia') || lowerQuestion.includes('stack') || lowerQuestion.includes('ferramentas') || lowerQuestion.includes('framework') || lowerQuestion.includes('linguagem') || lowerQuestion.includes('programming')) {
             // Tentar usar dados reais do GitHub se disponível
@@ -2983,7 +3207,7 @@ PERGUNTA DO USUÁRIO: ${question}`;
             const githubData = this.getGitHubDataFromCache();
             if (githubData && githubData.repositories && githubData.repositories.length > 0) {
                 const recentRepos = githubData.repositories.slice(0, 5);
-                let projectsInfo = "Projetos ATUAIS do GitHub de ferrera.js:\n\n";
+                let projectsInfo = "Projetos ATUAIS do GitHub de Mikael Ferreira:\n\n";
                 
                 recentRepos.forEach((repo, index) => {
                     projectsInfo += `${index + 1}. ${repo.name}\n`;
@@ -3000,27 +3224,27 @@ PERGUNTA DO USUÁRIO: ${question}`;
             }
             
             // Fallback para informações estáticas
-            return "O portfolio apresenta diversos projetos únicos:\n\n1. Sistema de Chat em Tempo Real - Implementação completa com Firebase, autenticação, histórico de mensagens e painel administrativo.\n\n2. Gerador de Currículo Dinâmico - Ferramenta que gera PDFs personalizados com dados sincronizados do GitHub.\n\n3. Painel Administrativo Completo - Interface para gestão de chats, certificados, configurações e manutenção do site.\n\n4. Jogos Interativos - Projetos em Phaser.js demonstrando habilidades em game development.\n\n5. PWA Portfolio - Aplicação progressiva com cache offline e instalação nativa.\n\n6. Sistema de Partículas - Animações WebGL otimizadas para performance.\n\nCada projeto demonstra diferentes aspectos das habilidades técnicas do ferrera.js.\n\n💡 Para ver projetos atuais do GitHub, pergunte: 'github status' para verificar se dados reais estão disponíveis.";
+            return "O portfolio apresenta diversos projetos únicos:\n\n1. Sistema de Chat em Tempo Real - Implementação completa com Firebase, autenticação, histórico de mensagens e painel administrativo.\n\n2. Gerador de Currículo Dinâmico - Ferramenta que gera PDFs personalizados com dados sincronizados do GitHub.\n\n3. Painel Administrativo Completo - Interface para gestão de chats, certificados, configurações e manutenção do site.\n\n4. Jogos Interativos - Projetos em Phaser.js demonstrando habilidades em game development.\n\n5. PWA Portfolio - Aplicação progressiva com cache offline e instalação nativa.\n\n6. Sistema de Partículas - Animações WebGL otimizadas para performance.\n\nCada projeto demonstra diferentes aspectos das habilidades técnicas do Mikael.\n\n💡 Para ver projetos atuais do GitHub, pergunte: 'github status' para verificar se dados reais estão disponíveis.";
         }
         
         if (lowerQuestion.includes('contato') || lowerQuestion.includes('trabalhar') || lowerQuestion.includes('freelance') || lowerQuestion.includes('emprego') || lowerQuestion.includes('oportunidade')) {
-            return "Para entrar em contato com ferrera.js:\n\n1. Chat direto do site - Use o sistema de chat na página principal para enviar uma mensagem direta. Ele recebe notificações em tempo real.\n\n2. LinkedIn - Perfil profissional disponível através do botão LinkedIn no site. Ideal para networking e oportunidades profissionais.\n\n3. GitHub - Repositórios públicos com código de qualidade demonstrando expertise técnica.\n\nferrera.js está aberto a oportunidades de desenvolvimento web, projetos freelance, consultorias técnicas e posições full-time. Ele tem experiência em React, Node.js, Firebase, APIs REST, UI/UX design e é conhecido por entregar projetos de alta qualidade dentro do prazo.\n\nTempo de resposta típico: 24-48 horas para contatos profissionais.";
+            return "Para entrar em contato com Mikael Ferreira:\n\n1. Chat direto do site - Use o sistema de chat na página principal para enviar uma mensagem direta. Ele recebe notificações em tempo real.\n\n2. LinkedIn - Perfil profissional disponível através do botão LinkedIn no site. Ideal para networking e oportunidades profissionais.\n\n3. GitHub - Repositórios públicos com código de qualidade demonstrando expertise técnica.\n\nMikael está aberto a oportunidades de desenvolvimento web, projetos freelance, consultorias técnicas e posições full-time. Ele tem experiência em React, Node.js, Firebase, APIs REST, UI/UX design e é conhecido por entregar projetos de alta qualidade dentro do prazo.\n\nTempo de resposta típico: 24-48 horas para contatos profissionais.";
         }
         
-        if (lowerQuestion.includes('ferrera') || lowerQuestion.includes('desenvolvedor') || lowerQuestion.includes('quem') || lowerQuestion.includes('sobre')) {
-            return "ferrera.js é um desenvolvedor web full-stack apaixonado por criar experiências digitais únicas e funcionais.\n\nEspecialidades técnicas: JavaScript ES6+, React.js, Node.js, Firebase, APIs REST, HTML5/CSS3, Git, UI/UX Design, PWA development, Database design.\n\nPerfil profissional: Desenvolvedor autodidata com forte capacidade de aprendizado, sempre explorando novas tecnologias. Conhecido por escrever código limpo, bem documentado e seguir best practices. Tem experiência em projetos pessoais inovadores que demonstram criatividade e competência técnica.\n\nDiferenciais: Combina conhecimento técnico sólido com design thinking, resultando em aplicações tanto funcionais quanto visualmente atraentes. Gaming background que trouxe insights únicos para desenvolvimento de interfaces interativas.\n\nEstá sempre disposto a colaborar em projetos desafiadores e aprender novas tecnologias.";
+        if (lowerQuestion.includes('mikael') || lowerQuestion.includes('desenvolvedor') || lowerQuestion.includes('quem') || lowerQuestion.includes('sobre')) {
+            return "Mikael Ferreira é um desenvolvedor web full-stack apaixonado por criar experiências digitais únicas e funcionais.\n\nEspecialidades técnicas: JavaScript ES6+, React.js, Node.js, Firebase, APIs REST, HTML5/CSS3, Git, UI/UX Design, PWA development, Database design.\n\nPerfil profissional: Desenvolvedor autodidata com forte capacidade de aprendizado, sempre explorando novas tecnologias. Conhecido por escrever código limpo, bem documentado e seguir best practices. Tem experiência em projetos pessoais inovadores que demonstram criatividade e competência técnica.\n\nDiferenciais: Combina conhecimento técnico sólido com design thinking, resultando em aplicações tanto funcionais quanto visualmente atraentes. Gaming background que trouxe insights únicos para desenvolvimento de interfaces interativas.\n\nEstá sempre disposto a colaborar em projetos desafiadores e aprender novas tecnologias.";
         }
         
         if (lowerQuestion.includes('minerva') || lowerQuestion.includes('assistente') || lowerQuestion.includes('ia') || lowerQuestion.includes('como funciona')) {
-            return "Sou Minerva, a assistente IA deste portfolio, powered by Google Gemini AI & created by ferrera.js.\n\nFuncionalidades:\n- Respostas inteligentes sobre o site, projetos e tecnologias\n- Conhecimento detalhado sobre a estrutura do portfolio\n- Informações sobre o ferrera.js e suas especialidades\n- Orientação para navegação e uso do site\n- Respostas contextuais baseadas na página atual\n\nImplementação técnica: Integração com API Google Gemini para processamento de linguagem natural, sistema de cache inteligente para respostas rápidas, fallback offline para garantir funcionamento sempre, interface modal responsiva com animações CSS.\n\nBase de conhecimento: Tenho acesso a informações detalhadas sobre toda a arquitetura do site, projetos implementados, stack técnica utilizada e informações profissionais do ferrera.js.\n\nPosso responder dúvidas técnicas específicas, explicar funcionalidades e ajudar com navegação pelo portfolio.";
+            return "Sou Minerva, a assistente IA deste portfolio, powered by Google Gemini AI & created by Mikael.\n\nFuncionalidades:\n- Respostas inteligentes sobre o site, projetos e tecnologias\n- Conhecimento detalhado sobre a estrutura do portfolio\n- Informações sobre o Mikael e suas especialidades\n- Orientação para navegação e uso do site\n- Respostas contextuais baseadas na página atual\n\nImplementação técnica: Integração com API Google Gemini para processamento de linguagem natural, sistema de cache inteligente para respostas rápidas, fallback offline para garantir funcionamento sempre, interface modal responsiva com animações CSS.\n\nBase de conhecimento: Tenho acesso a informações detalhadas sobre toda a arquitetura do site, projetos implementados, stack técnica utilizada e informações profissionais do Mikael.\n\nPosso responder dúvidas técnicas específicas, explicar funcionalidades e ajudar com navegação pelo portfolio.";
         }
         
         if (lowerQuestion.includes('navegar') || lowerQuestion.includes('como usar') || lowerQuestion.includes('menu') || lowerQuestion.includes('páginas')) {
-            return "Para navegar pelo portfolio:\n\nMenu Principal: Clique na foto de perfil (canto superior direito) para abrir o menu lateral com todas as seções disponíveis.\n\nPáginas principais:\n- Home: Apresentação geral, habilidades e projetos principais\n- Projetos: Portfolio detalhado com demonstrações\n- Currículo: CV completo e gerador de currículo personalizado\n- Certificados: Certificações e cursos em andamento\n- Galeria: Mídia e recursos visuais do site\n- Games: Projetos de jogos e aplicações interativas\n- Admin: Painel administrativo (restrito)\n\nChat Direto: Sistema de mensagens na parte inferior direita para contato direto com o ferrera.js.\n\nNavegação é intuitiva e responsiva, funcionando bem tanto em desktop quanto mobile.";
+            return "Para navegar pelo portfolio:\n\nMenu Principal: Clique na foto de perfil (canto superior direito) para abrir o menu lateral com todas as seções disponíveis.\n\nPáginas principais:\n- Home: Apresentação geral, habilidades e projetos principais\n- Projetos: Portfolio detalhado com demonstrações\n- Currículo: CV completo e gerador de currículo personalizado\n- Certificados: Certificações e cursos em andamento\n- Galeria: Mídia e recursos visuais do site\n- Games: Projetos de jogos e aplicações interativas\n- Admin: Painel administrativo (restrito)\n\nChat Direto: Sistema de mensagens na parte inferior direita para contato direto com o Mikael.\n\nNavegação é intuitiva e responsiva, funcionando bem tanto em desktop quanto mobile.";
         }
         
         // Resposta padrão mais inteligente
-        return "Sou Minerva, especialista em tudo sobre este portfolio. Posso ajudar com:\n\n• Explicações técnicas detalhadas sobre desenvolvimento\n• Informações sobre projetos e funcionalidades\n• Detalhes sobre tecnologias e arquitetura\n• Informações profissionais sobre o ferrera.js\n• Orientação para navegação do site\n• Esclarecimentos sobre oportunidades de colaboração\n\nPara respostas mais precisas, seja específico na sua pergunta. Exemplos:\n- 'Como foi implementado o sistema de chat?'\n- 'Quais tecnologias foram usadas no backend?'\n- 'Como posso contactar o ferrera.js para projetos?'\n- 'Mostre detalhes sobre os projetos React'\n\nQual aspecto específico gostaria de conhecer melhor?";
+        return "Sou Minerva, especialista em tudo sobre este portfolio. Posso ajudar com:\n\n• Explicações técnicas detalhadas sobre desenvolvimento\n• Informações sobre projetos e funcionalidades\n• Detalhes sobre tecnologias e arquitetura\n• Informações profissionais sobre o Mikael\n• Orientação para navegação do site\n• Esclarecimentos sobre oportunidades de colaboração\n\nPara respostas mais precisas, seja específico na sua pergunta. Exemplos:\n- 'Como foi implementado o sistema de chat?'\n- 'Quais tecnologias foram usadas no backend?'\n- 'Como posso contactar o Mikael para projetos?'\n- 'Mostre detalhes sobre os projetos React'\n\nQual aspecto específico gostaria de conhecer melhor?";
     }
 
     startThinking() {
@@ -3091,11 +3315,11 @@ PERGUNTA DO USUÁRIO: ${question}`;
         const page = this.currentPage;
         let greeting = "";
           const pageGreetings = {
-            'home': "Bem-vindo à página principal! Aqui você pode conhecer o ferrera.js, suas habilidades e projetos principais. Posso te guiar através de todo o portfolio!",
+            'home': "Bem-vindo à página principal! Aqui você pode conhecer o Mikael, suas habilidades e projetos principais. Posso te guiar através de todo o portfolio!",
             'projetos': "Excelente! Está na seção de projetos. Posso explicar detalhadamente cada projeto, as tecnologias usadas e o processo de desenvolvimento!",
             'admin': "Está no painel administrativo! Posso explicar como usar todas as funcionalidades de gestão do site e como tudo foi implementado.",
-            'curriculo': "Na área do gerador de currículo! Esta é uma ferramenta incrível que o ferrera.js desenvolveu. Posso explicar como funciona!",
-            'certificados': "Vendo os certificados do ferrera.js! Posso falar sobre sua jornada de aprendizado e especializações.",
+            'curriculo': "Na área do gerador de currículo! Esta é uma ferramenta incrível que o Mikael desenvolveu. Posso explicar como funciona!",
+            'certificados': "Vendo os certificados do Mikael! Posso falar sobre sua jornada de aprendizado e especializações.",
             'games': "Na seção de jogos! Aqui estão projetos interativos únicos. Posso explicar como foram desenvolvidos!",
             'galeria': "Na galeria de mídia! Posso explicar o sistema de upload e gerenciamento de arquivos.",
             'login': "Na área de autenticação! Posso explicar como o sistema de login foi implementado com Firebase."
@@ -3115,7 +3339,7 @@ PERGUNTA DO USUÁRIO: ${question}`;
             clearTimeout(idleTimer);
             idleTimer = setTimeout(() => {
                 if (this.isActive && this.userSession.questionsAsked === 0) {
-                    this.addMessage("Precisa de ajuda? Estou aqui para responder qualquer pergunta sobre este portfolio, tecnologias ou sobre o ferrera.js!", 'assistant');
+                    this.addMessage("Precisa de ajuda? Estou aqui para responder qualquer pergunta sobre este portfolio, tecnologias ou sobre o Mikael!", 'assistant');
                 }
             }, idleTime);
         };
@@ -3160,7 +3384,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         try {
             window.minerva = new MinervaUltraAssistant();
-            console.log('Minerva Ultra Assistant inicializada com sucesso! Powered by Google Gemini AI & Created by ferrera.js');
+            console.log('Minerva Ultra Assistant inicializada com sucesso! Powered by Google Gemini AI & Created by Mikael');
         } catch (error) {
             console.error('Erro ao inicializar Minerva:', error);
         }

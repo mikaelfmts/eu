@@ -23,6 +23,9 @@ class FehunaGame {
         }
         
         console.log('✅ Canvas e contexto inicializados com sucesso');
+        // Flags internas para evitar inicializações duplicadas
+        this._listenersSet = false;
+        this._assetsLoadingStarted = false;
           // Inicializar UI primeiro
         this.ui = {
             mobile: false,
@@ -125,65 +128,79 @@ class FehunaGame {
             offsetX: 0,
             offsetY: 0,
             currentMap: 'mainTown',
-            layers: [] // Será preenchido ao carregar o mapa
+            layers: [], // Será preenchido ao carregar o mapa
+            tileVariants: {},
+            flowerTiles: new Set(),
+            blockedTiles: new Set()
         };
+        // Ambiente estático (em coordenadas de tiles)
+        this.environment = {
+            trees: [
+                {col:3,row:3},{col:8,row:2},{col:15,row:4},{col:12,row:8},
+                {col:20,row:6},{col:25,row:3},{col:18,row:12},{col:22,row:15}
+            ],
+            rocks: [
+                {col:6,row:7},{col:14,row:5},{col:19,row:9},{col:24,row:12}
+            ]
+        };
+        // Precompute variações de tiles e flores
+        this.generateTileVariants();
+        this.generateDecorations();
+        // Registrar tiles bloqueados para colisão simples
+        this.environment.trees.concat(this.environment.rocks).forEach(obj => {
+            this.map.blockedTiles.add(`${obj.col},${obj.row}`);
+        });
         
-        // Sistema de combate
-        this.battle = {
-            active: false,
-            enemy: null,
-            turn: 'player', // player ou enemy
-            selectedSkill: null,
-            turnCounter: 0,
-            animations: [],
-            messages: []        };
-          // NPCs do jogo
+        // Tabelas configuráveis
+        this.lootTables = {
+            common: [ { item:'debugCodes', chance:0.7, min:1, max:3 } ],
+            support: [ { item:'antivirusPotion', chance:0.35, min:1, max:1 } ],
+            crypto: [ { item:'encryptionKey', chance:0.5, min:1, max:1 } ]
+        };
+        // Sistema de inimigos com escalonamento (função util)
+        this.enemies = [
+            {
+                id: 'basic_virus',
+                name: 'Vírus Básico',
+                base: { hp:30, atk:8, def:2 },
+                scaling: { hp:5, atk:2, def:1 },
+                level: 1,
+                experienceReward: 15,
+                lootGroups: ['common','support'],
+                weaknesses: ['scanVirus','antiMalwareScan'],
+                resistances: [],
+                skills: ['basicAttack'],
+                sprite: 'enemy_virus_basic'
+            },
+            {
+                id: 'trojan_horse',
+                name: 'Cavalo de Tróia',
+                base: { hp:45, atk:12, def:5 },
+                scaling: { hp:8, atk:3, def:2 },
+                level: 2,
+                experienceReward: 25,
+                lootGroups: ['common','crypto'],
+                weaknesses: ['encryptAttack','firewallShield'],
+                resistances: ['bruteForce'],
+                skills: ['deception','hiddenStrike'],
+                sprite: 'enemy_trojan'
+            },
+            {
+                id: 'spyware_scout',
+                name: 'Spyware Batedor',
+                base: { hp:35, atk:10, def:3 },
+                scaling: { hp:6, atk:2, def:1 },
+                level: 2,
+                experienceReward: 20,
+                lootGroups: ['support','crypto'],
+                weaknesses: ['proxyCloak','scanVirus'],
+                resistances: ['encryptAttack'],
+                skills: ['markTarget','dataDrain'],
+                sprite: 'enemy_spyware'
+            }
+        ];
+        // NPCs do jogo (restaurado após patch de inimigos)
         this.npcs = [
-            {
-                id: 'professor_data',
-                name: 'Professor Data',
-                x: 300,
-                y: 250,
-                type: 'mentor',
-                sprite: 'npc_professor',
-                dialogues: [
-                    'Bem-vindo ao mundo de Fehuna, jovem programador!',
-                    'Aqui você aprenderá a usar o poder dos códigos em batalhas épicas.',
-                    'Comece coletando Debug Codes e pratique suas habilidades básicas.',
-                    'Lembre-se: scanVirus() revela as fraquezas dos inimigos!'
-                ],
-                currentDialogue: 0,
-                questGiver: true,
-                quest: {
-                    id: 'tutorial_quest',
-                    title: 'Primeiros Passos',
-                    description: 'Colete 10 Debug Codes e pratique uma habilidade',
-                    completed: false,
-                    requirements: { debugCodes: 10, skillsUsed: 1 }
-                }
-            },
-            {
-                id: 'vendor_scripts',
-                name: 'Vendedor de Scripts',
-                x: 500,
-                y: 200,
-                type: 'vendor',
-                sprite: 'npc_vendor',
-                dialogues: [
-                    'Tenho os melhores scripts da região!',
-                    'Precisa de Encryption Keys? Eu tenho!',
-                    'Firewalls de qualidade? Aqui é o lugar certo!',
-                    'Que tipo de script você procura hoje?'
-                ],
-                currentDialogue: 0,
-                shop: {
-                    items: [
-                        { name: 'encryptionKey', price: 50, stock: 5 },
-                        { name: 'firewall', price: 100, stock: 3 },
-                        { name: 'antivirusPotion', price: 30, stock: 10 }
-                    ]
-                }
-            },
             {
                 id: 'sage_algorithm',
                 name: 'Sábio dos Algoritmos',
@@ -958,16 +975,25 @@ class FehunaGame {
         
         switch(key) {            
             case ' ':
+                if (this.gameState === 'menu') {
+                    this.gameState = 'playing';
+                } else if (this.ui.showDialog) {
+                    this.advanceDialog();
+                }
+                break;
             case 'Enter':
                 if (this.gameState === 'menu') {
-                    console.log('Mudando de menu para playing');
                     this.gameState = 'playing';
                 } else if (this.gameState === 'battle' && this.battle.turn === 'player') {
                     this.executeBattleAction();
                 } else if (this.ui.showDialog) {
                     this.advanceDialog();
+                } else if (this.ui.showCrafting) {
+                    this.craftSelectedRecipe?.();
+                } else if (this.gameState === 'programming') {
+                    this.runProgrammingChallenge?.();
                 }
-                break;// Save/Load controls
+                break;
             case 'F5':
                 if (this.gameState === 'playing') {
                     this.saveGame(0);
@@ -984,9 +1010,15 @@ class FehunaGame {
                 break;
             case 'Escape':
                 if (this.gameState === 'playing') {
+                    if (this.ui.showDialog) { this.ui.showDialog = false; this.ui.currentNPC = null; break; }
+                    if (this.ui.showInventory || this.ui.showCrafting || this.ui.showQuestLog || this.ui.showWorldMap) {
+                        this.ui.showInventory = this.ui.showCrafting = this.ui.showQuestLog = this.ui.showWorldMap = false; break;
+                    }
                     this.ui.showMenu = !this.ui.showMenu;
-                } else if (this.gameState === 'battle') {
-                    // Não permite fuga neste exemplo
+                } else if (this.gameState === 'programming') {
+                    this.programmingPuzzles.codeEditor.visible = false;
+                    this.gameState = 'playing';
+                    this.showNotification('Editor fechado', 'info');
                 }
                 break;
             case 'i':
@@ -1001,6 +1033,8 @@ class FehunaGame {
                     this.checkNPCInteraction();
                     this.checkPortalInteraction();
                     this.checkWorkbenchInteraction();
+                } else if (this.gameState === 'programming') {
+                    this.editProgrammingCode?.();
                 }
                 break;
             case 'c':
@@ -1032,6 +1066,18 @@ class FehunaGame {
                 if (this.gameState === 'playing') {
                     this.toggleTacticalCombat();
                 }
+                break;
+            case 'ArrowUp':
+                if (this.ui.showCrafting) this.navigateCrafting?.('up');
+                break;
+            case 'ArrowDown':
+                if (this.ui.showCrafting) this.navigateCrafting?.('down');
+                break;
+            case 'ArrowLeft':
+                if (this.ui.showCrafting) this.navigateCrafting?.('left');
+                break;
+            case 'ArrowRight':
+                if (this.ui.showCrafting) this.navigateCrafting?.('right');
                 break;
             // Seleção de habilidades na batalha
             case '1':
@@ -1393,14 +1439,18 @@ class FehunaGame {
     startGameLoop() {
         console.log('🔄 Iniciando game loop...');
         
-        const gameLoop = () => {
+        const gameLoop = (timestamp) => {
+            if (!this._lastUpdateTime) this._lastUpdateTime = timestamp;
+            const deltaMs = timestamp - this._lastUpdateTime;
+            this._lastUpdateTime = timestamp;
+            this._delta = Math.min(deltaMs / 16.666, 3); // Fator relativo a ~60fps, clamp
             this.update();
             this.render();
             requestAnimationFrame(gameLoop);
         };
         
         console.log('✅ Game loop configurado, iniciando...');
-        gameLoop();
+        requestAnimationFrame(gameLoop);
     }
     
     // Atualização do estado do jogo
@@ -1535,7 +1585,34 @@ class FehunaGame {
         if (this.map.offsetY < maxOffsetY) this.map.offsetY = maxOffsetY;
     }    // Checar colisões com outros objetos
     checkCollisions() {
-        // Implementar verificação de colisão com o ambiente, NPCs e inimigos
+        // Colisão com ambiente estático simples baseado em tiles
+        const tileSize = this.map.tileSize;
+        const playerCenterX = this.player.x + this.player.width/2;
+        const playerFeetY = this.player.y + this.player.height - 8; // área de colisão na base
+        const col = Math.floor(playerCenterX / tileSize);
+        const row = Math.floor(playerFeetY / tileSize);
+        const key = `${col},${row}`;
+        if (this.map.blockedTiles && this.map.blockedTiles.has(key)) {
+            // Retroceder movimento simples
+            if (this.player.direction === 'up') this.player.y += this.player.speed;
+            if (this.player.direction === 'down') this.player.y -= this.player.speed;
+            if (this.player.direction === 'left') this.player.x += this.player.speed;
+            if (this.player.direction === 'right') this.player.x -= this.player.speed;
+            this.player.isMoving = false;
+        }
+        // Verificação adicional: impedir atravessar objeto diagonalmente (checar 4 vizinhos básicos)
+        const neighbors = [
+            `${col+1},${row}`,
+            `${col-1},${row}`,
+            `${col},${row+1}`,
+            `${col},${row-1}`
+        ];
+        neighbors.forEach(nk => {
+            if (this.map.blockedTiles.has(nk)) {
+                // Poderia refinar com bounding boxes; manter simples
+            }
+        });
+        // Verificação de colisão com NPCs e inimigos (simplificada abaixo)
         
         // Verificar colisão com eventos (inimigos, NPCs, etc.)
         const randomEncounter = Math.random() * 2000; // Reduzindo chance de combate
@@ -1612,10 +1689,18 @@ class FehunaGame {
         }
     }
     
-    // Mostrar notificação
-    showNotification(text) {
+    // Mostrar notificação (com tipo e cor)
+    showNotification(text, type = 'info') {
+        const colors = {
+            success: 'rgba(76,175,80,',
+            error: 'rgba(244,67,54,',
+            warning: 'rgba(255,152,0,',
+            info: 'rgba(255,255,0,'
+        };
         this.ui.notifications.push({
-            text: text,
+            text,
+            type,
+            colorBase: colors[type] || colors.info,
             x: this.player.x + this.map.offsetX,
             y: this.player.y + this.map.offsetY - 20,
             life: 120,
@@ -1644,6 +1729,8 @@ class FehunaGame {
         if (this.timeSystem.gameTime >= 1440) {
             this.timeSystem.gameTime = 0;
         }
+        // Atualiza hora inteira no objeto world para efeitos de iluminação/cor
+        this.world.timeOfDay = Math.floor(this.timeSystem.gameTime / 60) % 24;
         
         // Atualizar clima
         this.timeSystem.weatherTimer++;
@@ -1750,6 +1837,8 @@ class FehunaGame {
         this.battle.animations = [];
         this.battle.messages = ['Um MalByte Virus apareceu!'];
         this.battle.turnCounter = 0;
+        this.battle.turnQueue = ['player','enemy'];
+        this.battle.cooldowns = this.battle.cooldowns || {};
     }
       // Executar ação de batalha selecionada pelo jogador
     executeBattleAction() {
@@ -1759,12 +1848,17 @@ class FehunaGame {
         
         // Verificar se tem mana suficiente
         const skill = this.player.skills[this.battle.selectedSkill];
-        if (skill && skill.manaCost && this.player.mana < skill.manaCost) {
-            this.battle.messages.push('Mana insuficiente!');
+        if (!this.battle.cooldowns) this.battle.cooldowns = {};
+        const cd = this.battle.cooldowns[this.battle.selectedSkill];
+        if (cd && cd > 0) {
+            this.battle.messages.push('Habilidade em cooldown!');
             return;
         }
-        
-        // Consumir mana
+        if (skill && skill.manaCost && this.player.mana < skill.manaCost) {
+            this.battle.messages.push('Mana insuficiente! Ataque básico executado.');
+            this.basicAttack();
+            return;
+        }
         if (skill && skill.manaCost) {
             this.player.mana -= skill.manaCost;
             if (this.player.mana < 0) this.player.mana = 0;
@@ -1780,6 +1874,7 @@ class FehunaGame {
                 this.battle.enemy.weaknessRevealed = true;
                 // Próximos ataques causam +50% de dano
                 this.battle.enemy.vulnerable = true;
+                this.setSkillCooldown && this.setSkillCooldown('scanVirus', 2);
                 break;
                 
             case 'encryptAttack':
@@ -1791,12 +1886,15 @@ class FehunaGame {
                     message = `Você usou encryptAttack()! Causou ${damage} de dano!`;
                 }
                 this.battle.enemy.health -= damage;
+                this.setSkillCooldown && this.setSkillCooldown('encryptAttack', 1);
+                this.stats.damageDealt = (this.stats.damageDealt||0) + damage;
                 break;
                 
             case 'firewallShield':
                 this.player.defenseBoost = 10;
                 this.player.defenseBoostTurns = 3;
                 message = 'Você usou firewallShield()! Sua defesa aumentou por 3 turnos!';
+                this.setSkillCooldown && this.setSkillCooldown('firewallShield', 4);
                 break;
                 
             case 'ddosStorm':
@@ -1808,6 +1906,8 @@ class FehunaGame {
                 }
                 this.battle.enemy.health -= totalDamage;
                 message = `Você usou ddosStorm()! 4 ataques causaram ${totalDamage} de dano total!`;
+                this.setSkillCooldown && this.setSkillCooldown('ddosStorm', 3);
+                this.stats.damageDealt = (this.stats.damageDealt||0) + totalDamage;
                 break;
                 
             case 'sqlInjection':
@@ -1821,6 +1921,7 @@ class FehunaGame {
                 } else {
                     message = `Você usou sqlInjection()! Causou ${damage} de dano!`;
                 }
+                this.stats.damageDealt = (this.stats.damageDealt||0) + damage;
                 break;
                 
             case 'systemRestore':
@@ -1928,6 +2029,7 @@ class FehunaGame {
             this.player.experience += expGained;
             
             this.battle.messages.push(`Você venceu! Ganhou ${expGained} EXP!`);
+            this.generateBattleDrops && this.generateBattleDrops(this.battle.enemy);
             
             // Verificar se subiu de nível
             if (this.player.experience >= this.player.nextLevelExp) {
@@ -1966,6 +2068,30 @@ class FehunaGame {
             }
         }, victory ? 2000 : 3000);
     }
+
+    generateBattleDrops(enemy) {
+        if (!enemy) return;
+        // Usar lootGroups do template
+        const template = this.enemies.find(e => e.name === enemy.name || e.id === enemy.id);
+        if (!template) return;
+        const groups = template.lootGroups || [];
+        const awarded = [];
+        groups.forEach(g => {
+            const table = this.lootTables[g];
+            if (!table) return;
+            table.forEach(entry => {
+                if (Math.random() < entry.chance) {
+                    const qty = entry.min + Math.floor(Math.random() * (entry.max - entry.min + 1));
+                    this.addItemToInventory(entry.item, qty);
+                    this.showNotification(`Drop: ${entry.item} x${qty}`, 'success');
+                    awarded.push({ item: entry.item, qty });
+                }
+            });
+        });
+        if (awarded.length === 0) {
+            this.showNotification('Sem drops desta vez', 'info');
+        }
+    }
     
     // Subir de nível
     levelUp() {
@@ -1993,6 +2119,30 @@ class FehunaGame {
         }
         
         this.battle.messages.push(`Nível ${this.player.level}! Seus stats aumentaram!`);
+    }
+
+    // Atualiza conquistas básicas (caso não tenha sido adicionado antes)
+    updateAchievements(event) {
+        if (!event) return;
+        // Derrota de inimigo
+        if (event.type === 'enemy_defeated' && this.achievements?.virus_hunter && !this.achievements.virus_hunter.completed) {
+            this.achievements.virus_hunter.progress++;
+            if (this.achievements.virus_hunter.progress >= this.achievements.virus_hunter.target) {
+                this.achievements.virus_hunter.completed = true;
+                this.showNotification('Achievement: Caçador de Vírus!', 'success');
+            }
+        }
+        // Uso de habilidade
+        if (event.type === 'skill_used' && this.achievements?.skill_master && !this.achievements.skill_master.completed) {
+            if (this.achievements.skill_master.progress[event.skill] !== undefined) {
+                this.achievements.skill_master.progress[event.skill] = true;
+            }
+            const done = Object.values(this.achievements.skill_master.progress).every(v => v);
+            if (done) {
+                this.achievements.skill_master.completed = true;
+                this.showNotification('Achievement: Mestre das Habilidades!', 'success');
+            }
+        }
     }
     
     // Atualizar cutscenes
@@ -2214,69 +2364,80 @@ class FehunaGame {
     }
     
     // Renderizar tiles de terreno estilo Stardew Valley
+    generateDecorations() {
+        if (this.map && !this.map.flowerTiles) {
+            this.map.flowerTiles = new Set();
+            for (let c = 0; c < this.map.width; c++) {
+                for (let r = 0; r < this.map.height; r++) {
+                    if ((c + r) % 7 === 0 && Math.random() < 0.05) {
+                        this.map.flowerTiles.add(`${c},${r}`);
+                    }
+                }
+            }
+        }
+    }
+
+    generateTileVariants() {
+        if (!this.map.tileVariants) this.map.tileVariants = {};
+        for (let c = 0; c < this.map.width; c++) {
+            for (let r = 0; r < this.map.height; r++) {
+                const key = `${c},${r}`;
+                // Pré-calcula se este tile terá variação de grama e pequenas pedras de caminho
+                this.map.tileVariants[key] = {
+                    grassAlt: ((c + r) % 3 === 0),
+                    path: ( (c === 5 && r >= 8 && r <= 15) || (r === 10 && c >= 3 && c <= 12) ),
+                    pathStone: Math.random() < 0.05
+                };
+            }
+        }
+    }
+
     renderTerrainTile(x, y, col, row, size) {
+        const variant = this.map.tileVariants?.[`${col},${row}`];
         // Grama base
-        this.ctx.fillStyle = '#4F7942'; // Verde grama escuro
+        this.ctx.fillStyle = '#4F7942';
         this.ctx.fillRect(x, y, size, size);
-        
-        // Variações na grama
-        if ((col + row) % 3 === 0) {
-            this.ctx.fillStyle = '#5A8B47'; // Verde grama claro
+        if (variant?.grassAlt) {
+            this.ctx.fillStyle = '#5A8B47';
             this.ctx.fillRect(x + 2, y + 2, size - 4, size - 4);
         }
-        
-        // Adicionar texturas de grama
+        // Textura simples (determinística com base em col/row)
         this.ctx.fillStyle = '#6B8E57';
-        for (let i = 0; i < 3; i++) {
-            const grassX = x + (Math.sin(col * 0.5 + i) + 1) * size / 4;
-            const grassY = y + (Math.cos(row * 0.3 + i) + 1) * size / 4;
-            this.ctx.fillRect(grassX, grassY, 2, 4);
+        for (let i = 0; i < 2; i++) {
+            const gx = x + ((col * 13 + row * 7 + i * 17) % size);
+            const gy = y + ((col * 5 + row * 11 + i * 23) % size);
+            this.ctx.fillRect(gx, gy, 2, 4);
         }
-        
-        // Caminhos de terra
-        if ((col === 5 && row >= 8 && row <= 15) || (row === 10 && col >= 3 && col <= 12)) {
-            this.ctx.fillStyle = '#8B7355'; // Marrom terra
+        // Caminho
+        if (variant?.path) {
+            this.ctx.fillStyle = '#8B7355';
             this.ctx.fillRect(x, y, size, size);
-            
-            // Bordas do caminho
             this.ctx.fillStyle = '#A0845C';
             this.ctx.fillRect(x + 1, y + 1, size - 2, size - 2);
-            
-            // Pequenas pedras no caminho
-            this.ctx.fillStyle = '#696969';
-            if (Math.random() < 0.3) {
+            if (variant.pathStone) {
+                this.ctx.fillStyle = '#696969';
                 this.ctx.fillRect(x + size/2, y + size/2, 2, 2);
             }
         }
-        
-        // Flores ocasionais
-        if (Math.random() < 0.05 && (col + row) % 7 === 0) {
+        if (this.map.flowerTiles && this.map.flowerTiles.has(`${col},${row}`)) {
             this.renderFlower(x + size/2, y + size/2);
         }
     }
     
     // Renderizar objetos do ambiente (árvores, pedras, etc.)
     renderEnvironmentObjects() {
-        // Árvores fixas em posições específicas
-        const trees = [
-            {x: 3, y: 3}, {x: 8, y: 2}, {x: 15, y: 4}, {x: 12, y: 8},
-            {x: 20, y: 6}, {x: 25, y: 3}, {x: 18, y: 12}, {x: 22, y: 15}
-        ];
-        
-        trees.forEach(tree => {
-            const treeX = tree.x * this.map.tileSize + this.map.offsetX;
-            const treeY = tree.y * this.map.tileSize + this.map.offsetY;
+        if (!this.environment) return;
+        this.environment.trees.forEach(tree => {
+            const treeX = tree.col * this.map.tileSize + this.map.offsetX;
+            const treeY = tree.row * this.map.tileSize + this.map.offsetY;
+            // Culling simples
+            if (treeX < -64 || treeX > this.canvas.width + 64 || treeY < -64 || treeY > this.canvas.height + 64) return;
             this.renderTree(treeX, treeY);
         });
-        
-        // Pedras espalhadas
-        const rocks = [
-            {x: 6, y: 7}, {x: 14, y: 5}, {x: 19, y: 9}, {x: 24, y: 12}
-        ];
-        
-        rocks.forEach(rock => {
-            const rockX = rock.x * this.map.tileSize + this.map.offsetX;
-            const rockY = rock.y * this.map.tileSize + this.map.offsetY;
+        this.environment.rocks.forEach(rock => {
+            const rockX = rock.col * this.map.tileSize + this.map.offsetX;
+            const rockY = rock.row * this.map.tileSize + this.map.offsetY;
+            if (rockX < -64 || rockX > this.canvas.width + 64 || rockY < -64 || rockY > this.canvas.height + 64) return;
             this.renderRock(rockX, rockY);
         });
     }
@@ -2728,7 +2889,11 @@ class FehunaGame {
     renderNotifications() {
         this.ui.notifications.forEach(notification => {
             const alpha = notification.life / notification.maxLife;
-            this.ctx.fillStyle = `rgba(255, 255, 0, ${alpha})`;
+            if (notification.colorBase) {
+                this.ctx.fillStyle = `${notification.colorBase}${alpha})`;
+            } else {
+                this.ctx.fillStyle = `rgba(255, 255, 0, ${alpha})`;
+            }
             this.ctx.font = 'bold 12px Arial';
             this.ctx.textAlign = 'center';
             this.ctx.fillText(notification.text, notification.x, notification.y);
@@ -2947,45 +3112,60 @@ class FehunaGame {
         
         let skillIndex = 0;
         for (const [skillName, skill] of Object.entries(this.player.skills)) {
-            if (skill.available && skillIndex < 9) {
-                const y = skillY + skillIndex * (skillHeight + skillGap);
-                
-                // Highlight da skill selecionada
-                if (this.battle.selectedSkill === skillName) {
-                    this.ctx.fillStyle = '#3c3c41';
-                    this.ctx.fillRect(skillX - 2, y - 2, skillWidth + 4, skillHeight + 4);
-                    this.ctx.strokeStyle = '#c8aa6e';
-                    this.ctx.lineWidth = 2;
-                    this.ctx.strokeRect(skillX - 2, y - 2, skillWidth + 4, skillHeight + 4);
-                }
-                
-                // Fundo da habilidade
-                this.ctx.fillStyle = this.battle.selectedSkill === skillName ? '#2a3f5f' : '#1e2328';
-                this.ctx.fillRect(skillX, y, skillWidth, skillHeight);
-                
-                // Borda
+            if (!skill.available || skillIndex >= 9) continue;
+            const y = skillY + skillIndex * (skillHeight + skillGap);
+            const cdRemain = (this.battle.cooldowns && this.battle.cooldowns[skillName]) || 0;
+            const insufficientMana = skill.manaCost && this.player.mana < skill.manaCost;
+            const selected = this.battle.selectedSkill === skillName;
+
+            if (selected) {
+                this.ctx.fillStyle = '#3c3c41';
+                this.ctx.fillRect(skillX - 2, y - 2, skillWidth + 4, skillHeight + 4);
                 this.ctx.strokeStyle = '#c8aa6e';
-                this.ctx.lineWidth = 1;
-                this.ctx.strokeRect(skillX, y, skillWidth, skillHeight);
-                
-                // Número da skill
-                this.ctx.fillStyle = '#c8aa6e';
-                this.ctx.font = 'bold 14px Marcellus';
-                this.ctx.fillText(`${skillIndex + 1}`, skillX + 5, y + 20);
-                
-                // Nome da skill
-                this.ctx.fillStyle = '#f0e6d2';
-                this.ctx.font = '14px Marcellus';
-                this.ctx.fillText(skillName + '()', skillX + 25, y + 20);
-                
-                // Descrição breve da skill
-                this.ctx.fillStyle = '#a09b8c';
-                this.ctx.font = '10px Arial';
-                const description = this.getSkillDescription(skillName);
-                this.ctx.fillText(description, skillX + 25, y + 32);
-                
-                skillIndex++;
+                this.ctx.lineWidth = 2;
+                this.ctx.strokeRect(skillX - 2, y - 2, skillWidth + 4, skillHeight + 4);
             }
+
+            // Fundo
+            this.ctx.fillStyle = selected ? '#2a3f5f' : '#1e2328';
+            this.ctx.fillRect(skillX, y, skillWidth, skillHeight);
+            this.ctx.strokeStyle = '#c8aa6e';
+            this.ctx.lineWidth = 1;
+            this.ctx.strokeRect(skillX, y, skillWidth, skillHeight);
+
+            // Número
+            this.ctx.fillStyle = '#c8aa6e';
+            this.ctx.font = 'bold 14px Marcellus';
+            this.ctx.fillText(`${skillIndex + 1}`, skillX + 5, y + 20);
+
+            // Nome
+            this.ctx.fillStyle = '#f0e6d2';
+            this.ctx.font = '14px Marcellus';
+            this.ctx.fillText(skillName + '()', skillX + 25, y + 20);
+
+            // Descrição + custo/cd
+            let meta = '';
+            if (cdRemain > 0) meta = `CD:${cdRemain}`;
+            else if (skill.manaCost) meta = `MP:${skill.manaCost}`;
+            const description = this.getSkillDescription(skillName) + (meta ? ` [${meta}]` : '');
+            this.ctx.fillStyle = '#a09b8c';
+            this.ctx.font = '10px Arial';
+            this.ctx.fillText(description, skillX + 25, y + 32);
+
+            // Overlay disabled
+            if (cdRemain > 0 || insufficientMana) {
+                this.ctx.fillStyle = 'rgba(0,0,0,0.45)';
+                this.ctx.fillRect(skillX, y, skillWidth, skillHeight);
+                if (cdRemain > 0) {
+                    // Barrinha de cooldown (proporção simples - sem duração base, assume cd restante)
+                    this.ctx.fillStyle = '#332b1a';
+                    this.ctx.fillRect(skillX + 4, y + skillHeight - 8, skillWidth - 8, 4);
+                    this.ctx.fillStyle = '#c8aa6e';
+                    this.ctx.fillRect(skillX + 4, y + skillHeight - 8, (skillWidth - 8), 4); // preenchido total (sem info de max)
+                }
+            }
+
+            skillIndex++;
         }
         
         // Instruções
@@ -3134,7 +3314,11 @@ class FehunaGame {
                 id: npc.id,
                 currentDialogue: npc.currentDialogue,
                 questCompleted: npc.quest?.completed || false
-            }))
+            })),
+            systems: {
+                solvedChallenges: [...this.programmingPuzzles.solved],
+                enemySpawns: this.enemySpawns.currentEnemies.filter(e => !e.despawn).map(e => ({ x: e.x, y: e.y, type: e.type, spawnTime: e.spawnTime }))
+            }
         };
         
         try {
@@ -3195,6 +3379,15 @@ class FehunaGame {
                         }
                     }
                 });
+            }
+
+            if (saveData.systems) {
+                if (Array.isArray(saveData.systems.solvedChallenges)) {
+                    this.programmingPuzzles.solved = [...new Set(saveData.systems.solvedChallenges)];
+                }
+                if (Array.isArray(saveData.systems.enemySpawns)) {
+                    this.enemySpawns.currentEnemies = saveData.systems.enemySpawns.map(e => ({...e}));
+                }
             }
             
             this.showNotification('Jogo carregado com sucesso!', 'success');
@@ -3616,3 +3809,142 @@ class FehunaGame {
 
 // Exportar a classe para uso global
 window.FehunaGame = FehunaGame;
+
+// Extensões dinâmicas (caso métodos não tenham sido injetados pelo patch principal)
+if (!FehunaGame.prototype.navigateCrafting) {
+    FehunaGame.prototype.navigateCrafting = function(direction) {
+        const ui = this.craftingSystem.ui;
+        const categories = ui.categories.filter(c => this.craftingSystem.recipes[c]);
+        if (direction === 'left') {
+            let idx = categories.indexOf(ui.selectedCategory);
+            idx = (idx - 1 + categories.length) % categories.length;
+            ui.selectedCategory = categories[idx];
+            ui.selectedRecipeIndex = 0;
+        } else if (direction === 'right') {
+            let idx = categories.indexOf(ui.selectedCategory);
+            idx = (idx + 1) % categories.length;
+            ui.selectedCategory = categories[idx];
+            ui.selectedRecipeIndex = 0;
+        } else if (direction === 'up') {
+            ui.selectedRecipeIndex = Math.max(0, ui.selectedRecipeIndex - 1);
+        } else if (direction === 'down') {
+            const r = Object.keys(this.craftingSystem.recipes[ui.selectedCategory]).length;
+            ui.selectedRecipeIndex = Math.min(r - 1, ui.selectedRecipeIndex + 1);
+        }
+    }
+}
+
+if (!FehunaGame.prototype.craftSelectedRecipe) {
+    FehunaGame.prototype.craftSelectedRecipe = function() {
+        const ui = this.craftingSystem.ui;
+        const cat = ui.selectedCategory;
+        const recipes = this.craftingSystem.recipes[cat];
+        const keys = Object.keys(recipes);
+        const key = keys[ui.selectedRecipeIndex];
+        if (key) this.craftItem(key, cat);
+    }
+}
+
+if (!FehunaGame.prototype.editProgrammingCode) {
+    FehunaGame.prototype.editProgrammingCode = function() {
+        const id = this.programmingPuzzles.active;
+        if (!id) return;
+        const current = this.programmingPuzzles.codeEditor.code;
+        const edited = prompt('Edite seu código (função alvo deve existir):', current);
+        if (edited !== null) this.programmingPuzzles.codeEditor.code = edited;
+    }
+}
+
+if (!FehunaGame.prototype.runProgrammingChallenge) {
+    FehunaGame.prototype.runProgrammingChallenge = function() {
+        const id = this.programmingPuzzles.active;
+        if (!id) return;
+        const challenge = this.programmingPuzzles.available[id];
+        if (!challenge) return;
+        const code = this.programmingPuzzles.codeEditor.code;
+        let fn;
+        try {
+            fn = new Function(`${code}; return (typeof sortArray!=='undefined'?sortArray:(typeof binarySearch!=='undefined'?binarySearch:(typeof caesarCipher!=='undefined'?caesarCipher:null)));`)();
+        } catch(e) {
+            this.showNotification('Erro no código', 'error');
+            return;
+        }
+        if (typeof fn !== 'function') { this.showNotification('Função inválida', 'error'); return; }
+        let pass = true;
+        for (const test of challenge.testCases) {
+            let result;
+            try {
+                if (id === 'sorting_algorithm') result = fn([...test.input]);
+                else if (id === 'binary_search') result = fn(...test.input);
+                else result = fn(...test.input);
+            } catch(err) { pass = false; break; }
+            if (JSON.stringify(result) !== JSON.stringify(test.expected)) { pass = false; break; }
+        }
+        if (pass) {
+            if (!this.programmingPuzzles.solved.includes(id)) {
+                this.programmingPuzzles.solved.push(id);
+                if (challenge.rewards?.experience) { this.player.experience += challenge.rewards.experience; this.checkLevelUp(); }
+                if (challenge.rewards?.currency) { this.economySystem.currency += challenge.rewards.currency; }
+                if (challenge.rewards?.item) { this.addItemToInventory(challenge.rewards.item, 1); }
+                this.showNotification('Desafio concluído!', 'success');
+            } else {
+                this.showNotification('Já resolvido', 'info');
+            }
+            this.programmingPuzzles.codeEditor.visible = false;
+            this.gameState = 'playing';
+        } else {
+            this.showNotification('Testes falharam', 'warning');
+        }
+    }
+}
+
+if (!FehunaGame.prototype.updateEnemySpawns) {
+    FehunaGame.prototype.updateEnemySpawns = function() {
+        const now = Date.now();
+        if (this.enemySpawns.currentEnemies.length < this.enemySpawns.maxEnemies && (now - this.enemySpawns.lastSpawn) > this.enemySpawns.spawnInterval) {
+            const zone = this.enemySpawns.spawnZones[Math.floor(Math.random()*this.enemySpawns.spawnZones.length)];
+            const ex = zone.x + Math.random() * zone.width;
+            const ey = zone.y + Math.random() * zone.height;
+            this.enemySpawns.currentEnemies.push({ x: ex, y: ey, type: zone.type, spawnTime: now, baseX: ex, baseY: ey, state: 'patrol' });
+            this.enemySpawns.lastSpawn = now;
+        }
+        const speed = 0.5;
+        this.enemySpawns.currentEnemies.forEach(e => {
+            if (now - e.spawnTime > 60000) { e.despawn = true; return; }
+            const dx = this.player.x - e.x;
+            const dy = this.player.y - e.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < 180) {
+                e.state = 'chase';
+            } else if (dist > 260 && e.state === 'chase') {
+                e.state = 'patrol';
+            }
+            if (e.state === 'chase') {
+                if (dist > 5) {
+                    e.x += (dx/dist) * speed * 2;
+                    e.y += (dy/dist) * speed * 2;
+                }
+            } else {
+                // patrulha circular simples
+                if (!e._patrolAngle) e._patrolAngle = Math.random()*Math.PI*2;
+                e._patrolAngle += 0.01;
+                const pr = this.enemySpawns.patrolRadius || 40;
+                e.x = e.baseX + Math.cos(e._patrolAngle) * pr * 0.3;
+                e.y = e.baseY + Math.sin(e._patrolAngle) * pr * 0.3;
+            }
+        });
+    }
+}
+
+if (!FehunaGame.prototype.getSkillDamagePreview) {
+    FehunaGame.prototype.getSkillDamagePreview = function(skillName) {
+        const enemy = this.battle.enemy; if (!enemy) return '';
+        let dmg=0; switch(skillName){
+            case 'encryptAttack': dmg=15+Math.floor(this.player.level*2); if(enemy.vulnerable) dmg=Math.floor(dmg*1.5); break;
+            case 'ddosStorm': dmg=4*4; break;
+            case 'sqlInjection': dmg=20+Math.floor(this.player.level*3); break;
+            default: return '';
+        }
+        return `(preview ~${dmg})`;
+    }
+}

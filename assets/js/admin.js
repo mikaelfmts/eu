@@ -55,8 +55,10 @@ window.loadMaintenanceStatus = loadMaintenanceStatus;
 // Variáveis globais
 let currentChatId = null;
 let currentMessageId = null;
+let inlineTargetMessageId = null; // alvo atual para resposta inline
 let chatsData = {};
 let messagesListener = null;
+let currentMessages = []; // snapshot atual do chat selecionado
 let currentUser = null;
 let currentCertificateId = null;
 let certificatesData = {};
@@ -124,7 +126,7 @@ function showSection(sectionName) {
 
 async function loadChats() {
     try {
-        const messagesRef = collection(db, 'mensagens');
+    const messagesRef = collection(db, 'mensagens');
         const q = query(messagesRef);
         
         onSnapshot(q, (snapshot) => {
@@ -321,6 +323,7 @@ async function loadChatMessages(chatId) {
                 return timestampA - timestampB; // Ordem crescente (mais antigas primeiro)
             });
             
+            currentMessages = messages; // guardar última lista
             displayMessages(messages);
         });
         
@@ -346,7 +349,7 @@ function displayMessages(messages) {
                         <p class="text-xs opacity-75 mt-1">${hora}</p>
                     </div>
                 </div>
-                  <!-- Resposta do ferrera.js (se existir) -->
+                  <!-- Resposta do Mikael (se existir) -->
                 ${message.resposta ? `
                     <div class="flex justify-start mb-2">
                         <div class="message-bubble admin-message bg-gray-200 text-gray-800 p-3 rounded-lg">
@@ -356,10 +359,16 @@ function displayMessages(messages) {
                     </div>
                 ` : `
                     <div class="flex justify-start">
-                        <button onclick="openResponseModal('${message.id}', '${message.mensagem.replace(/'/g, "\\'")}', '${message.nome}')" 
-                                class="text-blue-500 hover:text-blue-700 text-sm font-medium transition">
-                            <i class="fas fa-reply mr-1"></i>Responder
-                        </button>
+                        <div class="flex gap-3 items-center">
+                                <button onclick="openResponseModal('${message.id}', '${message.mensagem.replace(/'/g, "\\'")}', '${message.nome}')" 
+                                    class="text-blue-500 hover:text-blue-700 text-sm font-medium transition">
+                                <i class="fas fa-window-restore mr-1"></i>Modal
+                            </button>
+                                <button onclick="setInlineTarget('${message.id}', '${message.mensagem.replace(/'/g, "\\'") }' )" 
+                                    class="text-blue-500 hover:text-blue-700 text-sm font-medium transition">
+                                <i class="fas fa-reply mr-1"></i>Responder
+                            </button>
+                        </div>
                     </div>
                 `}
             </div>
@@ -368,20 +377,40 @@ function displayMessages(messages) {
     
     // Scroll para o final
     container.scrollTop = container.scrollHeight;
+
+    // Se não houver alvo inline, selecionar a última mensagem não respondida como default
+    if (!inlineTargetMessageId) {
+        const lastPending = [...messages].reverse().find(m => !m.respondido);
+        if (lastPending) {
+            setInlineTarget(lastPending.id, lastPending.mensagem);
+        } else {
+            clearInlineTarget();
+        }
+    }
 }
 
 // ==================== MODAL DE RESPOSTA ====================
 
 function openResponseModal(messageId, originalMessage, userName) {
-    currentMessageId = messageId;
-    
-    document.getElementById('original-message').textContent = originalMessage;
-    document.getElementById('response-text').value = '';
+    // Fallback: se nenhum alvo for informado, pegar a última mensagem não respondida
+    if (!messageId) {
+        const lastPending = [...(currentMessages || [])].reverse().find(m => !m.respondido);
+        if (lastPending) {
+            messageId = lastPending.id;
+            originalMessage = lastPending.mensagem || '';
+        }
+    }
+
+    currentMessageId = messageId || null;
+    const originalEl = document.getElementById('original-message');
+    if (originalEl) originalEl.textContent = originalMessage || '';
+    const textarea = document.getElementById('response-text');
+    if (textarea) textarea.value = '';
     document.getElementById('response-modal').classList.remove('hidden');
     
     // Focar no textarea
     setTimeout(() => {
-        document.getElementById('response-text').focus();
+        document.getElementById('response-text')?.focus();
     }, 100);
 }
 
@@ -423,6 +452,86 @@ async function sendResponse() {
         showError('Erro ao enviar resposta');
     }
 }
+
+// ==================== MARCAR COMO LIDO ====================
+window.markAsRead = async function() {
+    try {
+        // usar alvo inline se existir; senão, última pendente
+        let targetId = inlineTargetMessageId;
+        if (!targetId) {
+            const lastPending = [...(currentMessages || [])].reverse().find(m => !m.respondido);
+            targetId = lastPending?.id;
+        }
+        if (!currentChatId || !targetId) {
+            showError('Selecione uma mensagem para marcar como lida.');
+            return;
+        }
+        const messageRef = doc(db, 'mensagens', targetId);
+        await updateDoc(messageRef, { respondido: true, horaResposta: new Date() });
+        showSuccess('Marcado como lido.');
+        loadChats();
+    } catch (e) {
+        console.error('Erro ao marcar como lido:', e);
+        showError('Erro ao marcar como lido');
+    }
+};
+
+// ==================== RESPOSTA INLINE ====================
+
+window.setInlineTarget = function(messageId, originalMessage) {
+    inlineTargetMessageId = messageId;
+    const preview = document.getElementById('inline-target-preview');
+    const hiddenId = document.getElementById('inline-target-id');
+    if (preview) preview.textContent = (originalMessage || '').slice(0, 120) + ((originalMessage || '').length > 120 ? '…' : '');
+    if (hiddenId) hiddenId.value = messageId;
+    const textarea = document.getElementById('inline-response-text');
+    if (textarea) textarea.focus();
+};
+
+window.clearInlineTarget = function() {
+    inlineTargetMessageId = null;
+    const preview = document.getElementById('inline-target-preview');
+    const hiddenId = document.getElementById('inline-target-id');
+    if (preview) preview.textContent = 'mensagem mais recente pendente';
+    if (hiddenId) hiddenId.value = '';
+};
+
+window.sendInlineResponse = async function() {
+    const textarea = document.getElementById('inline-response-text');
+    const targetId = inlineTargetMessageId || document.getElementById('inline-target-id')?.value;
+    const text = textarea?.value?.trim();
+    if (!text) { alert('Digite uma resposta.'); return; }
+    if (!currentChatId || !targetId) { alert('Selecione um chat e uma mensagem.'); return; }
+
+    try {
+        const messageRef = doc(db, 'mensagens', targetId);
+        await updateDoc(messageRef, {
+            resposta: text,
+            respondido: true,
+            horaResposta: new Date()
+        });
+        // limpar UI
+        if (textarea) textarea.value = '';
+        clearInlineTarget();
+        showSuccess('Resposta enviada!');
+        // recarregar chats para atualizar contadores
+        loadChats();
+    } catch (error) {
+        console.error('Erro ao enviar resposta inline:', error);
+        showError('Erro ao enviar resposta');
+    }
+};
+
+// atalho Ctrl+Enter no textarea inline
+document.addEventListener('keydown', (e) => {
+    const ta = document.getElementById('inline-response-text');
+    if (!ta) return;
+    const inFocus = document.activeElement === ta;
+    if (inFocus && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        window.sendInlineResponse();
+    }
+});
 
 // ==================== GESTÃO DE CERTIFICADOS ====================
 

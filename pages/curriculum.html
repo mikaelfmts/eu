@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curriculum - ferrera.js</title>
+    <title>Curriculum - Mikael Ferreira</title>
 
     <!-- Estilos -->
     <link rel="stylesheet" href="../assets/css/styles.css">
     <link rel="stylesheet" href="../assets/css/minerva-styles.css">
     
     <style>
-        /* Estilos personalizados para o curriculum - TEMA PAC-MAN */
+        /* Estilos personalizados para o curriculum - TEMA ESCURO */
         body {
-            background: var(--background-primary, #000000);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             min-height: 100vh;
-            color: var(--text-primary, #FFFFFF);
+            color: #e2e8f0;
         }
         
         #curriculum {
@@ -41,14 +41,26 @@
         }
         
         .categoria {
-            background: var(--card-bg, rgba(26, 26, 26, 0.95)) !important;
-            border: 2px solid var(--primary-color, #FFD700) !important;
+            background: rgba(26, 32, 56, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
             backdrop-filter: blur(10px) !important;
-            animation: none;
+            animation: fadeInUp 0.6s ease-out;
             margin: 2rem auto !important;
             max-width: 900px !important;
             width: 100% !important;
             box-sizing: border-box !important;
+        }
+        
+        /* Animações suaves */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         /* Responsividade melhorada */
@@ -151,7 +163,7 @@
             
             /* Footer para impressão */
             #curriculum-content::after {
-                content: "Este documento foi gerado através do meu portfólio pessoal: ferrerajs.github.io/eu";
+                content: "Este documento foi gerado através do meu portfólio pessoal: mikaelfmts.github.io/eu";
                 display: block;
                 text-align: center;
                 margin-top: 2rem;
@@ -174,26 +186,25 @@
         }
         
         ::-webkit-scrollbar-thumb {
-            background: var(--primary-color, #FFD700);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 4px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary-color, #FFA500);
+            background: linear-gradient(135deg, #5a67d8, #6b46c1);
         }
         
-        /* Cabeçalho com tema Pac-Man */
+        /* Cabeçalho com gradiente escuro */
         .categoria h3 {
-            background: var(--background-secondary, #1a1a1a) !important;
-            color: var(--primary-color, #FFD700) !important;
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%) !important;
+            color: #f7fafc !important;
             margin: -1.5rem -2rem 1.5rem -2rem !important;
             padding: 1.5rem 2rem !important;
-            border-radius: 0 !important;
+            border-radius: 1rem 1rem 0 0 !important;
             font-size: 1.4rem !important;
             font-weight: 600 !important;
-            text-shadow: 2px 2px 0 #000000 !important;
-            border-bottom: 2px solid var(--primary-color, #FFD700) !important;
-            font-family: 'Press Start 2P', monospace !important;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3) !important;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
         }
         
         /* Texto e parágrafos */
@@ -205,13 +216,13 @@
         
         /* Links */
         .categoria a {
-            color: var(--primary-color, #FFD700) !important;
+            color: #90cdf4 !important;
             text-decoration: none !important;
             font-weight: 500 !important;
         }
         
         .categoria a:hover {
-            color: var(--secondary-color, #FFA500) !important;
+            color: #63b3ed !important;
             text-decoration: underline !important;
         }
         
@@ -369,9 +380,9 @@
         
         const firebaseConfig = {
             apiKey: "AIzaSyA0VoWMLTJIyI54Pj0P5T75gCH6KpgAcbk",
-            authDomain: "ferrerajs.firebaseapp.com",
-            projectId: "ferrerajs",
-            storageBucket: "ferrerajs.appspot.com",
+            authDomain: "mikaelfmts.firebaseapp.com",
+            projectId: "mikaelfmts",
+            storageBucket: "mikaelfmts.appspot.com",
             messagingSenderId: "516762612351",
             appId: "1:516762612351:web:f8a0f229ffd5def8ec054a"
         };
@@ -387,7 +398,7 @@
         const db = getFirestore(app);
         
         // GitHub API Configuration
-        const GITHUB_USERNAME = 'ferrerajs';
+        const GITHUB_USERNAME = 'mikaeldmts';
         
         // Função para sincronizar foto do GitHub usando sistema centralizado
         async function syncGitHubPhoto() {
@@ -486,7 +497,7 @@
             const photoElement = document.getElementById('curriculum-photo');
             
             if (nameElement) {
-                nameElement.textContent = personalData.nomeCompleto || 'ferrera.js';
+                nameElement.textContent = personalData.nomeCompleto || 'Mikael Ferreira';
             }
             
             if (titleElement) {
@@ -819,7 +830,7 @@
 
     <!-- Foto do Usuário (Agora só decorativa) -->
     <div class="foto-perfil">
-        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de ferrera.js">
+        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
     </div>
 
     <!-- Menu Horizontal -->
@@ -950,7 +961,7 @@
     <section class="redes-sociais">
         <h2>My Social Media</h2>
         <div class="botoes-redes">
-            <a href="https://www.tiktok.com/@ferrera.js" target="_blank" class="social-btn tiktok">
+            <a href="https://www.tiktok.com/@mikaelfmts" target="_blank" class="social-btn tiktok">
                 <i class="fab fa-tiktok"></i>
             </a>
             <a href="https://www.reddit.com/user/mikaelfmts/" target="_blank" class="social-btn reddit">
@@ -959,7 +970,7 @@
             <a href="https://discord.gg/fffen2a4" target="_blank" class="social-btn discord">
                 <i class="fab fa-discord"></i>
             </a>
-            <a href="https://github.com/ferrerajs" target="_blank" class="social-btn github">
+            <a href="https://github.com/mikaeldmts" target="_blank" class="social-btn github">
                 <i class="fab fa-github"></i>
             </a>
         </div>
@@ -967,7 +978,7 @@
 
     <!-- Rodapé -->
     <footer>
-        <p>© 2025 ferrera.js</p>
+        <p>© 2025 Mikael Ferreira</p>
         <p>🚀 Make Solutions</p>
     </footer>
 
@@ -1093,7 +1104,7 @@
             </div>
             <div class="linkedin-card-content">
                 <p style="color: #e2e8f0; margin-bottom: 2rem; font-size: 1.1rem; line-height: 1.6;">Acompanhe minha jornada profissional e vamos expandir nossa rede de contatos!</p>
-                <a href="https://www.linkedin.com/in/mikaelferreira/" target="_blank" class="linkedin-btn" style="display: inline-flex; align-items: center; gap: 0.8rem; background: linear-gradient(135deg, var(--primary-color, #FFD700) 0%, #FFA500 100%); color: #000000; padding: 12px 30px; border-radius: 0; text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: none; box-shadow: 4px 4px 0 rgba(255, 215, 0, 0.3); font-family: 'Press Start 2P', monospace;" onmouseover="this.style.transform='translate(2px, 2px)'; this.style.boxShadow='2px 2px 0 rgba(255, 215, 0, 0.3)'" onmouseout="this.style.transform='translate(0, 0)'; this.style.boxShadow='4px 4px 0 rgba(255, 215, 0, 0.3)'">
+                <a href="https://www.linkedin.com/in/mikaelferreira/" target="_blank" class="linkedin-btn" style="display: inline-flex; align-items: center; gap: 0.8rem; background: linear-gradient(135deg, #0077b5 0%, #005885 100%); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 119, 181, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 25px rgba(0, 119, 181, 0.4)'; this.style.background='linear-gradient(135deg, #005885 0%, #0077b5 100%)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0, 119, 181, 0.3)'; this.style.background='linear-gradient(135deg, #0077b5 0%, #005885 100%)'">
                     <i class="fab fa-linkedin" style="font-size: 1.2rem;"></i>
                     Visitar Perfil
                 </a>

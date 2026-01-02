@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projetos - ferrera.js</title>
+    <title>Projetos - Mikael Ferreira</title>
 
     <!-- Preconnect para performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -115,7 +115,7 @@
             text-shadow: 
                 0 0 20px rgba(200, 170, 110, 0.4),
                 0 0 40px rgba(200, 170, 110, 0.2);
-            animation: none;
+            animation: glow 3s ease-in-out infinite alternate;
         }
 
         @keyframes glow {
@@ -191,7 +191,7 @@
     
     <!-- Foto do Usuário (Agora só decorativa) -->
     <div class="foto-perfil">
-        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de ferrera.js">
+        <img id="profile-photo" src="https://i.ibb.co/BVvyXjRQ/Whats-App-Image-2025-01-29-at-14-52-511.jpg" alt="Foto de Mikael Ferreira">
     </div>
 
     <!-- Menu Horizontal -->
@@ -247,7 +247,7 @@
 
     <!-- Rodapé -->
     <footer>
-        <p>© 2025 ferrera.js - Desenvolvedor Full Stack</p>
+        <p>© 2025 Mikael Ferreira - Desenvolvedor Full Stack</p>
         <p>Construído com paixão e dedicação</p>
     </footer>
 
@@ -355,9 +355,25 @@
             // CSS para animação das partículas
             const style = document.createElement('style');
             style.textContent = `
-                /* Animações removidas para melhor performance */
+                @keyframes floatUp {
+                    0% {
+                        transform: translateY(0) translateX(0) rotate(0deg);
+                        opacity: 0;
+                    }
+                    10% {
+                        opacity: 1;
+                    }
+                    90% {
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translateY(-100vh) translateX(var(--drift, 0)) rotate(360deg);
+                        opacity: 0;
+                    }
+                }
+                
                 .particle {
-                    display: none;
+                    animation: floatUp linear;
                     position: absolute;
                 }
             `;
